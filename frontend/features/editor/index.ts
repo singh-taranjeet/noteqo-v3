@@ -1,2 +1,3 @@
 // Public API for the Editor feature
-export { SimpleEditor } from "./components/templates/simple/SimpleEditor";
+export { DocumentEditor } from "./components/DocumentEditor";
+export type { SuggestionItem } from "./constants/slashCommands";

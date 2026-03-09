@@ -34,6 +34,8 @@ import "@/features/editor/components/nodes/ImageNode/ImageNode.scss"
 import "@/features/editor/components/nodes/HeadingNode/HeadingNode.scss"
 import "@/features/editor/components/nodes/ParagraphNode/ParagraphNode.scss"
 
+import { SlashCommandExtension } from "@/features/editor/components/extensions/SlashCommand/SlashCommandExtension"
+
 // --- Tiptap UI ---
 import { HeadingDropdownMenu } from "@/features/editor/components/editor-ui/HeadingDropdownMenu"
 import { ImageUploadButton } from "@/features/editor/components/editor-ui/ImageUploadButton"
@@ -65,15 +67,15 @@ import { useWindowSize } from "@/features/editor/hooks/useWindowSize"
 import { useCursorVisibility } from "@/features/editor/hooks/useCursorVisibility"
 
 // --- Components ---
-import { ThemeToggle } from "@/features/editor/components/templates/simple/ThemeToggle"
+import { ThemeToggle } from "@/features/editor/components/ui/ThemeToggle"
 
 // --- Lib ---
 import { handleImageUpload, MAX_FILE_SIZE } from "@/features/editor/utils/tiptapUtils"
 
 // --- Styles ---
-import "@/features/editor/components/templates/simple/SimpleEditor.scss"
+import "@/features/editor/components/DocumentEditor.scss"
 
-import content from "@/features/editor/components/templates/simple/data/content.json"
+import content from "@/features/editor/components/data/content.json"
 
 const MainToolbarContent = ({
   onHighlighterClick,
@@ -183,7 +185,7 @@ const MobileToolbarContent = ({
   </>
 )
 
-export function SimpleEditor() {
+export function DocumentEditor() {
   const isMobile = useIsBreakpoint()
   const { height } = useWindowSize()
   const [mobileView, setMobileView] = useState<"main" | "highlighter" | "link">(
@@ -199,7 +201,7 @@ export function SimpleEditor() {
         autocorrect: "off",
         autocapitalize: "off",
         "aria-label": "Main content area, start typing to enter text.",
-        class: "simple-editor",
+        class: "document-editor",
       },
     },
     extensions: [
@@ -227,6 +229,7 @@ export function SimpleEditor() {
         upload: handleImageUpload,
         onError: (error) => console.error("Upload failed:", error),
       }),
+      SlashCommandExtension,
     ],
     content,
   })
@@ -243,7 +246,7 @@ export function SimpleEditor() {
   }, [isMobile, mobileView])
 
   return (
-    <div className="simple-editor-wrapper">
+    <div className="document-editor-wrapper">
       <EditorContext.Provider value={{ editor }}>
         <Toolbar
           ref={toolbarRef}
@@ -272,7 +275,7 @@ export function SimpleEditor() {
         <EditorContent
           editor={editor}
           role="presentation"
-          className="simple-editor-content"
+          className="document-editor-content"
         />
       </EditorContext.Provider>
     </div>
