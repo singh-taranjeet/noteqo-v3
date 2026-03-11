@@ -5,6 +5,8 @@
 # Very important NOTE : Use shadcn componets only
 * No hardcoded strings
 * proper types constants enums etc
+* I want consistent design in applicaiton. So do not add any hardcoded css values or rules, only use variables and tailwind css
+* Make sure the UI is responsive
 
 ## Table of Contents
 

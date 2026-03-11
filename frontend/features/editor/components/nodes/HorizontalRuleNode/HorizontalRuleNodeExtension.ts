@@ -1,13 +1,10 @@
-import { mergeAttributes } from "@tiptap/react"
-import TiptapHorizontalRule from "@tiptap/extension-horizontal-rule"
+import { ReactNodeViewRenderer } from "@tiptap/react"
+import BaseHorizontalRule from "@tiptap/extension-horizontal-rule"
+import { HorizontalRuleNodeView } from "./index"
 
-export const HorizontalRule = TiptapHorizontalRule.extend({
-  renderHTML() {
-    return [
-      "div",
-      mergeAttributes(this.options.HTMLAttributes, { "data-type": this.name }),
-      ["hr"],
-    ]
+export const HorizontalRule = BaseHorizontalRule.extend({
+  addNodeView() {
+    return ReactNodeViewRenderer(HorizontalRuleNodeView)
   },
 })
 

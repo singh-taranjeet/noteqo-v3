@@ -1,6 +1,5 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
 import { EditorContent, EditorContext, useEditor } from "@tiptap/react"
 
 // --- Tiptap Core Extensions ---
@@ -14,185 +13,22 @@ import { Subscript } from "@tiptap/extension-subscript"
 import { Superscript } from "@tiptap/extension-superscript"
 import { Selection } from "@tiptap/extensions"
 
-// --- UI Primitives ---
-import { Button } from "@/features/editor/components/ui/Button"
-import { Spacer } from "@/features/editor/components/ui/Spacer"
-import {
-  Toolbar,
-  ToolbarGroup,
-  ToolbarSeparator,
-} from "@/features/editor/components/ui/Toolbar"
-
-// --- Tiptap Node ---
+// --- Tiptap Node Custom Views ---
 import { ImageUploadNode } from "@/features/editor/components/nodes/ImageUploadNode/ImageUploadNodeExtension"
 import { HorizontalRule } from "@/features/editor/components/nodes/HorizontalRuleNode/HorizontalRuleNodeExtension"
-import "@/features/editor/components/nodes/BlockquoteNode/BlockquoteNode.scss"
-import "@/features/editor/components/nodes/CodeBlockNode/CodeBlockNode.scss"
-import "@/features/editor/components/nodes/HorizontalRuleNode/HorizontalRuleNode.scss"
-import "@/features/editor/components/nodes/ListNode/ListNode.scss"
-import "@/features/editor/components/nodes/ImageNode/ImageNode.scss"
-import "@/features/editor/components/nodes/HeadingNode/HeadingNode.scss"
-import "@/features/editor/components/nodes/ParagraphNode/ParagraphNode.scss"
+import { CodeBlockNode } from "@/features/editor/components/nodes/CodeBlockNode/CodeBlockNodeExtension"
+import { TaskItemNode } from "@/features/editor/components/nodes/TaskItemNode/TaskItemNodeExtension"
+import { HeadingNode } from "@/features/editor/components/nodes/HeadingNode/HeadingNodeExtension"
 
+// --- Tiptap Features ---
 import { SlashCommandExtension } from "@/features/editor/components/extensions/SlashCommand/SlashCommandExtension"
-
-// --- Tiptap UI ---
-import { HeadingDropdownMenu } from "@/features/editor/components/editor-ui/HeadingDropdownMenu"
-import { ImageUploadButton } from "@/features/editor/components/editor-ui/ImageUploadButton"
-import { ListDropdownMenu } from "@/features/editor/components/editor-ui/ListDropdownMenu"
-import { BlockquoteButton } from "@/features/editor/components/editor-ui/BlockquoteButton"
-import { CodeBlockButton } from "@/features/editor/components/editor-ui/CodeBlockButton"
-import {
-  ColorHighlightPopover,
-  ColorHighlightPopoverContent,
-  ColorHighlightPopoverButton,
-} from "@/features/editor/components/editor-ui/ColorHighlightPopover"
-import {
-  LinkPopover,
-  LinkContent,
-  LinkButton,
-} from "@/features/editor/components/editor-ui/LinkPopover"
-import { MarkButton } from "@/features/editor/components/editor-ui/MarkButton"
-import { TextAlignButton } from "@/features/editor/components/editor-ui/TextAlignButton"
-import { UndoRedoButton } from "@/features/editor/components/editor-ui/UndoRedoButton"
-
-// --- Icons ---
-import { ArrowLeftIcon } from "@/features/editor/components/icons/ArrowLeftIcon"
-import { HighlighterIcon } from "@/features/editor/components/icons/HighlighterIcon"
-import { LinkIcon } from "@/features/editor/components/icons/LinkIcon"
-
-// --- Hooks ---
-import { useIsBreakpoint } from "@/features/editor/hooks/useIsBreakpoint"
-import { useWindowSize } from "@/features/editor/hooks/useWindowSize"
-import { useCursorVisibility } from "@/features/editor/hooks/useCursorVisibility"
-
-// --- Components ---
-import { ThemeToggle } from "@/features/editor/components/ui/ThemeToggle"
 
 // --- Lib ---
 import { handleImageUpload, MAX_FILE_SIZE } from "@/features/editor/utils/tiptapUtils"
 
-// --- Styles ---
-import "@/features/editor/components/DocumentEditor.scss"
-
 import content from "@/features/editor/components/data/content.json"
 
-const MainToolbarContent = ({
-  onHighlighterClick,
-  onLinkClick,
-  isMobile,
-}: {
-  onHighlighterClick: () => void
-  onLinkClick: () => void
-  isMobile: boolean
-}) => {
-  return (
-    <>
-      <Spacer />
-
-      <ToolbarGroup>
-        <UndoRedoButton action="undo" />
-        <UndoRedoButton action="redo" />
-      </ToolbarGroup>
-
-      <ToolbarSeparator />
-
-      <ToolbarGroup>
-        <HeadingDropdownMenu modal={false} levels={[1, 2, 3, 4]} />
-        <ListDropdownMenu
-          modal={false}
-          types={["bulletList", "orderedList", "taskList"]}
-        />
-        <BlockquoteButton />
-        <CodeBlockButton />
-      </ToolbarGroup>
-
-      <ToolbarSeparator />
-
-      <ToolbarGroup>
-        <MarkButton type="bold" />
-        <MarkButton type="italic" />
-        <MarkButton type="strike" />
-        <MarkButton type="code" />
-        <MarkButton type="underline" />
-        {!isMobile ? (
-          <ColorHighlightPopover />
-        ) : (
-          <ColorHighlightPopoverButton onClick={onHighlighterClick} />
-        )}
-        {!isMobile ? <LinkPopover /> : <LinkButton onClick={onLinkClick} />}
-      </ToolbarGroup>
-
-      <ToolbarSeparator />
-
-      <ToolbarGroup>
-        <MarkButton type="superscript" />
-        <MarkButton type="subscript" />
-      </ToolbarGroup>
-
-      <ToolbarSeparator />
-
-      <ToolbarGroup>
-        <TextAlignButton align="left" />
-        <TextAlignButton align="center" />
-        <TextAlignButton align="right" />
-        <TextAlignButton align="justify" />
-      </ToolbarGroup>
-
-      <ToolbarSeparator />
-
-      <ToolbarGroup>
-        <ImageUploadButton text="Add" />
-      </ToolbarGroup>
-
-      <Spacer />
-
-      {isMobile && <ToolbarSeparator />}
-
-      <ToolbarGroup>
-        <ThemeToggle />
-      </ToolbarGroup>
-    </>
-  )
-}
-
-const MobileToolbarContent = ({
-  type,
-  onBack,
-}: {
-  type: "highlighter" | "link"
-  onBack: () => void
-}) => (
-  <>
-    <ToolbarGroup>
-      <Button variant="ghost" onClick={onBack}>
-        <ArrowLeftIcon className="tiptap-button-icon" />
-        {type === "highlighter" ? (
-          <HighlighterIcon className="tiptap-button-icon" />
-        ) : (
-          <LinkIcon className="tiptap-button-icon" />
-        )}
-      </Button>
-    </ToolbarGroup>
-
-    <ToolbarSeparator />
-
-    {type === "highlighter" ? (
-      <ColorHighlightPopoverContent />
-    ) : (
-      <LinkContent />
-    )}
-  </>
-)
-
 export function DocumentEditor() {
-  const isMobile = useIsBreakpoint()
-  const { height } = useWindowSize()
-  const [mobileView, setMobileView] = useState<"main" | "highlighter" | "link">(
-    "main"
-  )
-  const toolbarRef = useRef<HTMLDivElement>(null)
-
   const editor = useEditor({
     immediatelyRender: false,
     editorProps: {
@@ -201,21 +37,47 @@ export function DocumentEditor() {
         autocorrect: "off",
         autocapitalize: "off",
         "aria-label": "Main content area, start typing to enter text.",
-        class: "document-editor",
+        class: "flex-1 focus:outline-none min-h-full",
       },
     },
     extensions: [
       StarterKit.configure({
         horizontalRule: false,
+        codeBlock: false,
+        heading: false,
+        paragraph: {
+          HTMLAttributes: {
+            class: "leading-7 [&:not(:first-child)]:mt-6 outline-none",
+          },
+        },
+        blockquote: {
+          HTMLAttributes: {
+            class: "mt-6 border-l-2 border-l-border pl-6 italic text-muted-foreground outline-none",
+          },
+        },
+        bulletList: {
+          HTMLAttributes: {
+            class: "my-6 ml-6 list-disc [&>li]:mt-2 outline-none",
+          },
+        },
+        orderedList: {
+          HTMLAttributes: {
+            class: "my-6 ml-6 list-decimal [&>li]:mt-2 outline-none",
+          },
+        },
         link: {
           openOnClick: false,
           enableClickSelection: true,
         },
       }),
       HorizontalRule,
+      CodeBlockNode,
+      HeadingNode,
       TextAlign.configure({ types: ["heading", "paragraph"] }),
-      TaskList,
-      TaskItem.configure({ nested: true }),
+      TaskList.configure({
+        HTMLAttributes: { class: "my-6 ml-6 list-none [&>li]:mt-2 outline-none" },
+      }),
+      TaskItemNode.configure({ nested: true }),
       Highlight.configure({ multicolor: true }),
       Image,
       Typography,
@@ -234,50 +96,17 @@ export function DocumentEditor() {
     content,
   })
 
-  const rect = useCursorVisibility({
-    editor,
-    overlayHeight: toolbarRef.current?.getBoundingClientRect().height ?? 0,
-  })
-
-  useEffect(() => {
-    if (!isMobile && mobileView !== "main") {
-      setMobileView("main")
-    }
-  }, [isMobile, mobileView])
-
   return (
-    <div className="document-editor-wrapper">
-      <EditorContext.Provider value={{ editor }}>
-        <Toolbar
-          ref={toolbarRef}
-          style={{
-            ...(isMobile
-              ? {
-                bottom: `calc(100% - ${height - rect.y}px)`,
-              }
-              : {}),
-          }}
-        >
-          {mobileView === "main" ? (
-            <MainToolbarContent
-              onHighlighterClick={() => setMobileView("highlighter")}
-              onLinkClick={() => setMobileView("link")}
-              isMobile={isMobile}
-            />
-          ) : (
-            <MobileToolbarContent
-              type={mobileView === "highlighter" ? "highlighter" : "link"}
-              onBack={() => setMobileView("main")}
-            />
-          )}
-        </Toolbar>
-
-        <EditorContent
-          editor={editor}
-          role="presentation"
-          className="document-editor-content"
-        />
-      </EditorContext.Provider>
+    <div className="w-full h-full overflow-auto bg-background text-foreground font-sans">
+      <div className="w-full mx-auto h-full flex flex-col px-6 sm:px-12 pt-16 pb-96">
+        <EditorContext.Provider value={{ editor }}>
+          <EditorContent
+            editor={editor}
+            role="presentation"
+            className="flex-1 w-full"
+          />
+        </EditorContext.Provider>
+      </div>
     </div>
   )
 }

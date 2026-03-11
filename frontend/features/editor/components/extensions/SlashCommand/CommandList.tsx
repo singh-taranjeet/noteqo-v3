@@ -57,7 +57,7 @@ export const CommandList = forwardRef((props: CommandListProps, ref) => {
   }
 
   return (
-    <div className="w-[250px] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md">
+    <div className="w-64 overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md">
       <Command shouldFilter={false} className="border-none bg-transparent">
         <CommandListWrapper>
           {props.items.length === 0 && <CommandEmpty>No results found.</CommandEmpty>}
