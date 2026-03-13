@@ -5,6 +5,7 @@ import { DragHandle } from "@tiptap/extension-drag-handle-react"
 import { PlusIcon } from "@/features/editor/components/icons/PlusIcon"
 import { GripIcon } from "@/features/editor/components/icons/GripIcon"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Button } from "@/components/ui/button"
 
 const TOOLTIP_CONTENT = {
   ADD_BLOCK: "Click to open menu",
@@ -30,14 +31,16 @@ export const BlockDragHandle: React.FC<BlockDragHandleProps> = ({ editor }) => {
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <button
+              <Button
                 type="button"
+                variant="ghost"
+                size="icon"
                 onClick={openSlashMenu}
-                className="hover:bg-muted p-1 rounded-sm cursor-pointer flex items-center justify-center transition-colors"
+                className="h-6 w-6 rounded-sm text-muted-foreground"
                 aria-label="Add block"
               >
                 <PlusIcon className="w-4 h-4" />
-              </button>
+              </Button>
             </TooltipTrigger>
             <TooltipContent side="top" className="text-xs">
               <p>{TOOLTIP_CONTENT.ADD_BLOCK}</p>

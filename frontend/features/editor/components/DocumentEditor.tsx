@@ -11,6 +11,7 @@ import { Typography } from "@tiptap/extension-typography"
 import { Highlight } from "@tiptap/extension-highlight"
 import { Subscript } from "@tiptap/extension-subscript"
 import { Superscript } from "@tiptap/extension-superscript"
+import { Underline } from "@tiptap/extension-underline"
 import { Selection } from "@tiptap/extensions"
 
 // --- Tiptap Node Custom Views ---
@@ -22,10 +23,10 @@ import { HeadingNode } from "@/features/editor/components/nodes/HeadingNode/Head
 
 // --- Tiptap Features ---
 import { SlashCommandExtension } from "@/features/editor/components/extensions/SlashCommand/SlashCommandExtension"
-import TiptapDragHandle from "@tiptap/extension-drag-handle"
 
 // --- Tiptap UI Hooks & Components ---
 import { BlockDragHandle } from "@/features/editor/components/editor-ui/BlockDragHandle"
+import { EditorBubbleMenu } from "@/features/editor/components/editor-ui/EditorBubbleMenu"
 
 // --- Lib ---
 import { handleImageUpload, MAX_FILE_SIZE } from "@/features/editor/utils/tiptapUtils"
@@ -87,6 +88,7 @@ export function DocumentEditor() {
       Typography,
       Superscript,
       Subscript,
+      Underline,
       Selection,
       ImageUploadNode.configure({
         accept: "image/*",
@@ -96,7 +98,6 @@ export function DocumentEditor() {
         onError: (error) => console.error("Upload failed:", error),
       }),
       SlashCommandExtension,
-      TiptapDragHandle,
     ],
     content,
   })
@@ -106,6 +107,7 @@ export function DocumentEditor() {
       <div className="w-full mx-auto h-full flex flex-col pl-14 pr-6 sm:pl-24 sm:pr-12 pt-16 pb-96">
         <EditorContext.Provider value={{ editor }}>
           <BlockDragHandle editor={editor} />
+          <EditorBubbleMenu editor={editor} />
           <EditorContent
             editor={editor}
             role="presentation"

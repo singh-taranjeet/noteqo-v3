@@ -3,7 +3,7 @@
 import { useRef, useState } from "react"
 import type { NodeViewProps } from "@tiptap/react"
 import { NodeViewWrapper } from "@tiptap/react"
-import { Button } from "@/features/editor/components/ui/Button"
+import { Button } from "@/components/ui/button"
 import { CloseIcon } from "@/features/editor/components/icons/CloseIcon"
 import "@/features/editor/components/nodes/ImageUploadNode/ImageUploadNode.scss"
 import { focusNextNode, isValidPosition } from "@/features/editor/utils/tiptapUtils"
@@ -395,7 +395,7 @@ const ImageUploadPreview: React.FC<ImageUploadPreviewProps> = ({
           <Button
             type="button"
             variant="ghost"
-            onClick={(e) => {
+            onClick={(e: React.MouseEvent) => {
               e.stopPropagation()
               onRemove()
             }}
@@ -521,7 +521,7 @@ export const ImageUploadNode: React.FC<NodeViewProps> = (props) => {
               <Button
                 type="button"
                 variant="ghost"
-                onClick={(e) => {
+                onClick={(e: React.MouseEvent) => {
                   e.stopPropagation()
                   clearAllFiles()
                 }}
