@@ -9,6 +9,8 @@ import { TaskItem, TaskList } from "@tiptap/extension-list"
 import { TextAlign } from "@tiptap/extension-text-align"
 import { Typography } from "@tiptap/extension-typography"
 import { Highlight } from "@tiptap/extension-highlight"
+import { TextStyle } from "@tiptap/extension-text-style"
+import { Color } from "@tiptap/extension-color"
 import { Subscript } from "@tiptap/extension-subscript"
 import { Superscript } from "@tiptap/extension-superscript"
 import { Underline } from "@tiptap/extension-underline"
@@ -84,6 +86,8 @@ export function DocumentEditor() {
       }),
       TaskItemNode.configure({ nested: true }),
       Highlight.configure({ multicolor: true }),
+      TextStyle,
+      Color,
       Image,
       Typography,
       Superscript,
