@@ -84,7 +84,7 @@ export const TurnIntoDropdown: React.FC<TurnIntoDropdownProps> = ({ editor, isOp
   const activeOption = TURN_INTO_OPTIONS.find((opt) => opt.isActive(editor)) || TURN_INTO_OPTIONS[0]
 
   return (
-    <Popover modal={false} open={isOpen} onOpenChange={onOpenChange}>
+    <Popover modal={true} open={isOpen} onOpenChange={onOpenChange}>
       <PopoverTrigger asChild>
         <Button 
           variant="ghost" 
