@@ -103,20 +103,21 @@ export const TurnIntoDropdown: React.FC<TurnIntoDropdownProps> = ({ editor, isOp
       >
         <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground mb-1">Turn Into</div>
         {TURN_INTO_OPTIONS.map((option) => (
-          <button
+          <Button
             key={option.name}
             type="button"
+            variant="ghost"
             onClick={() => {
               option.command(editor)
               onOpenChange(false)
             }}
-            className="w-full flex items-center gap-2 cursor-pointer rounded-sm px-2 py-1.5 text-sm hover:bg-muted transition-colors text-left"
+            className="w-full justify-start gap-2 font-normal cursor-pointer rounded-sm px-2 py-1.5 h-auto text-sm"
           >
-            <div className="flex items-center justify-center w-6 h-6 border rounded-sm bg-background">
+            <div className="flex items-center justify-center w-6 h-6 border rounded-sm bg-background shrink-0">
               <option.icon className="w-4 h-4 text-muted-foreground" />
             </div>
             <span>{option.name}</span>
-          </button>
+          </Button>
         ))}
       </PopoverContent>
     </Popover>

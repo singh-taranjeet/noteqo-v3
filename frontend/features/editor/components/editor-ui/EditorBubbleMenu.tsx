@@ -13,7 +13,7 @@ import { Toggle } from "@/components/ui/toggle"
 import { Separator } from "@/components/ui/separator"
 import { TurnIntoDropdown } from "@/features/editor/components/editor-ui/TurnIntoDropdown"
 import { ColorPickerPopover } from "@/features/editor/components/editor-ui/ColorPickerPopover"
-import { MoreVerticalIcon } from "@/features/editor/components/icons/MoreVerticalIcon"
+import { MoreOptionsPopover } from "@/features/editor/components/editor-ui/MoreOptionsPopover"
 
 interface EditorBubbleMenuProps {
   editor: Editor | null
@@ -52,6 +52,7 @@ type MenuItemName = typeof MENU_ITEMS[number]["name"]
 export const EditorBubbleMenu: React.FC<EditorBubbleMenuProps> = ({ editor }) => {
   const [isTurnIntoOpen, setIsTurnIntoOpen] = React.useState(false)
   const [isColorPickerOpen, setIsColorPickerOpen] = React.useState(false)
+  const [isMoreOptionsOpen, setIsMoreOptionsOpen] = React.useState(false)
 
   if (!editor) return null
 
@@ -80,7 +81,7 @@ export const EditorBubbleMenu: React.FC<EditorBubbleMenuProps> = ({ editor }) =>
         const { empty } = selection
 
         // Prevent BubbleMenu from disappearing when interacting with Shadcn sub-menus
-        if (isTurnIntoOpen || isColorPickerOpen) return true
+        if (isTurnIntoOpen || isColorPickerOpen || isMoreOptionsOpen) return true
 
         return view.hasFocus() && !empty
       }}
@@ -120,21 +121,7 @@ export const EditorBubbleMenu: React.FC<EditorBubbleMenuProps> = ({ editor }) =>
 
         <Separator orientation="vertical" className="h-4 mx-1" />
 
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Toggle
-              type="button"
-              size="sm"
-              aria-label="More options"
-              className="rounded-sm p-1.5 h-auto min-w-0"
-            >
-              <MoreVerticalIcon className="w-4 h-4" />
-            </Toggle>
-          </TooltipTrigger>
-          <TooltipContent side="top" className="text-xs">
-            More options
-          </TooltipContent>
-        </Tooltip>
+        <MoreOptionsPopover editor={editor} isOpen={isMoreOptionsOpen} onOpenChange={setIsMoreOptionsOpen} />
       </TooltipProvider>
     </BubbleMenu>
   )
