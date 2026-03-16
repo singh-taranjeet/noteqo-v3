@@ -5,6 +5,7 @@ import { Editor } from "@tiptap/react"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Button } from "@/components/ui/button"
 import { ChevronDownIcon } from "@/features/editor/components/icons/ChevronDownIcon"
+import { CheckIcon } from "@/features/editor/components/icons/CheckIcon"
 
 // Icons
 import { TextIcon } from "@/features/editor/components/icons/TextIcon"
@@ -102,23 +103,29 @@ export const TurnIntoDropdown: React.FC<TurnIntoDropdownProps> = ({ editor, isOp
         onCloseAutoFocus={(e: Event) => e.preventDefault()}
       >
         <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground mb-1">Turn Into</div>
-        {TURN_INTO_OPTIONS.map((option) => (
-          <Button
-            key={option.name}
-            type="button"
-            variant="ghost"
-            onClick={() => {
-              option.command(editor)
-              onOpenChange(false)
-            }}
-            className="w-full justify-start gap-2 font-normal cursor-pointer rounded-sm px-2 py-1.5 h-auto text-sm"
-          >
-            <div className="flex items-center justify-center w-6 h-6 border rounded-sm bg-background shrink-0">
-              <option.icon className="w-4 h-4 text-muted-foreground" />
-            </div>
-            <span>{option.name}</span>
-          </Button>
-        ))}
+        {TURN_INTO_OPTIONS.map((option) => {
+          const isActive = option.isActive(editor)
+          return (
+            <Button
+              key={option.name}
+              type="button"
+              variant="ghost"
+              onClick={() => {
+                option.command(editor)
+                onOpenChange(false)
+              }}
+              className={`w-full justify-between font-normal cursor-pointer rounded-xl px-3 py-2 h-auto text-sm outline-hidden transition-colors hover:bg-accent hover:text-accent-foreground ${
+                isActive ? "bg-accent/50 text-accent-foreground font-medium" : "text-foreground"
+              }`}
+            >
+              <div className="flex items-center gap-2.5">
+                <option.icon className="w-4 h-4 text-muted-foreground shrink-0" />
+                <span>{option.name}</span>
+              </div>
+              {isActive && <CheckIcon className="w-4 h-4 shrink-0" />}
+            </Button>
+          )
+        })}
       </PopoverContent>
     </Popover>
   )
