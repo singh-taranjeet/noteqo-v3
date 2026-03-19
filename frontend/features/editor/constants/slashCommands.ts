@@ -11,6 +11,7 @@ import { BlockquoteIcon } from "@/features/editor/components/icons/BlockquoteIco
 import { CodeBlockIcon } from "@/features/editor/components/icons/CodeBlockIcon"
 import { Code2Icon } from "@/features/editor/components/icons/Code2Icon"
 import { ImagePlusIcon } from "@/features/editor/components/icons/ImagePlusIcon"
+import { ColumnsIcon } from "@/features/editor/components/icons/ColumnsIcon"
 
 export interface SuggestionItem {
   title: string
@@ -103,6 +104,22 @@ export const SLASH_COMMANDS: SuggestionItem[] = [
     icon: ImagePlusIcon,
     command: ({ editor, range }) => {
       editor.chain().focus().deleteRange(range).insertContent({ type: "imageUpload" }).run()
+    },
+  },
+  {
+    title: "2 Columns",
+    icon: ColumnsIcon,
+    shortcut: "/2cols",
+    command: ({ editor, range }) => {
+      editor.chain().focus().deleteRange(range).setColumns(2).run()
+    },
+  },
+  {
+    title: "3 Columns",
+    icon: ColumnsIcon,
+    shortcut: "/3cols",
+    command: ({ editor, range }) => {
+      editor.chain().focus().deleteRange(range).setColumns(3).run()
     },
   },
 ]

@@ -7,7 +7,7 @@ import { CommandList } from "./CommandList"
 import { SLASH_COMMANDS, SuggestionItem } from "@/features/editor/constants/slashCommands"
 
 export const getSuggestionItems = ({ query }: { query: string }): SuggestionItem[] => {
-  return SLASH_COMMANDS.filter((item) => item.title.toLowerCase().startsWith(query.toLowerCase())).slice(0, 10)
+  return SLASH_COMMANDS.filter((item) => item.title.toLowerCase().startsWith(query.toLowerCase())).slice(0, 20)
 }
 
 export const SlashCommandExtension = Extension.create({

@@ -2,11 +2,6 @@
 ### Standards, Rules & Patterns for Scalable Applications (2025)
 
 ---
-# Very important NOTE : Use shadcn componets only
-* No hardcoded strings
-* proper types constants enums etc
-* I want consistent design in applicaiton. So do not add any hardcoded css values or rules, only use variables and tailwind css
-* Make sure the UI is responsive
 
 ## Table of Contents
 
@@ -14,16 +9,23 @@
 2. [Project File Structure](#project-file-structure)
 3. [Routing & App Directory Rules](#routing--app-directory-rules)
 4. [Component Rules](#component-rules)
-5. [Hooks Rules](#hooks-rules)
-6. [Types & Interfaces Rules](#types--interfaces-rules)
-7. [Constants Rules](#constants-rules)
-8. [Services & API Layer Rules](#services--api-layer-rules)
-9. [State Management Rules](#state-management-rules)
-10. [Utilities Rules](#utilities-rules)
-11. [Naming Conventions](#naming-conventions)
-12. [Import Rules](#import-rules)
-13. [Testing Rules](#testing-rules)
-14. [Anti-Patterns to Avoid](#anti-patterns-to-avoid)
+5. [Reusable Component Rules](#reusable-component-rules)
+6. [Hooks Rules](#hooks-rules)
+7. [Types & Interfaces Rules](#types--interfaces-rules)
+8. [No Hardcoded Values Rule](#no-hardcoded-values-rule)
+9. [Constants Rules](#constants-rules)
+10. [Services & API Layer Rules](#services--api-layer-rules)
+11. [State Management Rules](#state-management-rules)
+12. [Responsive & Mobile-First Design Rules](#responsive--mobile-first-design-rules)
+13. [Accessibility Rules](#accessibility-rules)
+14. [Error Handling Rules](#error-handling-rules)
+15. [Performance Rules](#performance-rules)
+16. [Utilities Rules](#utilities-rules)
+17. [Naming Conventions](#naming-conventions)
+18. [Import Rules](#import-rules)
+19. [Code Quality & Linting Rules](#code-quality--linting-rules)
+20. [Testing Rules](#testing-rules)
+21. [Anti-Patterns to Avoid](#anti-patterns-to-avoid)
 
 ---
 
@@ -711,6 +713,527 @@ describe('UserCard', () => {
 
 ---
 
+## Reusable Component Rules
+
+The rule of thumb: **if you write the same JSX twice, extract it.** A component is reusable when it is driven entirely by props and carries no assumptions about where it is used.
+
+### The Three-Layer Component Model
+
+```
+components/ui/          ← Layer 1: Primitive / Design System
+                           Button, Input, Badge, Modal, Tooltip
+                           No business logic. Pure props. Fully reusable.
+
+components/layout/      ← Layer 2: Structural
+                           Header, Sidebar, PageWrapper
+                           Reusable structure, no domain data.
+
+features/[x]/components/ ← Layer 3: Feature-Specific
+                           UserCard, InvoiceTable, OrderStatus
+                           Knows about the domain, composed from Layers 1 & 2.
+```
+
+### Rules
+
+1. **Before building a new component, check `components/ui/` first.** Never rebuild Button, Input, or Modal from scratch in a feature.
+
+2. **A reusable component must accept a `className` prop** to allow the caller to adjust layout/spacing without forking the component:
+   ```tsx
+   interface CardProps {
+     title: string;
+     children: React.ReactNode;
+     className?: string;           // ✅ allows caller to customise spacing
+   }
+
+   export function Card({ title, children, className }: CardProps) {
+     return (
+       <div className={cn('rounded-lg border bg-white p-4', className)}>
+         <h3 className="text-lg font-semibold">{title}</h3>
+         {children}
+       </div>
+     );
+   }
+   ```
+   Use `clsx` or `tailwind-merge` (`cn()`) to merge class names safely.
+
+3. **Use `children` for composition, not deeply nested props:**
+   ```tsx
+   // ❌ Bad — prop drilling the inner content
+   <Card title="Users" subtitle="Manage users" icon={<UsersIcon />} footerText="Total: 12" />
+
+   // ✅ Good — composable slots
+   <Card>
+     <CardHeader>
+       <UsersIcon />
+       <CardTitle>Users</CardTitle>
+     </CardHeader>
+     <CardContent>Manage users</CardContent>
+     <CardFooter>Total: 12</CardFooter>
+   </Card>
+   ```
+
+4. **A `ui/` component must never import from `features/`.** The dependency only flows downward.
+
+5. **Extract repeated patterns immediately.** If three different pages render a "loading spinner + text" block, create `<LoadingState />`. If two forms share the same error message markup, create `<FieldError />`.
+
+6. **Prefer composition over configuration.** A component with 12 boolean props (`showHeader`, `showFooter`, `isCompact`, `isFullWidth`…) is a sign it should be split into multiple composable pieces.
+
+7. **Document the component's intent with a JSDoc comment** above the component if its usage is non-obvious:
+   ```tsx
+   /**
+    * StatusBadge — displays a colour-coded pill for entity status values.
+    * Use within tables and detail views. Does not handle click events.
+    */
+   export function StatusBadge({ status }: StatusBadgeProps) { ... }
+   ```
+
+8. **Create an `EmptyState` and `ErrorState` component** and use them consistently across all list/table views instead of ad-hoc inline fallbacks.
+
+---
+
+## No Hardcoded Values Rule
+
+> **Rule: If a value appears more than once, or could ever change, it must be a constant, environment variable, or type.**
+
+This is one of the most impactful rules for long-term maintainability. A single hardcoded URL buried in a component can cause a production bug that takes hours to track down.
+
+### Categories & Where They Belong
+
+| Value Type | Example | Where it lives |
+|---|---|---|
+| API base URL | `https://api.myapp.com` | `.env` → `NEXT_PUBLIC_API_URL` |
+| Route paths | `'/dashboard/settings'` | `constants/routes.ts` |
+| Timeouts & intervals | `5000`, `30000` | `constants/config.ts` |
+| Pagination defaults | `20`, `50` | `constants/config.ts` |
+| Status/state strings | `'active'`, `'pending'` | Enum or union type in `types/` |
+| Error messages | `'Something went wrong'` | `constants/messages.ts` |
+| Regex patterns | `/^[a-z0-9]+$/` | `constants/regex.ts` or `utils/validation.utils.ts` |
+| Z-index values | `100`, `9999` | Tailwind config or `constants/ui.ts` |
+| Breakpoints | `768`, `1024` | Tailwind config (never inline) |
+| Feature flags | `true`, `false` | `.env` → `NEXT_PUBLIC_FEATURE_X` |
+
+### Examples
+
+```ts
+// ❌ Bad — hardcoded everywhere
+fetch('https://api.myapp.com/v1/users')
+setTimeout(refresh, 5000)
+if (user.role === 'admin') { ... }
+router.push('/dashboard/settings')
+
+// ✅ Good — named constants
+fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/users`)
+setTimeout(refresh, POLLING_INTERVAL_MS)
+if (user.role === UserRole.ADMIN) { ... }
+router.push(ROUTES.DASHBOARD_SETTINGS)
+```
+
+```ts
+// constants/config.ts
+export const APP_CONFIG = {
+  POLLING_INTERVAL_MS: 5_000,
+  DEFAULT_PAGE_SIZE: 20,
+  MAX_FILE_SIZE_MB: 10,
+  SESSION_TIMEOUT_MINUTES: 30,
+  DEBOUNCE_DELAY_MS: 300,
+} as const;
+
+// constants/messages.ts
+export const ERROR_MESSAGES = {
+  GENERIC: 'Something went wrong. Please try again.',
+  NETWORK: 'Unable to connect. Check your internet connection.',
+  UNAUTHORISED: 'You do not have permission to perform this action.',
+  NOT_FOUND: 'The requested resource could not be found.',
+} as const;
+
+export const SUCCESS_MESSAGES = {
+  SAVED: 'Changes saved successfully.',
+  DELETED: 'Item deleted successfully.',
+  CREATED: 'Created successfully.',
+} as const;
+```
+
+```ts
+// ❌ Bad — magic regex inline
+if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { ... }
+
+// ✅ Good — named and reusable
+// constants/regex.ts
+export const REGEX = {
+  EMAIL: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+  PHONE_AU: /^(\+61|0)[2-9]\d{8}$/,
+  SLUG: /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
+  URL: /^https?:\/\/.+/,
+} as const;
+
+// utils/validation.utils.ts
+import { REGEX } from '@/constants/regex';
+export const isValidEmail = (value: string) => REGEX.EMAIL.test(value);
+```
+
+### Environment Variables
+
+```ts
+// ❌ Bad — raw access with no validation
+const url = process.env.NEXT_PUBLIC_API_URL;
+
+// ✅ Good — validated at startup in lib/env.ts
+function requireEnv(key: string): string {
+  const value = process.env[key];
+  if (!value) throw new Error(`Missing required environment variable: ${key}`);
+  return value;
+}
+
+export const ENV = {
+  API_URL: requireEnv('NEXT_PUBLIC_API_URL'),
+  APP_NAME: process.env.NEXT_PUBLIC_APP_NAME ?? 'MyApp',
+} as const;
+```
+
+---
+
+## Responsive & Mobile-First Design Rules
+
+> **Rule: Design for the smallest screen first, then progressively enhance for larger screens. Never design desktop-first.**
+
+### Tailwind Breakpoint Reference
+
+| Prefix | Min Width | Target |
+|---|---|---|
+| *(none)* | 0px | Mobile (default, always first) |
+| `sm:` | 640px | Large mobile / small tablet |
+| `md:` | 768px | Tablet |
+| `lg:` | 1024px | Desktop |
+| `xl:` | 1280px | Large desktop |
+| `2xl:` | 1536px | Wide screen |
+
+### Rules
+
+1. **Always write the mobile style first, then override with breakpoint prefixes:**
+   ```tsx
+   // ❌ Bad — desktop-first, then shrinks down
+   <div className="grid-cols-4 sm:grid-cols-2 xs:grid-cols-1">
+
+   // ✅ Good — mobile-first, then expands up
+   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+   ```
+
+2. **Typography scales up, not down:**
+   ```tsx
+   // ✅ Good
+   <h1 className="text-2xl font-bold md:text-3xl lg:text-4xl">
+   <p className="text-sm md:text-base">
+   ```
+
+3. **Use responsive padding and spacing:**
+   ```tsx
+   // ✅ Good — tight on mobile, spacious on desktop
+   <main className="px-4 py-6 md:px-8 md:py-10 lg:px-16">
+   ```
+
+4. **Navigation must be mobile-aware from the start.** Always implement a hamburger/drawer pattern for mobile alongside the desktop nav. Never ship a horizontal nav without a mobile fallback.
+   ```tsx
+   <nav>
+     {/* Mobile: hamburger */}
+     <MobileNav className="flex lg:hidden" />
+     {/* Desktop: horizontal links */}
+     <DesktopNav className="hidden lg:flex" />
+   </nav>
+   ```
+
+5. **Images must always use `next/image`** with `sizes` configured for responsive loading:
+   ```tsx
+   // ✅ Good
+   import Image from 'next/image';
+   <Image
+     src="/hero.jpg"
+     alt="Hero banner"
+     width={1200}
+     height={600}
+     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+     priority
+   />
+
+   // ❌ Bad
+   <img src="/hero.jpg" />
+   ```
+
+6. **Touch targets must be at least 44×44px** on mobile. Buttons and links must have adequate padding:
+   ```tsx
+   // ✅ Good — large enough touch target
+   <button className="min-h-[44px] min-w-[44px] px-4 py-2">
+   ```
+
+7. **Avoid fixed pixel widths on containers.** Use `max-w-*` with `w-full`:
+   ```tsx
+   // ❌ Bad
+   <div style={{ width: '1200px' }}>
+
+   // ✅ Good
+   <div className="w-full max-w-7xl mx-auto">
+   ```
+
+8. **Test all layouts at these widths:** 375px (iPhone SE), 390px (iPhone 14), 768px (iPad), 1280px (desktop), 1536px (wide).
+
+9. **Use a `useMediaQuery` hook** for logic that truly needs to be conditional on screen size (prefer CSS/Tailwind for visual changes):
+   ```ts
+   // hooks/useMediaQuery.ts
+   export function useMediaQuery(query: string): boolean {
+     const [matches, setMatches] = useState(false);
+     useEffect(() => {
+       const media = window.matchMedia(query);
+       setMatches(media.matches);
+       const listener = () => setMatches(media.matches);
+       media.addEventListener('change', listener);
+       return () => media.removeEventListener('change', listener);
+     }, [query]);
+     return matches;
+   }
+
+   // Usage
+   const isDesktop = useMediaQuery('(min-width: 1024px)');
+   ```
+
+10. **Modals and drawers on mobile** must be full-screen or bottom-sheet style — never small centered boxes with fixed `max-w`:
+    ```tsx
+    <dialog className="
+      fixed inset-0 w-full h-full
+      md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2
+      md:w-[500px] md:h-auto md:rounded-xl
+    ">
+    ```
+
+---
+
+## Accessibility Rules
+
+> **Rule: Accessible by default, not as an afterthought.**
+
+1. **Use semantic HTML elements** — `<button>`, `<nav>`, `<main>`, `<header>`, `<footer>`, `<section>`, `<article>`. Never use `<div>` as a button.
+   ```tsx
+   // ❌ Bad
+   <div onClick={handleClick}>Submit</div>
+
+   // ✅ Good
+   <button type="button" onClick={handleClick}>Submit</button>
+   ```
+
+2. **Every interactive element must be keyboard-accessible** — reachable via `Tab` and operable via `Enter`/`Space`.
+
+3. **All images must have descriptive `alt` text.** Decorative images use `alt=""`:
+   ```tsx
+   <Image src="/avatar.png" alt="Jane Doe's profile photo" />
+   <Image src="/divider.svg" alt="" role="presentation" />
+   ```
+
+4. **Form inputs must always have associated `<label>` elements** — never rely on `placeholder` alone:
+   ```tsx
+   // ✅ Good
+   <label htmlFor="email" className="block text-sm font-medium">
+     Email address
+   </label>
+   <input id="email" type="email" name="email" />
+   ```
+
+5. **Use `aria-*` attributes** when semantic HTML is insufficient (e.g., custom dropdowns, modals, tabs):
+   ```tsx
+   <div role="dialog" aria-modal="true" aria-labelledby="modal-title">
+     <h2 id="modal-title">Confirm deletion</h2>
+   </div>
+   ```
+
+6. **Colour must not be the only means of conveying information.** Always pair colour with an icon, label, or pattern.
+
+7. **Minimum contrast ratio:** 4.5:1 for normal text, 3:1 for large text (WCAG AA).
+
+8. **Focus must be visible.** Never use `outline: none` without providing a custom focus style:
+   ```css
+   /* ✅ Good — custom focus ring */
+   .btn:focus-visible {
+     outline: 2px solid theme('colors.blue.500');
+     outline-offset: 2px;
+   }
+   ```
+
+---
+
+## Error Handling Rules
+
+1. **Every async operation must have error handling.** No unhandled promise rejections.
+
+2. **Type your errors.** Never catch `any`:
+   ```ts
+   // ❌ Bad
+   } catch (e: any) { console.log(e.message) }
+
+   // ✅ Good
+   } catch (error) {
+     if (error instanceof ApiError) {
+       showToast(error.message);
+     } else {
+       showToast(ERROR_MESSAGES.GENERIC);
+     }
+   }
+   ```
+
+3. **Every route segment that fetches data must have an `error.tsx`** boundary:
+   ```tsx
+   // app/dashboard/error.tsx
+   'use client';
+   export default function DashboardError({ error, reset }: {
+     error: Error;
+     reset: () => void;
+   }) {
+     return (
+       <div className="flex flex-col items-center gap-4 p-8">
+         <p className="text-red-600">{error.message}</p>
+         <button onClick={reset}>Try again</button>
+       </div>
+     );
+   }
+   ```
+
+4. **Services must throw typed errors**, not raw `Error` objects:
+   ```ts
+   // types/api.types.ts
+   export class ApiError extends Error {
+     constructor(
+       public readonly statusCode: number,
+       message: string,
+       public readonly errors?: Record<string, string[]>
+     ) {
+       super(message);
+       this.name = 'ApiError';
+     }
+   }
+   ```
+
+5. **Never swallow errors silently.** At minimum, log them:
+   ```ts
+   // ❌ Bad
+   try { await doSomething(); } catch (_) {}
+
+   // ✅ Good
+   try { await doSomething(); } catch (error) {
+     console.error('[doSomething]', error);
+     throw error; // or handle appropriately
+   }
+   ```
+
+6. **Form validation errors must be shown inline**, next to the relevant field, not only in a toast.
+
+---
+
+## Performance Rules
+
+1. **Prefer Server Components for data fetching** — they render on the server with zero client JS cost.
+
+2. **Use `next/dynamic` for heavy client components** to keep the initial bundle small:
+   ```ts
+   import dynamic from 'next/dynamic';
+   const RichTextEditor = dynamic(() => import('@/components/ui/RichTextEditor'), {
+     loading: () => <Skeleton className="h-48 w-full" />,
+     ssr: false,
+   });
+   ```
+
+3. **Always use `next/image`** — never raw `<img>` tags. It handles lazy loading, resizing, and WebP conversion automatically.
+
+4. **Use `next/font`** to load fonts — it eliminates layout shift and self-hosts fonts automatically:
+   ```ts
+   // app/layout.tsx
+   import { Inter } from 'next/font/google';
+   const inter = Inter({ subsets: ['latin'] });
+   ```
+
+5. **Memoise expensive computations** with `useMemo`, and stable callbacks with `useCallback` — but only when there is a measurable performance benefit. Don't pre-optimise everything:
+   ```ts
+   // ✅ Justified — expensive filter over large list
+   const filteredUsers = useMemo(
+     () => users.filter(u => u.name.includes(search)),
+     [users, search]
+   );
+   ```
+
+6. **Paginate or virtualise long lists.** Never render more than ~100 items to the DOM at once. Use `@tanstack/react-virtual` for large datasets.
+
+7. **Avoid layout thrashing** — do not read and write to the DOM in the same tick. Let React manage DOM updates.
+
+8. **Set `Cache-Control` headers** on API routes and use Next.js `fetch` caching options for server-side data:
+   ```ts
+   // Revalidate every 60 seconds
+   const data = await fetch('/api/stats', { next: { revalidate: 60 } });
+
+   // Never cache (always fresh)
+   const data = await fetch('/api/user', { cache: 'no-store' });
+   ```
+
+---
+
+## Code Quality & Linting Rules
+
+### Required Tooling
+
+| Tool | Purpose | Config file |
+|---|---|---|
+| TypeScript (`strict: true`) | Type safety | `tsconfig.json` |
+| ESLint | Code quality enforcement | `.eslintrc.json` |
+| Prettier | Consistent formatting | `.prettierrc` |
+| `eslint-plugin-import` | Import order & boundaries | `.eslintrc.json` |
+| `eslint-plugin-react-hooks` | Hooks rules | `.eslintrc.json` |
+| Husky + lint-staged | Enforce on commit | `.husky/pre-commit` |
+
+### TypeScript Config (`strict` mode required)
+
+```json
+// tsconfig.json
+{
+  "compilerOptions": {
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "exactOptionalPropertyTypes": true
+  }
+}
+```
+
+### ESLint Rules (key enforcements)
+
+```json
+// .eslintrc.json (key rules)
+{
+  "rules": {
+    "@typescript-eslint/no-explicit-any": "error",
+    "@typescript-eslint/no-unused-vars": "error",
+    "@typescript-eslint/consistent-type-imports": "error",
+    "no-console": ["warn", { "allow": ["error", "warn"] }],
+    "import/order": ["error", { "newlines-between": "always" }],
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn",
+    "no-magic-numbers": ["error", { "ignore": [0, 1, -1] }]
+  }
+}
+```
+
+### Code Quality Rules
+
+1. **`strict: true` in TypeScript is non-negotiable.** No exceptions.
+2. **No `console.log` in committed code.** Use `console.error` / `console.warn` for legitimate logging, and strip debug logs with ESLint.
+3. **Functions must have a maximum of 4 parameters.** If you need more, accept an options object:
+   ```ts
+   // ❌ Bad
+   function createUser(name: string, email: string, role: string, age: number, org: string) {}
+
+   // ✅ Good
+   function createUser(options: CreateUserOptions) {}
+   ```
+4. **Maximum function length: ~50 lines.** If a function is longer, it should be broken down.
+5. **No commented-out code in commits.** Delete it — git history preserves it.
+6. **Every PR must pass:** TypeScript compilation, ESLint with zero errors, all tests green.
+
+---
+
 ## Anti-Patterns to Avoid
 
 | Anti-Pattern | Problem | Fix |
@@ -724,9 +1247,23 @@ describe('UserCard', () => {
 | Fetching in `useEffect` | Race conditions, no caching | Use TanStack Query or SWR |
 | Zustand for server/remote data | Duplicates cache layer | Use TanStack Query for server state |
 | Magic numbers/strings inline | Unreadable, hard to change | Extract to constants |
+| Hardcoded API URLs | Breaks across environments | Use `process.env` via `lib/env.ts` |
+| Hardcoded route strings | Silent breakage on rename | Use `ROUTES` constants object |
 | 200+ files flat in `components/` | Nobody knows what's good anymore | Group into `ui/`, `layout/`, `features/` |
 | Importing across feature boundaries (internal files) | Creates tight coupling | Import only from a feature's `index.ts` |
 | Nesting deeper than 4 levels | `a/b/c/d/e/f/index.tsx` | Flatten or reconsider feature boundaries |
+| Rebuilding existing UI components | Wasted effort, inconsistent UX | Always check `components/ui/` first |
+| Component with 10+ boolean props | Impossible to understand or test | Split into composable sub-components |
+| Desktop-first CSS | Broken mobile layouts | Write mobile styles first, use `md:` / `lg:` to scale up |
+| Raw `<img>` tags | No lazy loading, no size optimisation | Always use `next/image` |
+| Fixed pixel widths on containers | Breaks on small screens | Use `w-full max-w-*` |
+| `<div onClick={}>` as interactive | Not keyboard accessible, not semantic | Use `<button>` or `<a>` |
+| Missing `alt` text on images | Screen readers cannot interpret | Always provide descriptive `alt` |
+| Swallowing errors silently | Bugs are invisible in production | Always log or rethrow |
+| No `error.tsx` boundary on data routes | Unhandled crashes show blank screen | Add `error.tsx` to every data-fetching segment |
+| Commented-out code committed | Clutters history, confuses readers | Delete it; git log preserves it |
+| `console.log` in production code | Leaks internals, pollutes logs | Remove with ESLint `no-console` rule |
+| Functions with 5+ parameters | Hard to call, hard to test | Refactor to accept an options object |
 
 ---
 

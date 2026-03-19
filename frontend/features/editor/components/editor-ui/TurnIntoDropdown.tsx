@@ -2,8 +2,8 @@
 
 import React from "react"
 import { Editor } from "@tiptap/react"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Button } from "@/components/ui/button"
+import { EditorPopover } from "@/features/editor/components/editor-ui/EditorPopover"
 import { ChevronDownIcon } from "@/features/editor/components/icons/ChevronDownIcon"
 import { CheckIcon } from "@/features/editor/components/icons/CheckIcon"
 
@@ -85,8 +85,12 @@ export const TurnIntoDropdown: React.FC<TurnIntoDropdownProps> = ({ editor, isOp
   const activeOption = TURN_INTO_OPTIONS.find((opt) => opt.isActive(editor)) || TURN_INTO_OPTIONS[0]
 
   return (
-    <Popover modal={true} open={isOpen} onOpenChange={onOpenChange}>
-      <PopoverTrigger asChild>
+    <EditorPopover 
+      isOpen={isOpen} 
+      onOpenChange={onOpenChange}
+      align="start"
+      contentClassName="w-56 p-1 z-50"
+      trigger={
         <Button 
           variant="ghost" 
           size="sm" 
@@ -96,13 +100,9 @@ export const TurnIntoDropdown: React.FC<TurnIntoDropdownProps> = ({ editor, isOp
           {activeOption.name}
           <ChevronDownIcon className="w-3 h-3 opacity-50" />
         </Button>
-      </PopoverTrigger>
-      <PopoverContent 
-        align="start" 
-        className="w-56 p-1"
-        onCloseAutoFocus={(e: Event) => e.preventDefault()}
-      >
-        <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground mb-1">Turn Into</div>
+      }
+    >
+      <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground mb-1">Turn Into</div>
         {TURN_INTO_OPTIONS.map((option) => {
           const isActive = option.isActive(editor)
           return (
@@ -126,7 +126,6 @@ export const TurnIntoDropdown: React.FC<TurnIntoDropdownProps> = ({ editor, isOp
             </Button>
           )
         })}
-      </PopoverContent>
-    </Popover>
+    </EditorPopover>
   )
 }
