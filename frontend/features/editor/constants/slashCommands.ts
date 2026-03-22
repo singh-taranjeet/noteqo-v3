@@ -13,6 +13,7 @@ import { Code2Icon } from "@/features/editor/components/icons/Code2Icon"
 import { ImagePlusIcon } from "@/features/editor/components/icons/ImagePlusIcon"
 import { ColumnsIcon } from "@/features/editor/components/icons/ColumnsIcon"
 import { CardIcon } from "@/features/editor/components/icons/CardIcon"
+import { AccordionIcon } from "@/features/editor/components/icons/AccordionIcon"
 
 export interface SuggestionItem {
   title: string
@@ -129,6 +130,16 @@ export const SLASH_COMMANDS: SuggestionItem[] = [
     command: ({ editor, range }) => {
       editor.chain().focus().deleteRange(range).insertContent({
         type: "shadcnCard",
+        content: [{ type: "paragraph" }],
+      }).run()
+    },
+  },
+  {
+    title: "Accordion",
+    icon: AccordionIcon,
+    command: ({ editor, range }) => {
+      editor.chain().focus().deleteRange(range).insertContent({
+        type: "shadcnAccordion",
         content: [{ type: "paragraph" }],
       }).run()
     },
