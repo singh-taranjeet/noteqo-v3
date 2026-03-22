@@ -12,6 +12,7 @@ import { CodeBlockIcon } from "@/features/editor/components/icons/CodeBlockIcon"
 import { Code2Icon } from "@/features/editor/components/icons/Code2Icon"
 import { ImagePlusIcon } from "@/features/editor/components/icons/ImagePlusIcon"
 import { ColumnsIcon } from "@/features/editor/components/icons/ColumnsIcon"
+import { CardIcon } from "@/features/editor/components/icons/CardIcon"
 
 export interface SuggestionItem {
   title: string
@@ -120,6 +121,16 @@ export const SLASH_COMMANDS: SuggestionItem[] = [
     shortcut: "/3cols",
     command: ({ editor, range }) => {
       editor.chain().focus().deleteRange(range).setColumns(3).run()
+    },
+  },
+  {
+    title: "Card",
+    icon: CardIcon,
+    command: ({ editor, range }) => {
+      editor.chain().focus().deleteRange(range).insertContent({
+        type: "shadcnCard",
+        content: [{ type: "paragraph" }],
+      }).run()
     },
   },
 ]

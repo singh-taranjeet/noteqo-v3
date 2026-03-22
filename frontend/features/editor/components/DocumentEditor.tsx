@@ -30,6 +30,9 @@ import { SlashCommandExtension } from "@/features/editor/components/extensions/S
 import { ColumnsExtension } from "@/features/editor/components/nodes/ColumnsNode/ColumnsExtension"
 import { ColumnExtension } from "@/features/editor/components/nodes/ColumnsNode/ColumnExtension"
 
+// --- Tiptap Layouts ---
+import { CardNodeExtension } from "@/features/editor/components/nodes/CardNode/CardNodeExtension"
+
 // --- Tiptap UI Hooks & Components ---
 import { BlockDragHandle } from "@/features/editor/components/editor-ui/BlockDragHandle"
 import { EditorBubbleMenu } from "@/features/editor/components/editor-ui/EditorBubbleMenu"
@@ -84,6 +87,7 @@ export function DocumentEditor() {
       HorizontalRule,
       CodeBlockNode,
       HeadingNode,
+      CardNodeExtension,
       TextAlign.configure({ types: ["heading", "paragraph"] }),
       TaskList.configure({
         HTMLAttributes: { class: "my-6 ml-6 list-none [&>li]:mt-2 outline-none" },
