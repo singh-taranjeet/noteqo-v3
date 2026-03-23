@@ -43,7 +43,23 @@ import { handleImageUpload, MAX_FILE_SIZE } from "@/features/editor/utils/tiptap
 
 import content from "@/features/editor/components/data/content.json"
 
+const STORAGE_KEY = "noteqo-editor-state";
+
 export function DocumentEditor() {
+  const getInitialContent = () => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {
+          console.error("Failed to parse editor state:", e);
+        }
+      }
+    }
+    return content;
+  };
+
   const editor = useEditor({
     immediatelyRender: false,
     editorProps: {
@@ -115,7 +131,11 @@ export function DocumentEditor() {
       ColumnsExtension,
       ColumnExtension,
     ],
-    content,
+    content: getInitialContent(),
+    onUpdate: ({ editor }) => {
+      const json = editor.getJSON();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(json));
+    },
   })
 
   return (

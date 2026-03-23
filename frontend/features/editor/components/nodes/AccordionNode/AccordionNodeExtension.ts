@@ -12,6 +12,9 @@ export const AccordionNodeExtension = TiptapNode.create({
       title: {
         default: "",
       },
+      isOpen: {
+        default: true,
+      },
     };
   },
 
