@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Figtree, Roboto } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { Providers } from "@/components/Providers";
 
 const roboto = Roboto({subsets:['latin'],variable:'--font-sans'});
 
@@ -32,7 +33,9 @@ export default function RootLayout({
       className={cn("h-full", "antialiased", geistSans.variable, geistMono.variable, "font-sans", roboto.variable)}
     >
       <body className="min-h-full flex flex-col">
-        <TooltipProvider>{children}</TooltipProvider>
+        <Providers>
+          <TooltipProvider>{children}</TooltipProvider>
+        </Providers>
       </body>
     </html>
   );
