@@ -4,7 +4,7 @@ export const USER_COLUMN = {
   ID: 'id',
   EMAIL: 'email',
   NAME: 'name',
-  PASSWORD: 'password',
+  AUTH_CREDENTIAL: 'auth_credential',
   PUBLIC_KEY: 'public_key',
   PRIVATE_KEY: 'private_key',
 } as const;
@@ -20,5 +20,5 @@ export const USER_ERROR_MESSAGES = {
 } as const;
 
 export const USER_CONSTANTS = {
-  PASSWORD_SALT_ROUNDS: 10,
+  AUTH_SALT_ROUNDS: 10,
 } as const;

@@ -23,8 +23,18 @@ export class UsersRepository {
     return entity ? this.toDomain(entity) : null;
   }
 
-  async create(data: Partial<UserEntity>): Promise<User> {
-    const entity = this.orm.create(data);
+  async findByEmailWithAuth(email: string): Promise<UserEntity | null> {
+    return this.orm.findOne({
+      where: { email },
+      select: ['id', 'email', 'name', 'authCredential', 'publicKey', 'privateKey', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'deletedBy'],
+    });
+  }
+
+
+  async create(user: CreateUserDto): Promise<User> {
+    const entity = this.orm.create({
+      ...user,
+    });
     const saved = await this.orm.save(entity);
     return this.toDomain(saved);
   }
@@ -47,6 +57,9 @@ export class UsersRepository {
       privateKey: entity.privateKey,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
+      createdBy: entity.createdBy,
+      updatedBy: entity.updatedBy,
+      deletedBy: entity.deletedBy,
     };
   }
 }

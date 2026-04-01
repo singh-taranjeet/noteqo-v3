@@ -57,6 +57,9 @@ export class UsersController {
       privateKey: user.privateKey,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
+      createdBy: user.createdBy,
+      updatedBy: user.updatedBy,
+      deletedBy: user.deletedBy,
     };
   }
 }
