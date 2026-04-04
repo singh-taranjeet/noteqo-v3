@@ -12,28 +12,32 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly usersRepository: UsersRepository,
     private readonly jwtService: JwtService,
-  ) { }
+  ) {}
 
   async register(dto: RegisterDto) {
     // Rely natively on usersService to properly hash the credential and abstract creation correctly
     const user = await this.usersService.create(dto);
-    // const payload = { sub: user.id, email: user.email };
+
     return {
       user,
-      //accessToken: this.jwtService.sign(payload),
     };
   }
 
   async login(dto: LoginDto) {
     // 1. We must fetch the user explicitly including the select: false authCredential
-    const userEntity = await this.usersRepository.findByEmailWithAuth(dto.email);
+    const userEntity = await this.usersRepository.findByEmailWithAuth(
+      dto.email,
+    );
 
-    if (!userEntity || !userEntity.authCredential) {
+    if (!userEntity?.authCredential) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
     // 2. Validate BCrypt payload safely
-    const isMatched = await bcrypt.compare(dto.authCredential, userEntity.authCredential);
+    const isMatched = await bcrypt.compare(
+      dto.authCredential,
+      userEntity.authCredential,
+    );
     if (!isMatched) {
       throw new UnauthorizedException('Invalid credentials');
     }

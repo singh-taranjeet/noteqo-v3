@@ -3,11 +3,18 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { configValidationSchema, databaseConfig, CONFIG_KEYS } from './config';
+import {
+  configValidationSchema,
+  databaseConfig,
+  appConfig,
+  jwtConfig,
+  CONFIG_KEYS,
+} from './config';
 import { UsersModule } from './users';
 import { NotesModule } from './notes';
 import { AuthModule } from './auth/auth.module';
 import { ClsModule } from 'nestjs-cls';
+import { SharedModule } from './shared/shared.module';
 
 @Module({
   imports: [
@@ -18,7 +25,7 @@ import { ClsModule } from 'nestjs-cls';
     ConfigModule.forRoot({
       isGlobal: true,
       validationSchema: configValidationSchema,
-      load: [databaseConfig],
+      load: [databaseConfig, appConfig, jwtConfig],
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
@@ -33,13 +40,15 @@ import { ClsModule } from 'nestjs-cls';
           username: dbConfig.username,
           password: dbConfig.password,
           autoLoadEntities: true,
-          synchronize: configService.get('NODE_ENV') !== 'production', // From user feedback
+          synchronize:
+            configService.get(`${CONFIG_KEYS.APP}.env`) !== 'production', // From user feedback
         };
       },
     }),
     UsersModule,
     NotesModule,
     AuthModule,
+    SharedModule,
   ],
   controllers: [AppController],
   providers: [AppService],

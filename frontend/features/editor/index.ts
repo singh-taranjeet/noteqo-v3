@@ -1,3 +1,3 @@
 // Public API for the Editor feature
-export { DocumentEditor } from "./components/DocumentEditor";
+export { NoteEditor } from "./components/NoteEditor";
 export type { SuggestionItem } from "./constants/slashCommands";

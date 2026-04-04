@@ -5,17 +5,20 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthMiddleware } from './middleware/auth.middleware';
+import { CONFIG_KEYS } from '../config';
 
 @Module({
   imports: [
     UsersModule,
     JwtModule.registerAsync({
-      global: true, // Configured globally mapping dependency trees 
+      global: true, // Configured globally mapping dependency trees
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET'),
-        signOptions: { expiresIn: configService.get<string>('JWT_EXPIRES_IN') },
+        secret: configService.getOrThrow<string>(`${CONFIG_KEYS.JWT}.secret`),
+        signOptions: {
+          expiresIn: configService.get<string>(`${CONFIG_KEYS.JWT}.expiresIn`),
+        },
       }),
     }),
   ],

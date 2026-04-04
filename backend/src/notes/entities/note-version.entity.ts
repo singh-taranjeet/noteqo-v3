@@ -1,5 +1,14 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
-import { NOTE_VERSION_TABLE, NOTE_VERSION_COLUMN } from '../constants/notes.constants';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
+import {
+  NOTE_VERSION_TABLE,
+  NOTE_VERSION_COLUMN,
+} from '../constants/notes.constants';
 import { AppBaseEntity } from '../../shared/entities/base.entity';
 import { NoteEntity } from './note.entity';
 

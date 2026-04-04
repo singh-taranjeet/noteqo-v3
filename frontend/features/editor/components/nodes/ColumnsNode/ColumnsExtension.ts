@@ -1,6 +1,18 @@
-import { Node as TiptapNode, mergeAttributes, type CommandProps } from "@tiptap/core";
+import {
+  Node as TiptapNode,
+  mergeAttributes,
+  type CommandProps,
+} from "@tiptap/core";
 import { ReactNodeViewRenderer } from "@tiptap/react";
 import { ColumnsNodeView } from "./ColumnsNodeView";
+
+declare module "@tiptap/core" {
+  interface Commands<ReturnType> {
+    columns: {
+      setColumns: (cols: number) => ReturnType;
+    };
+  }
+}
 
 export const ColumnsExtension = TiptapNode.create({
   name: "columns",
@@ -17,7 +29,7 @@ export const ColumnsExtension = TiptapNode.create({
     return [{ tag: "div[data-type='columns-block']" }];
   },
 
-  renderHTML({ HTMLAttributes }: Record<string, any>) {
+  renderHTML({ HTMLAttributes }) {
     return [
       "div",
       mergeAttributes(HTMLAttributes, {
@@ -36,18 +48,18 @@ export const ColumnsExtension = TiptapNode.create({
     return {
       setColumns:
         (cols: number) =>
-          ({ commands }: CommandProps) => {
-            const visible = cols || 2;
-            const items = Array.from({ length: 6 }, () => ({
-              type: "column",
-              content: [{ type: "paragraph" }],
-            }));
-            return commands.insertContent({
-              type: this.name,
-              attrs: { visibleColumns: visible },
-              content: items,
-            });
-          },
-    } as any;
+        ({ commands }: CommandProps) => {
+          const visible = cols || 2;
+          const items = Array.from({ length: 6 }, () => ({
+            type: "column",
+            content: [{ type: "paragraph" }],
+          }));
+          return commands.insertContent({
+            type: this.name,
+            attrs: { visibleColumns: visible },
+            content: items,
+          });
+        },
+    };
   },
 });

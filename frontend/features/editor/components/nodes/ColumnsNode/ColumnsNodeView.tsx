@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useRef, useEffect } from "react";
-import { NodeViewWrapper, NodeViewContent, NodeViewProps } from "@tiptap/react";
+import { NodeViewWrapper, NodeViewContent } from "@tiptap/react";
+import type { NodeViewProps } from "@tiptap/react";
 import {
   Select,
   SelectContent,
@@ -10,7 +11,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export const ColumnsNodeView = ({ editor, node, updateAttributes }: NodeViewProps) => {
+export const ColumnsNodeView = ({
+  editor,
+  node,
+  updateAttributes,
+}: NodeViewProps) => {
   const visible = node.attrs.visibleColumns || 2;
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -81,7 +86,9 @@ export const ColumnsNodeView = ({ editor, node, updateAttributes }: NodeViewProp
           <div className="absolute -top-3 right-0 opacity-0 group-hover:opacity-100 transition-opacity z-10">
             <Select
               value={String(visible)}
-              onValueChange={(v) => v && updateAttributes({ visibleColumns: parseInt(v) })}
+              onValueChange={(v) =>
+                v && updateAttributes({ visibleColumns: parseInt(v) })
+              }
             >
               <SelectTrigger className="h-6 w-[80px] text-[10px] bg-background shadow-sm border">
                 <SelectValue />

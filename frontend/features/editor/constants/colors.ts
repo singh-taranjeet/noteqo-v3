@@ -9,7 +9,7 @@ export const TEXT_COLORS = [
   { name: "Purple", color: "#9065B0" },
   { name: "Pink", color: "#C14C8A" },
   { name: "Red", color: "#D44C47" },
-] as const
+] as const;
 
 export const HIGHLIGHT_COLORS = [
   { name: "Default", color: "" },
@@ -22,4 +22,4 @@ export const HIGHLIGHT_COLORS = [
   { name: "Purple", color: "#F4F0F7" },
   { name: "Pink", color: "#F9EAEF" },
   { name: "Red", color: "#FDEBEC" },
-] as const
+] as const;

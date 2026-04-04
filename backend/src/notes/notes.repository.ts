@@ -31,6 +31,25 @@ export class NotesRepository {
   }
 
   /**
+   * Retrieves all Notes organically assigned mapping structural elements
+   * via KeySlot associations for the currently specified user.
+   */
+  async findAllForUser(userId: string): Promise<Note[]> {
+    const entities = await this.noteOrm
+      .createQueryBuilder('note')
+      .innerJoinAndSelect(
+        'note.keySlots',
+        'keySlot',
+        'keySlot.userId = :userId',
+        { userId },
+      )
+      .orderBy('note.updatedAt', 'DESC')
+      .getMany();
+
+    return entities.map((e) => this.toDomain(e));
+  }
+
+  /**
    * Executes a robust database transaction bridging creation natively across three distinct tables:
    * 1. Constructs the master Note object locally ensuring ID alignment universally.
    * 2. Binds the explicit starting permission structurally locally via KeySlot tables mapping document keys.
@@ -39,7 +58,7 @@ export class NotesRepository {
   async createWithKeySlot(
     id: string,
     ciphertext: Buffer,
-    encryptedDocKey: Buffer,
+    encryptedNoteKey: Buffer,
   ): Promise<Note> {
     const note = this.noteOrm.create({
       id,
@@ -58,11 +77,11 @@ export class NotesRepository {
 
       // 2. Save owner's key slot
       const currentUserId = getCurrentUserId();
-      
+
       const keySlot = queryRunner.manager.create(KeySlotEntity, {
         noteId: savedNote.id,
         userId: currentUserId,
-        encryptedDocKey,
+        encryptedNoteKey,
       });
       await queryRunner.manager.save(KeySlotEntity, keySlot);
 
@@ -75,7 +94,7 @@ export class NotesRepository {
       await queryRunner.manager.save(NoteVersionEntity, noteVersion);
 
       await queryRunner.commitTransaction();
-      
+
       const completeNote = await this.findById(savedNote.id);
       return completeNote as Note;
     } catch (err) {
@@ -121,7 +140,7 @@ export class NotesRepository {
       await queryRunner.manager.save(NoteVersionEntity, snapshot);
 
       await queryRunner.commitTransaction();
-      
+
       return (await this.findById(id)) as Note;
     } catch (err) {
       await queryRunner.rollbackTransaction();
@@ -146,17 +165,17 @@ export class NotesRepository {
   private toDomain(entity: NoteEntity): Note {
     return {
       id: entity.id,
-      ciphertext: entity.ciphertext.toString('base64'),
+      ciphertext: entity.ciphertext.toString('utf8'),
       version: entity.version,
       createdBy: entity.createdBy,
       updatedBy: entity.updatedBy,
       deletedBy: entity.deletedBy,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
-      keySlots: entity.keySlots?.map(ks => ({
+      keySlots: entity.keySlots?.map((ks) => ({
         noteId: ks.noteId,
         userId: ks.userId,
-        encryptedDocKey: ks.encryptedDocKey.toString('base64'),
+        encryptedNoteKey: ks.encryptedNoteKey.toString('base64'),
       })),
     };
   }

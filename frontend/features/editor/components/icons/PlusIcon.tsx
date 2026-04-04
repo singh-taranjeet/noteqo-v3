@@ -1,4 +1,4 @@
-import React from "react"
+import React from "react";
 
 export const PlusIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg
@@ -16,4 +16,4 @@ export const PlusIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
     <path d="M5 12h14" />
     <path d="M12 5v14" />
   </svg>
-)
+);
