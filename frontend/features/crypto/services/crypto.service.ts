@@ -216,7 +216,7 @@ export const cryptoService = {
     if (!ciphertextPayload || !ciphertextPayload.includes(":")) {
       throw new Error("Invalid ciphertext payload format");
     }
-    
+
     const [docIv64, docCipher64] = ciphertextPayload.split(":");
     const docIv = cryptoService.decodeBase64(docIv64);
     const docCipher = cryptoService.decodeBase64(docCipher64);
@@ -231,7 +231,7 @@ export const cryptoService = {
     );
 
     const documentJsonStr = new TextDecoder().decode(decryptedDocBuffer);
-    
+
     return {
       payload: JSON.parse(documentJsonStr),
       noteKeyBase64: cryptoService.encodeBase64(decryptedDocKeyBuffer),

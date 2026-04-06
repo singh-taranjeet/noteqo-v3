@@ -1,14 +1,15 @@
 "use client";
 
 import { EditorContent, EditorContext, useEditor } from "@tiptap/react";
-import type { JSONContent } from "@tiptap/react";
+import type { Editor } from "@tiptap/react";
 import {
   useEffect,
-  useRef,
   useState,
+  useMemo,
   type ChangeEvent,
   type FocusEvent,
 } from "react";
+import debounce from "lodash/debounce";
 
 // --- Tiptap Core Extensions ---
 import { StarterKit } from "@tiptap/starter-kit";
@@ -21,7 +22,6 @@ import { TextStyle } from "@tiptap/extension-text-style";
 import { Color } from "@tiptap/extension-color";
 import { Subscript } from "@tiptap/extension-subscript";
 import { Superscript } from "@tiptap/extension-superscript";
-import { Underline } from "@tiptap/extension-underline";
 import { Selection } from "@tiptap/extensions";
 
 // --- Tiptap Node Custom Views ---
@@ -51,65 +51,78 @@ import {
   handleImageUpload,
   MAX_FILE_SIZE,
 } from "@/features/editor/utils/tiptapUtils";
-import { EDITOR_STORAGE_KEY } from "@/features/editor/constants/editor.constants";
-import { IS_BROWSER } from "@/lib/utils";
+import { EDITOR_CONFIG } from "@/features/editor/constants/editor.constants";
 import { noteService } from "@/features/workspace/services/note.service";
 import type { Note } from "@/features/workspace/types/workspace.types";
 
-import content from "@/features/editor/components/data/content.json";
+import DEFAULT_CONTENT from "@/features/editor/components/data/content.json";
+import { logService } from "@/services/log.service";
 
 interface NoteEditorProps {
-  noteId?: string;
+  noteId: string;
 }
 
-export function NoteEditor({ noteId }: Readonly<NoteEditorProps>) {
-  const [noteState, setNoteState] = useState<Note | null>(null);
-  const [initialContent, setInitialContent] = useState<JSONContent | null>(
-    null,
-  );
+const useLoadNoteContent = (noteId: string) => {
+  const [note, setNote] = useState<Note | null>(null);
   const [isReady, setIsReady] = useState(false);
-  const editorTimeoutRef = useRef<NodeJS.Timeout>(undefined);
 
   useEffect(() => {
-    // TODO check why when I load the list of notes, it does not decrypts them and show in UI
     async function loadContent() {
       if (noteId) {
         try {
-          const note = await noteService.getNote(noteId);
-          // console.log("Note", note);
-          if (note) {
-            setNoteState(note);
-            if (note.content) {
-              setInitialContent(note.content as JSONContent);
-            } else {
-              setInitialContent(content);
-            }
-          } else {
-            setInitialContent(content);
+          // Fetch the local state
+          const localNote = await noteService.getLocalNote(noteId);
+
+          if (localNote) {
+            setNote(localNote);
+            setIsReady(true);
           }
-        } catch {
-          setInitialContent(content);
-        }
-      } else {
-        if (IS_BROWSER) {
-          const saved = localStorage.getItem(EDITOR_STORAGE_KEY);
-          if (saved) {
-            try {
-              setInitialContent(JSON.parse(saved));
-            } catch {
-              setInitialContent(content);
-            }
-          } else {
-            setInitialContent(content);
+
+          // Fetch the remote state
+          const remoteNote = await noteService.getRemoteNote(noteId);
+
+          if (remoteNote) {
+            setNote(remoteNote);
+            setIsReady(true);
           }
-        } else {
-          setInitialContent(content);
+        } catch (error) {
+          logService.error(`Error in rendering this note`, error);
         }
+        logService.log("Note with NoteId is ready to load", noteId);
       }
-      setIsReady(true);
     }
     loadContent();
   }, [noteId]);
+
+  return {
+    note,
+    isReady,
+    setNote,
+  };
+};
+
+export function NoteEditor({ noteId }: Readonly<NoteEditorProps>) {
+  const debouncedUpdateNote = useMemo(
+    () =>
+      debounce((props: { editor: Editor; id: string }) => {
+        const { editor, id } = props;
+        const json = editor.getJSON();
+        if (id) {
+          void noteService.updateNote(id, { content: json });
+        }
+      }, EDITOR_CONFIG.AUTOSAVE_DEBOUNCE_MS),
+    [],
+  );
+
+  useEffect(() => {
+    return () => {
+      debouncedUpdateNote.cancel();
+    };
+  }, [debouncedUpdateNote]);
+
+  const { note, isReady, setNote } = useLoadNoteContent(noteId);
+
+  const content = note?.content || DEFAULT_CONTENT;
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -172,7 +185,6 @@ export function NoteEditor({ noteId }: Readonly<NoteEditorProps>) {
       Typography,
       Superscript,
       Subscript,
-      Underline,
       Selection,
       ImageUploadNode.configure({
         accept: "image/*",
@@ -184,28 +196,20 @@ export function NoteEditor({ noteId }: Readonly<NoteEditorProps>) {
       ColumnsExtension,
       ColumnExtension,
     ],
-    content: initialContent ?? content,
+    content,
     onUpdate: ({ editor }) => {
-      const json = editor.getJSON();
-      if (noteId) {
-        if (editorTimeoutRef.current) clearTimeout(editorTimeoutRef.current);
-        editorTimeoutRef.current = setTimeout(() => {
-          void noteService.updateNote(noteId, { content: json });
-        }, 500);
-      } else {
-        localStorage.setItem(EDITOR_STORAGE_KEY, JSON.stringify(json));
-      }
+      debouncedUpdateNote({ id: noteId, editor });
     },
   });
 
   useEffect(() => {
-    if (editor && isReady && initialContent) {
+    if (editor && isReady && content) {
       // Defer to the macrotask queue to prevent React 19 flushSync collision during initial render loop
       setTimeout(() => {
-        editor.commands.setContent(initialContent);
-      }, 0);
+        editor.commands.setContent(content);
+      }, EDITOR_CONFIG.EVENT_LOOP_DEFER_MS);
     }
-  }, [editor, isReady, initialContent]);
+  }, [editor, isReady, content]);
 
   if (!isReady) {
     return (
@@ -218,22 +222,23 @@ export function NoteEditor({ noteId }: Readonly<NoteEditorProps>) {
   if (!editor) return null;
 
   const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (!noteState) return;
-    setNoteState({ ...noteState, title: e.target.value });
+    if (!note) return;
+    setNote({ ...note, title: e.target.value });
   };
 
   const handleTitleBlur = (e: FocusEvent<HTMLInputElement>) => {
-    if (!noteState || !noteId) return;
+    if (!note || !noteId) return;
     void noteService.updateNote(noteId, { title: e.target.value });
   };
 
   return (
     <div className="w-full h-full flex flex-col overflow-auto bg-background text-foreground font-sans group relative">
       {/* Cover Image */}
-      {noteState?.coverImage && (
+      {note?.coverImage && (
         <div className="w-full h-[25vh] sm:h-[30vh] shrink-0 relative group/cover">
+          {/* eslint-disable-next-line @next/next/no-img-element*/}
           <img
-            src={noteState.coverImage}
+            src={note.coverImage}
             alt="Cover"
             className="w-full h-full object-cover"
           />
@@ -244,16 +249,16 @@ export function NoteEditor({ noteId }: Readonly<NoteEditorProps>) {
       <div className="w-full max-w-4xl mx-auto flex-1 flex flex-col px-6 sm:px-24 mb-96 relative">
         {/* Note Header Metadata */}
         <div className="mt-8 mb-6">
-          {noteState?.emoji && (
+          {note?.emoji && (
             <div className="text-[72px] leading-none mb-4 -mt-14 relative z-10 w-fit">
-              {noteState.emoji}
+              {note.emoji}
             </div>
           )}
 
           <input
             type="text"
             className="text-4xl sm:text-5xl font-bold font-sans text-foreground w-full bg-transparent border-none outline-none focus:ring-0 placeholder:text-muted-foreground"
-            value={noteState?.title ?? "Untitled"}
+            value={note?.title ?? "Untitled"}
             onChange={handleTitleChange}
             onBlur={handleTitleBlur}
             placeholder="Untitled"

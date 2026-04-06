@@ -5,6 +5,8 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 
+import { AUTH_ERROR_MESSAGES } from '../constants/auth.constants';
+
 /**
  * Guard that checks if the current request has a valid authenticated user
  * (set by AuthMiddleware on req.user).
@@ -18,7 +20,7 @@ export class JwtAuthGuard implements CanActivate {
     const user = request.user;
 
     if (!user?.id) {
-      throw new UnauthorizedException('Authentication required');
+      throw new UnauthorizedException(AUTH_ERROR_MESSAGES.AUTH_REQUIRED);
     }
 
     return true;

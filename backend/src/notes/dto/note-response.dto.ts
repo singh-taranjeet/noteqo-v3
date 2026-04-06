@@ -1,16 +1,14 @@
-export class KeySlotResponseDto {
-  userId: string;
-  encryptedNoteKey: string; // base64
-}
+import type { NoteType } from '../types/notes.types';
 
 export class NoteResponseDto {
   id: string;
   ciphertext: string; // base64
   version: number;
+  spaceId: string;
+  type: NoteType;
   createdBy: string;
   updatedBy?: string;
   deletedBy?: string;
   createdAt: Date;
   updatedAt?: Date;
-  keySlots?: KeySlotResponseDto[];
 }

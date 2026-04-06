@@ -1,89 +1,75 @@
-import { useQuery } from "@tanstack/react-query";
-import { noteApiService } from "../services/note-api.service";
-import { cryptoService } from "@/features/crypto";
+import { useState, useCallback, useEffect } from "react";
+import { spaceApiService } from "@/features/spaces/services/space-api.service";
+import { spaceService } from "@/features/spaces/services/space.service";
 import type { Note } from "../types/workspace.types";
+import type { Space } from "@/features/spaces/types/spaces.types";
 import { logService } from "@/services/log.service";
+import { db } from "@/features/storage";
+import { mergeLocalRemoteService } from "../services/merge-local-remote.service";
 
-interface RemoteNote {
-  id: string;
-  ciphertext: string;
-  createdAt: string;
-  updatedAt: string;
-  keySlots?: { encryptedNoteKey: string }[];
+export interface SpaceNotesMap {
+  [spaceId: string]: Note[];
 }
 
-export const REMOTE_NOTES_QUERY_KEY = ["remote-notes"] as const;
+export function useRemoteNotes(spaces: Space[] | undefined) {
+  const [data, setData] = useState<SpaceNotesMap>({});
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<Error | null>(null);
 
-export function useRemoteNotes() {
-  return useQuery({
-    queryKey: REMOTE_NOTES_QUERY_KEY,
-    queryFn: async (): Promise<Note[]> => {
-      // 1. Fetch remote notes
-      const response = await noteApiService.getAllNotes();
-      console.log("response", response);
-      const remoteNotes = Array.isArray(response.data) ? response.data : [];
+  const fetchNotes = useCallback(async () => {
+    if (!spaces || spaces.length === 0) return;
 
-      // 2. Decrypt in parallel
-      const decryptedDocs = await Promise.all(
-        remoteNotes.map(async (note: RemoteNote) => {
-          try {
-            const encryptedNoteKey = note.keySlots?.[0]?.encryptedNoteKey;
+    setIsLoading(true);
+    setError(null);
 
-            if (!encryptedNoteKey) {
-              logService.warn(
-                `No keySlot found for note! Note ID: ${note.id}`,
-              );
-              return null;
-            }
+    try {
+      const notesMap: SpaceNotesMap = {};
 
-            if (!note.ciphertext || !note.ciphertext.includes(":")) {
-              logService.warn(
-                `Invalid ciphertext format for note! Note ID: ${note.id}`,
-              );
-              return null;
-            }
+      for (const space of spaces) {
+        try {
+          const response = await spaceApiService.getNotes(space.id);
 
-            const decryptedResult = await cryptoService.decryptDocument(
-              note.ciphertext,
-              encryptedNoteKey,
+          // Decrypt all notes with the cached space key
+          const decryptedNotes = await Promise.all(
+            response.notes.map((rn) =>
+              spaceService.decryptSpaceNote(rn, space.spaceKey),
+            ),
+          );
+
+          const validNotes = decryptedNotes
+            .filter((n): n is Note => n !== null)
+            .sort(
+              (a, b) =>
+                new Date(b.updatedAt).getTime() -
+                new Date(a.updatedAt).getTime(),
             );
 
-            if (!decryptedResult) {
-              return null;
-            }
+          notesMap[space.id] = validNotes;
 
-            const payload = decryptedResult.payload as {
-              title?: string;
-              emoji?: string;
-              coverImage?: string;
-              content?: string;
-            };
+          // Cache notes locally in Dexie
+          await db.notes.bulkPut(validNotes);
+        } catch (err) {
+          logService.error(`Failed to fetch notes for space ${space.id}`, err);
+          notesMap[space.id] = [];
+        }
+      }
 
-            return {
-              id: note.id,
-              title: payload.title || "Untitled",
-              emoji: payload.emoji || "📄",
-              coverImage: payload.coverImage,
-              content: payload.content,
-              syncStatus: "synced",
-              createdAt: note.createdAt,
-              updatedAt: note.updatedAt,
-              noteKey: decryptedResult.noteKeyBase64,
-            } as Note;
-          } catch (e) {
-            console.error("Failed to decrypt note", note.id, e);
-            return null;
-          }
-        }),
-      );
+      // Merge with local notes
+      const allNotes = Object.values(notesMap).flat();
+      await mergeLocalRemoteService.merge(allNotes);
 
-      // Filter out failures
-      return decryptedDocs
-        .filter((d): d is Note => d !== null)
-        .sort(
-          (a, b) =>
-            new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
-        );
-    },
-  });
+      setData(notesMap);
+    } catch (err) {
+      logService.error("Failed to fetch remote notes", err);
+      setError(err instanceof Error ? err : new Error(String(err)));
+    } finally {
+      setIsLoading(false);
+    }
+  }, [spaces]);
+
+  useEffect(() => {
+    void fetchNotes();
+  }, [fetchNotes]);
+
+  return { data, isLoading, error, refetch: fetchNotes };
 }

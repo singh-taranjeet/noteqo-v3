@@ -14,8 +14,6 @@ import { AUTH_CONFIG } from "@/features/auth/constants/auth.constants";
 import { ROUTES } from "@/constants/routes";
 import { useRouter } from "next/navigation";
 import { DynamicDialog } from "@/components/ui/DynamicDialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 
 import type { LoginFormData } from "@/features/auth/hooks/useLogin";
 import type { FormFieldConfig, FormValues } from "@/components/ui/DynamicForm";
@@ -47,7 +45,6 @@ export function LoginForm() {
   const [error, setError] = useState<string | null>(null);
 
   const [showMasterKeyPrompt, setShowMasterKeyPrompt] = useState(false);
-  const [masterKeyInput, setMasterKeyInput] = useState("");
 
   const redirectNotespage = useCallback(
     function redirectNotesPage() {
@@ -86,21 +83,6 @@ export function LoginForm() {
     },
     [login, redirectNotespage],
   );
-
-  const handleConfirmMasterKey = useCallback(async () => {
-    if (!masterKeyInput.trim()) return;
-    try {
-      await KeysService.storeMasterKey({
-        masterKey: masterKeyInput.trim(),
-      });
-
-      redirectNotespage();
-    } catch (error) {
-      console.log("Error", error);
-      setError("Invalid master key provided. Please check it and try again.");
-      setShowMasterKeyPrompt(false);
-    }
-  }, [masterKeyInput, redirectNotespage]);
 
   return (
     <Card className="w-full max-w-md mx-auto shadow-2xl bg-card/60 backdrop-blur-xl border-foreground/10">
@@ -141,27 +123,36 @@ export function LoginForm() {
         isOpen={showMasterKeyPrompt}
         onOpenChange={setShowMasterKeyPrompt}
         showCloseButton={false}
-        actions={[
-          {
-            label: "Unlock Vault",
-            onClick: handleConfirmMasterKey,
-            disabled: !masterKeyInput.trim(),
-            closesDialog: false,
-          },
-        ]}
       >
-        <div className="space-y-4 py-2">
-          <div className="space-y-2">
-            <Label htmlFor="masterKey">Master Key</Label>
-            <Input
-              id="masterKey"
-              type="password"
-              placeholder="Paste your 44-character master key here"
-              value={masterKeyInput}
-              onChange={(e) => setMasterKeyInput(e.target.value)}
-              autoComplete="off"
-            />
-          </div>
+        <div className="py-2">
+          {error && <p className="text-sm text-destructive mb-3">{error}</p>}
+          <DynamicForm
+            fields={[
+              {
+                name: "masterKey",
+                label: "Master Key",
+                type: "password",
+                placeholder: "Paste your 44-character master key here",
+                required: true,
+                autoComplete: "off",
+              },
+            ]}
+            onSubmit={async (values) => {
+              const key = values.masterKey as string;
+              if (!key.trim()) return;
+              try {
+                await KeysService.storeMasterKey({ masterKey: key.trim() });
+                redirectNotespage();
+              } catch (err) {
+                console.log("Error", err);
+                setError(
+                  "Invalid master key provided. Please check it and try again.",
+                );
+                setShowMasterKeyPrompt(false);
+              }
+            }}
+            submitLabel="Unlock Vault"
+          />
         </div>
       </DynamicDialog>
     </Card>

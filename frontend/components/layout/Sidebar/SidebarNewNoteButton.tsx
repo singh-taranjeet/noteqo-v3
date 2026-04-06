@@ -6,7 +6,9 @@ interface SidebarNewNoteButtonProps {
   onCreateNote: () => void;
 }
 
-export function SidebarNewNoteButton({ onCreateNote }: SidebarNewNoteButtonProps) {
+export function SidebarNewNoteButton({
+  onCreateNote,
+}: SidebarNewNoteButtonProps) {
   return (
     <div className="sticky bottom-0 border-t border-border bg-sidebar p-2">
       <Button

@@ -5,11 +5,14 @@ import {
   Body,
   Patch,
   Param,
+  Query,
   Delete,
   HttpCode,
   HttpStatus,
   ParseUUIDPipe,
+  UseGuards,
 } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { UsersService } from './users.service';
 import { User } from './types/users.types';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -18,6 +21,7 @@ import { UserResponseDto } from './dto/user-response.dto';
 import { USER_ROUTES } from './constants/users.constants';
 
 @Controller(USER_ROUTES.BASE)
+@UseGuards(JwtAuthGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
@@ -26,6 +30,14 @@ export class UsersController {
   async create(@Body() createUserDto: CreateUserDto): Promise<UserResponseDto> {
     const user = await this.usersService.create(createUserDto);
     return this.mapToResponse(user);
+  }
+
+  @Get(USER_ROUTES.PUBLIC_KEY)
+  async getPublicKey(
+    @Query('email') email: string,
+  ): Promise<{ publicKey: string }> {
+    const user = await this.usersService.findByEmail(email);
+    return { publicKey: user.publicKey ?? '' };
   }
 
   @Get(USER_ROUTES.BY_ID)
