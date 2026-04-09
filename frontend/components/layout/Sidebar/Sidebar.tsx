@@ -15,12 +15,13 @@ import {
   useCreateNote,
   useSyncQueue,
 } from "@/features/workspace";
-import { MOCK_USER } from "@/features/auth/constants/auth.constants";
-import { SPACE_TYPE } from "@/features/spaces/constants/spaces.constants";
-import type { Space, SpaceType } from "@/features/spaces/types/spaces.types";
+import { MOCK_USER } from "@/features/auth";
+import { SPACE_TYPE } from "@/features/spaces";
+import type { Space, SpaceType } from "@/features/spaces";
 import { DynamicDialog } from "@/components/ui/DynamicDialog";
 import { DynamicForm } from "@/components/ui/DynamicForm";
 import type { FormFieldConfig, FormValues } from "@/components/ui/DynamicForm";
+import type { ActiveTabType } from "../types";
 
 const CREATE_SPACE_FIELDS: FormFieldConfig[] = [
   {
@@ -58,6 +59,8 @@ export function Sidebar() {
   const personalSpaces = spaces.filter((s) => s.type === SPACE_TYPE.PERSONAL);
 
   const sharedSpaces = spaces.filter((s) => s.type === SPACE_TYPE.SHARED);
+
+  const [activeTab, setActiveTab] = useState<ActiveTabType>("home");
 
   const defaultPersonalSpace = personalSpaces.find(
     (pesonalSpace) => pesonalSpace.isDefault,
@@ -100,7 +103,7 @@ export function Sidebar() {
             avatarEmoji={MOCK_USER.AVATAR}
             onCloseSidebar={toggleSidebar}
           />
-          <SidebarNavTabs />
+          <SidebarNavTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
           {/* Shared Spaces Section */}
           <SidebarSpaceCategory

@@ -19,3 +19,15 @@ export const SPACES_API_ROUTES = {
 } as const;
 
 export const SPACES_QUERY_KEY = ["spaces"] as const;
+
+export const SPACES_MESSAGES = {
+  INVITE_FAILED: "Failed to invite member",
+  MISSING_PUBLIC_KEY: "Public key not found — cannot encrypt space key",
+  MISSING_PRIVATE_KEY: "Missing keys — cannot decrypt space key",
+} as const;
+
+export const NOTE_FALLBACKS = {
+  TITLE: "Untitled",
+  EMOJI: "📄",
+  COVER_IMAGE: "",
+} as const;

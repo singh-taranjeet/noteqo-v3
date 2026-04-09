@@ -199,9 +199,7 @@ export class SpacesService {
 
     // Fetch the requesting user's key slot for this space
     const keySlot = await this.spacesRepository.findKeySlot(spaceId, userId);
-    const encryptedSpaceKey = keySlot
-      ? keySlot.encryptedSpaceKey.toString('base64')
-      : '';
+    const encryptedSpaceKey = keySlot ? keySlot.encryptedSpaceKey : '';
 
     return { notes, encryptedSpaceKey };
   }
