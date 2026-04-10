@@ -10,6 +10,10 @@ import { UnderlineIcon } from "@/features/editor/components/icons/UnderlineIcon"
 import { Code2Icon } from "@/features/editor/components/icons/Code2Icon"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Toggle } from "@/components/ui/toggle"
+import { Separator } from "@/components/ui/separator"
+import { TurnIntoDropdown } from "@/features/editor/components/editor-ui/TurnIntoDropdown"
+import { ColorPickerPopover } from "@/features/editor/components/editor-ui/ColorPickerPopover"
+import { MoreVerticalIcon } from "@/features/editor/components/icons/MoreVerticalIcon"
 
 interface EditorBubbleMenuProps {
   editor: Editor | null
@@ -46,6 +50,9 @@ const MENU_ITEMS = [
 type MenuItemName = typeof MENU_ITEMS[number]["name"]
 
 export const EditorBubbleMenu: React.FC<EditorBubbleMenuProps> = ({ editor }) => {
+  const [isTurnIntoOpen, setIsTurnIntoOpen] = React.useState(false)
+  const [isColorPickerOpen, setIsColorPickerOpen] = React.useState(false)
+
   if (!editor) return null
 
   const getCommand = (name: MenuItemName) => {
@@ -68,8 +75,21 @@ export const EditorBubbleMenu: React.FC<EditorBubbleMenuProps> = ({ editor }) =>
   return (
     <BubbleMenu
       editor={editor}
+      shouldShow={({ editor, view, state, from, to }) => {
+        const { selection } = state
+        const { empty } = selection
+
+        // Prevent BubbleMenu from disappearing when interacting with Shadcn sub-menus
+        if (isTurnIntoOpen || isColorPickerOpen) return true
+
+        return view.hasFocus() && !empty
+      }}
       className="flex items-center gap-1 bg-popover rounded-md border shadow-md p-1"
     >
+      <TurnIntoDropdown editor={editor} isOpen={isTurnIntoOpen} onOpenChange={setIsTurnIntoOpen} />
+      
+      <Separator orientation="vertical" className="h-4 mx-1" />
+
       <TooltipProvider delayDuration={200}>
         {MENU_ITEMS.map((item) => {
           const isActive = editor.isActive(item.name)
@@ -93,6 +113,28 @@ export const EditorBubbleMenu: React.FC<EditorBubbleMenuProps> = ({ editor }) =>
             </Tooltip>
           )
         })}
+
+        <Separator orientation="vertical" className="h-4 mx-1" />
+        
+        <ColorPickerPopover editor={editor} isOpen={isColorPickerOpen} onOpenChange={setIsColorPickerOpen} />
+
+        <Separator orientation="vertical" className="h-4 mx-1" />
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Toggle
+              type="button"
+              size="sm"
+              aria-label="More options"
+              className="rounded-sm p-1.5 h-auto min-w-0"
+            >
+              <MoreVerticalIcon className="w-4 h-4" />
+            </Toggle>
+          </TooltipTrigger>
+          <TooltipContent side="top" className="text-xs">
+            More options
+          </TooltipContent>
+        </Tooltip>
       </TooltipProvider>
     </BubbleMenu>
   )
