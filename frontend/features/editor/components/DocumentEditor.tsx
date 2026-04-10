@@ -22,6 +22,10 @@ import { HeadingNode } from "@/features/editor/components/nodes/HeadingNode/Head
 
 // --- Tiptap Features ---
 import { SlashCommandExtension } from "@/features/editor/components/extensions/SlashCommand/SlashCommandExtension"
+import TiptapDragHandle from "@tiptap/extension-drag-handle"
+
+// --- Tiptap UI Hooks & Components ---
+import { BlockDragHandle } from "@/features/editor/components/editor-ui/BlockDragHandle"
 
 // --- Lib ---
 import { handleImageUpload, MAX_FILE_SIZE } from "@/features/editor/utils/tiptapUtils"
@@ -92,14 +96,16 @@ export function DocumentEditor() {
         onError: (error) => console.error("Upload failed:", error),
       }),
       SlashCommandExtension,
+      TiptapDragHandle,
     ],
     content,
   })
 
   return (
-    <div className="w-full h-full overflow-auto bg-background text-foreground font-sans">
-      <div className="w-full mx-auto h-full flex flex-col px-6 sm:px-12 pt-16 pb-96">
+    <div className="w-full h-full overflow-auto bg-background text-foreground font-sans group relative">
+      <div className="w-full mx-auto h-full flex flex-col pl-14 pr-6 sm:pl-24 sm:pr-12 pt-16 pb-96">
         <EditorContext.Provider value={{ editor }}>
+          <BlockDragHandle editor={editor} />
           <EditorContent
             editor={editor}
             role="presentation"
