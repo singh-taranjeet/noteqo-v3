@@ -2,6 +2,9 @@
 ### Standards, Rules & Patterns for Scalable Applications (2025)
 
 ---
+# Very important NOTE : Use shadcn componets only
+* No hardcoded strings
+* proper types constants enums etc
 
 ## Table of Contents
 

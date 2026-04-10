@@ -54,13 +54,13 @@ body,
   font-family: "DM Sans", sans-serif;
 }
 
-.simple-editor-wrapper {
+.document-editor-wrapper {
   width: 100vw;
   height: 100vh;
   overflow: auto;
 }
 
-.simple-editor-content {
+.document-editor-content {
   max-width: 648px;
   width: 100%;
   margin: 0 auto;
@@ -70,13 +70,13 @@ body,
   flex: 1;
 }
 
-.simple-editor-content .tiptap.ProseMirror.simple-editor {
+.document-editor-content .tiptap.ProseMirror.document-editor {
   flex: 1;
   padding: 3rem 3rem 30vh;
 }
 
 @media screen and (max-width: 480px) {
-  .simple-editor-content .tiptap.ProseMirror.simple-editor {
+  .document-editor-content .tiptap.ProseMirror.document-editor {
     padding: 1rem 1.5rem 30vh;
   }
 }
