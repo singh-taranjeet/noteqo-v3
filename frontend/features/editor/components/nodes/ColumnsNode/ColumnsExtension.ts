@@ -5,7 +5,7 @@ import { ColumnsNodeView } from "./ColumnsNodeView";
 export const ColumnsExtension = TiptapNode.create({
   name: "columns",
   group: "block",
-  content: "column column column",
+  content: "column+",
 
   addAttributes() {
     return {
@@ -36,18 +36,18 @@ export const ColumnsExtension = TiptapNode.create({
     return {
       setColumns:
         (cols: number) =>
-        ({ commands }: CommandProps) => {
-          const visible = cols || 2;
-          const items = Array.from({ length: 3 }, () => ({
-            type: "column",
-            content: [{ type: "paragraph" }],
-          }));
-          return commands.insertContent({
-            type: this.name,
-            attrs: { visibleColumns: visible },
-            content: items,
-          });
-        },
+          ({ commands }: CommandProps) => {
+            const visible = cols || 2;
+            const items = Array.from({ length: 6 }, () => ({
+              type: "column",
+              content: [{ type: "paragraph" }],
+            }));
+            return commands.insertContent({
+              type: this.name,
+              attrs: { visibleColumns: visible },
+              content: items,
+            });
+          },
     } as any;
   },
 });

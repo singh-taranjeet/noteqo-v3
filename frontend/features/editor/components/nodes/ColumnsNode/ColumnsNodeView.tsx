@@ -50,11 +50,16 @@ export const ColumnsNodeView = ({ editor, node, updateAttributes }: NodeViewProp
         wrapper.style.minWidth = "0";
         wrapper.style.padding = "0 4px";
 
-        // Hide 3rd column when only 2 visible
-        if (index === 2) {
-          wrapper.style.display = visible >= 3 ? "block" : "none";
+        // Hide columns that exceed the visible count
+        if (index >= visible) {
+          wrapper.style.display = "none";
           if (wrapper.parentElement) {
-            wrapper.parentElement.style.display = visible >= 3 ? "block" : "none";
+            wrapper.parentElement.style.display = "none";
+          }
+        } else {
+          wrapper.style.display = "block";
+          if (wrapper.parentElement) {
+            wrapper.parentElement.style.display = "block";
           }
         }
       });
@@ -84,6 +89,9 @@ export const ColumnsNodeView = ({ editor, node, updateAttributes }: NodeViewProp
               <SelectContent>
                 <SelectItem value="2">2 columns</SelectItem>
                 <SelectItem value="3">3 columns</SelectItem>
+                <SelectItem value="4">4 columns</SelectItem>
+                <SelectItem value="5">5 columns</SelectItem>
+                <SelectItem value="6">6 columns</SelectItem>
               </SelectContent>
             </Select>
           </div>
