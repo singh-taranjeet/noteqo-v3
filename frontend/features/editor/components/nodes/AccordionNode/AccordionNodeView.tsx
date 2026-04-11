@@ -4,13 +4,14 @@ import React, { useRef } from "react";
 import { NodeViewWrapper, NodeViewContent, NodeViewProps } from "@tiptap/react";
 import {
   Accordion,
-  AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { cn } from "@/lib/utils";
 
 export const AccordionNodeView = ({ node, updateAttributes, editor }: NodeViewProps) => {
   const title = (node.attrs.title as string) || "";
+  const isOpen = node.attrs.isOpen !== false; // defaults to true
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -25,7 +26,13 @@ export const AccordionNodeView = ({ node, updateAttributes, editor }: NodeViewPr
 
   return (
     <NodeViewWrapper className="w-full my-4 block not-prose">
-      <Accordion type="single" collapsible defaultValue="item-1" className="w-full">
+      <Accordion
+        type="single"
+        collapsible
+        value={isOpen ? "item-1" : ""}
+        onValueChange={(val) => updateAttributes({ isOpen: val === "item-1" })}
+        className="w-full"
+      >
         <AccordionItem value="item-1" className="bg-card">
           <AccordionTrigger className="hover:no-underline px-4">
             <input
@@ -43,9 +50,19 @@ export const AccordionNodeView = ({ node, updateAttributes, editor }: NodeViewPr
               disabled={!editor.isEditable}
             />
           </AccordionTrigger>
-          <AccordionContent className="px-4 pb-4">
-             <NodeViewContent className="min-h-[1.5em] prose dark:prose-invert max-w-none w-full [&>p]:m-0" />
-          </AccordionContent>
+          {/* Custom persistent content wrapper bypassing Radix <Presence> tree destruction */}
+          <div
+            className={cn(
+              "grid transition-all duration-200 ease-in-out",
+              isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+            )}
+          >
+            <div className="overflow-hidden px-4">
+              <div className="pb-4">
+                <NodeViewContent className="min-h-[1.5em] prose dark:prose-invert max-w-none w-full [&>p]:m-0" />
+              </div>
+            </div>
+          </div>
         </AccordionItem>
       </Accordion>
     </NodeViewWrapper>
