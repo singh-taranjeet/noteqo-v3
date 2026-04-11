@@ -2,8 +2,8 @@
 
 import React from "react"
 import { Editor } from "@tiptap/react"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Button } from "@/components/ui/button"
+import { EditorPopover } from "@/features/editor/components/editor-ui/EditorPopover"
 import { ChevronDownIcon } from "@/features/editor/components/icons/ChevronDownIcon"
 import { TextColorIcon } from "@/features/editor/components/icons/TextColorIcon"
 import { TEXT_COLORS, HIGHLIGHT_COLORS } from "@/features/editor/constants/colors"
@@ -36,8 +36,12 @@ export const ColorPickerPopover: React.FC<ColorPickerPopoverProps> = ({ editor, 
   }
 
   return (
-    <Popover modal={false} open={isOpen} onOpenChange={onOpenChange}>
-      <PopoverTrigger asChild>
+    <EditorPopover 
+      isOpen={isOpen} 
+      onOpenChange={onOpenChange}
+      align="start"
+      contentClassName="w-64 p-3 overflow-y-auto max-h-80 shadow-lg z-50"
+      trigger={
         <Button 
           variant="ghost" 
           size="sm" 
@@ -47,14 +51,8 @@ export const ColorPickerPopover: React.FC<ColorPickerPopoverProps> = ({ editor, 
           <TextColorIcon className="w-4 h-4" />
           <ChevronDownIcon className="w-3 h-3 opacity-50" />
         </Button>
-      </PopoverTrigger>
-      <PopoverContent 
-        align="start" 
-        className="w-64 p-3 overflow-y-auto max-h-80 shadow-lg" 
-        sideOffset={8}
-        onOpenAutoFocus={(e: Event) => e.preventDefault()}
-        onCloseAutoFocus={(e: Event) => e.preventDefault()}
-      >
+      }
+    >
         
         <div className="mb-4">
           <div className="text-xs font-semibold text-muted-foreground mb-2">Text Color</div>
@@ -94,7 +92,6 @@ export const ColorPickerPopover: React.FC<ColorPickerPopoverProps> = ({ editor, 
           </div>
         </div>
 
-      </PopoverContent>
-    </Popover>
+    </EditorPopover>
   )
 }

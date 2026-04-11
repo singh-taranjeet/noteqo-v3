@@ -26,6 +26,10 @@ import { HeadingNode } from "@/features/editor/components/nodes/HeadingNode/Head
 // --- Tiptap Features ---
 import { SlashCommandExtension } from "@/features/editor/components/extensions/SlashCommand/SlashCommandExtension"
 
+// --- Tiptap Columns ---
+import { ColumnsExtension } from "@/features/editor/components/nodes/ColumnsNode/ColumnsExtension"
+import { ColumnExtension } from "@/features/editor/components/nodes/ColumnsNode/ColumnExtension"
+
 // --- Tiptap UI Hooks & Components ---
 import { BlockDragHandle } from "@/features/editor/components/editor-ui/BlockDragHandle"
 import { EditorBubbleMenu } from "@/features/editor/components/editor-ui/EditorBubbleMenu"
@@ -102,6 +106,8 @@ export function DocumentEditor() {
         onError: (error) => console.error("Upload failed:", error),
       }),
       SlashCommandExtension,
+      ColumnsExtension,
+      ColumnExtension,
     ],
     content,
   })

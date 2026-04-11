@@ -2,7 +2,7 @@
 
 import React from "react"
 import { Editor } from "@tiptap/react"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { EditorPopover } from "@/features/editor/components/editor-ui/EditorPopover"
 import { Toggle } from "@/components/ui/toggle"
 import { Separator } from "@/components/ui/separator"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
@@ -36,33 +36,24 @@ const MORE_OPTIONS_GROUPS = [
 
 export const MoreOptionsPopover: React.FC<MoreOptionsPopoverProps> = ({ editor, isOpen, onOpenChange }) => {
   return (
-    <Popover modal={true} open={isOpen} onOpenChange={onOpenChange}>
-      <Tooltip>
-        <PopoverTrigger asChild>
-          <TooltipTrigger asChild>
-             <Toggle
-               type="button"
-               size="sm"
-               pressed={isOpen}
-               aria-label="More options"
-               className="rounded-sm p-1.5 h-auto min-w-0 data-[state=on]:bg-muted"
-             >
-               <MoreVerticalIcon className="w-4 h-4" />
-             </Toggle>
-          </TooltipTrigger>
-        </PopoverTrigger>
-        <TooltipContent side="top" className="text-xs">
-          More options
-        </TooltipContent>
-      </Tooltip>
-
-      <PopoverContent
-        align="center"
-        side="top"
-        sideOffset={8}
-        className="w-auto p-1 flex flex-row items-center gap-1 shadow-md bg-popover rounded-md"
-        onCloseAutoFocus={(e: Event) => e.preventDefault()}
-      >
+    <EditorPopover 
+      isOpen={isOpen} 
+      onOpenChange={onOpenChange}
+      align="center"
+      contentClassName="w-auto p-1 flex flex-row items-center gap-1 z-50"
+      tooltipText="More options"
+      trigger={
+         <Toggle
+           type="button"
+           size="sm"
+           pressed={isOpen}
+           aria-label="More options"
+           className="rounded-sm p-1.5 h-auto min-w-0 data-[state=on]:bg-muted"
+         >
+           <MoreVerticalIcon className="w-4 h-4" />
+         </Toggle>
+      }
+    >
         <TooltipProvider delayDuration={200}>
           {MORE_OPTIONS_GROUPS.map((group, groupIndex) => (
             <React.Fragment key={groupIndex}>
@@ -94,7 +85,6 @@ export const MoreOptionsPopover: React.FC<MoreOptionsPopoverProps> = ({ editor, 
             </React.Fragment>
           ))}
         </TooltipProvider>
-      </PopoverContent>
-    </Popover>
+    </EditorPopover>
   )
 }
