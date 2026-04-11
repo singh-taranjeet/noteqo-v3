@@ -5,6 +5,8 @@ export const USER_COLUMN = {
   EMAIL: 'email',
   NAME: 'name',
   PASSWORD: 'password',
+  PUBLIC_KEY: 'public_key',
+  PRIVATE_KEY: 'private_key',
 } as const;
 
 export const USER_ROUTES = {

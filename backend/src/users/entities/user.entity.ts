@@ -15,4 +15,10 @@ export class UserEntity extends AppBaseEntity {
 
   @Column({ name: USER_COLUMN.NAME })
   name: string;
+
+  @Column({ name: USER_COLUMN.PUBLIC_KEY, nullable: true })
+  publicKey: string;
+
+  @Column({ name: USER_COLUMN.PRIVATE_KEY, nullable: true })
+  privateKey: string;
 }

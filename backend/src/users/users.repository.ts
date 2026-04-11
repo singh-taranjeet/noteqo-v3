@@ -43,6 +43,8 @@ export class UsersRepository {
       id: entity.id,
       email: entity.email,
       name: entity.name,
+      publicKey: entity.publicKey,
+      privateKey: entity.privateKey,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
     };
