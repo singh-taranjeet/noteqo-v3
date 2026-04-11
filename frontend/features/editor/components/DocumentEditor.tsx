@@ -32,6 +32,7 @@ import { ColumnExtension } from "@/features/editor/components/nodes/ColumnsNode/
 
 // --- Tiptap Layouts ---
 import { CardNodeExtension } from "@/features/editor/components/nodes/CardNode/CardNodeExtension"
+import { AccordionNodeExtension } from "@/features/editor/components/nodes/AccordionNode/AccordionNodeExtension"
 
 // --- Tiptap UI Hooks & Components ---
 import { BlockDragHandle } from "@/features/editor/components/editor-ui/BlockDragHandle"
@@ -88,6 +89,7 @@ export function DocumentEditor() {
       CodeBlockNode,
       HeadingNode,
       CardNodeExtension,
+      AccordionNodeExtension,
       TextAlign.configure({ types: ["heading", "paragraph"] }),
       TaskList.configure({
         HTMLAttributes: { class: "my-6 ml-6 list-none [&>li]:mt-2 outline-none" },
