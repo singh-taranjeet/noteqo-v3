@@ -19,6 +19,7 @@ import { Separator } from "@/components/ui/separator";
 import { TurnIntoDropdown } from "@/features/editor/components/editor-ui/TurnIntoDropdown";
 import { ColorPickerPopover } from "@/features/editor/components/editor-ui/ColorPickerPopover";
 import { MoreOptionsPopover } from "@/features/editor/components/editor-ui/MoreOptionsPopover";
+import { AiMenu } from "@/features/ai";
 
 interface EditorBubbleMenuProps {
   editor: Editor | null;
@@ -60,6 +61,7 @@ export const EditorBubbleMenu: React.FC<EditorBubbleMenuProps> = ({
   const [isTurnIntoOpen, setIsTurnIntoOpen] = React.useState(false);
   const [isColorPickerOpen, setIsColorPickerOpen] = React.useState(false);
   const [isMoreOptionsOpen, setIsMoreOptionsOpen] = React.useState(false);
+  const [isAiMenuOpen, setIsAiMenuOpen] = React.useState(false);
 
   if (!editor) return null;
 
@@ -88,7 +90,12 @@ export const EditorBubbleMenu: React.FC<EditorBubbleMenuProps> = ({
         const { empty } = selection;
 
         // Prevent BubbleMenu from disappearing when interacting with Shadcn sub-menus
-        if (isTurnIntoOpen || isColorPickerOpen || isMoreOptionsOpen)
+        if (
+          isTurnIntoOpen ||
+          isColorPickerOpen ||
+          isMoreOptionsOpen ||
+          isAiMenuOpen
+        )
           return true;
 
         return view.hasFocus() && !empty;
@@ -141,6 +148,14 @@ export const EditorBubbleMenu: React.FC<EditorBubbleMenuProps> = ({
           editor={editor}
           isOpen={isMoreOptionsOpen}
           onOpenChange={setIsMoreOptionsOpen}
+        />
+
+        <Separator orientation="vertical" className="h-4 mx-1" />
+
+        <AiMenu
+          editor={editor}
+          isOpen={isAiMenuOpen}
+          onOpenChange={setIsAiMenuOpen}
         />
       </TooltipProvider>
     </BubbleMenu>

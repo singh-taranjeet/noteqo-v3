@@ -6,8 +6,16 @@ import { ReactRenderer } from "@tiptap/react";
 import tippy, { type Instance, type GetReferenceClientRect } from "tippy.js";
 import { CommandList } from "./CommandList";
 
-import { SLASH_COMMANDS } from "@/features/editor/constants/slashCommands";
+import {
+  SLASH_COMMANDS,
+  AI_SLASH_COMMANDS,
+} from "@/features/editor/constants/slashCommands";
 import type { SuggestionItem } from "@/features/editor/constants/slashCommands";
+
+const ALL_COMMANDS: SuggestionItem[] = [
+  ...SLASH_COMMANDS,
+  ...AI_SLASH_COMMANDS,
+];
 
 /** Shape exposed by CommandList via useImperativeHandle. */
 interface CommandListHandle {
@@ -19,9 +27,9 @@ export const getSuggestionItems = ({
 }: {
   query: string;
 }): SuggestionItem[] => {
-  return SLASH_COMMANDS.filter((item) =>
+  return ALL_COMMANDS.filter((item) =>
     item.title.toLowerCase().startsWith(query.toLowerCase()),
-  ).slice(0, 20);
+  ).slice(0, 25);
 };
 
 export const SlashCommandExtension = Extension.create({

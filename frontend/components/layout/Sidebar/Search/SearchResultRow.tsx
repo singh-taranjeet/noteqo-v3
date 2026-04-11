@@ -1,5 +1,6 @@
 "use client";
 
+import { formatDistanceToNow } from "date-fns";
 import {
   Item,
   ItemContent,
@@ -23,8 +24,12 @@ export function SearchResultRow({
   onSelect,
   onHover,
 }: Readonly<SearchResultRowProps>) {
+  const updatedTime = item.updatedAt
+    ? `Updated ${formatDistanceToNow(new Date(item.updatedAt))} ago`
+    : "";
+
   const description = item.spaceName
-    ? `${item.spaceName} ${item.previewText}`
+    ? `${item.spaceName} • ${item.previewText}`
     : item.previewText;
 
   return (
@@ -50,6 +55,11 @@ export function SearchResultRow({
           <ItemDescription className="line-clamp-1 text-xs">
             {description}
           </ItemDescription>
+          {updatedTime && (
+            <div className="text-[10px] text-muted-foreground mt-0.5">
+              {updatedTime}
+            </div>
+          )}
         </ItemContent>
       </Item>
     </button>

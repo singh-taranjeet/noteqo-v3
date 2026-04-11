@@ -34,6 +34,9 @@ import { HeadingNode } from "@/features/editor/components/nodes/HeadingNode/Head
 // --- Tiptap Features ---
 import { SlashCommandExtension } from "@/features/editor/components/extensions/SlashCommand/SlashCommandExtension";
 
+// --- AI Extension ---
+import { AiExtension } from "@/features/ai";
+
 // --- Tiptap Columns ---
 import { ColumnsExtension } from "@/features/editor/components/nodes/ColumnsNode/ColumnsExtension";
 import { ColumnExtension } from "@/features/editor/components/nodes/ColumnsNode/ColumnExtension";
@@ -223,6 +226,7 @@ export function NoteEditor({
         upload: handleImageUpload,
       }),
       SlashCommandExtension,
+      AiExtension,
       ColumnsExtension,
       ColumnExtension,
     ],
