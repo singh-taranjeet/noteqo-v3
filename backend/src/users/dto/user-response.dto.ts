@@ -6,4 +6,7 @@ export class UserResponseDto {
   privateKey?: string;
   createdAt: Date;
   updatedAt: Date;
+  createdBy?: string;
+  updatedBy?: string;
+  deletedBy?: string;
 }
