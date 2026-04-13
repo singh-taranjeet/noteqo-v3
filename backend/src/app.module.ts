@@ -5,9 +5,16 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { configValidationSchema, databaseConfig, CONFIG_KEYS } from './config';
 import { UsersModule } from './users';
+import { NotesModule } from './notes';
+import { AuthModule } from './auth/auth.module';
+import { ClsModule } from 'nestjs-cls';
 
 @Module({
   imports: [
+    ClsModule.forRoot({
+      global: true,
+      middleware: { mount: true },
+    }),
     ConfigModule.forRoot({
       isGlobal: true,
       validationSchema: configValidationSchema,
@@ -31,6 +38,8 @@ import { UsersModule } from './users';
       },
     }),
     UsersModule,
+    NotesModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

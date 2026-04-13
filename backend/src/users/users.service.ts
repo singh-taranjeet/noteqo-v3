@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { UsersRepository } from './users.repository';
 import { User } from './types/users.types';
+import { UserEntity } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import {
@@ -22,13 +23,13 @@ export class UsersService {
       throw new UserEmailExistsException();
     }
 
-    const hashedPassword = await bcrypt.hash(dto.password, USER_CONSTANTS.PASSWORD_SALT_ROUNDS);
+    const hashedCredential = await bcrypt.hash(dto.authCredential, USER_CONSTANTS.AUTH_SALT_ROUNDS);
     
     this.logger.log(`Creating user with email ${dto.email}`);
     
     return this.usersRepository.create({
       ...dto,
-      password: hashedPassword,
+      authCredential: hashedCredential,
     });
   }
 
@@ -53,10 +54,10 @@ export class UsersService {
       }
     }
 
-    const updateData: any = { ...dto };
+    const updateData: Partial<UserEntity> = { ...dto };
 
-    if (dto.password) {
-      updateData.password = await bcrypt.hash(dto.password, USER_CONSTANTS.PASSWORD_SALT_ROUNDS);
+    if (dto.authCredential) {
+      updateData.authCredential = await bcrypt.hash(dto.authCredential, USER_CONSTANTS.AUTH_SALT_ROUNDS);
     }
 
     this.logger.log(`Updating user ${id}`);
