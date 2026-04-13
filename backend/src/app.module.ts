@@ -8,6 +8,7 @@ import { UsersModule } from './users';
 import { NotesModule } from './notes';
 import { AuthModule } from './auth/auth.module';
 import { ClsModule } from 'nestjs-cls';
+import { SharedModule } from './shared/shared.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { ClsModule } from 'nestjs-cls';
     UsersModule,
     NotesModule,
     AuthModule,
+    SharedModule,
   ],
   controllers: [AppController],
   providers: [AppService],
