@@ -19,6 +19,7 @@ export const CardNodeExtension = TiptapNode.create({
     return [{ tag: "div[data-type='shadcn-card']" }];
   },
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Tiptap mergeAttributes requires Record<string, any>
   renderHTML({ HTMLAttributes }: Record<string, any>) {
     return [
       "div",

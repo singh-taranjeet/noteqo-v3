@@ -1,4 +1,3 @@
-import React from "react";
 import { Node as TiptapNode, mergeAttributes } from "@tiptap/core";
 import { ReactNodeViewRenderer, NodeViewWrapper, NodeViewContent } from "@tiptap/react";
 
@@ -21,6 +20,7 @@ export const ColumnExtension = TiptapNode.create({
     return [{ tag: "div[data-type='column-item']" }];
   },
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Tiptap mergeAttributes requires Record<string, any>
   renderHTML({ HTMLAttributes }: Record<string, any>) {
     return [
       "div",

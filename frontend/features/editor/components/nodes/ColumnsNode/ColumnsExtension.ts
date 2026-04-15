@@ -17,6 +17,7 @@ export const ColumnsExtension = TiptapNode.create({
     return [{ tag: "div[data-type='columns-block']" }];
   },
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Tiptap mergeAttributes requires Record<string, any>
   renderHTML({ HTMLAttributes }: Record<string, any>) {
     return [
       "div",
@@ -48,6 +49,7 @@ export const ColumnsExtension = TiptapNode.create({
               content: items,
             });
           },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Custom command not in Tiptap's RawCommands type
     } as any;
   },
 });

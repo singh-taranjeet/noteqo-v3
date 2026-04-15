@@ -47,7 +47,7 @@ export interface ImageUploadNodeOptions {
    * @default {}
    * @example { class: 'foo' }
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Tiptap extension options require Record<string, any>
   HTMLAttributes: Record<string, any>
 }
 
