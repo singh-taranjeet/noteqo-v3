@@ -8,4 +8,3 @@ export const HorizontalRule = BaseHorizontalRule.extend({
   },
 })
 
-export default HorizontalRule

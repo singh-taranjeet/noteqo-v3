@@ -1,7 +1,7 @@
 import { Extension, Editor, Range } from "@tiptap/core"
 import Suggestion, { SuggestionProps, SuggestionKeyDownProps } from "@tiptap/suggestion"
 import { ReactRenderer } from "@tiptap/react"
-import tippy, { GetReferenceClientRect } from "tippy.js"
+import tippy, { type Instance, type GetReferenceClientRect } from "tippy.js"
 import { CommandList } from "./CommandList"
 
 import { SLASH_COMMANDS, SuggestionItem } from "@/features/editor/constants/slashCommands"
@@ -31,8 +31,8 @@ export const SlashCommandExtension = Extension.create({
         ...this.options.suggestion,
         items: getSuggestionItems,
         render: () => {
-          let component: ReactRenderer<any>
-          let popup: any
+          let component: ReactRenderer
+          let popup: Instance[]
 
           return {
             onStart: (props) => {

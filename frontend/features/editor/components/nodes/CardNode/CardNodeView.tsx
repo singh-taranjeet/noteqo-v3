@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { cn } from "@/utils/string.utils"; // We must use our internal cn if it exists, wait, let me use standard utility. Actually, shadcn's is at @/lib/utils normally.
+import { cn } from "@/lib/utils"; // We must use our internal cn if it exists, wait, let me use standard utility. Actually, shadcn's is at @/lib/utils normally.
 
 const THEMES: Record<string, string> = {
   default: "bg-background text-foreground",

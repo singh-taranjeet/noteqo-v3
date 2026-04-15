@@ -159,4 +159,3 @@ export const ImageUploadNode = Node.create<ImageUploadNodeOptions>({
   },
 })
 
-export default ImageUploadNode
