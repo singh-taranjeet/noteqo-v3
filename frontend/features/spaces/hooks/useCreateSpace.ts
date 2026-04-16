@@ -1,30 +1,37 @@
-import { useState, useCallback } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { spaceService } from "../services/space.service";
 import { logService } from "@/services/log.service";
 import type { Space, SpaceType } from "../types/spaces.types";
+import { SPACES_QUERY_KEY } from "./useSpaces";
 
 export function useCreateSpace() {
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState<Error | null>(null);
+  const queryClient = useQueryClient();
 
-  const createSpace = useCallback(
-    async (name?: string, type?: SpaceType): Promise<Space | null> => {
-      setIsLoading(true);
-      setError(null);
-
-      try {
-        const space = await spaceService.createSpace(name, type);
-        return space;
-      } catch (err) {
-        logService.error("Failed to create space", err);
-        setError(err instanceof Error ? err : new Error(String(err)));
-        return null;
-      } finally {
-        setIsLoading(false);
-      }
+  const mutation = useMutation({
+    mutationFn: async ({
+      name,
+      type,
+    }: {
+      name?: string;
+      type?: SpaceType;
+    }): Promise<Space | null> => {
+      return await spaceService.createSpace(name, type);
     },
-    [],
-  );
+    onSuccess: async () => {
+      // Invalidate spaces query to automatically refresh the list
+      void queryClient.invalidateQueries({ queryKey: SPACES_QUERY_KEY });
+      // refetch the SPACES_QUERY_KEY query as well
+      await queryClient.refetchQueries({ queryKey: SPACES_QUERY_KEY });
+    },
+    onError: (err) => {
+      logService.error("Failed to create space", err);
+    },
+  });
 
-  return { createSpace, isLoading, error };
+  return {
+    createSpace: async (name?: string, type?: SpaceType) =>
+      mutation.mutateAsync({ name, type }),
+    isLoading: mutation.isPending,
+    error: mutation.error,
+  };
 }

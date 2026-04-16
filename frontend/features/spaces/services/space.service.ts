@@ -3,18 +3,14 @@ import { storageService, STORAGE_KEYS, db } from "@/features/storage";
 import { logService } from "@/services/log.service";
 import { spaceApiService } from "./space-api.service";
 import {
+  LOCAL_STORAGE_ALL_SPACES_INITIALLY_FETCHED,
   SPACE_DEFAULTS,
   SPACE_TYPE,
   SPACES_MESSAGES,
-  NOTE_FALLBACKS,
 } from "../constants/spaces.constants";
-import type {
-  Space,
-  SpaceType,
-  RemoteSpace,
-  RemoteSpaceNote,
-} from "../types/spaces.types";
+import type { Space, SpaceType, RemoteSpace } from "../types/spaces.types";
 import type { Note } from "@/features/workspace";
+import { noteService } from "@/features/workspace";
 
 export const spaceService = {
   /**
@@ -24,6 +20,7 @@ export const spaceService = {
     name: string = SPACE_DEFAULTS.NAME,
     type: SpaceType = SPACE_TYPE.PERSONAL,
   ): Promise<Space> {
+    const now = new Date().toISOString();
     // 1. Generate a random AES-256 space key
     const spaceKeyBytes = globalThis.crypto.getRandomValues(
       new Uint8Array(CRYPTO_CONFIG.MASTER_KEY_BYTES_LENGTH),
@@ -46,10 +43,11 @@ export const spaceService = {
       encryptedName,
       type,
       ownerKeySlot,
+      createdAt: now,
+      updatedAt: now,
     });
 
     // 5. Cache locally in Dexie
-    const now = new Date().toISOString();
     const space: Space = {
       id: remoteSpace.id,
       name,
@@ -66,27 +64,71 @@ export const spaceService = {
   },
 
   /**
-   * Fetches all spaces from API, decrypts names, caches locally.
+   * Fetch spaces with notes and decrypt them and store them in the local db
+   * If the local db is empty, fetch all spaces, else fetch only recently updated spaces
    */
-  async getAllSpaces(): Promise<Space[]> {
-    const remoteSpaces = await spaceApiService.getAll();
+  async getSpaces(): Promise<{ spaces: Space[]; notes: Note[] }> {
+    const fetchOnlyRecentlyUpdated = !!localStorage.getItem(
+      LOCAL_STORAGE_ALL_SPACES_INITIALLY_FETCHED,
+    );
 
+    const remoteSpaces = fetchOnlyRecentlyUpdated
+      ? await spaceApiService.getRecentlyUpdated()
+      : await spaceApiService.getAll();
+
+    // Decrypt all the spaces
     const decryptedSpaces = await Promise.all(
       remoteSpaces.map((rs) => spaceService.decryptRemoteSpace(rs)),
     );
 
     const validSpaces = decryptedSpaces.filter((s): s is Space => s !== null);
 
-    // Cache all spaces locally
+    // Store all spaces in local db
     await db.spaces.bulkPut(validSpaces);
 
-    return validSpaces;
+    // Decrypt all the notes
+    const decryptedNotes: Note[] = [];
+    const allRemoteNotes = remoteSpaces.flatMap((rs) => rs.notes || []);
+    for (const remoteNote of allRemoteNotes) {
+      const decryptedNote = await noteService.decryptNote(remoteNote);
+      const localNote = await db.notes.get(remoteNote.id);
+      const localTime = localNote?.updatedAt
+        ? new Date(localNote.updatedAt).getTime()
+        : 0;
+      const remoteTime = decryptedNote?.updatedAt
+        ? new Date(decryptedNote.updatedAt).getTime()
+        : 0;
+
+      const latestContent =
+        remoteTime >= localTime ? decryptedNote?.content : localNote?.content;
+
+      if (decryptedNote) {
+        decryptedNotes.push({
+          ...decryptedNote,
+          content: latestContent,
+          // If local is newer, keep its pending status if applicable
+          syncStatus:
+            localTime > remoteTime
+              ? localNote?.syncStatus || "synced"
+              : "synced",
+        });
+      }
+    }
+
+    // Store all notesin local db
+    await db.notes.bulkPut(decryptedNotes);
+
+    const notes = await noteService.getAllLocalNotes();
+    const spaces = await this.getLocalSpaces();
+    localStorage.setItem(LOCAL_STORAGE_ALL_SPACES_INITIALLY_FETCHED, "done");
+
+    return { spaces, notes };
   },
 
   /**
    * Returns locally cached spaces from Dexie.
    */
-  async getCachedSpaces(): Promise<Space[]> {
+  async getLocalSpaces(): Promise<Space[]> {
     return db.spaces.toArray();
   },
 
@@ -96,6 +138,18 @@ export const spaceService = {
   async getCachedSpaceKey(spaceId: string): Promise<string | null> {
     const space = await db.spaces.get(spaceId);
     return space?.spaceKey ?? null;
+  },
+
+  /**
+   * Returns the space key as a Uint8Array for a given spaceId.
+   * Throws if no cached key is found.
+   */
+  async getSpaceKeyBytes(spaceId: string): Promise<Uint8Array> {
+    const spaceKeyBase64 = await spaceService.getCachedSpaceKey(spaceId);
+    if (!spaceKeyBase64) {
+      throw new Error(`Space key not found for space ${spaceId}`);
+    }
+    return new Uint8Array(cryptoService.decodeBase64(spaceKeyBase64));
   },
 
   /**
@@ -140,98 +194,17 @@ export const spaceService = {
   },
 
   /**
-   * Decrypts a note using the space key (not per-note RSA).
-   */
-  async decryptSpaceNote(
-    remoteNote: RemoteSpaceNote,
-    spaceKeyBase64: string,
-  ): Promise<Note | null> {
-    try {
-      if (!remoteNote.ciphertext?.includes(":")) {
-        logService.warn(`Invalid ciphertext for note ${remoteNote.id}`);
-        return null;
-      }
-
-      const spaceKeyBuffer = cryptoService.decodeBase64(spaceKeyBase64);
-      const spaceKeyBytes = new Uint8Array(spaceKeyBuffer);
-
-      // Parse iv:ciphertext
-      const [iv64, cipher64] = remoteNote.ciphertext.split(":");
-      const iv = new Uint8Array(cryptoService.decodeBase64(iv64));
-      const cipherBuffer = cryptoService.decodeBase64(cipher64);
-
-      // Import AES key
-      const aesKey = await globalThis.crypto.subtle.importKey(
-        "raw",
-        spaceKeyBytes as BufferSource,
-        { name: CRYPTO_CONFIG.ALGORITHMS.AES },
-        false,
-        ["decrypt"],
-      );
-
-      // Decrypt
-      const decryptedBuffer = await globalThis.crypto.subtle.decrypt(
-        { name: CRYPTO_CONFIG.ALGORITHMS.AES, iv },
-        aesKey,
-        cipherBuffer,
-      );
-
-      const jsonStr = new TextDecoder().decode(decryptedBuffer);
-      const payload = JSON.parse(jsonStr) as {
-        title?: string;
-        emoji?: string;
-        coverImage?: string;
-        content?: unknown;
-      };
-
-      return {
-        id: remoteNote.id,
-        title: payload.title ?? NOTE_FALLBACKS.TITLE,
-        emoji: payload.emoji ?? NOTE_FALLBACKS.EMOJI,
-        coverImage: payload.coverImage ?? NOTE_FALLBACKS.COVER_IMAGE,
-        content: payload.content ?? null,
-        syncStatus: "synced",
-        spaceId: remoteNote.spaceId,
-        type: remoteNote.type as "private" | "shared",
-        createdAt: remoteNote.createdAt,
-        updatedAt: remoteNote.updatedAt ?? remoteNote.createdAt,
-      };
-    } catch (err) {
-      logService.error(`Failed to decrypt note ${remoteNote.id}`, err);
-      return null;
-    }
-  },
-
-  /**
    * Encrypts a plaintext string with the AES space key. Returns base64 "iv:ciphertext".
    */
   async encryptWithSpaceKey(
     plaintext: string,
     spaceKeyBytes: Uint8Array,
   ): Promise<string> {
-    const aesKey = await globalThis.crypto.subtle.importKey(
-      "raw",
-      spaceKeyBytes as BufferSource,
-      { name: CRYPTO_CONFIG.ALGORITHMS.AES },
-      false,
-      ["encrypt"],
-    );
-
-    const iv = globalThis.crypto.getRandomValues(
-      new Uint8Array(CRYPTO_CONFIG.IV_BYTES_LENGTH),
-    );
-    const encoder = new TextEncoder();
-    const encrypted = await globalThis.crypto.subtle.encrypt(
-      { name: CRYPTO_CONFIG.ALGORITHMS.AES, iv },
-      aesKey,
-      encoder.encode(plaintext),
-    );
-
-    return `${cryptoService.encodeBase64(iv.buffer)}:${cryptoService.encodeBase64(encrypted)}`;
+    return cryptoService.encryptString(plaintext, spaceKeyBytes);
   },
 
   /**
-   * Decrypts a "iv:ciphertext" string with the AES space key. Returns plaintext.
+   * Decrypt the space parameters.
    */
   async decryptWithSpaceKey(
     ciphertext: string,
@@ -245,25 +218,7 @@ export const spaceService = {
     }
 
     try {
-      const [iv64, cipher64] = ciphertext.split(":");
-      const iv = new Uint8Array(cryptoService.decodeBase64(iv64));
-      const cipherBuffer = cryptoService.decodeBase64(cipher64);
-
-      const aesKey = await globalThis.crypto.subtle.importKey(
-        "raw",
-        spaceKeyBytes as BufferSource,
-        { name: CRYPTO_CONFIG.ALGORITHMS.AES },
-        false,
-        ["decrypt"],
-      );
-
-      const decryptedBuffer = await globalThis.crypto.subtle.decrypt(
-        { name: CRYPTO_CONFIG.ALGORITHMS.AES, iv },
-        aesKey,
-        cipherBuffer,
-      );
-
-      return new TextDecoder().decode(decryptedBuffer);
+      return await cryptoService.decryptString(ciphertext, spaceKeyBytes);
     } catch (err) {
       logService.warn(
         "Decryption failed for space name, treating as plaintext fallback.",

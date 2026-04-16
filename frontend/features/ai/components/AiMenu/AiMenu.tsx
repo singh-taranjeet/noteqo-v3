@@ -29,7 +29,11 @@ const EMPTY_SELECTION: SelectionState = {
   selectionTo: 0,
 };
 
-export function AiMenu({ editor, isOpen, onOpenChange }: Readonly<AiMenuProps>) {
+export function AiMenu({
+  editor,
+  isOpen,
+  onOpenChange,
+}: Readonly<AiMenuProps>) {
   const [selection, setSelection] = useState<SelectionState>(EMPTY_SELECTION);
 
   const {

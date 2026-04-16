@@ -45,3 +45,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 /.vscode
+frontend/public/sw.js
+frontend/public/sw.js.map
+frontend/public/sw.js

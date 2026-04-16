@@ -47,6 +47,8 @@ export const noteApiService = {
     ciphertext: string;
     spaceId: string;
     type: string;
+    createdAt: string;
+    updatedAt: string;
   }) => {
     await queryClient
       .getMutationCache()
@@ -62,14 +64,18 @@ export const noteApiService = {
     await queryClient.invalidateQueries({ queryKey: noteQueryKeys.lists() });
   },
 
-  updateNote: async (payload: { id: string; ciphertext: string }) => {
+  updateNote: async (payload: {
+    id: string;
+    ciphertext: string;
+    updatedAt: string;
+  }) => {
     const response = await queryClient
       .getMutationCache()
       .build(queryClient, {
         mutationFn: async (vars: typeof payload) => {
           const res: { data: RemoteNote } = await apiClient.patch(
             `${WORKSPACE_API_ROUTES.NOTES}/${vars.id}`,
-            { ciphertext: vars.ciphertext },
+            { ciphertext: vars.ciphertext, updatedAt: vars.updatedAt },
             { auth: true },
           );
           return res.data;

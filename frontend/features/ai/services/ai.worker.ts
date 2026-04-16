@@ -33,10 +33,8 @@ async function loadModel(): Promise<void> {
   logService.log("loading model");
 
   try {
-    console.log("AI Model is not loaded yet", generator);
-
     const device = "gpu" in navigator ? "webgpu" : "wasm";
-    console.log(`[AI] Initializing model with device: ${device}`);
+    // console.log(`[AI] Initializing model with device: ${device}`);
 
     generator = (await pipeline("text-generation", AI_CONFIG.MODEL_ID, {
       device,
@@ -59,7 +57,7 @@ async function loadModel(): Promise<void> {
     })) as TextGenerationPipeline;
 
     postResponse({ type: "MODEL_READY" });
-    console.log("[AI] Model loaded and ready for inference.");
+    // console.log("[AI] Model loaded and ready for inference.");
   } catch (error: unknown) {
     const message =
       error instanceof Error ? error.message : "Unknown error loading model";

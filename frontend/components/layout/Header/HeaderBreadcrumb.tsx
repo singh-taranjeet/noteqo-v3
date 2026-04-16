@@ -11,7 +11,6 @@ import {
 import React from "react";
 import { useParams } from "next/navigation";
 import { useSpaces } from "@/features/spaces";
-import { useRemoteNotes } from "@/features/workspace";
 import Link from "next/link";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
@@ -34,10 +33,8 @@ export function HeaderBreadcrumb({ items }: HeaderBreadcrumbProps) {
   const params = useParams();
   const noteId = params?.note_id as string | undefined;
 
-  const { data: spaces = [] } = useSpaces();
-  const { data: spaceNotesMap = {} } = useRemoteNotes(
-    spaces.length > 0 ? spaces : undefined,
-  );
+  const { data, spaceNotesMap } = useSpaces();
+  const { spaces = [] } = data || {};
 
   // If items are passed explicitly, use them (for fallback/static routes)
   if (items && items.length > 0) {

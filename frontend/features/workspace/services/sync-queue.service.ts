@@ -1,8 +1,7 @@
 import { db } from "@/features/storage";
-import { cryptoService, CRYPTO_CONFIG } from "@/features/crypto";
+import { cryptoService } from "@/features/crypto";
 import type { SyncEvent, SyncEventType, Note } from "../types/workspace.types";
 import { SYNC_CONFIG } from "../constants/workspace.constants";
-import { mergeLocalRemoteService } from "./merge-local-remote.service";
 import { noteApiService } from "./note-api.service";
 import { spaceService } from "@/features/spaces/services/space.service";
 
@@ -108,6 +107,10 @@ class SyncQueueService {
     await db.syncQueue.put(event);
   }
 
+  private getUpdatedAt() {
+    return new Date().toISOString();
+  }
+
   /**
    * Process all pending events in FIFO order.
    */
@@ -150,7 +153,6 @@ class SyncQueueService {
       }
     } finally {
       this.isProcessing = false;
-      mergeLocalRemoteService.merge();
     }
   }
 
@@ -168,6 +170,8 @@ class SyncQueueService {
           ciphertext,
           spaceId: note.spaceId,
           type: note.type,
+          createdAt: note.createdAt,
+          updatedAt: this.getUpdatedAt(),
         });
         break;
       }
@@ -178,6 +182,7 @@ class SyncQueueService {
         await noteApiService.updateNote({
           id: event.entityId,
           ciphertext,
+          updatedAt: this.getUpdatedAt(),
         });
         break;
       }
@@ -192,23 +197,13 @@ class SyncQueueService {
   /**
    * Encrypt a note payload using the space key.
    *
-   * 1. Look up the space key from Dexie by spaceId
+   * 1. Resolve the space key bytes via spaceService
    * 2. Serialize the payload (title, emoji, coverImage, content) to JSON
-   * 3. Encrypt with AES-GCM using the space key → "iv:ciphertext"
+   * 3. Encrypt with AES-GCM using cryptoService → "iv:ciphertext"
    */
   private async encryptPayload(note: Note): Promise<string> {
-    // Get the space key from Dexie cache
-    const spaceKeyBase64 = await spaceService.getCachedSpaceKey(note.spaceId);
-    if (!spaceKeyBase64) {
-      throw new Error(
-        `Space key not found for space ${note.spaceId} — cannot encrypt`,
-      );
-    }
+    const spaceKeyBytes = await spaceService.getSpaceKeyBytes(note.spaceId);
 
-    const spaceKeyBuffer = cryptoService.decodeBase64(spaceKeyBase64);
-    const spaceKeyBytes = new Uint8Array(spaceKeyBuffer);
-
-    // Build the payload to encrypt (exclude internal fields)
     const payloadToEncrypt = {
       title: note.title,
       emoji: note.emoji,
@@ -216,29 +211,10 @@ class SyncQueueService {
       content: note.content,
     };
 
-    const dataString = JSON.stringify(payloadToEncrypt);
-
-    // Import as AES-GCM key
-    const aesKey = await globalThis.crypto.subtle.importKey(
-      "raw",
-      spaceKeyBytes as BufferSource,
-      { name: CRYPTO_CONFIG.ALGORITHMS.AES },
-      false,
-      ["encrypt"],
+    return cryptoService.encryptString(
+      JSON.stringify(payloadToEncrypt),
+      spaceKeyBytes,
     );
-
-    // Encrypt note content
-    const iv = globalThis.crypto.getRandomValues(
-      new Uint8Array(CRYPTO_CONFIG.IV_BYTES_LENGTH),
-    );
-    const encoder = new TextEncoder();
-    const encrypted = await globalThis.crypto.subtle.encrypt(
-      { name: CRYPTO_CONFIG.ALGORITHMS.AES, iv },
-      aesKey,
-      encoder.encode(dataString),
-    );
-
-    return `${cryptoService.encodeBase64(iv.buffer)}:${cryptoService.encodeBase64(encrypted)}`;
   }
 }
 

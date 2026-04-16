@@ -1,31 +1,41 @@
-import { useState, useCallback, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { spaceService } from "../services/space.service";
-import { logService } from "@/services/log.service";
-import type { Space } from "../types/spaces.types";
+import { useMemo } from "react";
+
+export const SPACES_QUERY_KEY = ["spaces"] as const;
 
 export function useSpaces() {
-  const [data, setData] = useState<Space[] | undefined>(undefined);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState<Error | null>(null);
+  const query = useQuery({
+    queryKey: SPACES_QUERY_KEY,
+    queryFn: async () => {
+      return spaceService.getSpaces();
+    },
+    refetchInterval: 1 * 60 * 1000,
+  });
 
-  const fetchSpaces = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
+  const notes = useMemo(() => {
+    return query.data?.notes || [];
+  }, [query.data?.notes]);
 
-    try {
-      const spaces = await spaceService.getAllSpaces();
-      setData(spaces);
-    } catch (err) {
-      logService.error("Failed to fetch spaces", err);
-      setError(err instanceof Error ? err : new Error(String(err)));
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+  const spaceNotesMap = useMemo(() => {
+    return notes.reduce(
+      (acc, note) => {
+        if (!acc[note.spaceId]) acc[note.spaceId] = [];
+        acc[note.spaceId].push(note);
+        return acc;
+      },
+      {} as Record<string, typeof notes>,
+    );
+  }, [notes]);
 
-  useEffect(() => {
-    void fetchSpaces();
-  }, [fetchSpaces]);
-
-  return { data, isLoading, error, refetch: fetchSpaces };
+  return {
+    data: {
+      notes: query.data?.notes,
+      spaces: query.data?.spaces,
+    },
+    isLoading: query.isLoading,
+    error: query.error,
+    refetchSpacesQuery: query.refetch,
+    spaceNotesMap,
+  };
 }

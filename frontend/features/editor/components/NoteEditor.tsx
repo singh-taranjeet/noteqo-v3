@@ -8,12 +8,11 @@ import {
   useMemo,
   type ChangeEvent,
   type FocusEvent,
+  useRef,
 } from "react";
-import debounce from "lodash/debounce";
 
 // --- Tiptap Core Extensions ---
 import { StarterKit } from "@tiptap/starter-kit";
-import { Image } from "@tiptap/extension-image";
 import { TaskList } from "@tiptap/extension-list";
 import { TextAlign } from "@tiptap/extension-text-align";
 import { Typography } from "@tiptap/extension-typography";
@@ -25,7 +24,7 @@ import { Superscript } from "@tiptap/extension-superscript";
 import { Selection } from "@tiptap/extensions";
 
 // --- Tiptap Node Custom Views ---
-import { ImageUploadNode } from "@/features/editor/components/nodes/ImageUploadNode/ImageUploadNodeExtension";
+
 import { HorizontalRule } from "@/features/editor/components/nodes/HorizontalRuleNode/HorizontalRuleNodeExtension";
 import { CodeBlockNode } from "@/features/editor/components/nodes/CodeBlockNode/CodeBlockNodeExtension";
 import { TaskItemNode } from "@/features/editor/components/nodes/TaskItemNode/TaskItemNodeExtension";
@@ -45,13 +44,17 @@ import { ColumnExtension } from "@/features/editor/components/nodes/ColumnsNode/
 import { CardNodeExtension } from "@/features/editor/components/nodes/CardNode/CardNodeExtension";
 import { AccordionNodeExtension } from "@/features/editor/components/nodes/AccordionNode/AccordionNodeExtension";
 
+// --- Tiptap File & Media ---
+import { FileNodeExtension } from "@/features/editor/components/nodes/FileNode/FileNodeExtension";
+import { FileUploaderExtension } from "@/features/editor/components/extensions/FileUploaderExtension";
+import { ImageNodeExtension } from "@/features/editor/components/nodes/ImageNode/ImageNodeExtension";
+
+// --- Tiptap Table ---
+import { TableNodeExtension } from "@/features/editor/components/nodes/TableNode/TableNodeExtension";
+
 // --- Tiptap UI Hooks & Components ---
 
 // --- Lib ---
-import {
-  handleImageUpload,
-  MAX_FILE_SIZE,
-} from "@/features/editor/utils/tiptapUtils";
 import { EDITOR_CONFIG } from "@/features/editor/constants/editor.constants";
 import { NOTE_DEFAULTS } from "@/features/workspace/constants/workspace.constants";
 import { noteService } from "@/features/workspace/services/note.service";
@@ -63,10 +66,9 @@ import DEFAULT_CONTENT from "@/features/editor/components/data/content.json";
 import { logService } from "@/services/log.service";
 
 interface NoteEditorProps {
-  noteId?: string;
+  noteId: string;
   note?: Note;
   isReadOnly?: boolean;
-  disableRemoteLoad?: boolean;
   className?: string;
   contentWrapperClassName?: string;
 }
@@ -74,13 +76,13 @@ interface NoteEditorProps {
 interface LoadNoteContentOptions {
   noteId?: string;
   initialNote?: Note;
-  disableRemoteLoad: boolean;
+  isReadOnly: boolean;
 }
 
 const useLoadNoteContent = ({
   noteId,
   initialNote,
-  disableRemoteLoad,
+  isReadOnly = false,
 }: Readonly<LoadNoteContentOptions>) => {
   const [note, setNote] = useState<Note | null>(initialNote ?? null);
   const [isReady, setIsReady] = useState<boolean>(Boolean(initialNote));
@@ -96,10 +98,11 @@ const useLoadNoteContent = ({
             setIsReady(true);
           }
 
-          if (disableRemoteLoad) {
+          if (isReadOnly) {
             return;
           }
 
+          // Fetch decrypted note
           const remoteNote = await noteService.getRemoteNote(noteId);
 
           if (remoteNote) {
@@ -113,7 +116,7 @@ const useLoadNoteContent = ({
       }
     }
     loadContent();
-  }, [disableRemoteLoad, initialNote, noteId]);
+  }, [isReadOnly, initialNote, noteId]);
 
   return {
     note,
@@ -126,118 +129,119 @@ export function NoteEditor({
   noteId,
   note: providedNote,
   isReadOnly = false,
-  disableRemoteLoad = false,
   className,
   contentWrapperClassName,
 }: Readonly<NoteEditorProps>) {
-  const debouncedUpdateNote = useMemo(
-    () =>
-      debounce((props: { editor: Editor; id: string }) => {
-        const { editor, id } = props;
-        const json = editor.getJSON();
-        if (id) {
-          void noteService.updateNote(id, { content: json });
-        }
-      }, EDITOR_CONFIG.AUTOSAVE_DEBOUNCE_MS),
+  const queueNoteUpdate = useMemo(
+    () => (props: { editor: Editor; id: string }) => {
+      const { editor, id } = props;
+      const json = editor.getJSON();
+      if (id) {
+        void noteService.updateNote(id, { content: json });
+      }
+    },
     [],
   );
-
-  useEffect(() => {
-    return () => {
-      debouncedUpdateNote.cancel();
-    };
-  }, [debouncedUpdateNote]);
 
   const { note, isReady, setNote } = useLoadNoteContent({
     noteId,
     initialNote: providedNote,
-    disableRemoteLoad,
+    isReadOnly,
   });
+
+  const noteRef = useRef(note);
+  useEffect(() => {
+    noteRef.current = note;
+  }, [note]);
 
   const content = note?.content || DEFAULT_CONTENT;
+  const spaceId = note?.spaceId ?? null;
 
-  const editor = useEditor({
-    immediatelyRender: false,
-    editable: !isReadOnly,
-    editorProps: {
-      attributes: {
-        autocomplete: "off",
-        autocorrect: "off",
-        autocapitalize: "off",
-        "aria-label": "Main content area, start typing to enter text.",
-        class: "flex-1 focus:outline-none min-h-full",
+  const editor = useEditor(
+    {
+      immediatelyRender: false,
+      editable: !isReadOnly,
+      editorProps: {
+        attributes: {
+          autocomplete: "off",
+          autocorrect: "off",
+          autocapitalize: "off",
+          "aria-label": "Main content area, start typing to enter text.",
+          class: "flex-1 focus:outline-none min-h-full",
+        },
+      },
+      extensions: [
+        StarterKit.configure({
+          horizontalRule: false,
+          codeBlock: false,
+          heading: false,
+          paragraph: {
+            HTMLAttributes: {
+              class: "leading-7 [&:not(:first-child)]:mt-6 outline-none",
+            },
+          },
+          blockquote: {
+            HTMLAttributes: {
+              class:
+                "mt-6 border-l-2 border-l-border pl-6 italic text-muted-foreground outline-none",
+            },
+          },
+          bulletList: {
+            HTMLAttributes: {
+              class: "my-6 ml-6 list-disc [&>li]:mt-2 outline-none",
+            },
+          },
+          orderedList: {
+            HTMLAttributes: {
+              class: "my-6 ml-6 list-decimal [&>li]:mt-2 outline-none",
+            },
+          },
+          link: {
+            openOnClick: false,
+            enableClickSelection: true,
+          },
+        }),
+        HorizontalRule,
+        CodeBlockNode,
+        HeadingNode,
+        CardNodeExtension,
+        AccordionNodeExtension,
+        TextAlign.configure({ types: ["heading", "paragraph"] }),
+        TaskList.configure({
+          HTMLAttributes: {
+            class: "my-6 ml-6 list-none [&>li]:mt-2 outline-none",
+          },
+        }),
+        TaskItemNode.configure({ nested: true }),
+        Highlight.configure({ multicolor: true }),
+        TextStyle,
+        Color,
+        Typography,
+        Superscript,
+        Subscript,
+        Selection,
+        SlashCommandExtension,
+        AiExtension,
+        ColumnsExtension,
+        ColumnExtension,
+        TableNodeExtension,
+        FileNodeExtension,
+        ImageNodeExtension,
+        FileUploaderExtension.configure({
+          getSpaceId: () => spaceId,
+          getNoteId: () => noteId,
+        }),
+      ],
+      content,
+      onUpdate: ({ editor }) => {
+        if (isReadOnly || !noteId) {
+          return;
+        }
+        queueNoteUpdate({ id: noteId, editor });
       },
     },
-    extensions: [
-      StarterKit.configure({
-        horizontalRule: false,
-        codeBlock: false,
-        heading: false,
-        paragraph: {
-          HTMLAttributes: {
-            class: "leading-7 [&:not(:first-child)]:mt-6 outline-none",
-          },
-        },
-        blockquote: {
-          HTMLAttributes: {
-            class:
-              "mt-6 border-l-2 border-l-border pl-6 italic text-muted-foreground outline-none",
-          },
-        },
-        bulletList: {
-          HTMLAttributes: {
-            class: "my-6 ml-6 list-disc [&>li]:mt-2 outline-none",
-          },
-        },
-        orderedList: {
-          HTMLAttributes: {
-            class: "my-6 ml-6 list-decimal [&>li]:mt-2 outline-none",
-          },
-        },
-        link: {
-          openOnClick: false,
-          enableClickSelection: true,
-        },
-      }),
-      HorizontalRule,
-      CodeBlockNode,
-      HeadingNode,
-      CardNodeExtension,
-      AccordionNodeExtension,
-      TextAlign.configure({ types: ["heading", "paragraph"] }),
-      TaskList.configure({
-        HTMLAttributes: {
-          class: "my-6 ml-6 list-none [&>li]:mt-2 outline-none",
-        },
-      }),
-      TaskItemNode.configure({ nested: true }),
-      Highlight.configure({ multicolor: true }),
-      TextStyle,
-      Color,
-      Image,
-      Typography,
-      Superscript,
-      Subscript,
-      Selection,
-      ImageUploadNode.configure({
-        accept: "image/*",
-        maxSize: MAX_FILE_SIZE,
-        limit: 3,
-        upload: handleImageUpload,
-      }),
-      SlashCommandExtension,
-      AiExtension,
-      ColumnsExtension,
-      ColumnExtension,
-    ],
-    content,
-    onUpdate: ({ editor }) => {
-      if (isReadOnly || !noteId) {
-        return;
-      }
-      debouncedUpdateNote({ id: noteId, editor });
-    },
-  });
+    [spaceId],
+  );
 
   useEffect(() => {
     if (editor && isReady && content) {

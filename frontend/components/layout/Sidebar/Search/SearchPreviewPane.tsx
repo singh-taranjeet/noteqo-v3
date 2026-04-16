@@ -38,10 +38,10 @@ export function SearchPreviewPane({ item }: Readonly<SearchPreviewPaneProps>) {
   return (
     <div className="h-full" aria-label={SEARCH_LABELS.PREVIEW_REGION_LABEL}>
       <NoteEditor
+        noteId={previewNote.id}
         key={previewNote.id}
         note={previewNote}
-        isReadOnly
-        disableRemoteLoad
+        isReadOnly={true}
         className="h-full"
         contentWrapperClassName="mb-0 px-6 sm:px-8"
       />

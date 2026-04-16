@@ -8,6 +8,7 @@ import { SpaceMemberEntity } from './entities/space-member.entity';
 import { SpaceKeySlotEntity } from './entities/space-key-slot.entity';
 import { NotesModule } from '../notes';
 import { UsersModule } from '../users';
+import { SyncModule } from 'src/sync/sync.module';
 
 @Module({
   imports: [
@@ -18,9 +19,10 @@ import { UsersModule } from '../users';
     ]),
     NotesModule,
     UsersModule,
+    SyncModule
   ],
   controllers: [SpacesController],
   providers: [SpacesService, SpacesRepository],
   exports: [SpacesService],
 })
-export class SpacesModule {}
+export class SpacesModule { }
