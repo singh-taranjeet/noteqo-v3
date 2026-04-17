@@ -1,6 +1,5 @@
-import { redirect } from "next/navigation";
-import { ROUTES } from "@/constants/routes";
+import { Sheet } from "@/components/ui/sheet";
 
 export default function Home() {
-  redirect(ROUTES.NOTES);
+  return <Sheet>Notes</Sheet>;
 }
