@@ -15,6 +15,11 @@ export interface User extends BaseEntity {
   privateKey?: string | null;
 }
 
+export interface LoginRequestPayload {
+  email: string;
+  authCredential: string;
+}
+
 export interface AuthResponse {
   user: User;
   accessToken?: string;

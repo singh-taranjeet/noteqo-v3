@@ -1,2 +1,2 @@
 export * from './constants/storage.constants';
-export * from './services/indexeddb.service';
+export { storageService, db } from './services/db.service';

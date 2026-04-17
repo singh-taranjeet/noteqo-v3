@@ -40,20 +40,20 @@ import { EditorBubbleMenu } from "@/features/editor/components/editor-ui/EditorB
 
 // --- Lib ---
 import { handleImageUpload, MAX_FILE_SIZE } from "@/features/editor/utils/tiptapUtils"
+import { EDITOR_STORAGE_KEY } from "@/features/editor/constants/editor.constants"
+import { IS_BROWSER } from "@/lib/utils"
 
 import content from "@/features/editor/components/data/content.json"
 
-const STORAGE_KEY = "noteqo-editor-state";
-
 export function DocumentEditor() {
   const getInitialContent = () => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem(STORAGE_KEY);
+    if (IS_BROWSER) {
+      const saved = localStorage.getItem(EDITOR_STORAGE_KEY);
       if (saved) {
         try {
           return JSON.parse(saved);
         } catch (e) {
-          console.error("Failed to parse editor state:", e);
+          // Graceful fallback to default content if parsing fails
         }
       }
     }
@@ -125,7 +125,6 @@ export function DocumentEditor() {
         maxSize: MAX_FILE_SIZE,
         limit: 3,
         upload: handleImageUpload,
-        onError: (error) => console.error("Upload failed:", error),
       }),
       SlashCommandExtension,
       ColumnsExtension,
@@ -134,7 +133,7 @@ export function DocumentEditor() {
     content: getInitialContent(),
     onUpdate: ({ editor }) => {
       const json = editor.getJSON();
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(json));
+      localStorage.setItem(EDITOR_STORAGE_KEY, JSON.stringify(json));
     },
   })
 

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useThrottledCallback } from "@/features/editor/hooks/useThrottledCallback"
+import { IS_BROWSER } from "@/lib/utils"
 
 export interface WindowSizeState {
   /**
@@ -48,7 +49,7 @@ export function useWindowSize(): WindowSizeState {
   })
 
   const handleViewportChange = useThrottledCallback(() => {
-    if (typeof window === "undefined") return
+    if (!IS_BROWSER) return
 
     const vp = window.visualViewport
     if (!vp) return

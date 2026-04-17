@@ -11,6 +11,7 @@ import {
   ParseUUIDPipe,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
+import { User } from './types/users.types';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserResponseDto } from './dto/user-response.dto';
@@ -48,7 +49,7 @@ export class UsersController {
     await this.usersService.remove(id);
   }
 
-  private mapToResponse(user: any): UserResponseDto {
+  private mapToResponse(user: User): UserResponseDto {
     return {
       id: user.id,
       email: user.email,

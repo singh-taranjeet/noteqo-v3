@@ -147,7 +147,6 @@ export function focusNextNode(editor: Editor) {
 
   const paragraphType = state.schema.nodes.paragraph
   if (!paragraphType) {
-    console.warn("No paragraph node type found in schema.")
     return false
   }
 
@@ -191,12 +190,6 @@ export function isExtensionAvailable(
     editor.extensionManager.extensions.some((ext) => ext.name === name)
   )
 
-  if (!found) {
-    console.warn(
-      `None of the extensions [${names.join(", ")}] were found in the editor schema. Ensure they are included in the editor configuration.`
-    )
-  }
-
   return found
 }
 
@@ -210,12 +203,10 @@ export function findNodeAtPosition(editor: Editor, position: number) {
   try {
     const node = editor.state.doc.nodeAt(position)
     if (!node) {
-      console.warn(`No node found at position ${position}`)
       return null
     }
     return node
   } catch (error) {
-    console.error(`Error getting node at position ${position}:`, error)
     return null
   }
 }

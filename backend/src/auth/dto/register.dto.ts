@@ -13,10 +13,8 @@ export class RegisterDto {
   name: string;
 
   @IsString()
-  @IsOptional()
-  publicKey?: string;
+  publicKey: string;
 
   @IsString()
-  @IsOptional()
-  privateKey?: string;
+  privateKey: string;
 }

@@ -9,6 +9,7 @@ import {
   HttpCode,
   HttpStatus,
   ParseUUIDPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { NotesService } from './notes.service';
 import { CreateNoteDto } from './dto/create-note.dto';
@@ -16,8 +17,10 @@ import { UpdateNoteDto } from './dto/update-note.dto';
 import { NoteResponseDto } from './dto/note-response.dto';
 import { NOTE_ROUTES } from './constants/notes.constants';
 import { Note } from './types/notes.types';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller(NOTE_ROUTES.BASE)
+@UseGuards(JwtAuthGuard)
 export class NotesController {
   constructor(private readonly notesService: NotesService) {}
 

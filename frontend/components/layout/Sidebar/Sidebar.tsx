@@ -8,20 +8,19 @@ import { SidebarNavTabs } from './SidebarNavTabs';
 import { SidebarSection } from './SidebarSection';
 import { SidebarPageItem } from './SidebarPageItem';
 import { SidebarNewButton } from './SidebarNewButton';
-
-/** Mock page data — replace with real data when wired. */
-const MOCK_PRIVATE_PAGES = [
-  { emoji: '🚀', title: 'Solar project' },
-  { emoji: '🧑‍💻', title: 'Solution Architect' },
-  { emoji: '📄', title: 'Mummy health insurance' },
-  { emoji: '📄', title: 'Hewllod how are you' },
-  { emoji: '📄', title: 'Hello how are you' },
-  { emoji: '🏦', title: 'Loan' },
-  { emoji: '📁', title: 'MISC' },
-] as const;
+import { useDocuments, useCreateDocument, useSyncQueue } from '@/features/workspace';
 
 export function Sidebar() {
   const { isSidebarOpen, toggleSidebar } = useAppShell();
+  const { data: documents = [] } = useDocuments();
+  const { mutate: createDocument } = useCreateDocument();
+
+  // Start background sync queue
+  useSyncQueue();
+
+  const handleCreateDocument = () => {
+    createDocument(undefined);
+  };
 
   return (
     <aside
@@ -46,18 +45,18 @@ export function Sidebar() {
           <SidebarNavTabs />
 
           <SidebarSection label="Private">
-            {MOCK_PRIVATE_PAGES.map((page) => (
+            {documents.map((doc) => (
               <SidebarPageItem
-                key={page.title}
-                emoji={page.emoji}
-                title={page.title}
+                key={doc.id}
+                emoji={doc.emoji}
+                title={doc.title}
               />
             ))}
           </SidebarSection>
         </div>
 
         {/* Sticky bottom */}
-        <SidebarNewButton />
+        <SidebarNewButton onCreateDocument={handleCreateDocument} />
       </div>
     </aside>
   );

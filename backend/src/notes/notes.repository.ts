@@ -15,7 +15,7 @@ export class NotesRepository {
     @InjectRepository(NoteVersionEntity)
     private readonly versionOrm: Repository<NoteVersionEntity>,
     private readonly dataSource: DataSource,
-  ) {}
+  ) { }
 
   /**
    * Retrieves a Note accurately from the master table, natively querying
@@ -58,7 +58,7 @@ export class NotesRepository {
 
       // 2. Save owner's key slot
       const currentUserId = getCurrentUserId();
-      
+
       const keySlot = queryRunner.manager.create(KeySlotEntity, {
         noteId: savedNote.id,
         userId: currentUserId,
@@ -75,7 +75,7 @@ export class NotesRepository {
       await queryRunner.manager.save(NoteVersionEntity, noteVersion);
 
       await queryRunner.commitTransaction();
-      
+
       const completeNote = await this.findById(savedNote.id);
       return completeNote as Note;
     } catch (err) {
@@ -121,7 +121,7 @@ export class NotesRepository {
       await queryRunner.manager.save(NoteVersionEntity, snapshot);
 
       await queryRunner.commitTransaction();
-      
+
       return (await this.findById(id)) as Note;
     } catch (err) {
       await queryRunner.rollbackTransaction();

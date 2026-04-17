@@ -3,7 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { configValidationSchema, databaseConfig, CONFIG_KEYS } from './config';
+import { configValidationSchema, databaseConfig, appConfig, jwtConfig, CONFIG_KEYS } from './config';
 import { UsersModule } from './users';
 import { NotesModule } from './notes';
 import { AuthModule } from './auth/auth.module';
@@ -19,7 +19,7 @@ import { SharedModule } from './shared/shared.module';
     ConfigModule.forRoot({
       isGlobal: true,
       validationSchema: configValidationSchema,
-      load: [databaseConfig],
+      load: [databaseConfig, appConfig, jwtConfig],
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
@@ -34,7 +34,7 @@ import { SharedModule } from './shared/shared.module';
           username: dbConfig.username,
           password: dbConfig.password,
           autoLoadEntities: true,
-          synchronize: configService.get('NODE_ENV') !== 'production', // From user feedback
+          synchronize: configService.get(`${CONFIG_KEYS.APP}.env`) !== 'production', // From user feedback
         };
       },
     }),

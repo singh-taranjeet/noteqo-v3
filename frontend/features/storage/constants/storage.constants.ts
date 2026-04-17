@@ -1,8 +1,10 @@
 export const STORAGE_CONFIG = {
   DB_NAME: 'noteqo_db',
-  DB_VERSION: 1,
+  DB_VERSION: 2,
   STORES: {
     KEYS: 'key_store',
+    DOCUMENTS: 'documents',
+    SYNC_QUEUE: 'sync_queue',
   },
 } as const;
 

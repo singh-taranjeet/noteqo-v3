@@ -1,4 +1,5 @@
 import { AppShell, Sidebar, Header } from '@/components/layout';
+import { AuthGuard } from '@/features/auth';
 
 export default function WorkspaceLayout({
   children,
@@ -6,12 +7,14 @@ export default function WorkspaceLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <AppShell>
-      <Sidebar />
-      <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
-        <Header />
-        <main className="flex-1 overflow-auto">{children}</main>
-      </div>
-    </AppShell>
+    <AuthGuard>
+      <AppShell>
+        <Sidebar />
+        <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
+          <Header />
+          <main className="flex-1 overflow-auto">{children}</main>
+        </div>
+      </AppShell>
+    </AuthGuard>
   );
 }

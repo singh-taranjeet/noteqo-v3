@@ -1,4 +1,6 @@
 // Components
+export * from './components/AuthGuard';
+export * from './components/LoginForm';
 export * from './components/RegisterForm';
 export * from './components/RecoveryCodeDialog';
 
@@ -6,6 +8,9 @@ export * from './components/RecoveryCodeDialog';
 export * from './constants/auth.constants';
 
 // Hooks
+export * from './hooks/useAuthCheck';
+export * from './hooks/useLogin';
+export * from './hooks/useLogout';
 export * from './hooks/useRegister';
 
 // Services

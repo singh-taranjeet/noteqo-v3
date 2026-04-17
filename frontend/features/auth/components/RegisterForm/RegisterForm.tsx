@@ -71,7 +71,7 @@ export function RegisterForm() {
 
   const handleDialogClose = useCallback(() => {
     // Acknowledged, we can seamlessly push to login or dashboard
-    router.push(ROUTES.DASHBOARD);
+    router.push(ROUTES.NOTES);
   }, [router]);
 
   return (
