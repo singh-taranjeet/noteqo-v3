@@ -19,7 +19,7 @@ export const useLogin = () => {
       const response = await authService.login(formData);
 
       // 2. Store user's keys locally for offline crypto operations
-      const { user } = response;
+      const { user, accessToken } = response;
 
       if (user.publicKey) {
         await storageService.put(STORAGE_KEYS.PUBLIC_KEY, user.publicKey);
@@ -30,6 +30,10 @@ export const useLogin = () => {
       // will be needed to decrypt it for document operations.
       if (user.privateKey) {
         await storageService.put(STORAGE_KEYS.PRIVATE_KEY, user.privateKey);
+      }
+
+      if (accessToken) {
+        await storageService.put(STORAGE_KEYS.JWT_KEY, accessToken);
       }
 
       return { response };

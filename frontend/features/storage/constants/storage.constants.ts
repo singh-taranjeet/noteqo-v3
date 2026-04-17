@@ -12,4 +12,5 @@ export const STORAGE_KEYS = {
   MASTER_KEY: "masterKey",
   PUBLIC_KEY: "publicKey",
   PRIVATE_KEY: "privateKey",
+  JWT_KEY: "jwtKey",
 } as const;
