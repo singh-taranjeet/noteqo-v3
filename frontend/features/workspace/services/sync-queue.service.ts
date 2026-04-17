@@ -161,11 +161,15 @@ class SyncQueueService {
         const { ciphertext, encryptedDocKey } = await this.encryptPayload(
           event.payload,
         );
-        await apiClient.post(WORKSPACE_API_ROUTES.NOTES, {
-          id: event.entityId,
-          ciphertext,
-          encryptedDocKey,
-        });
+        await apiClient.post(
+          WORKSPACE_API_ROUTES.NOTES,
+          {
+            id: event.entityId,
+            ciphertext,
+            encryptedDocKey,
+          },
+          { auth: true },
+        );
         break;
       }
 
@@ -179,6 +183,7 @@ class SyncQueueService {
             ciphertext,
             encryptedDocKey,
           },
+          { auth: true },
         );
         break;
       }
@@ -186,6 +191,7 @@ class SyncQueueService {
       case "DELETE": {
         await apiClient.delete(
           `${WORKSPACE_API_ROUTES.NOTES}/${event.entityId}`,
+          { auth: true },
         );
         break;
       }

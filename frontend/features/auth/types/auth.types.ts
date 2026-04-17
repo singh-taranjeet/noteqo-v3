@@ -21,6 +21,8 @@ export interface LoginRequestPayload {
 }
 
 export interface AuthResponse {
-  user: User;
-  accessToken?: string;
+  data: {
+    user: User;
+    accessToken?: string;
+  };
 }
