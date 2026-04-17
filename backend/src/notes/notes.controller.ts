@@ -10,6 +10,7 @@ import {
   HttpStatus,
   ParseUUIDPipe,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { NotesService } from './notes.service';
 import { CreateNoteDto } from './dto/create-note.dto';
@@ -29,6 +30,12 @@ export class NotesController {
   async create(@Body() createNoteDto: CreateNoteDto): Promise<NoteResponseDto> {
     const note = await this.notesService.create(createNoteDto);
     return this.mapToResponse(note);
+  }
+
+  @Get()
+  async findAll(@Req() req: any): Promise<NoteResponseDto[]> {
+    const notes = await this.notesService.findAll(req.user.id);
+    return notes.map((note) => this.mapToResponse(note));
   }
 
   @Get(NOTE_ROUTES.BY_ID)

@@ -21,6 +21,10 @@ export class NotesService {
     );
   }
 
+  async findAll(userId: string): Promise<Note[]> {
+    return this.notesRepository.findAllForUser(userId);
+  }
+
   async findOne(id: string): Promise<Note> {
     const note = await this.notesRepository.findById(id);
     if (!note) {

@@ -9,14 +9,14 @@ import { SidebarSection } from "./SidebarSection";
 import { SidebarPageItem } from "./SidebarPageItem";
 import { SidebarNewButton } from "./SidebarNewButton";
 import {
-  useDocuments,
+  useRemoteDocuments,
   useCreateDocument,
   useSyncQueue,
 } from "@/features/workspace";
 
 export function Sidebar() {
   const { isSidebarOpen, toggleSidebar } = useAppShell();
-  const { data: documents = [] } = useDocuments();
+  const { data: documents = [], isLoading } = useRemoteDocuments();
   const { mutate: createDocument } = useCreateDocument();
 
   // Start background sync queue
@@ -55,6 +55,9 @@ export function Sidebar() {
           <SidebarNavTabs />
 
           <SidebarSection label="Private">
+            {isLoading && (
+               <div className="px-4 py-2 text-xs text-muted-foreground animate-pulse">Decrypting remote notes...</div>
+            )}
             {documents.map((doc) => (
               <SidebarPageItem
                 key={doc.id}

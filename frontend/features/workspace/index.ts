@@ -1,5 +1,6 @@
 // Public API for the Workspace feature
 export { useDocuments } from "./hooks/useDocuments";
+export { useRemoteDocuments } from "./hooks/useRemoteDocuments";
 export { useCreateDocument } from "./hooks/useCreateDocument";
 export { useSyncQueue } from "./hooks/useSyncQueue";
 export { documentService } from "./services/document.service";

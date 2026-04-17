@@ -1,6 +1,8 @@
 "use client";
 
 import { EditorContent, EditorContext, useEditor } from "@tiptap/react";
+import type { JSONContent } from "@tiptap/react";
+import { useEffect, useRef, useState, type ChangeEvent, type FocusEvent } from "react";
 
 // --- Tiptap Core Extensions ---
 import { StarterKit } from "@tiptap/starter-kit";
@@ -45,23 +47,62 @@ import {
 } from "@/features/editor/utils/tiptapUtils";
 import { EDITOR_STORAGE_KEY } from "@/features/editor/constants/editor.constants";
 import { IS_BROWSER } from "@/lib/utils";
+import { documentService } from "@/features/workspace/services/document.service";
+import type { Document } from "@/features/workspace/types/workspace.types";
 
 import content from "@/features/editor/components/data/content.json";
 
-export function DocumentEditor() {
-  const getInitialContent = () => {
-    if (IS_BROWSER) {
-      const saved = localStorage.getItem(EDITOR_STORAGE_KEY);
-      if (saved) {
+interface DocumentEditorProps {
+  noteId?: string;
+}
+
+export function DocumentEditor({ noteId }: Readonly<DocumentEditorProps>) {
+  const [documentState, setDocumentState] = useState<Document | null>(null);
+  const [initialContent, setInitialContent] = useState<JSONContent | null>(
+    null,
+  );
+  const [isReady, setIsReady] = useState(false);
+  const editorTimeoutRef = useRef<NodeJS.Timeout>(undefined);
+
+  useEffect(() => {
+    async function loadContent() {
+      if (noteId) {
         try {
-          return JSON.parse(saved);
+          const doc = await documentService.getDocument(noteId);
+          console.log("Document", doc);
+          if (doc) {
+            setDocumentState(doc);
+            if (doc.content) {
+              setInitialContent(doc.content as JSONContent);
+            } else {
+              setInitialContent(content);
+            }
+          } else {
+            setInitialContent(content);
+          }
         } catch {
-          // Graceful fallback to default content if parsing fails
+          setInitialContent(content);
+        }
+      } else {
+        if (IS_BROWSER) {
+          const saved = localStorage.getItem(EDITOR_STORAGE_KEY);
+          if (saved) {
+            try {
+              setInitialContent(JSON.parse(saved));
+            } catch {
+              setInitialContent(content);
+            }
+          } else {
+            setInitialContent(content);
+          }
+        } else {
+          setInitialContent(content);
         }
       }
+      setIsReady(true);
     }
-    return content;
-  };
+    loadContent();
+  }, [noteId]);
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -136,16 +177,79 @@ export function DocumentEditor() {
       ColumnsExtension,
       ColumnExtension,
     ],
-    content: getInitialContent(),
+    content: initialContent ?? content,
     onUpdate: ({ editor }) => {
       const json = editor.getJSON();
-      localStorage.setItem(EDITOR_STORAGE_KEY, JSON.stringify(json));
+      if (noteId) {
+        if (editorTimeoutRef.current) clearTimeout(editorTimeoutRef.current);
+        editorTimeoutRef.current = setTimeout(() => {
+          void documentService.updateDocument(noteId, { content: json });
+        }, 500);
+      } else {
+        localStorage.setItem(EDITOR_STORAGE_KEY, JSON.stringify(json));
+      }
     },
   });
 
+  useEffect(() => {
+    if (editor && isReady && initialContent) {
+      editor.commands.setContent(initialContent);
+    }
+  }, [editor, isReady, initialContent]);
+
+  if (!isReady) {
+    return (
+      <div className="flex w-full h-full items-center justify-center bg-background text-muted-foreground text-sm">
+        Loading document...
+      </div>
+    );
+  }
+
+  if (!editor) return null;
+
+  const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (!documentState) return;
+    setDocumentState({ ...documentState, title: e.target.value });
+  };
+
+  const handleTitleBlur = (e: FocusEvent<HTMLInputElement>) => {
+    if (!documentState || !noteId) return;
+    void documentService.updateDocument(noteId, { title: e.target.value });
+  };
+
   return (
-    <div className="w-full h-full overflow-auto bg-background text-foreground font-sans group relative">
-      <div className="w-full mx-auto h-full flex flex-col pl-14 pr-6 sm:pl-24 sm:pr-12 pt-16 pb-96">
+    <div className="w-full h-full flex flex-col overflow-auto bg-background text-foreground font-sans group relative">
+      {/* Cover Image */}
+      {documentState?.coverImage && (
+        <div className="w-full h-[25vh] sm:h-[30vh] shrink-0 relative group/cover">
+          <img 
+            src={documentState.coverImage} 
+            alt="Cover" 
+            className="w-full h-full object-cover" 
+          />
+        </div>
+      )}
+
+      {/* Main Content Area */}
+      <div className="w-full max-w-4xl mx-auto flex-1 flex flex-col px-6 sm:px-24 mb-96 relative">
+        {/* Document Header Metadata */}
+        <div className="mt-8 mb-6">
+          {documentState?.emoji && (
+            <div className="text-[72px] leading-none mb-4 -mt-[56px] relative z-10 w-fit">
+              {documentState.emoji}
+            </div>
+          )}
+          
+          <input
+            type="text"
+            className="text-4xl sm:text-5xl font-bold font-sans text-foreground w-full bg-transparent border-none outline-none focus:ring-0 placeholder:text-muted-foreground"
+            value={documentState?.title ?? "Untitled"}
+            onChange={handleTitleChange}
+            onBlur={handleTitleBlur}
+            placeholder="Untitled"
+          />
+        </div>
+
         <EditorContext.Provider value={{ editor }}>
           <BlockDragHandle editor={editor} />
           <EditorBubbleMenu editor={editor} />

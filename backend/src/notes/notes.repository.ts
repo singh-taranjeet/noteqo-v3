@@ -31,6 +31,20 @@ export class NotesRepository {
   }
 
   /**
+   * Retrieves all Notes organically assigned mapping structural elements
+   * via KeySlot associations for the currently specified user.
+   */
+  async findAllForUser(userId: string): Promise<Note[]> {
+    const entities = await this.noteOrm
+      .createQueryBuilder('note')
+      .innerJoinAndSelect('note.keySlots', 'keySlot', 'keySlot.userId = :userId', { userId })
+      .orderBy('note.updatedAt', 'DESC')
+      .getMany();
+
+    return entities.map(e => this.toDomain(e));
+  }
+
+  /**
    * Executes a robust database transaction bridging creation natively across three distinct tables:
    * 1. Constructs the master Note object locally ensuring ID alignment universally.
    * 2. Binds the explicit starting permission structurally locally via KeySlot tables mapping document keys.
