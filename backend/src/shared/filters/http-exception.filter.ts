@@ -1,6 +1,10 @@
 import {
-  ExceptionFilter, Catch, ArgumentsHost,
-  HttpException, HttpStatus, Logger,
+  ExceptionFilter,
+  Catch,
+  ArgumentsHost,
+  HttpException,
+  HttpStatus,
+  Logger,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { API_ERROR_CODES } from '../constants/http.constants';
@@ -16,7 +20,10 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     const { status, code, message, details } = this.resolveException(exception);
 
-    this.logger.error(`[${code}] ${message}`, exception instanceof Error ? exception.stack : '');
+    this.logger.error(
+      `[${code}] ${message}`,
+      exception instanceof Error ? exception.stack : '',
+    );
 
     const body: ApiErrorResponse = {
       success: false,
@@ -42,7 +49,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
       // class-validator failures arrive as an object with a `message` array
       if (
-        status === HttpStatus.UNPROCESSABLE_ENTITY || status === HttpStatus.BAD_REQUEST
+        status === HttpStatus.UNPROCESSABLE_ENTITY ||
+        status === HttpStatus.BAD_REQUEST
       ) {
         if (
           typeof raw === 'object' &&

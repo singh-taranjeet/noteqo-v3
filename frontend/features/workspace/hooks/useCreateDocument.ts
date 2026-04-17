@@ -1,6 +1,6 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { documentService } from '../services/document.service';
-import { DOCUMENTS_QUERY_KEY } from './useDocuments';
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { documentService } from "../services/document.service";
+import { DOCUMENTS_QUERY_KEY } from "./useDocuments";
 
 export function useCreateDocument() {
   const queryClient = useQueryClient();

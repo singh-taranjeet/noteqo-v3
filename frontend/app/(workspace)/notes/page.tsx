@@ -1,5 +1,5 @@
-import { DocumentEditor } from "@/features/editor"
+import { DocumentEditor } from "@/features/editor";
 
 export default function NotesPage() {
-  return <DocumentEditor />
+  return <DocumentEditor />;
 }

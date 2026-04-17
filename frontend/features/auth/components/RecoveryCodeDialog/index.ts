@@ -1,1 +1,1 @@
-export * from './RecoveryCodeDialog';
+export * from "./RecoveryCodeDialog";

@@ -1,4 +1,4 @@
-import React from "react"
+import React from "react";
 
 export const TextIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg
@@ -17,4 +17,4 @@ export const TextIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
     <line x1="9" x2="15" y1="20" y2="20" />
     <line x1="12" x2="12" y1="4" y2="20" />
   </svg>
-)
+);

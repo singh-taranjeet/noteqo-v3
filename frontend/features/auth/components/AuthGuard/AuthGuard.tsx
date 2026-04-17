@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Spinner } from '@/components/ui/spinner';
-import { useAuthCheck } from '../../hooks/useAuthCheck';
-import { ROUTES } from '@/constants/routes';
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Spinner } from "@/components/ui/spinner";
+import { useAuthCheck } from "../../hooks/useAuthCheck";
+import { ROUTES } from "@/constants/routes";
 
 interface AuthGuardProps {
   children: React.ReactNode;

@@ -1,1 +1,1 @@
-export * from "./ImageUploadNodeExtension"
+export * from "./ImageUploadNodeExtension";

@@ -10,10 +10,11 @@ import { ResponseTransformInterceptor } from './interceptors/response-transform.
     { provide: APP_INTERCEPTOR, useClass: ResponseTransformInterceptor },
     {
       provide: APP_PIPE,
-      useFactory: () => new ValidationPipe({
-        whitelist: true,
-        transform: true,
-      }),
+      useFactory: () =>
+        new ValidationPipe({
+          whitelist: true,
+          transform: true,
+        }),
     },
   ],
   exports: [],

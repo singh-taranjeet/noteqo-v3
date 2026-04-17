@@ -1,38 +1,41 @@
-'use client';
+"use client";
 
-import * as React from 'react';
-import { useState, useCallback } from 'react';
+import * as React from "react";
+import { useState, useCallback } from "react";
 
-import { cn } from '@/lib/utils';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Switch } from '@/components/ui/switch';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { cn } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import {
-  Field,
-  FieldLabel,
-  FieldDescription,
-} from '@/components/ui/field';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { Loading01Icon } from '@hugeicons/core-free-icons';
+} from "@/components/ui/select";
+import { Field, FieldLabel, FieldDescription } from "@/components/ui/field";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { Loading01Icon } from "@hugeicons/core-free-icons";
 
 import type {
   DynamicFormProps,
   FormFieldConfig,
   FormValues,
-} from './dynamic-form.types';
+} from "./dynamic-form.types";
 
 /** Set of field types that render a standard text-like <Input> element. */
-const TEXT_INPUT_TYPES = new Set(['text', 'email', 'password', 'number', 'tel', 'url'] as const);
+const TEXT_INPUT_TYPES = new Set([
+  "text",
+  "email",
+  "password",
+  "number",
+  "tel",
+  "url",
+] as const);
 
 /**
  * DynamicForm — a configuration-driven, reusable form renderer.
@@ -57,8 +60,8 @@ export function DynamicForm({
   fields,
   initialValues = {},
   onSubmit,
-  submitLabel = 'Submit',
-  loadingLabel = 'Processing…',
+  submitLabel = "Submit",
+  loadingLabel = "Processing…",
   isLoading = false,
   error = null,
   className,
@@ -68,8 +71,9 @@ export function DynamicForm({
   const [formValues, setFormValues] = useState<FormValues>(() => {
     const defaults: FormValues = {};
     for (const field of fields) {
-      const isToggle = field.type === 'checkbox' || field.type === 'switch';
-      defaults[field.name] = initialValues[field.name] ?? (isToggle ? false : '');
+      const isToggle = field.type === "checkbox" || field.type === "switch";
+      defaults[field.name] =
+        initialValues[field.name] ?? (isToggle ? false : "");
     }
     return defaults;
   });
@@ -91,7 +95,7 @@ export function DynamicForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className={cn('space-y-6', className)}
+      className={cn("space-y-6", className)}
       noValidate={false}
     >
       {/* ── Form-level error banner ── */}
@@ -109,7 +113,7 @@ export function DynamicForm({
         <FormField
           key={field.name}
           config={field}
-          value={formValues[field.name] ?? ''}
+          value={formValues[field.name] ?? ""}
           onChange={handleChange}
           disabled={isFieldDisabled || !!field.disabled}
         />
@@ -157,10 +161,21 @@ interface FormFieldProps {
 }
 
 function FormField({ config, value, onChange, disabled }: FormFieldProps) {
-  const { name, label, type, placeholder, description, className: fieldClassName } = config;
+  const {
+    name,
+    label,
+    type,
+    placeholder,
+    description,
+    className: fieldClassName,
+  } = config;
 
   /* ── Text-like inputs (text, email, password, number, tel, url) ── */
-  if (TEXT_INPUT_TYPES.has(type as typeof TEXT_INPUT_TYPES extends Set<infer U> ? U : never)) {
+  if (
+    TEXT_INPUT_TYPES.has(
+      type as typeof TEXT_INPUT_TYPES extends Set<infer U> ? U : never,
+    )
+  ) {
     return (
       <Field className={fieldClassName}>
         <FieldLabel htmlFor={name}>{label}</FieldLabel>
@@ -186,7 +201,7 @@ function FormField({ config, value, onChange, disabled }: FormFieldProps) {
   }
 
   /* ── Textarea ── */
-  if (type === 'textarea') {
+  if (type === "textarea") {
     return (
       <Field className={fieldClassName}>
         <FieldLabel htmlFor={name}>{label}</FieldLabel>
@@ -208,7 +223,7 @@ function FormField({ config, value, onChange, disabled }: FormFieldProps) {
   }
 
   /* ── Select ── */
-  if (type === 'select') {
+  if (type === "select") {
     return (
       <Field className={fieldClassName}>
         <FieldLabel htmlFor={name}>{label}</FieldLabel>
@@ -219,7 +234,7 @@ function FormField({ config, value, onChange, disabled }: FormFieldProps) {
           required={config.required}
         >
           <SelectTrigger className="w-full transition-colors">
-            <SelectValue placeholder={placeholder ?? 'Select an option'} />
+            <SelectValue placeholder={placeholder ?? "Select an option"} />
           </SelectTrigger>
           <SelectContent>
             {config.options?.map((opt) => (
@@ -235,9 +250,12 @@ function FormField({ config, value, onChange, disabled }: FormFieldProps) {
   }
 
   /* ── Checkbox ── */
-  if (type === 'checkbox') {
+  if (type === "checkbox") {
     return (
-      <Field orientation="horizontal" className={cn('items-center', fieldClassName)}>
+      <Field
+        orientation="horizontal"
+        className={cn("items-center", fieldClassName)}
+      >
         <Checkbox
           id={name}
           checked={!!value}
@@ -254,9 +272,12 @@ function FormField({ config, value, onChange, disabled }: FormFieldProps) {
   }
 
   /* ── Switch ── */
-  if (type === 'switch') {
+  if (type === "switch") {
     return (
-      <Field orientation="horizontal" className={cn('items-center justify-between', fieldClassName)}>
+      <Field
+        orientation="horizontal"
+        className={cn("items-center justify-between", fieldClassName)}
+      >
         <div className="flex flex-col gap-0.5">
           <FieldLabel htmlFor={name}>{label}</FieldLabel>
           {description && <FieldDescription>{description}</FieldDescription>}
@@ -272,7 +293,7 @@ function FormField({ config, value, onChange, disabled }: FormFieldProps) {
   }
 
   /* ── Radio Group ── */
-  if (type === 'radio') {
+  if (type === "radio") {
     return (
       <Field className={fieldClassName}>
         <FieldLabel>{label}</FieldLabel>
@@ -283,9 +304,15 @@ function FormField({ config, value, onChange, disabled }: FormFieldProps) {
           required={config.required}
         >
           {config.options?.map((opt) => (
-            <Field key={opt.value} orientation="horizontal" className="items-center">
+            <Field
+              key={opt.value}
+              orientation="horizontal"
+              className="items-center"
+            >
               <RadioGroupItem value={opt.value} id={`${name}-${opt.value}`} />
-              <FieldLabel htmlFor={`${name}-${opt.value}`}>{opt.label}</FieldLabel>
+              <FieldLabel htmlFor={`${name}-${opt.value}`}>
+                {opt.label}
+              </FieldLabel>
             </Field>
           ))}
         </RadioGroup>

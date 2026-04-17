@@ -1,5 +1,5 @@
-import { AppShell, Sidebar, Header } from '@/components/layout';
-import { AuthGuard } from '@/features/auth';
+import { AppShell, Sidebar, Header } from "@/components/layout";
+import { AuthGuard } from "@/features/auth";
 
 export default function WorkspaceLayout({
   children,

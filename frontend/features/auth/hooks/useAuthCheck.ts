@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { storageService, STORAGE_KEYS } from '@/features/storage';
+import { useState, useEffect } from "react";
+import { storageService, STORAGE_KEYS } from "@/features/storage";
 
 /**
  * Checks if the user has local auth keys (public key) stored in IndexedDB.
@@ -19,7 +19,9 @@ export const useAuthCheck = () => {
 
     const check = async () => {
       try {
-        const publicKey = await storageService.get<string>(STORAGE_KEYS.PUBLIC_KEY);
+        const publicKey = await storageService.get<string>(
+          STORAGE_KEYS.PUBLIC_KEY,
+        );
         if (!cancelled) {
           setIsAuthenticated(!!publicKey);
         }
@@ -35,7 +37,9 @@ export const useAuthCheck = () => {
     };
 
     check();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   return { isAuthenticated, isLoading };

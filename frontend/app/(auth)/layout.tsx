@@ -1,5 +1,3 @@
-import { cn } from '@/lib/utils';
-
 export default function AuthLayout({
   children,
 }: Readonly<{
@@ -12,9 +10,7 @@ export default function AuthLayout({
       <div className="absolute -bottom-1/4 -left-1/4 w-1/2 h-1/2 z-0 bg-primary/10 blur-3xl rounded-full" />
 
       {/* Content layer */}
-      <div className="relative z-10 w-full">
-        {children}
-      </div>
+      <div className="relative z-10 w-full">{children}</div>
     </div>
   );
 }

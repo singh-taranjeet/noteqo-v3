@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useCallback } from 'react';
-import { useRouter } from 'next/navigation';
-import { useQueryClient } from '@tanstack/react-query';
-import { storageService, db } from '@/features/storage';
-import { ROUTES } from '@/constants/routes';
+import { useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
+import { storageService, db } from "@/features/storage";
+import { ROUTES } from "@/constants/routes";
 
 /**
  * Hook that handles full client-side logout:

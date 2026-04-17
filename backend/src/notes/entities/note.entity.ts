@@ -1,4 +1,11 @@
-import { Entity, Column, ManyToOne, JoinColumn, Index, OneToMany } from 'typeorm';
+import {
+  Entity,
+  Column,
+  ManyToOne,
+  JoinColumn,
+  Index,
+  OneToMany,
+} from 'typeorm';
 import { AppBaseEntity } from '../../shared/entities/base.entity';
 import { USER_TABLE } from '../../users/constants/users.constants';
 import { NOTE_TABLE, NOTE_COLUMN } from '../constants/notes.constants';
@@ -16,6 +23,8 @@ export class NoteEntity extends AppBaseEntity {
   @OneToMany(() => KeySlotEntity, (keySlot) => keySlot.note, { cascade: true })
   keySlots: KeySlotEntity[];
 
-  @OneToMany(() => NoteVersionEntity, (version) => version.note, { cascade: true })
+  @OneToMany(() => NoteVersionEntity, (version) => version.note, {
+    cascade: true,
+  })
   versions: NoteVersionEntity[];
 }

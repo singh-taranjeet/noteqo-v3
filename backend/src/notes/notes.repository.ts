@@ -15,7 +15,7 @@ export class NotesRepository {
     @InjectRepository(NoteVersionEntity)
     private readonly versionOrm: Repository<NoteVersionEntity>,
     private readonly dataSource: DataSource,
-  ) { }
+  ) {}
 
   /**
    * Retrieves a Note accurately from the master table, natively querying
@@ -153,7 +153,7 @@ export class NotesRepository {
       deletedBy: entity.deletedBy,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
-      keySlots: entity.keySlots?.map(ks => ({
+      keySlots: entity.keySlots?.map((ks) => ({
         noteId: ks.noteId,
         userId: ks.userId,
         encryptedDocKey: ks.encryptedDocKey.toString('base64'),

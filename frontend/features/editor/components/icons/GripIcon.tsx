@@ -1,4 +1,4 @@
-import React from "react"
+import React from "react";
 
 export const GripIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg
@@ -20,4 +20,4 @@ export const GripIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
     <circle cx="15" cy="12" r="1" />
     <circle cx="15" cy="19" r="1" />
   </svg>
-)
+);

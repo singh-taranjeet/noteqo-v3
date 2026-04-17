@@ -29,7 +29,9 @@ export class UsersController {
   }
 
   @Get(USER_ROUTES.BY_ID)
-  async findOne(@Param('userId', ParseUUIDPipe) id: string): Promise<UserResponseDto> {
+  async findOne(
+    @Param('userId', ParseUUIDPipe) id: string,
+  ): Promise<UserResponseDto> {
     const user = await this.usersService.findOne(id);
     return this.mapToResponse(user);
   }

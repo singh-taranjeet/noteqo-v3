@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
-import { syncQueueService } from '../services/sync-queue.service';
+import { useEffect } from "react";
+import { syncQueueService } from "../services/sync-queue.service";
 
 /**
  * Starts the background sync queue on mount, stops on unmount.

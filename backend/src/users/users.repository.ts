@@ -26,10 +26,21 @@ export class UsersRepository {
   async findByEmailWithAuth(email: string): Promise<UserEntity | null> {
     return this.orm.findOne({
       where: { email },
-      select: ['id', 'email', 'name', 'authCredential', 'publicKey', 'privateKey', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'deletedBy'],
+      select: [
+        'id',
+        'email',
+        'name',
+        'authCredential',
+        'publicKey',
+        'privateKey',
+        'createdAt',
+        'updatedAt',
+        'createdBy',
+        'updatedBy',
+        'deletedBy',
+      ],
     });
   }
-
 
   async create(user: CreateUserDto): Promise<User> {
     const entity = this.orm.create({

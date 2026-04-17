@@ -1,5 +1,5 @@
-import type { VariantProps } from 'class-variance-authority';
-import type { buttonVariants } from '@/components/ui/button';
+import type { VariantProps } from "class-variance-authority";
+import type { buttonVariants } from "@/components/ui/button";
 
 /** Configuration for a single dialog action button. */
 export interface DialogAction {
@@ -8,7 +8,7 @@ export interface DialogAction {
   /** Click handler invoked when the button is pressed. */
   onClick: () => void;
   /** Button visual variant (default: 'default'). */
-  variant?: VariantProps<typeof buttonVariants>['variant'];
+  variant?: VariantProps<typeof buttonVariants>["variant"];
   /** Whether the button is disabled. */
   disabled?: boolean;
   /** Whether to close the dialog after clicking (default: true). */

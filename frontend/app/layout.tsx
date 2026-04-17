@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Providers } from "@/components/Providers";
 
-const roboto = Roboto({subsets:['latin'],variable:'--font-sans'});
+const roboto = Roboto({ subsets: ["latin"], variable: "--font-sans" });
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,7 +19,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Noteqo — Encrypted Document Workspace",
-  description: "Securely encrypt and sync your documents across all devices with E2E encryption.",
+  description:
+    "Securely encrypt and sync your documents across all devices with E2E encryption.",
 };
 
 export default function RootLayout({
@@ -30,7 +31,14 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={cn("h-full", "antialiased", geistSans.variable, geistMono.variable, "font-sans", roboto.variable)}
+      className={cn(
+        "h-full",
+        "antialiased",
+        geistSans.variable,
+        geistMono.variable,
+        "font-sans",
+        roboto.variable,
+      )}
     >
       <body className="min-h-full flex flex-col">
         <Providers>

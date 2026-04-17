@@ -1,11 +1,12 @@
-import { db } from '@/features/storage';
-import type { Document } from '../types/workspace.types';
+import { db } from "@/features/storage";
+import { cryptoService } from "@/features/crypto";
+import type { Document } from "../types/workspace.types";
 import {
   DOCUMENT_DEFAULTS,
   DOCUMENT_EMOJI_POOL,
   DOCUMENT_COVER_POOL,
-} from '../constants/workspace.constants';
-import { syncQueueService } from './sync-queue.service';
+} from "../constants/workspace.constants";
+import { syncQueueService } from "./sync-queue.service";
 
 function getRandomItem<T>(pool: readonly T[]): T {
   return pool[Math.floor(Math.random() * pool.length)];
@@ -17,6 +18,8 @@ export const documentService = {
    * Returns the document immediately — no network call.
    */
   async createDocument(title?: string): Promise<Document> {
+    const docKeyBase64 = cryptoService.generateDocumentKey();
+
     const now = new Date().toISOString();
     const document: Document = {
       id: crypto.randomUUID(),
@@ -24,13 +27,14 @@ export const documentService = {
       emoji: getRandomItem(DOCUMENT_EMOJI_POOL),
       coverImage: getRandomItem(DOCUMENT_COVER_POOL),
       content: null,
-      syncStatus: 'pending',
+      syncStatus: "pending",
       createdAt: now,
       updatedAt: now,
+      docKey: docKeyBase64,
     };
 
     await db.documents.put(document);
-    await syncQueueService.enqueue('CREATE', document.id, document);
+    await syncQueueService.enqueue("CREATE", document.id, document);
 
     return document;
   },
@@ -39,7 +43,7 @@ export const documentService = {
    * Returns all documents from the local Dexie DB.
    */
   async getAllDocuments(): Promise<Document[]> {
-    return db.documents.orderBy('updatedAt').reverse().toArray();
+    return db.documents.orderBy("updatedAt").reverse().toArray();
   },
 
   /**
@@ -52,13 +56,20 @@ export const documentService = {
   /**
    * Updates a document locally and enqueues an UPDATE sync event.
    */
-  async updateDocument(id: string, updates: Partial<Omit<Document, 'id' | 'createdAt'>>): Promise<void> {
-    const patched = { ...updates, updatedAt: new Date().toISOString(), syncStatus: 'pending' as const };
+  async updateDocument(
+    id: string,
+    updates: Partial<Omit<Document, "id" | "createdAt">>,
+  ): Promise<void> {
+    const patched = {
+      ...updates,
+      updatedAt: new Date().toISOString(),
+      syncStatus: "pending" as const,
+    };
     await db.documents.update(id, patched);
 
     const document = await db.documents.get(id);
     if (document) {
-      await syncQueueService.enqueue('UPDATE', id, document);
+      await syncQueueService.enqueue("UPDATE", id, document);
     }
   },
 
@@ -67,6 +78,6 @@ export const documentService = {
    */
   async deleteDocument(id: string): Promise<void> {
     await db.documents.delete(id);
-    await syncQueueService.enqueue('DELETE', id, { id });
+    await syncQueueService.enqueue("DELETE", id, { id });
   },
 };

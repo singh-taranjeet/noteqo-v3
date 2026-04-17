@@ -1,16 +1,16 @@
 /** Supported field input types for the DynamicForm component. */
 export type FormFieldType =
-  | 'text'
-  | 'email'
-  | 'password'
-  | 'number'
-  | 'tel'
-  | 'url'
-  | 'textarea'
-  | 'select'
-  | 'checkbox'
-  | 'switch'
-  | 'radio';
+  | "text"
+  | "email"
+  | "password"
+  | "number"
+  | "tel"
+  | "url"
+  | "textarea"
+  | "select"
+  | "checkbox"
+  | "switch"
+  | "radio";
 
 /** A single option for select / radio field types. */
 export interface FormFieldOption {

@@ -1,49 +1,52 @@
-"use client"
+"use client";
 
-import { EditorContent, EditorContext, useEditor } from "@tiptap/react"
+import { EditorContent, EditorContext, useEditor } from "@tiptap/react";
 
 // --- Tiptap Core Extensions ---
-import { StarterKit } from "@tiptap/starter-kit"
-import { Image } from "@tiptap/extension-image"
-import { TaskItem, TaskList } from "@tiptap/extension-list"
-import { TextAlign } from "@tiptap/extension-text-align"
-import { Typography } from "@tiptap/extension-typography"
-import { Highlight } from "@tiptap/extension-highlight"
-import { TextStyle } from "@tiptap/extension-text-style"
-import { Color } from "@tiptap/extension-color"
-import { Subscript } from "@tiptap/extension-subscript"
-import { Superscript } from "@tiptap/extension-superscript"
-import { Underline } from "@tiptap/extension-underline"
-import { Selection } from "@tiptap/extensions"
+import { StarterKit } from "@tiptap/starter-kit";
+import { Image } from "@tiptap/extension-image";
+import { TaskList } from "@tiptap/extension-list";
+import { TextAlign } from "@tiptap/extension-text-align";
+import { Typography } from "@tiptap/extension-typography";
+import { Highlight } from "@tiptap/extension-highlight";
+import { TextStyle } from "@tiptap/extension-text-style";
+import { Color } from "@tiptap/extension-color";
+import { Subscript } from "@tiptap/extension-subscript";
+import { Superscript } from "@tiptap/extension-superscript";
+import { Underline } from "@tiptap/extension-underline";
+import { Selection } from "@tiptap/extensions";
 
 // --- Tiptap Node Custom Views ---
-import { ImageUploadNode } from "@/features/editor/components/nodes/ImageUploadNode/ImageUploadNodeExtension"
-import { HorizontalRule } from "@/features/editor/components/nodes/HorizontalRuleNode/HorizontalRuleNodeExtension"
-import { CodeBlockNode } from "@/features/editor/components/nodes/CodeBlockNode/CodeBlockNodeExtension"
-import { TaskItemNode } from "@/features/editor/components/nodes/TaskItemNode/TaskItemNodeExtension"
-import { HeadingNode } from "@/features/editor/components/nodes/HeadingNode/HeadingNodeExtension"
+import { ImageUploadNode } from "@/features/editor/components/nodes/ImageUploadNode/ImageUploadNodeExtension";
+import { HorizontalRule } from "@/features/editor/components/nodes/HorizontalRuleNode/HorizontalRuleNodeExtension";
+import { CodeBlockNode } from "@/features/editor/components/nodes/CodeBlockNode/CodeBlockNodeExtension";
+import { TaskItemNode } from "@/features/editor/components/nodes/TaskItemNode/TaskItemNodeExtension";
+import { HeadingNode } from "@/features/editor/components/nodes/HeadingNode/HeadingNodeExtension";
 
 // --- Tiptap Features ---
-import { SlashCommandExtension } from "@/features/editor/components/extensions/SlashCommand/SlashCommandExtension"
+import { SlashCommandExtension } from "@/features/editor/components/extensions/SlashCommand/SlashCommandExtension";
 
 // --- Tiptap Columns ---
-import { ColumnsExtension } from "@/features/editor/components/nodes/ColumnsNode/ColumnsExtension"
-import { ColumnExtension } from "@/features/editor/components/nodes/ColumnsNode/ColumnExtension"
+import { ColumnsExtension } from "@/features/editor/components/nodes/ColumnsNode/ColumnsExtension";
+import { ColumnExtension } from "@/features/editor/components/nodes/ColumnsNode/ColumnExtension";
 
 // --- Tiptap Layouts ---
-import { CardNodeExtension } from "@/features/editor/components/nodes/CardNode/CardNodeExtension"
-import { AccordionNodeExtension } from "@/features/editor/components/nodes/AccordionNode/AccordionNodeExtension"
+import { CardNodeExtension } from "@/features/editor/components/nodes/CardNode/CardNodeExtension";
+import { AccordionNodeExtension } from "@/features/editor/components/nodes/AccordionNode/AccordionNodeExtension";
 
 // --- Tiptap UI Hooks & Components ---
-import { BlockDragHandle } from "@/features/editor/components/editor-ui/BlockDragHandle"
-import { EditorBubbleMenu } from "@/features/editor/components/editor-ui/EditorBubbleMenu"
+import { BlockDragHandle } from "@/features/editor/components/editor-ui/BlockDragHandle";
+import { EditorBubbleMenu } from "@/features/editor/components/editor-ui/EditorBubbleMenu";
 
 // --- Lib ---
-import { handleImageUpload, MAX_FILE_SIZE } from "@/features/editor/utils/tiptapUtils"
-import { EDITOR_STORAGE_KEY } from "@/features/editor/constants/editor.constants"
-import { IS_BROWSER } from "@/lib/utils"
+import {
+  handleImageUpload,
+  MAX_FILE_SIZE,
+} from "@/features/editor/utils/tiptapUtils";
+import { EDITOR_STORAGE_KEY } from "@/features/editor/constants/editor.constants";
+import { IS_BROWSER } from "@/lib/utils";
 
-import content from "@/features/editor/components/data/content.json"
+import content from "@/features/editor/components/data/content.json";
 
 export function DocumentEditor() {
   const getInitialContent = () => {
@@ -52,7 +55,7 @@ export function DocumentEditor() {
       if (saved) {
         try {
           return JSON.parse(saved);
-        } catch (e) {
+        } catch {
           // Graceful fallback to default content if parsing fails
         }
       }
@@ -83,7 +86,8 @@ export function DocumentEditor() {
         },
         blockquote: {
           HTMLAttributes: {
-            class: "mt-6 border-l-2 border-l-border pl-6 italic text-muted-foreground outline-none",
+            class:
+              "mt-6 border-l-2 border-l-border pl-6 italic text-muted-foreground outline-none",
           },
         },
         bulletList: {
@@ -108,7 +112,9 @@ export function DocumentEditor() {
       AccordionNodeExtension,
       TextAlign.configure({ types: ["heading", "paragraph"] }),
       TaskList.configure({
-        HTMLAttributes: { class: "my-6 ml-6 list-none [&>li]:mt-2 outline-none" },
+        HTMLAttributes: {
+          class: "my-6 ml-6 list-none [&>li]:mt-2 outline-none",
+        },
       }),
       TaskItemNode.configure({ nested: true }),
       Highlight.configure({ multicolor: true }),
@@ -135,7 +141,7 @@ export function DocumentEditor() {
       const json = editor.getJSON();
       localStorage.setItem(EDITOR_STORAGE_KEY, JSON.stringify(json));
     },
-  })
+  });
 
   return (
     <div className="w-full h-full overflow-auto bg-background text-foreground font-sans group relative">
@@ -151,5 +157,5 @@ export function DocumentEditor() {
         </EditorContext.Provider>
       </div>
     </div>
-  )
+  );
 }

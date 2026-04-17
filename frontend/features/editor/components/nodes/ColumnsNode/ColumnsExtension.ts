@@ -1,4 +1,8 @@
-import { Node as TiptapNode, mergeAttributes, type CommandProps } from "@tiptap/core";
+import {
+  Node as TiptapNode,
+  mergeAttributes,
+  type CommandProps,
+} from "@tiptap/core";
 import { ReactNodeViewRenderer } from "@tiptap/react";
 import { ColumnsNodeView } from "./ColumnsNodeView";
 
@@ -37,19 +41,19 @@ export const ColumnsExtension = TiptapNode.create({
     return {
       setColumns:
         (cols: number) =>
-          ({ commands }: CommandProps) => {
-            const visible = cols || 2;
-            const items = Array.from({ length: 6 }, () => ({
-              type: "column",
-              content: [{ type: "paragraph" }],
-            }));
-            return commands.insertContent({
-              type: this.name,
-              attrs: { visibleColumns: visible },
-              content: items,
-            });
-          },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Custom command not in Tiptap's RawCommands type
+        ({ commands }: CommandProps) => {
+          const visible = cols || 2;
+          const items = Array.from({ length: 6 }, () => ({
+            type: "column",
+            content: [{ type: "paragraph" }],
+          }));
+          return commands.insertContent({
+            type: this.name,
+            attrs: { visibleColumns: visible },
+            content: items,
+          });
+        },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Custom command not in Tiptap's RawCommands type
     } as any;
   },
 });

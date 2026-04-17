@@ -1,8 +1,15 @@
-import { db, storageService, STORAGE_KEYS } from '@/features/storage';
-import { cryptoService } from '@/features/crypto/services/crypto.service';
-import { apiClient } from '@/services/api';
-import type { SyncEvent, SyncEventType } from '../types/workspace.types';
-import { SYNC_CONFIG, WORKSPACE_API_ROUTES } from '../constants/workspace.constants';
+import { db, storageService, STORAGE_KEYS } from "@/features/storage";
+import { cryptoService, CRYPTO_CONFIG } from "@/features/crypto";
+import { apiClient } from "@/services/api";
+import type {
+  SyncEvent,
+  SyncEventType,
+  Document,
+} from "../types/workspace.types";
+import {
+  SYNC_CONFIG,
+  WORKSPACE_API_ROUTES,
+} from "../constants/workspace.constants";
 
 /**
  * Background sync queue that processes document events (CREATE, UPDATE, DELETE).
@@ -29,7 +36,7 @@ class SyncQueueService {
     }, SYNC_CONFIG.INTERVAL_MS);
 
     this.onlineHandler = () => void this.processQueue();
-    window.addEventListener('online', this.onlineHandler);
+    window.addEventListener("online", this.onlineHandler);
   }
 
   /**
@@ -42,7 +49,7 @@ class SyncQueueService {
     }
 
     if (this.onlineHandler) {
-      window.removeEventListener('online', this.onlineHandler);
+      window.removeEventListener("online", this.onlineHandler);
       this.onlineHandler = null;
     }
   }
@@ -57,34 +64,38 @@ class SyncQueueService {
    * - UPDATE + DELETE → replace with a DELETE event
    * - Otherwise → insert new event
    */
-  async enqueue(type: SyncEventType, entityId: string, payload: unknown): Promise<void> {
+  async enqueue(
+    type: SyncEventType,
+    entityId: string,
+    payload: unknown,
+  ): Promise<void> {
     const existing = await db.syncQueue
-      .where('entityId')
+      .where("entityId")
       .equals(entityId)
       .first();
 
     if (existing) {
-      if (existing.type === 'CREATE' && type === 'UPDATE') {
+      if (existing.type === "CREATE" && type === "UPDATE") {
         // Merge into the existing CREATE — will still POST on sync
         await db.syncQueue.update(existing.id, { payload });
         return;
       }
 
-      if (existing.type === 'CREATE' && type === 'DELETE') {
+      if (existing.type === "CREATE" && type === "DELETE") {
         // Net zero — never hit the API
         await db.syncQueue.delete(existing.id);
         return;
       }
 
-      if (existing.type === 'UPDATE' && type === 'UPDATE') {
+      if (existing.type === "UPDATE" && type === "UPDATE") {
         // Update payload of existing UPDATE event
         await db.syncQueue.update(existing.id, { payload });
         return;
       }
 
-      if (existing.type === 'UPDATE' && type === 'DELETE') {
+      if (existing.type === "UPDATE" && type === "DELETE") {
         // Replace UPDATE with DELETE
-        await db.syncQueue.update(existing.id, { type: 'DELETE', payload });
+        await db.syncQueue.update(existing.id, { type: "DELETE", payload });
         return;
       }
     }
@@ -107,12 +118,12 @@ class SyncQueueService {
    */
   private async processQueue(): Promise<void> {
     if (this.isProcessing) return;
-    if (typeof navigator !== 'undefined' && !navigator.onLine) return;
+    if (typeof navigator !== "undefined" && !navigator.onLine) return;
 
     this.isProcessing = true;
 
     try {
-      const events = await db.syncQueue.orderBy('createdAt').toArray();
+      const events = await db.syncQueue.orderBy("createdAt").toArray();
 
       for (const event of events) {
         try {
@@ -120,14 +131,14 @@ class SyncQueueService {
           // Success — delete from queue
           await db.syncQueue.delete(event.id);
           // Update document syncStatus
-          await db.documents.update(event.entityId, { syncStatus: 'synced' });
-        } catch (error) {
+          await db.documents.update(event.entityId, { syncStatus: "synced" });
+        } catch {
           const newRetryCount = event.retryCount + 1;
 
           if (newRetryCount >= SYNC_CONFIG.MAX_RETRY_COUNT) {
             // Max retries exceeded — delete event, mark document as failed
             await db.syncQueue.delete(event.id);
-            await db.documents.update(event.entityId, { syncStatus: 'failed' });
+            await db.documents.update(event.entityId, { syncStatus: "failed" });
           } else {
             await db.syncQueue.update(event.id, { retryCount: newRetryCount });
           }
@@ -146,8 +157,10 @@ class SyncQueueService {
    */
   private async processEvent(event: SyncEvent): Promise<void> {
     switch (event.type) {
-      case 'CREATE': {
-        const { ciphertext, encryptedDocKey } = await this.encryptPayload(event.payload);
+      case "CREATE": {
+        const { ciphertext, encryptedDocKey } = await this.encryptPayload(
+          event.payload,
+        );
         await apiClient.post(WORKSPACE_API_ROUTES.NOTES, {
           id: event.entityId,
           ciphertext,
@@ -156,17 +169,24 @@ class SyncQueueService {
         break;
       }
 
-      case 'UPDATE': {
-        const { ciphertext, encryptedDocKey } = await this.encryptPayload(event.payload);
-        await apiClient.patch(`${WORKSPACE_API_ROUTES.NOTES}/${event.entityId}`, {
-          ciphertext,
-          encryptedDocKey,
-        });
+      case "UPDATE": {
+        const { ciphertext, encryptedDocKey } = await this.encryptPayload(
+          event.payload,
+        );
+        await apiClient.patch(
+          `${WORKSPACE_API_ROUTES.NOTES}/${event.entityId}`,
+          {
+            ciphertext,
+            encryptedDocKey,
+          },
+        );
         break;
       }
 
-      case 'DELETE': {
-        await apiClient.delete(`${WORKSPACE_API_ROUTES.NOTES}/${event.entityId}`);
+      case "DELETE": {
+        await apiClient.delete(
+          `${WORKSPACE_API_ROUTES.NOTES}/${event.entityId}`,
+        );
         break;
       }
     }
@@ -180,64 +200,79 @@ class SyncQueueService {
    * 3. Encrypt the JSON with the doc key → ciphertext
    * 4. Encrypt the doc key with the user's public RSA key → encryptedDocKey
    */
-  private async encryptPayload(payload: unknown): Promise<{ ciphertext: string; encryptedDocKey: string }> {
-    const dataString = JSON.stringify(payload);
+  private async encryptPayload(
+    payload: unknown,
+  ): Promise<{ ciphertext: string; encryptedDocKey: string }> {
+    const doc = payload as Document;
 
-    // Generate a random document key (AES-256)
-    const docKey = window.crypto.getRandomValues(new Uint8Array(32));
+    // Extract base64 docKey and remove it from the object before serializing
+    const { docKey: docKeyBase64, ...payloadToEncrypt } = doc;
+
+    const dataString = JSON.stringify(payloadToEncrypt);
+
+    let docKey: Uint8Array;
+    if (typeof docKeyBase64 === "string") {
+      const buffer = cryptoService.decodeBase64(docKeyBase64);
+      docKey = new Uint8Array(buffer);
+    } else {
+      // Generate a random document key (AES-256)
+      docKey = window.crypto.getRandomValues(
+        new Uint8Array(CRYPTO_CONFIG.MASTER_KEY_BYTES_LENGTH),
+      );
+    }
 
     // Import as AES-GCM key
     const aesKey = await window.crypto.subtle.importKey(
-      'raw',
+      "raw",
       docKey,
-      { name: 'AES-GCM' },
+      { name: CRYPTO_CONFIG.ALGORITHMS.AES },
       false,
-      ['encrypt'],
+      ["encrypt"],
     );
 
     // Encrypt document content
-    const iv = window.crypto.getRandomValues(new Uint8Array(12));
+    const iv = window.crypto.getRandomValues(
+      new Uint8Array(CRYPTO_CONFIG.IV_BYTES_LENGTH),
+    );
     const encoder = new TextEncoder();
     const encrypted = await window.crypto.subtle.encrypt(
-      { name: 'AES-GCM', iv },
+      { name: CRYPTO_CONFIG.ALGORITHMS.AES, iv },
       aesKey,
       encoder.encode(dataString),
     );
 
-    const ciphertext = `${this.bufferToBase64(iv.buffer)}:${this.bufferToBase64(encrypted)}`;
+    const ciphertext = `${cryptoService.encodeBase64(iv.buffer)}:${cryptoService.encodeBase64(encrypted)}`;
 
     // Get user's public key from storage and encrypt the doc key with RSA
-    const publicKeyJwk = await storageService.get<string>(STORAGE_KEYS.PUBLIC_KEY);
+    const publicKeyJwk = await storageService.get<string>(
+      STORAGE_KEYS.PUBLIC_KEY,
+    );
     if (!publicKeyJwk) {
-      throw new Error('Public key not found in storage — cannot encrypt document key');
+      throw new Error(
+        "Public key not found in storage — cannot encrypt document key",
+      );
     }
 
     const rsaPublicKey = await window.crypto.subtle.importKey(
-      'jwk',
+      "jwk",
       JSON.parse(publicKeyJwk) as JsonWebKey,
-      { name: 'RSA-OAEP', hash: 'SHA-256' },
+      {
+        name: CRYPTO_CONFIG.ALGORITHMS.RSA,
+        hash: CRYPTO_CONFIG.ALGORITHMS.HASH,
+      },
       false,
-      ['encrypt'],
+      ["encrypt"],
     );
 
     const encryptedDocKeyBuffer = await window.crypto.subtle.encrypt(
-      { name: 'RSA-OAEP' },
+      { name: CRYPTO_CONFIG.ALGORITHMS.RSA },
       rsaPublicKey,
       docKey,
     );
 
-    const encryptedDocKey = this.bufferToBase64(encryptedDocKeyBuffer);
+    const encryptedDocKey = cryptoService.encodeBase64(encryptedDocKeyBuffer);
 
     return { ciphertext, encryptedDocKey };
-  }
-
-  private bufferToBase64(buffer: ArrayBuffer): string {
-    let binary = '';
-    const bytes = new Uint8Array(buffer);
-    for (let i = 0; i < bytes.byteLength; i++) {
-      binary += String.fromCharCode(bytes[i]);
-    }
-    return btoa(binary);
   }
 }
 

@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useCallback } from 'react';
-import { DynamicDialog } from '@/components/ui/DynamicDialog';
-import { AUTH_CONFIG } from '../../constants/auth.constants';
+import { useCallback } from "react";
+import { DynamicDialog } from "@/components/ui/DynamicDialog";
+import { AUTH_CONFIG } from "../../constants/auth.constants";
 
-import type { DialogAction } from '@/components/ui/DynamicDialog';
+import type { DialogAction } from "@/components/ui/DynamicDialog";
 
 interface RecoveryCodeDialogProps {
   isOpen: boolean;
@@ -12,10 +12,16 @@ interface RecoveryCodeDialogProps {
   onClose: () => void;
 }
 
-export function RecoveryCodeDialog({ isOpen, masterKey, onClose }: RecoveryCodeDialogProps) {
+export function RecoveryCodeDialog({
+  isOpen,
+  masterKey,
+  onClose,
+}: RecoveryCodeDialogProps) {
   const handleDownload = useCallback(() => {
-    const element = document.createElement('a');
-    const file = new Blob([masterKey], { type: AUTH_CONFIG.RECOVERY_FILE_TYPE });
+    const element = document.createElement("a");
+    const file = new Blob([masterKey], {
+      type: AUTH_CONFIG.RECOVERY_FILE_TYPE,
+    });
     element.href = URL.createObjectURL(file);
     element.download = AUTH_CONFIG.RECOVERY_FILE_NAME;
     document.body.appendChild(element); // Required for this to work in FireFox
@@ -25,9 +31,9 @@ export function RecoveryCodeDialog({ isOpen, masterKey, onClose }: RecoveryCodeD
 
   const actions: DialogAction[] = [
     {
-      label: 'Download .txt',
+      label: "Download .txt",
       onClick: handleDownload,
-      variant: 'secondary',
+      variant: "secondary",
       closesDialog: false,
     },
     {

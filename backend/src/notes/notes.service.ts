@@ -13,7 +13,7 @@ export class NotesService {
 
   async create(dto: CreateNoteDto): Promise<Note> {
     this.logger.log(`Creating note locally offline-first`);
-    
+
     return this.notesRepository.createWithKeySlot(
       dto.id,
       Buffer.from(dto.ciphertext, 'base64'),
@@ -37,8 +37,8 @@ export class NotesService {
     }
 
     this.logger.log(`Saving new version for note ID ${id}`);
-    
-    // According to Option B: Last-write-wins + Version history. 
+
+    // According to Option B: Last-write-wins + Version history.
     // We increment the DB version and snapshot the version so previous inputs can be recovered.
     return this.notesRepository.saveNewVersion(
       id,
@@ -52,7 +52,7 @@ export class NotesService {
     if (!note) {
       throw new NoteNotFoundException();
     }
-    
+
     this.logger.log(`Soft-deleting note ${id}`);
     await this.notesRepository.delete(id);
   }

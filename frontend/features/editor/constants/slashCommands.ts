@@ -1,25 +1,25 @@
-import type { Editor, Range } from "@tiptap/core"
+import type { Editor, Range } from "@tiptap/core";
 
-import { HeadingOneIcon } from "@/features/editor/components/icons/HeadingOneIcon"
-import { HeadingTwoIcon } from "@/features/editor/components/icons/HeadingTwoIcon"
-import { HeadingThreeIcon } from "@/features/editor/components/icons/HeadingThreeIcon"
-import { AlignLeftIcon } from "@/features/editor/components/icons/AlignLeftIcon"
-import { ListIcon } from "@/features/editor/components/icons/ListIcon"
-import { ListOrderedIcon } from "@/features/editor/components/icons/ListOrderedIcon"
-import { ListTodoIcon } from "@/features/editor/components/icons/ListTodoIcon"
-import { BlockquoteIcon } from "@/features/editor/components/icons/BlockquoteIcon"
-import { CodeBlockIcon } from "@/features/editor/components/icons/CodeBlockIcon"
-import { Code2Icon } from "@/features/editor/components/icons/Code2Icon"
-import { ImagePlusIcon } from "@/features/editor/components/icons/ImagePlusIcon"
-import { ColumnsIcon } from "@/features/editor/components/icons/ColumnsIcon"
-import { CardIcon } from "@/features/editor/components/icons/CardIcon"
-import { AccordionIcon } from "@/features/editor/components/icons/AccordionIcon"
+import { HeadingOneIcon } from "@/features/editor/components/icons/HeadingOneIcon";
+import { HeadingTwoIcon } from "@/features/editor/components/icons/HeadingTwoIcon";
+import { HeadingThreeIcon } from "@/features/editor/components/icons/HeadingThreeIcon";
+import { AlignLeftIcon } from "@/features/editor/components/icons/AlignLeftIcon";
+import { ListIcon } from "@/features/editor/components/icons/ListIcon";
+import { ListOrderedIcon } from "@/features/editor/components/icons/ListOrderedIcon";
+import { ListTodoIcon } from "@/features/editor/components/icons/ListTodoIcon";
+import { BlockquoteIcon } from "@/features/editor/components/icons/BlockquoteIcon";
+import { CodeBlockIcon } from "@/features/editor/components/icons/CodeBlockIcon";
+import { Code2Icon } from "@/features/editor/components/icons/Code2Icon";
+import { ImagePlusIcon } from "@/features/editor/components/icons/ImagePlusIcon";
+import { ColumnsIcon } from "@/features/editor/components/icons/ColumnsIcon";
+import { CardIcon } from "@/features/editor/components/icons/CardIcon";
+import { AccordionIcon } from "@/features/editor/components/icons/AccordionIcon";
 
 export interface SuggestionItem {
-  title: string
-  icon?: React.FC<React.SVGProps<SVGSVGElement>>
-  shortcut?: string
-  command: (props: { editor: Editor; range: Range }) => void
+  title: string;
+  icon?: React.FC<React.SVGProps<SVGSVGElement>>;
+  shortcut?: string;
+  command: (props: { editor: Editor; range: Range }) => void;
 }
 
 export const SLASH_COMMANDS: SuggestionItem[] = [
@@ -28,7 +28,12 @@ export const SLASH_COMMANDS: SuggestionItem[] = [
     icon: HeadingOneIcon,
     shortcut: "#",
     command: ({ editor, range }) => {
-      editor.chain().focus().deleteRange(range).setNode("heading", { level: 1 }).run()
+      editor
+        .chain()
+        .focus()
+        .deleteRange(range)
+        .setNode("heading", { level: 1 })
+        .run();
     },
   },
   {
@@ -36,7 +41,12 @@ export const SLASH_COMMANDS: SuggestionItem[] = [
     icon: HeadingTwoIcon,
     shortcut: "##",
     command: ({ editor, range }) => {
-      editor.chain().focus().deleteRange(range).setNode("heading", { level: 2 }).run()
+      editor
+        .chain()
+        .focus()
+        .deleteRange(range)
+        .setNode("heading", { level: 2 })
+        .run();
     },
   },
   {
@@ -44,14 +54,19 @@ export const SLASH_COMMANDS: SuggestionItem[] = [
     icon: HeadingThreeIcon,
     shortcut: "###",
     command: ({ editor, range }) => {
-      editor.chain().focus().deleteRange(range).setNode("heading", { level: 3 }).run()
+      editor
+        .chain()
+        .focus()
+        .deleteRange(range)
+        .setNode("heading", { level: 3 })
+        .run();
     },
   },
   {
     title: "Paragraph",
     icon: AlignLeftIcon,
     command: ({ editor, range }) => {
-      editor.chain().focus().deleteRange(range).setNode("paragraph").run()
+      editor.chain().focus().deleteRange(range).setNode("paragraph").run();
     },
   },
   {
@@ -59,7 +74,7 @@ export const SLASH_COMMANDS: SuggestionItem[] = [
     icon: ListIcon,
     shortcut: "-",
     command: ({ editor, range }) => {
-      editor.chain().focus().deleteRange(range).toggleBulletList().run()
+      editor.chain().focus().deleteRange(range).toggleBulletList().run();
     },
   },
   {
@@ -67,14 +82,14 @@ export const SLASH_COMMANDS: SuggestionItem[] = [
     icon: ListOrderedIcon,
     shortcut: "1.",
     command: ({ editor, range }) => {
-      editor.chain().focus().deleteRange(range).toggleOrderedList().run()
+      editor.chain().focus().deleteRange(range).toggleOrderedList().run();
     },
   },
   {
     title: "To-do List",
     icon: ListTodoIcon,
     command: ({ editor, range }) => {
-      editor.chain().focus().deleteRange(range).toggleTaskList().run()
+      editor.chain().focus().deleteRange(range).toggleTaskList().run();
     },
   },
   {
@@ -82,7 +97,7 @@ export const SLASH_COMMANDS: SuggestionItem[] = [
     icon: BlockquoteIcon,
     shortcut: ">",
     command: ({ editor, range }) => {
-      editor.chain().focus().deleteRange(range).setBlockquote().run()
+      editor.chain().focus().deleteRange(range).setBlockquote().run();
     },
   },
   {
@@ -90,7 +105,7 @@ export const SLASH_COMMANDS: SuggestionItem[] = [
     icon: CodeBlockIcon,
     shortcut: "```",
     command: ({ editor, range }) => {
-      editor.chain().focus().deleteRange(range).setCodeBlock().run()
+      editor.chain().focus().deleteRange(range).setCodeBlock().run();
     },
   },
   {
@@ -98,14 +113,19 @@ export const SLASH_COMMANDS: SuggestionItem[] = [
     icon: Code2Icon, // Using an abstract icon as horizontal rule
     shortcut: "---",
     command: ({ editor, range }) => {
-      editor.chain().focus().deleteRange(range).setHorizontalRule().run()
+      editor.chain().focus().deleteRange(range).setHorizontalRule().run();
     },
   },
   {
     title: "Image",
     icon: ImagePlusIcon,
     command: ({ editor, range }) => {
-      editor.chain().focus().deleteRange(range).insertContent({ type: "imageUpload" }).run()
+      editor
+        .chain()
+        .focus()
+        .deleteRange(range)
+        .insertContent({ type: "imageUpload" })
+        .run();
     },
   },
   {
@@ -114,7 +134,7 @@ export const SLASH_COMMANDS: SuggestionItem[] = [
     shortcut: "/2cols",
     command: ({ editor, range }) => {
       // @ts-expect-error - Custom extension method not mapped in Tiptap Core types
-      editor.chain().focus().deleteRange(range).setColumns(2).run()
+      editor.chain().focus().deleteRange(range).setColumns(2).run();
     },
   },
   {
@@ -123,27 +143,37 @@ export const SLASH_COMMANDS: SuggestionItem[] = [
     shortcut: "/3cols",
     command: ({ editor, range }) => {
       // @ts-expect-error - Custom extension method not mapped in Tiptap Core types
-      editor.chain().focus().deleteRange(range).setColumns(3).run()
+      editor.chain().focus().deleteRange(range).setColumns(3).run();
     },
   },
   {
     title: "Card",
     icon: CardIcon,
     command: ({ editor, range }) => {
-      editor.chain().focus().deleteRange(range).insertContent({
-        type: "shadcnCard",
-        content: [{ type: "paragraph" }],
-      }).run()
+      editor
+        .chain()
+        .focus()
+        .deleteRange(range)
+        .insertContent({
+          type: "shadcnCard",
+          content: [{ type: "paragraph" }],
+        })
+        .run();
     },
   },
   {
     title: "Accordion",
     icon: AccordionIcon,
     command: ({ editor, range }) => {
-      editor.chain().focus().deleteRange(range).insertContent({
-        type: "shadcnAccordion",
-        content: [{ type: "paragraph" }],
-      }).run()
+      editor
+        .chain()
+        .focus()
+        .deleteRange(range)
+        .insertContent({
+          type: "shadcnAccordion",
+          content: [{ type: "paragraph" }],
+        })
+        .run();
     },
   },
-]
+];

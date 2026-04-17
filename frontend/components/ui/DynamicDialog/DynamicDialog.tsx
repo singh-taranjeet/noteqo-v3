@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   Dialog,
@@ -9,11 +9,11 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
-import type { DynamicDialogProps } from './dynamic-dialog.types';
+import type { DynamicDialogProps } from "./dynamic-dialog.types";
 
 /**
  * DynamicDialog — a configuration-driven, reusable dialog wrapper.
@@ -68,14 +68,12 @@ export function DynamicDialog({
 
       <DialogContent
         showCloseButton={showCloseButton}
-        className={cn('sm:max-w-md', className)}
+        className={cn("sm:max-w-md", className)}
       >
         {/* ── Header ── */}
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
-          {description && (
-            <DialogDescription>{description}</DialogDescription>
-          )}
+          {description && <DialogDescription>{description}</DialogDescription>}
         </DialogHeader>
 
         {/* ── Body ── */}
@@ -88,10 +86,10 @@ export function DynamicDialog({
               const button = (
                 <Button
                   key={action.label}
-                  variant={action.variant ?? 'default'}
+                  variant={action.variant ?? "default"}
                   disabled={action.disabled}
                   onClick={action.onClick}
-                  className={cn('w-full sm:w-auto', action.className)}
+                  className={cn("w-full sm:w-auto", action.className)}
                 >
                   {action.label}
                 </Button>

@@ -1,5 +1,5 @@
-export type SyncStatus = 'pending' | 'synced' | 'failed';
-export type SyncEventType = 'CREATE' | 'UPDATE' | 'DELETE';
+export type SyncStatus = "pending" | "synced" | "failed";
+export type SyncEventType = "CREATE" | "UPDATE" | "DELETE";
 
 export interface Document {
   id: string;
@@ -10,6 +10,7 @@ export interface Document {
   syncStatus: SyncStatus;
   createdAt: string;
   updatedAt: string;
+  docKey?: string;
 }
 
 export interface SyncEvent {

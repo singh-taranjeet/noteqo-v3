@@ -1,10 +1,14 @@
-'use client';
+"use client";
 
-import { HugeiconsIcon } from '@hugeicons/react';
-import { Menu01Icon } from '@hugeicons/core-free-icons';
-import { useAppShell } from '../AppShell';
-import { Button } from '@/components/ui/button';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { HugeiconsIcon } from "@hugeicons/react";
+import { Menu01Icon } from "@hugeicons/core-free-icons";
+import { useAppShell } from "../AppShell";
+import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export function HeaderSidebarToggle() {
   const { isSidebarOpen, toggleSidebar } = useAppShell();

@@ -1,8 +1,8 @@
-export { DynamicForm } from './DynamicForm';
+export { DynamicForm } from "./DynamicForm";
 export type {
   DynamicFormProps,
   FormFieldConfig,
   FormFieldOption,
   FormFieldType,
   FormValues,
-} from './dynamic-form.types';
+} from "./dynamic-form.types";

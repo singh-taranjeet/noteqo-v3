@@ -1,7 +1,15 @@
-import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
+import {
+  Injectable,
+  NestInterceptor,
+  ExecutionContext,
+  CallHandler,
+} from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { ApiSuccessResponse, ApiPaginationMeta } from '../types/api-response.types';
+import {
+  ApiSuccessResponse,
+  ApiPaginationMeta,
+} from '../types/api-response.types';
 
 @Injectable()
 export class ResponseTransformInterceptor<T>
@@ -19,7 +27,9 @@ export class ResponseTransformInterceptor<T>
         }
 
         const meta = this.extractMeta(data);
-        const payload = meta ? (data as PaginatedServiceResult<T>).data : (data ?? null);
+        const payload = meta
+          ? (data as PaginatedServiceResult<T>).data
+          : data ?? null;
 
         return {
           success: true,

@@ -1,7 +1,13 @@
-import { NodeViewContent, NodeViewWrapper } from "@tiptap/react"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import React from "react"
-import type { NodeViewProps } from "@tiptap/react"
+import { NodeViewContent, NodeViewWrapper } from "@tiptap/react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import React from "react";
+import type { NodeViewProps } from "@tiptap/react";
 
 const LANGUAGES = [
   { value: "plaintext", label: "Plain Text" },
@@ -11,10 +17,10 @@ const LANGUAGES = [
   { value: "css", label: "CSS" },
   { value: "json", label: "JSON" },
   { value: "bash", label: "Bash" },
-]
+];
 
 export const CodeBlockNodeView: React.FC<NodeViewProps> = (props) => {
-  const language = props.node.attrs.language || "plaintext"
+  const language = props.node.attrs.language || "plaintext";
 
   return (
     <NodeViewWrapper className="relative my-6 rounded-md border bg-muted">
@@ -44,5 +50,5 @@ export const CodeBlockNodeView: React.FC<NodeViewProps> = (props) => {
         </code>
       </pre>
     </NodeViewWrapper>
-  )
-}
+  );
+};

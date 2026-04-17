@@ -1,7 +1,7 @@
-import { LAYOUT_CONFIG } from '../layout.constants';
-import { HeaderSidebarToggle } from './HeaderSidebarToggle';
-import { HeaderBreadcrumb } from './HeaderBreadcrumb';
-import { HeaderActions } from './HeaderActions';
+import { LAYOUT_CONFIG } from "../layout.constants";
+import { HeaderSidebarToggle } from "./HeaderSidebarToggle";
+import { HeaderBreadcrumb } from "./HeaderBreadcrumb";
+import { HeaderActions } from "./HeaderActions";
 
 export function Header() {
   return (

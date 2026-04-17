@@ -1,42 +1,48 @@
-'use client';
+"use client";
 
-import { useState, useCallback } from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { DynamicForm } from '@/components/ui/DynamicForm';
-import { RecoveryCodeDialog } from '../RecoveryCodeDialog';
-import { useRegister } from '../../hooks/useRegister';
-import { AUTH_CONFIG } from '../../constants/auth.constants';
-import { ROUTES } from '@/constants/routes';
-import { useRouter } from 'next/navigation';
+import { useState, useCallback } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { DynamicForm } from "@/components/ui/DynamicForm";
+import { RecoveryCodeDialog } from "../RecoveryCodeDialog";
+import { useRegister } from "../../hooks/useRegister";
+import { AUTH_CONFIG } from "../../constants/auth.constants";
+import { ROUTES } from "@/constants/routes";
+import { useRouter } from "next/navigation";
 
-import type { RegisterFormData } from '../../hooks/useRegister';
-import type { FormFieldConfig, FormValues } from '@/components/ui/DynamicForm';
+import type { RegisterFormData } from "../../hooks/useRegister";
+import type { FormFieldConfig, FormValues } from "@/components/ui/DynamicForm";
 
 const REGISTER_FIELDS: FormFieldConfig[] = [
   {
-    name: 'name',
-    label: 'Full Name',
-    type: 'text',
+    name: "name",
+    label: "Full Name",
+    type: "text",
     required: true,
-    placeholder: 'John Doe',
-    autoComplete: 'name',
+    placeholder: "John Doe",
+    autoComplete: "name",
   },
   {
-    name: 'email',
-    label: 'Email',
-    type: 'email',
+    name: "email",
+    label: "Email",
+    type: "email",
     required: true,
-    placeholder: 'john@example.com',
-    autoComplete: 'email',
+    placeholder: "john@example.com",
+    autoComplete: "email",
   },
   {
-    name: 'authCredential',
-    label: 'Password',
-    type: 'password',
+    name: "authCredential",
+    label: "Password",
+    type: "password",
     required: true,
-    placeholder: '••••••••',
+    placeholder: "••••••••",
     minLength: AUTH_CONFIG.MIN_PASSWORD_LENGTH,
-    autoComplete: 'new-password',
+    autoComplete: "new-password",
   },
 ];
 
@@ -44,7 +50,9 @@ export function RegisterForm() {
   const router = useRouter();
   const { mutateAsync: register, isPending } = useRegister();
   const [error, setError] = useState<string | null>(null);
-  const [generatedMasterKey, setGeneratedMasterKey] = useState<string | null>(null);
+  const [generatedMasterKey, setGeneratedMasterKey] = useState<string | null>(
+    null,
+  );
 
   const handleSubmit = useCallback(
     async (values: FormValues) => {
@@ -60,9 +68,9 @@ export function RegisterForm() {
         setGeneratedMasterKey(result.masterKey);
       } catch (err: unknown) {
         if (err instanceof Error) {
-          setError(err.message || 'Registration failed. Please try again.');
+          setError(err.message || "Registration failed. Please try again.");
         } else {
-          setError('Registration failed. Please try again.');
+          setError("Registration failed. Please try again.");
         }
       }
     },
@@ -78,9 +86,13 @@ export function RegisterForm() {
     <>
       <Card className="w-full max-w-md mx-auto shadow-2xl bg-card/60 backdrop-blur-xl border-foreground/10">
         <CardHeader className="space-y-3">
-          <CardTitle className="text-2xl font-bold tracking-tight">Create an account</CardTitle>
+          <CardTitle className="text-2xl font-bold tracking-tight">
+            Create an account
+          </CardTitle>
           <CardDescription className="text-muted-foreground">
-            Sign up to securely encrypt and sync your documents across all devices. We use E2E encryption, meaning your keys are generated locally.
+            Sign up to securely encrypt and sync your documents across all
+            devices. We use E2E encryption, meaning your keys are generated
+            locally.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -93,8 +105,11 @@ export function RegisterForm() {
             error={error}
             footer={
               <>
-                Already have an account?{' '}
-                <a href={ROUTES.LOGIN} className="ml-1 text-primary hover:underline underline-offset-4">
+                Already have an account?{" "}
+                <a
+                  href={ROUTES.LOGIN}
+                  className="ml-1 text-primary hover:underline underline-offset-4"
+                >
                   Log in
                 </a>
               </>

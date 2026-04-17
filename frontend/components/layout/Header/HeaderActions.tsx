@@ -1,12 +1,16 @@
-import { HugeiconsIcon } from '@hugeicons/react';
+import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Share01Icon,
   FavouriteIcon,
   MoreHorizontalIcon,
-} from '@hugeicons/core-free-icons';
-import { Button } from '@/components/ui/button';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+} from "@hugeicons/core-free-icons";
+import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 export function HeaderActions() {
   return (
@@ -53,7 +57,11 @@ export function HeaderActions() {
             className="h-7 w-7"
             aria-label="More options"
           >
-            <HugeiconsIcon icon={MoreHorizontalIcon} size={16} strokeWidth={1.5} />
+            <HugeiconsIcon
+              icon={MoreHorizontalIcon}
+              size={16}
+              strokeWidth={1.5}
+            />
           </Button>
         </TooltipTrigger>
         <TooltipContent side="bottom">More options</TooltipContent>

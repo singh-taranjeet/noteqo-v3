@@ -4,8 +4,8 @@ import {
   BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbSeparator,
-} from '@/components/ui/breadcrumb';
-import React from 'react';
+} from "@/components/ui/breadcrumb";
+import React from "react";
 
 interface BreadcrumbEntry {
   emoji: string;
@@ -17,11 +17,13 @@ interface HeaderBreadcrumbProps {
 }
 
 const MOCK_BREADCRUMB: BreadcrumbEntry[] = [
-  { emoji: '📚', label: 'Installation guides' },
-  { emoji: '🌝', label: 'Install Mvn' },
+  { emoji: "📚", label: "Installation guides" },
+  { emoji: "🌝", label: "Install Mvn" },
 ];
 
-export function HeaderBreadcrumb({ items = MOCK_BREADCRUMB }: HeaderBreadcrumbProps) {
+export function HeaderBreadcrumb({
+  items = MOCK_BREADCRUMB,
+}: HeaderBreadcrumbProps) {
   return (
     <Breadcrumb>
       <BreadcrumbList>

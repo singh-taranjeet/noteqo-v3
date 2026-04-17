@@ -11,12 +11,14 @@ import { CONFIG_KEYS } from '../config';
   imports: [
     UsersModule,
     JwtModule.registerAsync({
-      global: true, // Configured globally mapping dependency trees 
+      global: true, // Configured globally mapping dependency trees
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         secret: configService.getOrThrow<string>(`${CONFIG_KEYS.JWT}.secret`),
-        signOptions: { expiresIn: configService.get<string>(`${CONFIG_KEYS.JWT}.expiresIn`) },
+        signOptions: {
+          expiresIn: configService.get<string>(`${CONFIG_KEYS.JWT}.expiresIn`),
+        },
       }),
     }),
   ],

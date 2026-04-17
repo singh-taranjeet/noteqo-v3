@@ -1,5 +1,5 @@
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 interface SidebarPageItemProps {
   emoji: string;
@@ -14,9 +14,9 @@ export function SidebarPageItem({
 }: SidebarPageItemProps) {
   return (
     <Button
-      variant={isActive ? 'secondary' : 'ghost'}
+      variant={isActive ? "secondary" : "ghost"}
       className={cn(
-        'flex w-full items-center justify-start gap-2 px-3 h-7 text-sm font-normal',
+        "flex w-full items-center justify-start gap-2 px-3 h-7 text-sm font-normal",
       )}
     >
       <span className="shrink-0 text-base" role="img" aria-hidden="true">

@@ -1,10 +1,13 @@
-import { useMutation } from '@tanstack/react-query';
-import { authService } from '../services/auth.service';
-import { cryptoService } from '@/features/crypto';
-import { storageService, STORAGE_KEYS } from '@/features/storage';
-import type { RegisterRequestPayload, AuthResponse } from '../types/auth.types';
+import { useMutation } from "@tanstack/react-query";
+import { authService } from "../services/auth.service";
+import { cryptoService } from "@/features/crypto";
+import { storageService, STORAGE_KEYS } from "@/features/storage";
+import type { RegisterRequestPayload, AuthResponse } from "../types/auth.types";
 
-export type RegisterFormData = Omit<RegisterRequestPayload, 'publicKey' | 'privateKey'>;
+export type RegisterFormData = Omit<
+  RegisterRequestPayload,
+  "publicKey" | "privateKey"
+>;
 
 export interface RegisterResult {
   response: AuthResponse;
@@ -21,7 +24,10 @@ export const useRegister = () => {
       const { publicKey, privateKey } = await cryptoService.generateKeyPair();
 
       // 3. Encrypt the Private Key with the Master Key
-      const encryptedPrivateKey = await cryptoService.encryptPrivateKey(privateKey, masterKey);
+      const encryptedPrivateKey = await cryptoService.encryptPrivateKey(
+        privateKey,
+        masterKey,
+      );
 
       // 4. Send to Backend
       const response = await authService.register({

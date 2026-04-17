@@ -1,5 +1,9 @@
 import { Node as TiptapNode, mergeAttributes } from "@tiptap/core";
-import { ReactNodeViewRenderer, NodeViewWrapper, NodeViewContent } from "@tiptap/react";
+import {
+  ReactNodeViewRenderer,
+  NodeViewWrapper,
+  NodeViewContent,
+} from "@tiptap/react";
 
 // ─── Column Item View ─────────────────────────────
 function ColumnItemView() {

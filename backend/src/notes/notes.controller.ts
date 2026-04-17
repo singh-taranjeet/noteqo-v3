@@ -32,7 +32,9 @@ export class NotesController {
   }
 
   @Get(NOTE_ROUTES.BY_ID)
-  async findOne(@Param('noteId', ParseUUIDPipe) id: string): Promise<NoteResponseDto> {
+  async findOne(
+    @Param('noteId', ParseUUIDPipe) id: string,
+  ): Promise<NoteResponseDto> {
     const note = await this.notesService.findOne(id);
     return this.mapToResponse(note);
   }
