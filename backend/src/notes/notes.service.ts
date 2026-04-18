@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { NotesRepository } from './notes.repository';
-import { Note } from './types/notes.types';
+import { Note, NoteVersion } from './types/notes.types';
 import { CreateNoteDto } from './dto/create-note.dto';
 import { UpdateNoteDto } from './dto/update-note.dto';
 import { NoteNotFoundException } from '../shared/exceptions/note.exception';
@@ -50,6 +50,15 @@ export class NotesService {
       note.version,
       dto.updatedAt,
     );
+  }
+
+  async getVersions(noteId: string): Promise<NoteVersion[]> {
+    const note = await this.notesRepository.findById(noteId);
+    if (!note) {
+      throw new NoteNotFoundException();
+    }
+
+    return this.notesRepository.findVersions(noteId);
   }
 
   async remove(id: string): Promise<void> {

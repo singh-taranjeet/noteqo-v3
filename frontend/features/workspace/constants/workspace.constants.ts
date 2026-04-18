@@ -57,3 +57,7 @@ export const SYNC_CONFIG = {
 export const WORKSPACE_API_ROUTES = {
   NOTES: "/notes",
 } as const;
+
+export const VERSION_API_ROUTES = {
+  VERSIONS: (noteId: string) => `/notes/${noteId}/versions`,
+} as const;

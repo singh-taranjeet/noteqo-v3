@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { NoteEntity } from './entities/note.entity';
 import { NoteVersionEntity } from './entities/note-version.entity';
-import { Note, NoteType } from './types/notes.types';
+import { Note, NoteVersion, NoteType } from './types/notes.types';
 import { getCurrentUserId } from '../shared/utils/cls.utils';
 
 @Injectable()
@@ -140,6 +140,18 @@ export class NotesRepository {
   }
 
   /**
+   * Retrieves all version snapshots for a given note, ordered newest-first.
+   */
+  async findVersions(noteId: string): Promise<NoteVersion[]> {
+    const entities = await this.versionOrm.find({
+      where: { noteId },
+      order: { version: 'DESC' },
+    });
+
+    return entities.map((e) => this.toVersionDomain(e));
+  }
+
+  /**
    * Maps entity to domain type. Entity shape never leaks outside the repository.
    */
   private toDomain(entity: NoteEntity): Note {
@@ -154,6 +166,22 @@ export class NotesRepository {
       deletedBy: entity.deletedBy,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
+    };
+  }
+
+  /**
+   * Maps a version entity to a lightweight domain shape.
+   */
+  private toVersionDomain(entity: NoteVersionEntity): NoteVersion {
+    return {
+      id: entity.id,
+      noteId: entity.noteId,
+      version: entity.version,
+      ciphertext: entity.ciphertext.toString('utf8'),
+      createdAt: entity.createdAt,
+      updatedAt: entity.updatedAt,
+      createdBy: entity.createdBy,
+      updatedBy: entity.updatedBy,
     };
   }
 }
