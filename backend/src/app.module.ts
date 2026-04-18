@@ -38,11 +38,15 @@ import { SyncModule } from './sync/sync.module';
         const dbConfig = configService.get(CONFIG_KEYS.DATABASE);
         return {
           type: 'postgres',
-          host: dbConfig.host || undefined,
-          port: dbConfig.port,
-          database: dbConfig.name,
-          username: dbConfig.username,
-          password: dbConfig.password,
+          url: dbConfig.url || undefined,
+          host: !dbConfig.url ? dbConfig.host || undefined : undefined,
+          port: !dbConfig.url ? dbConfig.port : undefined,
+          database: !dbConfig.url ? dbConfig.name : undefined,
+          username: !dbConfig.url ? dbConfig.username : undefined,
+          password: !dbConfig.url ? dbConfig.password : undefined,
+          ssl: dbConfig.url && dbConfig.url.includes('sslmode=require') 
+            ? { rejectUnauthorized: false } 
+            : undefined,
           autoLoadEntities: true,
           synchronize:
             configService.get(`${CONFIG_KEYS.APP}.env`) !== 'production', // From user feedback
