@@ -4,10 +4,10 @@ import { WORKSPACE_API_ROUTES } from "../constants/workspace.constants";
 export interface RemoteNoteResponse {
   id: string;
   ciphertext: string;
-  encryptedDocKey: string;
+  encryptedNoteKey: string;
   createdAt: string;
   updatedAt: string;
-  keySlots?: { userId: string; encryptedDocKey: string }[];
+  keySlots?: { userId: string; encryptedNoteKey: string }[];
 }
 
 export const noteApiService = {

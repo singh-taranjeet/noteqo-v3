@@ -66,6 +66,7 @@ export function RegisterForm() {
         const result = await register(formData);
         // Registration successful, keys generated, we now have the master key.
         setGeneratedMasterKey(result.masterKey);
+        // set master key in local storage
       } catch (err: unknown) {
         if (err instanceof Error) {
           setError(err.message || "Registration failed. Please try again.");
@@ -79,7 +80,7 @@ export function RegisterForm() {
 
   const handleDialogClose = useCallback(() => {
     // Acknowledged, we can seamlessly push to login or dashboard
-    router.push(ROUTES.NOTES);
+    router.push(ROUTES.LOGIN);
   }, [router]);
 
   return (

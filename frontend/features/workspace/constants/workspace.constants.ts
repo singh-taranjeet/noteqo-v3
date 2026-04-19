@@ -1,9 +1,9 @@
-export const DOCUMENT_DEFAULTS = {
+export const NOTE_DEFAULTS = {
   TITLE: "Untitled",
 } as const;
 
-/** Random emoji assigned on new document creation */
-export const DOCUMENT_EMOJI_POOL = [
+/** Random emoji assigned on new note creation */
+export const NOTE_EMOJI_POOL = [
   "📄",
   "📝",
   "📒",
@@ -33,8 +33,8 @@ export const DOCUMENT_EMOJI_POOL = [
   "📈",
 ] as const;
 
-/** Random cover image assigned on new document creation */
-export const DOCUMENT_COVER_POOL = [
+/** Random cover image assigned on new note creation */
+export const NOTE_COVER_POOL = [
   "/images/covers/gradient-blue.jpg",
   "/images/covers/gradient-purple.jpg",
   "/images/covers/gradient-orange.jpg",

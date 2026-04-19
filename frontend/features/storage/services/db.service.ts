@@ -2,7 +2,7 @@ import Dexie from "dexie";
 import type { Table } from "dexie";
 import { STORAGE_CONFIG } from "../constants/storage.constants";
 import type {
-  Document,
+  Note,
   SyncEvent,
 } from "@/features/workspace/types/workspace.types";
 
@@ -18,7 +18,7 @@ interface KeyEntry {
  */
 class NoteqoDB extends Dexie {
   keys!: Table<KeyEntry, string>;
-  documents!: Table<Document, string>;
+  notes!: Table<Note, string>;
   syncQueue!: Table<SyncEvent, string>;
 
   constructor() {
@@ -26,7 +26,7 @@ class NoteqoDB extends Dexie {
 
     this.version(STORAGE_CONFIG.DB_VERSION).stores({
       keys: "key",
-      documents: "id, syncStatus, updatedAt",
+      notes: "id, syncStatus, updatedAt",
       syncQueue: "id, entityId, createdAt",
     });
   }

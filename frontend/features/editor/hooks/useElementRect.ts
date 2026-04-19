@@ -120,7 +120,7 @@ export function useElementRect({
 
     if (useResizeObserver && hasResizeObserver) {
       const resizeObserver = new ResizeObserver(() => {
-        window.requestAnimationFrame(updateRect);
+        globalThis.requestAnimationFrame(updateRect);
       });
       resizeObserver.observe(targetElement);
       cleanup.push(() => resizeObserver.disconnect());
@@ -128,12 +128,12 @@ export function useElementRect({
 
     const handleUpdate = () => updateRect();
 
-    window.addEventListener("scroll", handleUpdate, true);
-    window.addEventListener("resize", handleUpdate, true);
+    globalThis.addEventListener("scroll", handleUpdate, true);
+    globalThis.addEventListener("resize", handleUpdate, true);
 
     cleanup.push(() => {
-      window.removeEventListener("scroll", handleUpdate);
-      window.removeEventListener("resize", handleUpdate);
+      globalThis.removeEventListener("scroll", handleUpdate);
+      globalThis.removeEventListener("resize", handleUpdate);
     });
 
     return () => {

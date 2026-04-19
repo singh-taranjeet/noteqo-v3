@@ -3,7 +3,7 @@ import { storageService, STORAGE_KEYS } from "@/features/storage";
 
 /**
  * Utility functions for generating and managing E2E encryption keys.
- * This is client-side only (requires window.crypto).
+ * This is client-side only (requires globalThis.crypto).
  */
 
 // Removed internal base64 helpers to expose them directly on cryptoService
@@ -14,17 +14,17 @@ export const cryptoService = {
    * Returns a base64 string.
    */
   generateMasterKey: (): string => {
-    const randomBytes = window.crypto.getRandomValues(
+    const randomBytes = globalThis.crypto.getRandomValues(
       new Uint8Array(CRYPTO_CONFIG.MASTER_KEY_BYTES_LENGTH),
     );
     return cryptoService.encodeBase64(randomBytes.buffer);
   },
 
   /**
-   * Generates a 256-bit symmetric document key. Returns a base64 string.
+   * Generates a 256-bit symmetric note key. Returns a base64 string.
    */
   generateDocumentKey: (): string => {
-    const randomBytes = window.crypto.getRandomValues(
+    const randomBytes = globalThis.crypto.getRandomValues(
       new Uint8Array(CRYPTO_CONFIG.MASTER_KEY_BYTES_LENGTH),
     );
     return cryptoService.encodeBase64(randomBytes.buffer);
@@ -37,11 +37,11 @@ export const cryptoService = {
     for (let i = 0; i < len; i++) {
       binary += String.fromCharCode(bytes[i]);
     }
-    return window.btoa(binary);
+    return globalThis.btoa(binary);
   },
 
   decodeBase64: (base64: string): ArrayBuffer => {
-    const binaryString = window.atob(base64);
+    const binaryString = globalThis.atob(base64);
     const len = binaryString.length;
     const bytes = new Uint8Array(len);
     for (let i = 0; i < len; i++) {
@@ -58,7 +58,7 @@ export const cryptoService = {
     publicKey: string;
     privateKey: string;
   }> => {
-    const keyPair = await window.crypto.subtle.generateKey(
+    const keyPair = await globalThis.crypto.subtle.generateKey(
       {
         name: CRYPTO_CONFIG.ALGORITHMS.RSA,
         modulusLength: CRYPTO_CONFIG.RSA_MODULUS_LENGTH,
@@ -69,11 +69,11 @@ export const cryptoService = {
       ["encrypt", "decrypt"],
     );
 
-    const exportedPublicKey = await window.crypto.subtle.exportKey(
+    const exportedPublicKey = await globalThis.crypto.subtle.exportKey(
       CRYPTO_CONFIG.EXPORT_FORMAT.JWK,
       keyPair.publicKey,
     );
-    const exportedPrivateKey = await window.crypto.subtle.exportKey(
+    const exportedPrivateKey = await globalThis.crypto.subtle.exportKey(
       CRYPTO_CONFIG.EXPORT_FORMAT.JWK,
       keyPair.privateKey,
     );
@@ -94,7 +94,7 @@ export const cryptoService = {
   ): Promise<string> => {
     // 1. Import Master Key
     const rawKey = cryptoService.decodeBase64(base64MasterKey);
-    const cryptoKey = await window.crypto.subtle.importKey(
+    const cryptoKey = await globalThis.crypto.subtle.importKey(
       CRYPTO_CONFIG.EXPORT_FORMAT.RAW,
       rawKey,
       { name: CRYPTO_CONFIG.ALGORITHMS.AES },
@@ -107,10 +107,10 @@ export const cryptoService = {
     const data = encoder.encode(privateKeyPayload);
 
     // 3. Encrypt
-    const iv = window.crypto.getRandomValues(
+    const iv = globalThis.crypto.getRandomValues(
       new Uint8Array(CRYPTO_CONFIG.IV_BYTES_LENGTH),
     );
-    const encryptedContent = await window.crypto.subtle.encrypt(
+    const encryptedContent = await globalThis.crypto.subtle.encrypt(
       {
         name: CRYPTO_CONFIG.ALGORITHMS.AES,
         iv: iv,
@@ -127,7 +127,39 @@ export const cryptoService = {
   },
 
   /**
-   * Decrypts the document payload executing the full Web Crypto cascade.
+   * Decrypts the private key using the master key.
+   */
+  decryptPrivateKey: async (
+    encryptedPrivateKeyPayload: string,
+    base64MasterKey: string,
+  ): Promise<string> => {
+    const [privIv64, privCipher64] = encryptedPrivateKeyPayload.split(":");
+    const privIv = cryptoService.decodeBase64(privIv64);
+    const privCipher = cryptoService.decodeBase64(privCipher64);
+
+    const rawMasterKey = cryptoService.decodeBase64(base64MasterKey);
+    const masterCryptoKey = await globalThis.crypto.subtle.importKey(
+      CRYPTO_CONFIG.EXPORT_FORMAT.RAW,
+      rawMasterKey,
+      { name: CRYPTO_CONFIG.ALGORITHMS.AES },
+      false,
+      ["decrypt"],
+    );
+
+    const decryptedPrivKeyBuffer = await globalThis.crypto.subtle.decrypt(
+      {
+        name: CRYPTO_CONFIG.ALGORITHMS.AES,
+        iv: new Uint8Array(privIv),
+      },
+      masterCryptoKey,
+      privCipher,
+    );
+
+    return new TextDecoder().decode(decryptedPrivKeyBuffer);
+  },
+
+  /**
+   * Decrypts the note payload executing the full Web Crypto cascade.
    */
   decryptDocument: async (
     ciphertextPayload: string,
@@ -142,38 +174,19 @@ export const cryptoService = {
     );
 
     if (!base64MasterKey || !encryptedPrivateKeyPayload) {
-      throw new Error("Missing local keys correctly established to decrypt private key.");
+      throw new Error(
+        "Missing local keys correctly established to decrypt private key.",
+      );
     }
 
     // 2. Decrypt Private Key
-    const [privIv64, privCipher64] = encryptedPrivateKeyPayload.split(":");
-    const privIv = cryptoService.decodeBase64(privIv64);
-    const privCipher = cryptoService.decodeBase64(privCipher64);
-
-    const rawMasterKey = cryptoService.decodeBase64(base64MasterKey);
-    const masterCryptoKey = await window.crypto.subtle.importKey(
-      CRYPTO_CONFIG.EXPORT_FORMAT.RAW,
-      rawMasterKey,
-      { name: CRYPTO_CONFIG.ALGORITHMS.AES },
-      false,
-      ["decrypt"],
-    );
-
-    const decryptedPrivKeyBuffer = await window.crypto.subtle.decrypt(
-      {
-        name: CRYPTO_CONFIG.ALGORITHMS.AES,
-        iv: new Uint8Array(privIv),
-      },
-      masterCryptoKey,
-      privCipher,
-    );
-
-    const decryptedPrivKeyStr = new TextDecoder().decode(
-      decryptedPrivKeyBuffer,
+    const decryptedPrivKeyStr = await cryptoService.decryptPrivateKey(
+      encryptedPrivateKeyPayload,
+      base64MasterKey,
     );
 
     // 3. Import User's Private RSA Key
-    const rsaPrivateKey = await window.crypto.subtle.importKey(
+    const rsaPrivateKey = await globalThis.crypto.subtle.importKey(
       "jwk",
       JSON.parse(decryptedPrivKeyStr) as JsonWebKey,
       {
@@ -188,14 +201,14 @@ export const cryptoService = {
     const encryptedDocKeyBuffer = cryptoService.decodeBase64(
       encryptedDocKeyBase64,
     );
-    const decryptedDocKeyBuffer = await window.crypto.subtle.decrypt(
+    const decryptedDocKeyBuffer = await globalThis.crypto.subtle.decrypt(
       { name: CRYPTO_CONFIG.ALGORITHMS.RSA },
       rsaPrivateKey,
       encryptedDocKeyBuffer,
     );
 
     // 5. Import AES Doc Key
-    const aesDocKey = await window.crypto.subtle.importKey(
+    const aesDocKey = await globalThis.crypto.subtle.importKey(
       "raw",
       decryptedDocKeyBuffer,
       { name: CRYPTO_CONFIG.ALGORITHMS.AES },
@@ -208,7 +221,7 @@ export const cryptoService = {
     const docIv = cryptoService.decodeBase64(docIv64);
     const docCipher = cryptoService.decodeBase64(docCipher64);
 
-    const decryptedDocBuffer = await window.crypto.subtle.decrypt(
+    const decryptedDocBuffer = await globalThis.crypto.subtle.decrypt(
       {
         name: CRYPTO_CONFIG.ALGORITHMS.AES,
         iv: new Uint8Array(docIv),

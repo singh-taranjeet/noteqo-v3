@@ -18,7 +18,7 @@ export interface CursorVisibilityOptions {
 
 /**
  * Custom hook that ensures the cursor remains visible when typing in a Tiptap editor.
- * Automatically scrolls the window when the cursor would be hidden by the toolbar.
+ * Automatically scrolls the globalThis when the cursor would be hidden by the toolbar.
  *
  * @param options.editor The Tiptap editor instance
  * @param options.overlayHeight Toolbar height to account for
@@ -52,11 +52,11 @@ export function useCursorVisibility({
         // If the cursor is hidden behind the overlay or offscreen, scroll it into view
         if (availableSpace < overlayHeight) {
           const targetCursorY = Math.max(windowHeight / 2, overlayHeight);
-          const currentScrollY = window.scrollY;
+          const currentScrollY = globalThis.scrollY;
           const cursorAbsoluteY = cursorCoords.top + currentScrollY;
           const newScrollY = cursorAbsoluteY - targetCursorY;
 
-          window.scrollTo({
+          globalThis.scrollTo({
             top: Math.max(0, newScrollY),
             behavior: "smooth",
           });

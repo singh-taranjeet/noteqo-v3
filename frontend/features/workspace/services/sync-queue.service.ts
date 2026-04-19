@@ -4,7 +4,7 @@ import { apiClient } from "@/services/api";
 import type {
   SyncEvent,
   SyncEventType,
-  Document,
+  Note,
 } from "../types/workspace.types";
 import {
   SYNC_CONFIG,
@@ -12,11 +12,11 @@ import {
 } from "../constants/workspace.constants";
 
 /**
- * Background sync queue that processes document events (CREATE, UPDATE, DELETE).
+ * Background sync queue that processes note events (CREATE, UPDATE, DELETE).
  *
  * - Coalesces events: if a pending event for the same entity exists, it merges
  *   instead of creating duplicates.
- * - Encrypts document content via cryptoService before sending to the API.
+ * - Encrypts note content via cryptoService before sending to the API.
  * - Deletes events from queue after successful sync.
  * - Retries with exponential backoff up to MAX_RETRY_COUNT.
  */
@@ -36,7 +36,7 @@ class SyncQueueService {
     }, SYNC_CONFIG.INTERVAL_MS);
 
     this.onlineHandler = () => void this.processQueue();
-    window.addEventListener("online", this.onlineHandler);
+    globalThis.addEventListener("online", this.onlineHandler);
   }
 
   /**
@@ -49,7 +49,7 @@ class SyncQueueService {
     }
 
     if (this.onlineHandler) {
-      window.removeEventListener("online", this.onlineHandler);
+      globalThis.removeEventListener("online", this.onlineHandler);
       this.onlineHandler = null;
     }
   }
@@ -130,15 +130,15 @@ class SyncQueueService {
           await this.processEvent(event);
           // Success — delete from queue
           await db.syncQueue.delete(event.id);
-          // Update document syncStatus
-          await db.documents.update(event.entityId, { syncStatus: "synced" });
+          // Update note syncStatus
+          await db.notes.update(event.entityId, { syncStatus: "synced" });
         } catch {
           const newRetryCount = event.retryCount + 1;
 
           if (newRetryCount >= SYNC_CONFIG.MAX_RETRY_COUNT) {
-            // Max retries exceeded — delete event, mark document as failed
+            // Max retries exceeded — delete event, mark note as failed
             await db.syncQueue.delete(event.id);
-            await db.documents.update(event.entityId, { syncStatus: "failed" });
+            await db.notes.update(event.entityId, { syncStatus: "failed" });
           } else {
             await db.syncQueue.update(event.id, { retryCount: newRetryCount });
           }
@@ -158,7 +158,7 @@ class SyncQueueService {
   private async processEvent(event: SyncEvent): Promise<void> {
     switch (event.type) {
       case "CREATE": {
-        const { ciphertext, encryptedDocKey } = await this.encryptPayload(
+        const { ciphertext, encryptedNoteKey } = await this.encryptPayload(
           event.payload,
         );
         await apiClient.post(
@@ -166,7 +166,7 @@ class SyncQueueService {
           {
             id: event.entityId,
             ciphertext,
-            encryptedDocKey,
+            encryptedNoteKey,
           },
           { auth: true },
         );
@@ -174,14 +174,14 @@ class SyncQueueService {
       }
 
       case "UPDATE": {
-        const { ciphertext, encryptedDocKey } = await this.encryptPayload(
+        const { ciphertext, encryptedNoteKey } = await this.encryptPayload(
           event.payload,
         );
         await apiClient.patch(
           `${WORKSPACE_API_ROUTES.NOTES}/${event.entityId}`,
           {
             ciphertext,
-            encryptedDocKey,
+            encryptedNoteKey,
           },
           { auth: true },
         );
@@ -199,49 +199,49 @@ class SyncQueueService {
   }
 
   /**
-   * Encrypt a document payload for the API.
+   * Encrypt a note payload for the API.
    *
    * 1. Serialize the payload (title, emoji, coverImage, content) to JSON
-   * 2. Generate a random AES document key
+   * 2. Generate a random AES note key
    * 3. Encrypt the JSON with the doc key → ciphertext
-   * 4. Encrypt the doc key with the user's public RSA key → encryptedDocKey
+   * 4. Encrypt the doc key with the user's public RSA key → encryptedNoteKey
    */
   private async encryptPayload(
     payload: unknown,
-  ): Promise<{ ciphertext: string; encryptedDocKey: string }> {
-    const doc = payload as Document;
+  ): Promise<{ ciphertext: string; encryptedNoteKey: string }> {
+    const note = payload as Note;
 
-    // Extract base64 docKey and remove it from the object before serializing
-    const { docKey: docKeyBase64, ...payloadToEncrypt } = doc;
+    // Extract base64 noteKey and remove it from the object before serializing
+    const { noteKey: noteKeyBase64, ...payloadToEncrypt } = note;
 
     const dataString = JSON.stringify(payloadToEncrypt);
 
-    let docKey: Uint8Array;
-    if (typeof docKeyBase64 === "string") {
-      const buffer = cryptoService.decodeBase64(docKeyBase64);
-      docKey = new Uint8Array(buffer);
+    let noteKey: Uint8Array;
+    if (typeof noteKeyBase64 === "string") {
+      const buffer = cryptoService.decodeBase64(noteKeyBase64);
+      noteKey = new Uint8Array(buffer);
     } else {
-      // Generate a random document key (AES-256)
-      docKey = window.crypto.getRandomValues(
+      // Generate a random note key (AES-256)
+      noteKey = globalThis.crypto.getRandomValues(
         new Uint8Array(CRYPTO_CONFIG.MASTER_KEY_BYTES_LENGTH),
       );
     }
 
     // Import as AES-GCM key
-    const aesKey = await window.crypto.subtle.importKey(
+    const aesKey = await globalThis.crypto.subtle.importKey(
       "raw",
-      docKey,
+      noteKey as BufferSource,
       { name: CRYPTO_CONFIG.ALGORITHMS.AES },
       false,
       ["encrypt"],
     );
 
-    // Encrypt document content
-    const iv = window.crypto.getRandomValues(
+    // Encrypt note content
+    const iv = globalThis.crypto.getRandomValues(
       new Uint8Array(CRYPTO_CONFIG.IV_BYTES_LENGTH),
     );
     const encoder = new TextEncoder();
-    const encrypted = await window.crypto.subtle.encrypt(
+    const encrypted = await globalThis.crypto.subtle.encrypt(
       { name: CRYPTO_CONFIG.ALGORITHMS.AES, iv },
       aesKey,
       encoder.encode(dataString),
@@ -255,11 +255,11 @@ class SyncQueueService {
     );
     if (!publicKeyJwk) {
       throw new Error(
-        "Public key not found in storage — cannot encrypt document key",
+        "Public key not found in storage — cannot encrypt note key",
       );
     }
 
-    const rsaPublicKey = await window.crypto.subtle.importKey(
+    const rsaPublicKey = await globalThis.crypto.subtle.importKey(
       "jwk",
       JSON.parse(publicKeyJwk) as JsonWebKey,
       {
@@ -270,15 +270,15 @@ class SyncQueueService {
       ["encrypt"],
     );
 
-    const encryptedDocKeyBuffer = await window.crypto.subtle.encrypt(
+    const encryptedDocKeyBuffer = await globalThis.crypto.subtle.encrypt(
       { name: CRYPTO_CONFIG.ALGORITHMS.RSA },
       rsaPublicKey,
-      docKey,
+      noteKey as BufferSource,
     );
 
-    const encryptedDocKey = cryptoService.encodeBase64(encryptedDocKeyBuffer);
+    const encryptedNoteKey = cryptoService.encodeBase64(encryptedDocKeyBuffer);
 
-    return { ciphertext, encryptedDocKey };
+    return { ciphertext, encryptedNoteKey };
   }
 }
 

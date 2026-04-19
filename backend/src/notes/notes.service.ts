@@ -17,7 +17,7 @@ export class NotesService {
     return this.notesRepository.createWithKeySlot(
       dto.id,
       Buffer.from(dto.ciphertext, 'base64'),
-      Buffer.from(dto.encryptedDocKey, 'base64'),
+      Buffer.from(dto.encryptedNoteKey, 'base64'),
     );
   }
 

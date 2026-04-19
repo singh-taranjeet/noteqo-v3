@@ -15,7 +15,7 @@ interface AuthGuardProps {
  * Renders a loading spinner while the async IndexedDB check is in progress,
  * then either renders children or redirects.
  */
-export function AuthGuard({ children }: AuthGuardProps) {
+export function AuthGuard({ children }: Readonly<AuthGuardProps>) {
   const router = useRouter();
   const { isAuthenticated, isLoading } = useAuthCheck();
 

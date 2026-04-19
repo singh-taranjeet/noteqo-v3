@@ -6,11 +6,11 @@ import { IS_BROWSER } from "@/lib/utils";
 
 export interface WindowSizeState {
   /**
-   * The width of the window's visual viewport in pixels.
+   * The width of the globalThis's visual viewport in pixels.
    */
   width: number;
   /**
-   * The height of the window's visual viewport in pixels.
+   * The height of the globalThis's visual viewport in pixels.
    */
   height: number;
   /**
@@ -30,7 +30,7 @@ export interface WindowSizeState {
 }
 
 /**
- * Hook that tracks the window's visual viewport dimensions, position, and provides
+ * Hook that tracks the globalThis's visual viewport dimensions, position, and provides
  * a CSS transform for positioning elements.
  *
  * Uses the Visual Viewport API to get accurate measurements, especially important
@@ -51,7 +51,7 @@ export function useWindowSize(): WindowSizeState {
   const handleViewportChange = useThrottledCallback(() => {
     if (!IS_BROWSER) return;
 
-    const vp = window.visualViewport;
+    const vp = globalThis.visualViewport;
     if (!vp) return;
 
     const {
@@ -78,7 +78,7 @@ export function useWindowSize(): WindowSizeState {
   }, 200);
 
   useEffect(() => {
-    const visualViewport = window.visualViewport;
+    const visualViewport = globalThis.visualViewport;
     if (!visualViewport) return;
 
     visualViewport.addEventListener("resize", handleViewportChange);

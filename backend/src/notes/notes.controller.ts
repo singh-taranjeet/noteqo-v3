@@ -74,7 +74,7 @@ export class NotesController {
       // Pass the fully structured key slots (base64 conversion already happened in the repository mapper)
       keySlots: note.keySlots?.map((ks) => ({
         userId: ks.userId,
-        encryptedDocKey: ks.encryptedDocKey,
+        encryptedNoteKey: ks.encryptedNoteKey,
       })),
     };
   }

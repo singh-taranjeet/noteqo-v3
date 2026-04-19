@@ -45,7 +45,7 @@ export function RecoveryCodeDialog({
   return (
     <DynamicDialog
       title="Save Your Recovery Code"
-      description="This is your Master Encryption Key. You must save it somewhere safe. If you lose this key, you will permanently lose access to your encrypted documents. We do not store this key and cannot recover it for you."
+      description="This is your Master Encryption Key. You must save it somewhere safe. If you lose this key, you will permanently lose access to your encrypted notes. We do not store this key and cannot recover it for you."
       isOpen={isOpen}
       onOpenChange={() => {}}
       showCloseButton={false}

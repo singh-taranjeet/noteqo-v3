@@ -2,7 +2,13 @@
 
 import { EditorContent, EditorContext, useEditor } from "@tiptap/react";
 import type { JSONContent } from "@tiptap/react";
-import { useEffect, useRef, useState, type ChangeEvent, type FocusEvent } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ChangeEvent,
+  type FocusEvent,
+} from "react";
 
 // --- Tiptap Core Extensions ---
 import { StarterKit } from "@tiptap/starter-kit";
@@ -47,17 +53,17 @@ import {
 } from "@/features/editor/utils/tiptapUtils";
 import { EDITOR_STORAGE_KEY } from "@/features/editor/constants/editor.constants";
 import { IS_BROWSER } from "@/lib/utils";
-import { documentService } from "@/features/workspace/services/document.service";
-import type { Document } from "@/features/workspace/types/workspace.types";
+import { noteService } from "@/features/workspace/services/note.service";
+import type { Note } from "@/features/workspace/types/workspace.types";
 
 import content from "@/features/editor/components/data/content.json";
 
-interface DocumentEditorProps {
+interface NoteEditorProps {
   noteId?: string;
 }
 
-export function DocumentEditor({ noteId }: Readonly<DocumentEditorProps>) {
-  const [documentState, setDocumentState] = useState<Document | null>(null);
+export function NoteEditor({ noteId }: Readonly<NoteEditorProps>) {
+  const [noteState, setNoteState] = useState<Note | null>(null);
   const [initialContent, setInitialContent] = useState<JSONContent | null>(
     null,
   );
@@ -65,15 +71,16 @@ export function DocumentEditor({ noteId }: Readonly<DocumentEditorProps>) {
   const editorTimeoutRef = useRef<NodeJS.Timeout>(undefined);
 
   useEffect(() => {
+    // TODO check why when I load the list of notes, it does not decrypts them and show in UI
     async function loadContent() {
       if (noteId) {
         try {
-          const doc = await documentService.getDocument(noteId);
-          console.log("Document", doc);
-          if (doc) {
-            setDocumentState(doc);
-            if (doc.content) {
-              setInitialContent(doc.content as JSONContent);
+          const note = await noteService.getNote(noteId);
+          // console.log("Note", note);
+          if (note) {
+            setNoteState(note);
+            if (note.content) {
+              setInitialContent(note.content as JSONContent);
             } else {
               setInitialContent(content);
             }
@@ -183,7 +190,7 @@ export function DocumentEditor({ noteId }: Readonly<DocumentEditorProps>) {
       if (noteId) {
         if (editorTimeoutRef.current) clearTimeout(editorTimeoutRef.current);
         editorTimeoutRef.current = setTimeout(() => {
-          void documentService.updateDocument(noteId, { content: json });
+          void noteService.updateNote(noteId, { content: json });
         }, 500);
       } else {
         localStorage.setItem(EDITOR_STORAGE_KEY, JSON.stringify(json));
@@ -200,7 +207,7 @@ export function DocumentEditor({ noteId }: Readonly<DocumentEditorProps>) {
   if (!isReady) {
     return (
       <div className="flex w-full h-full items-center justify-center bg-background text-muted-foreground text-sm">
-        Loading document...
+        Loading note...
       </div>
     );
   }
@@ -208,42 +215,42 @@ export function DocumentEditor({ noteId }: Readonly<DocumentEditorProps>) {
   if (!editor) return null;
 
   const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (!documentState) return;
-    setDocumentState({ ...documentState, title: e.target.value });
+    if (!noteState) return;
+    setNoteState({ ...noteState, title: e.target.value });
   };
 
   const handleTitleBlur = (e: FocusEvent<HTMLInputElement>) => {
-    if (!documentState || !noteId) return;
-    void documentService.updateDocument(noteId, { title: e.target.value });
+    if (!noteState || !noteId) return;
+    void noteService.updateNote(noteId, { title: e.target.value });
   };
 
   return (
     <div className="w-full h-full flex flex-col overflow-auto bg-background text-foreground font-sans group relative">
       {/* Cover Image */}
-      {documentState?.coverImage && (
+      {noteState?.coverImage && (
         <div className="w-full h-[25vh] sm:h-[30vh] shrink-0 relative group/cover">
-          <img 
-            src={documentState.coverImage} 
-            alt="Cover" 
-            className="w-full h-full object-cover" 
+          <img
+            src={noteState.coverImage}
+            alt="Cover"
+            className="w-full h-full object-cover"
           />
         </div>
       )}
 
       {/* Main Content Area */}
       <div className="w-full max-w-4xl mx-auto flex-1 flex flex-col px-6 sm:px-24 mb-96 relative">
-        {/* Document Header Metadata */}
+        {/* Note Header Metadata */}
         <div className="mt-8 mb-6">
-          {documentState?.emoji && (
-            <div className="text-[72px] leading-none mb-4 -mt-[56px] relative z-10 w-fit">
-              {documentState.emoji}
+          {noteState?.emoji && (
+            <div className="text-[72px] leading-none mb-4 -mt-14 relative z-10 w-fit">
+              {noteState.emoji}
             </div>
           )}
-          
+
           <input
             type="text"
             className="text-4xl sm:text-5xl font-bold font-sans text-foreground w-full bg-transparent border-none outline-none focus:ring-0 placeholder:text-muted-foreground"
-            value={documentState?.title ?? "Untitled"}
+            value={noteState?.title ?? "Untitled"}
             onChange={handleTitleChange}
             onBlur={handleTitleBlur}
             placeholder="Untitled"

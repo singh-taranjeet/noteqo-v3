@@ -11,8 +11,8 @@ export interface RegisterRequestPayload {
 export interface User extends BaseEntity {
   email: string;
   name: string;
-  publicKey?: string | null;
-  privateKey?: string | null;
+  publicKey: string;
+  privateKey: string;
 }
 
 export interface LoginRequestPayload {
@@ -23,6 +23,6 @@ export interface LoginRequestPayload {
 export interface AuthResponse {
   data: {
     user: User;
-    accessToken?: string;
+    accessToken: string;
   };
 }

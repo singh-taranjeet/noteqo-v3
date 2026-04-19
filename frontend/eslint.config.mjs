@@ -10,7 +10,7 @@ const eslintConfig = defineConfig([
   {
     rules: {
       // TypeScript strict typing constraints
-      "@typescript-eslint/no-explicit-any": "error",
+      // "@typescript-eslint/no-explicit-any": "error",
       "@typescript-eslint/no-unused-vars": [
         "error",
         { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },

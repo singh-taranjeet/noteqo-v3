@@ -1,33 +1,33 @@
 import { useQuery } from "@tanstack/react-query";
 import { noteApiService } from "../services/note-api.service";
 import { cryptoService } from "@/features/crypto";
-import type { Document } from "../types/workspace.types";
+import type { Note } from "../types/workspace.types";
 
-export const REMOTE_DOCUMENTS_QUERY_KEY = ["remote-documents"] as const;
+export const REMOTE_NOTES_QUERY_KEY = ["remote-notes"] as const;
 
-export function useRemoteDocuments() {
+export function useRemoteNotes() {
   return useQuery({
-    queryKey: REMOTE_DOCUMENTS_QUERY_KEY,
-    queryFn: async (): Promise<Document[]> => {
+    queryKey: REMOTE_NOTES_QUERY_KEY,
+    queryFn: async (): Promise<Note[]> => {
       // 1. Fetch remote notes
       const response = await noteApiService.getAllNotes();
-      // Handle the case where response might be wrapped or unwrapped depending on the api client
-      const remoteNotes = Array.isArray(response) ? response : (response as any).data || [];
+      console.log("response", response);
+      const remoteNotes = Array.isArray(response.data) ? response.data : [];
 
       // 2. Decrypt in parallel
       const decryptedDocs = await Promise.all(
         remoteNotes.map(async (note: any) => {
           try {
-            const encryptedDocKey = note.keySlots?.[0]?.encryptedDocKey;
-            
-            if (!encryptedDocKey) {
-               console.warn(`No keySlot found for note! Note ID: ${note.id}`);
-               throw new Error("Missing keySlot");
+            const encryptedNoteKey = note.keySlots?.[0]?.encryptedNoteKey;
+
+            if (!encryptedNoteKey) {
+              console.warn(`No keySlot found for note! Note ID: ${note.id}`);
+              throw new Error("Missing keySlot");
             }
 
             const decryptedPayload = await cryptoService.decryptDocument(
               note.ciphertext,
-              encryptedDocKey
+              encryptedNoteKey,
             );
 
             return {
@@ -39,16 +39,21 @@ export function useRemoteDocuments() {
               syncStatus: "synced",
               createdAt: note.createdAt,
               updatedAt: note.updatedAt,
-            } as Document;
+            } as Note;
           } catch (e) {
-             console.error("Failed to decrypt document", note.id, e);
-             return null;
+            console.error("Failed to decrypt note", note.id, e);
+            return null;
           }
-        })
+        }),
       );
 
       // Filter out failures
-      return decryptedDocs.filter((d): d is Document => d !== null).sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+      return decryptedDocs
+        .filter((d): d is Note => d !== null)
+        .sort(
+          (a, b) =>
+            new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
+        );
     },
   });
 }

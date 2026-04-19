@@ -17,10 +17,9 @@ export class AuthService {
   async register(dto: RegisterDto) {
     // Rely natively on usersService to properly hash the credential and abstract creation correctly
     const user = await this.usersService.create(dto);
-    // const payload = { sub: user.id, email: user.email };
+
     return {
       user,
-      //accessToken: this.jwtService.sign(payload),
     };
   }
 
@@ -30,7 +29,7 @@ export class AuthService {
       dto.email,
     );
 
-    if (!userEntity || !userEntity.authCredential) {
+    if (!userEntity?.authCredential) {
       throw new UnauthorizedException('Invalid credentials');
     }
 

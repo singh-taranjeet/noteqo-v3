@@ -13,9 +13,13 @@ import { useLogin } from "../../hooks/useLogin";
 import { AUTH_CONFIG } from "../../constants/auth.constants";
 import { ROUTES } from "@/constants/routes";
 import { useRouter } from "next/navigation";
+import { DynamicDialog } from "@/components/ui/DynamicDialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 import type { LoginFormData } from "../../hooks/useLogin";
 import type { FormFieldConfig, FormValues } from "@/components/ui/DynamicForm";
+import { KeysService } from "../../services/keys.service";
 
 const LOGIN_FIELDS: FormFieldConfig[] = [
   {
@@ -42,6 +46,9 @@ export function LoginForm() {
   const { mutateAsync: login, isPending } = useLogin();
   const [error, setError] = useState<string | null>(null);
 
+  const [showMasterKeyPrompt, setShowMasterKeyPrompt] = useState(false);
+  const [masterKeyInput, setMasterKeyInput] = useState("");
+
   const handleSubmit = useCallback(
     async (values: FormValues) => {
       setError(null);
@@ -50,8 +57,8 @@ export function LoginForm() {
           email: values.email as string,
           authCredential: values.authCredential as string,
         };
-        await login(formData);
-        router.push(ROUTES.NOTES);
+        const { isMasterKeyRequired } = await login(formData);
+        setShowMasterKeyPrompt(isMasterKeyRequired);
       } catch (err: unknown) {
         if (err instanceof Error) {
           setError(
@@ -62,8 +69,23 @@ export function LoginForm() {
         }
       }
     },
-    [login, router],
+    [login],
   );
+
+  const handleConfirmMasterKey = useCallback(async () => {
+    if (!masterKeyInput.trim()) return;
+    try {
+      await KeysService.storeMasterKey({
+        masterKey: masterKeyInput.trim(),
+      });
+
+      router.push(ROUTES.NOTES);
+    } catch (error) {
+      console.log("Error", error);
+      setError("Invalid master key provided. Please check it and try again.");
+      setShowMasterKeyPrompt(false);
+    }
+  }, [masterKeyInput, router]);
 
   return (
     <Card className="w-full max-w-md mx-auto shadow-2xl bg-card/60 backdrop-blur-xl border-foreground/10">
@@ -97,6 +119,36 @@ export function LoginForm() {
           }
         />
       </CardContent>
+
+      <DynamicDialog
+        title="Enter Your Master Key"
+        description="To unlock your end-to-end encrypted notes on this device, please provide your Master Key (Recovery Code) that was generated when you signed up."
+        isOpen={showMasterKeyPrompt}
+        onOpenChange={setShowMasterKeyPrompt}
+        showCloseButton={false}
+        actions={[
+          {
+            label: "Unlock Vault",
+            onClick: handleConfirmMasterKey,
+            disabled: !masterKeyInput.trim(),
+            closesDialog: false,
+          },
+        ]}
+      >
+        <div className="space-y-4 py-2">
+          <div className="space-y-2">
+            <Label htmlFor="masterKey">Master Key</Label>
+            <Input
+              id="masterKey"
+              type="password"
+              placeholder="Paste your 44-character master key here"
+              value={masterKeyInput}
+              onChange={(e) => setMasterKeyInput(e.target.value)}
+              autoComplete="off"
+            />
+          </div>
+        </div>
+      </DynamicDialog>
     </Card>
   );
 }

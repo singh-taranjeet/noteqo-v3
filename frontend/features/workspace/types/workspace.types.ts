@@ -1,7 +1,7 @@
 export type SyncStatus = "pending" | "synced" | "failed";
 export type SyncEventType = "CREATE" | "UPDATE" | "DELETE";
 
-export interface Document {
+export interface Note {
   id: string;
   title: string;
   emoji: string;
@@ -10,7 +10,7 @@ export interface Document {
   syncStatus: SyncStatus;
   createdAt: string;
   updatedAt: string;
-  docKey?: string;
+  noteKey?: string;
 }
 
 export interface SyncEvent {

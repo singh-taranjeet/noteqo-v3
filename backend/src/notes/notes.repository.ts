@@ -37,11 +37,16 @@ export class NotesRepository {
   async findAllForUser(userId: string): Promise<Note[]> {
     const entities = await this.noteOrm
       .createQueryBuilder('note')
-      .innerJoinAndSelect('note.keySlots', 'keySlot', 'keySlot.userId = :userId', { userId })
+      .innerJoinAndSelect(
+        'note.keySlots',
+        'keySlot',
+        'keySlot.userId = :userId',
+        { userId },
+      )
       .orderBy('note.updatedAt', 'DESC')
       .getMany();
 
-    return entities.map(e => this.toDomain(e));
+    return entities.map((e) => this.toDomain(e));
   }
 
   /**
@@ -53,7 +58,7 @@ export class NotesRepository {
   async createWithKeySlot(
     id: string,
     ciphertext: Buffer,
-    encryptedDocKey: Buffer,
+    encryptedNoteKey: Buffer,
   ): Promise<Note> {
     const note = this.noteOrm.create({
       id,
@@ -76,7 +81,7 @@ export class NotesRepository {
       const keySlot = queryRunner.manager.create(KeySlotEntity, {
         noteId: savedNote.id,
         userId: currentUserId,
-        encryptedDocKey,
+        encryptedNoteKey,
       });
       await queryRunner.manager.save(KeySlotEntity, keySlot);
 
@@ -170,7 +175,7 @@ export class NotesRepository {
       keySlots: entity.keySlots?.map((ks) => ({
         noteId: ks.noteId,
         userId: ks.userId,
-        encryptedDocKey: ks.encryptedDocKey.toString('base64'),
+        encryptedNoteKey: ks.encryptedNoteKey.toString('base64'),
       })),
     };
   }

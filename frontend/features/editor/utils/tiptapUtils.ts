@@ -196,7 +196,7 @@ export function isExtensionAvailable(
 /**
  * Finds a node at the specified position with error handling
  * @param editor The Tiptap editor instance
- * @param position The position in the document to find the node
+ * @param position The position in the note to find the node
  * @returns The node at the specified position, or null if not found
  */
 export function findNodeAtPosition(editor: Editor, position: number) {
@@ -212,7 +212,7 @@ export function findNodeAtPosition(editor: Editor, position: number) {
 }
 
 /**
- * Finds the position and instance of a node in the document
+ * Finds the position and instance of a node in the note
  * @param props Object containing editor, node (optional), and nodePos (optional)
  * @param props.editor The Tiptap editor instance
  * @param props.node The node to find (optional if nodePos is provided)
@@ -236,7 +236,7 @@ export function findNodePosition(props: {
     return null;
   }
 
-  // First search for the node in the document if we have a node
+  // First search for the node in the note if we have a node
   if (hasValidNode) {
     let foundPos = -1;
     let foundNode: PMNode | null = null;

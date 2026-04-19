@@ -7,23 +7,27 @@ import { SidebarUserProfile } from "./SidebarUserProfile";
 import { SidebarNavTabs } from "./SidebarNavTabs";
 import { SidebarSection } from "./SidebarSection";
 import { SidebarPageItem } from "./SidebarPageItem";
-import { SidebarNewButton } from "./SidebarNewButton";
+import { SidebarNewNoteButton } from "./SidebarNewNoteButton";
 import {
-  useRemoteDocuments,
-  useCreateDocument,
+  useRemoteNotes,
+  useCreateNote,
   useSyncQueue,
 } from "@/features/workspace";
+import { useMergeLocalRemote } from "@/features/workspace/hooks/useMergeLocalRemote";
 
 export function Sidebar() {
   const { isSidebarOpen, toggleSidebar } = useAppShell();
-  const { data: documents = [], isLoading } = useRemoteDocuments();
-  const { mutate: createDocument } = useCreateDocument();
+  const { data: notes = [], isLoading } = useRemoteNotes();
+  const { mutate: createNote } = useCreateNote();
 
   // Start background sync queue
   useSyncQueue();
 
-  const handleCreateDocument = () => {
-    createDocument(undefined);
+  // merge local and remote notes
+  useMergeLocalRemote();
+
+  const handleCreateNote = () => {
+    createNote(undefined);
   };
 
   return (
@@ -56,20 +60,22 @@ export function Sidebar() {
 
           <SidebarSection label="Private">
             {isLoading && (
-               <div className="px-4 py-2 text-xs text-muted-foreground animate-pulse">Decrypting remote notes...</div>
+              <div className="px-4 py-2 text-xs text-muted-foreground animate-pulse">
+                Decrypting remote notes...
+              </div>
             )}
-            {documents.map((doc) => (
+            {notes.map((note) => (
               <SidebarPageItem
-                key={doc.id}
-                emoji={doc.emoji}
-                title={doc.title}
+                key={note.id}
+                emoji={note.emoji}
+                title={note.title}
               />
             ))}
           </SidebarSection>
         </div>
 
         {/* Sticky bottom */}
-        <SidebarNewButton onCreateDocument={handleCreateDocument} />
+        <SidebarNewNoteButton onCreateNote={handleCreateNote} />
       </div>
     </aside>
   );

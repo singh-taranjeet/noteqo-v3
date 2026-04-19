@@ -11,5 +11,5 @@ export class CreateNoteDto {
 
   @IsString()
   @IsNotEmpty()
-  encryptedDocKey: string; // base64
+  encryptedNoteKey: string; // base64
 }

@@ -11,8 +11,8 @@ export class KeySlotEntity extends AppBaseEntity {
   @PrimaryColumn('uuid', { name: KEY_SLOT_COLUMN.USER_ID })
   userId: string;
 
-  @Column({ name: KEY_SLOT_COLUMN.ENCRYPTED_DOC_KEY, type: 'bytea' })
-  encryptedDocKey: Buffer;
+  @Column({ name: KEY_SLOT_COLUMN.ENCRYPTED_NOTE_KEY, type: 'bytea' })
+  encryptedNoteKey: Buffer;
 
   @ManyToOne(() => NoteEntity, (note) => note.keySlots, { onDelete: 'CASCADE' })
   @JoinColumn({ name: KEY_SLOT_COLUMN.NOTE_ID })

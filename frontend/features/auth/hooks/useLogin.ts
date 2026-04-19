@@ -2,14 +2,13 @@
 
 import { useMutation } from "@tanstack/react-query";
 import { authService } from "../services/auth.service";
-
-import { storageService, STORAGE_KEYS } from "@/features/storage";
-import type { LoginRequestPayload, AuthResponse } from "../types/auth.types";
+import type { LoginRequestPayload } from "../types/auth.types";
+import { KeysService } from "../services/keys.service";
 
 export type LoginFormData = LoginRequestPayload;
 
 export interface LoginResult {
-  response: AuthResponse;
+  isMasterKeyRequired: boolean;
 }
 
 export const useLogin = () => {
@@ -21,22 +20,20 @@ export const useLogin = () => {
       // 2. Store user's keys locally for offline crypto operations
       const { user, accessToken } = response.data;
 
-      if (user.publicKey) {
-        await storageService.put(STORAGE_KEYS.PUBLIC_KEY, user.publicKey);
-      }
+      const masterKey = await KeysService.isMasterInLocalStorage(
+        user.publicKey,
+      );
 
-      // The private key from the server is encrypted.
-      // For now we store it as-is; the master key prompt (recovery code)
-      // will be needed to decrypt it for document operations.
-      if (user.privateKey) {
-        await storageService.put(STORAGE_KEYS.PRIVATE_KEY, user.privateKey);
-      }
+      KeysService.store({
+        publicKey: user.publicKey,
+        privateKey: user.privateKey,
+        accessToken,
+        masterKey: typeof masterKey === "string" ? masterKey : undefined,
+      });
 
-      if (accessToken) {
-        await storageService.put(STORAGE_KEYS.JWT_KEY, accessToken);
-      }
+      const isMasterKeyRequired = typeof masterKey !== "string";
 
-      return { response };
+      return { isMasterKeyRequired };
     },
   });
 };

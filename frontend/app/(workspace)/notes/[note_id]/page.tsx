@@ -1,10 +1,10 @@
-import { DocumentEditor } from "@/features/editor";
+import { NoteEditor } from "@/features/editor";
 
 export default async function NotePage({
   params,
-}: {
+}: Readonly<{
   params: Promise<{ note_id: string }>;
-}) {
+}>) {
   const { note_id } = await params;
-  return <DocumentEditor noteId={note_id} />;
+  return <NoteEditor noteId={note_id} />;
 }

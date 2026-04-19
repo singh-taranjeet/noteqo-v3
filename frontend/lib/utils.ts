@@ -6,4 +6,4 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /** Whether the code is running in a browser environment (not SSR). */
-export const IS_BROWSER = typeof window !== "undefined";
+export const IS_BROWSER = typeof globalThis !== "undefined";

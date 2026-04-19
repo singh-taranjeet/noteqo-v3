@@ -17,16 +17,18 @@ export function useScrolling(
   const [isScrolling, setIsScrolling] = useState(false);
 
   useEffect(() => {
-    // Resolve element or window
-    const element: EventTargetWithScroll =
-      target && typeof Window !== "undefined" && target instanceof Window
-        ? target
-        : ((target as RefObject<HTMLElement>)?.current ?? window);
+    const globalWindow = globalThis as unknown as Window;
 
-    // Mobile: fallback to document when using window
+    // Resolve element or globalThis
+    const element: EventTargetWithScroll =
+      target === globalWindow
+        ? target
+        : ((target as RefObject<HTMLElement>)?.current ?? globalWindow);
+
+    // Mobile: fallback to note when using globalThis
     const eventTarget: EventTargetWithScroll =
       fallbackToDocument &&
-      element === window &&
+      element === globalWindow &&
       typeof document !== "undefined"
         ? document
         : element;
@@ -44,7 +46,8 @@ export function useScrolling(
     ) => el.removeEventListener(event, handler);
 
     let timeout: ReturnType<typeof setTimeout>;
-    const supportsScrollEnd = element === window && "onscrollend" in window;
+    const supportsScrollEnd =
+      element === globalWindow && "onscrollend" in globalThis;
 
     const handleScroll: EventListener = () => {
       if (!isScrolling) setIsScrolling(true);

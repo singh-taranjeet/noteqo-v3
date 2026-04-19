@@ -1,11 +1,11 @@
 // Public API for the Workspace feature
-export { useDocuments } from "./hooks/useDocuments";
-export { useRemoteDocuments } from "./hooks/useRemoteDocuments";
-export { useCreateDocument } from "./hooks/useCreateDocument";
+export { useLocalNotes } from "./hooks/useLocalNotes";
+export { useRemoteNotes } from "./hooks/useRemoteNotes";
+export { useCreateNote } from "./hooks/useCreateNote";
 export { useSyncQueue } from "./hooks/useSyncQueue";
-export { documentService } from "./services/document.service";
+export { noteService } from "./services/note.service";
 export type {
-  Document,
+  Note,
   SyncStatus,
   SyncEvent,
   SyncEventType,

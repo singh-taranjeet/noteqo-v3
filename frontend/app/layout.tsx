@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Noteqo — Encrypted Document Workspace",
+  title: "Noteqo — Encrypted Note Workspace",
   description:
     "Securely encrypt and sync your documents across all devices with E2E encryption.",
 };
