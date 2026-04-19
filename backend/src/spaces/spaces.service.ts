@@ -19,7 +19,7 @@ import {
   SpaceMemberNotFoundException,
 } from '../shared/exceptions/space.exception';
 import { UserNotFoundException } from '../shared/exceptions/user.exception';
-import { SyncService } from 'src/sync/sync.service';
+import { SyncService } from '../sync/sync.service';
 
 @Injectable()
 export class SpacesService {

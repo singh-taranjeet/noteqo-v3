@@ -8,7 +8,7 @@ import { SpaceMemberEntity } from './entities/space-member.entity';
 import { SpaceKeySlotEntity } from './entities/space-key-slot.entity';
 import { NotesModule } from '../notes';
 import { UsersModule } from '../users';
-import { SyncModule } from 'src/sync/sync.module';
+import { SyncModule } from '../sync/sync.module';
 
 @Module({
   imports: [
