@@ -1,3 +1,5 @@
+"use client";
+import { logService } from "@/services/log.service";
 import { CRYPTO_CONFIG } from "../constants/crypto.constants";
 import { storageService, STORAGE_KEYS } from "@/features/storage";
 
@@ -169,26 +171,24 @@ export const cryptoService = {
     const base64MasterKey = await storageService.get<string>(
       STORAGE_KEYS.MASTER_KEY,
     );
-    const encryptedPrivateKeyPayload = await storageService.get<string>(
-      STORAGE_KEYS.PRIVATE_KEY,
-    );
 
-    if (!base64MasterKey || !encryptedPrivateKeyPayload) {
-      throw new Error(
+    logService.log("Master key", base64MasterKey);
+
+    const privateKey = await storageService.get(STORAGE_KEYS.PRIVATE_KEY);
+
+    if (!base64MasterKey || !privateKey) {
+      logService.log(
         "Missing local keys correctly established to decrypt private key.",
       );
+      return;
     }
 
-    // 2. Decrypt Private Key
-    const decryptedPrivKeyStr = await cryptoService.decryptPrivateKey(
-      encryptedPrivateKeyPayload,
-      base64MasterKey,
-    );
+    logService.log("private key", privateKey);
 
-    // 3. Import User's Private RSA Key
+    // 2. Import User's Private RSA Key
     const rsaPrivateKey = await globalThis.crypto.subtle.importKey(
       "jwk",
-      JSON.parse(decryptedPrivKeyStr) as JsonWebKey,
+      JSON.parse(privateKey as any) as JsonWebKey,
       {
         name: CRYPTO_CONFIG.ALGORITHMS.RSA,
         hash: CRYPTO_CONFIG.ALGORITHMS.HASH,
@@ -196,6 +196,8 @@ export const cryptoService = {
       false,
       ["decrypt"],
     );
+
+    logService.log("RSA Private key", rsaPrivateKey);
 
     // 4. Decrypt Doc Key using RSA
     const encryptedDocKeyBuffer = cryptoService.decodeBase64(
@@ -231,6 +233,7 @@ export const cryptoService = {
     );
 
     const documentJsonStr = new TextDecoder().decode(decryptedDocBuffer);
+    logService.log("Document json str", documentJsonStr);
     return JSON.parse(documentJsonStr);
   },
 };

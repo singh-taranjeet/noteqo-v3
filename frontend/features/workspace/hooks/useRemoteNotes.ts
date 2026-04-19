@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { noteApiService } from "../services/note-api.service";
 import { cryptoService } from "@/features/crypto";
 import type { Note } from "../types/workspace.types";
+import { logService } from "@/services/log.service";
 
 export const REMOTE_NOTES_QUERY_KEY = ["remote-notes"] as const;
 
@@ -21,14 +22,17 @@ export function useRemoteNotes() {
             const encryptedNoteKey = note.keySlots?.[0]?.encryptedNoteKey;
 
             if (!encryptedNoteKey) {
-              console.warn(`No keySlot found for note! Note ID: ${note.id}`);
-              throw new Error("Missing keySlot");
+              logService.error(
+                `No keySlot found for note! Note ID: ${note.id}`,
+              );
             }
 
             const decryptedPayload = await cryptoService.decryptDocument(
               note.ciphertext,
               encryptedNoteKey,
             );
+
+            logService.log("Decrypted Payload", decryptedPayload);
 
             return {
               id: note.id,
