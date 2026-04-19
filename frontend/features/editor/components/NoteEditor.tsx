@@ -200,7 +200,10 @@ export function NoteEditor({ noteId }: Readonly<NoteEditorProps>) {
 
   useEffect(() => {
     if (editor && isReady && initialContent) {
-      editor.commands.setContent(initialContent);
+      // Defer to the macrotask queue to prevent React 19 flushSync collision during initial render loop
+      setTimeout(() => {
+        editor.commands.setContent(initialContent);
+      }, 0);
     }
   }, [editor, isReady, initialContent]);
 
