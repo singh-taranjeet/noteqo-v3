@@ -49,6 +49,13 @@ export function LoginForm() {
   const [showMasterKeyPrompt, setShowMasterKeyPrompt] = useState(false);
   const [masterKeyInput, setMasterKeyInput] = useState("");
 
+  const redirectNotespage = useCallback(
+    function redirectNotesPage() {
+      router.push(ROUTES.NOTES);
+    },
+    [router],
+  );
+
   const handleSubmit = useCallback(
     async (values: FormValues) => {
       setError(null);
@@ -58,6 +65,14 @@ export function LoginForm() {
           authCredential: values.authCredential as string,
         };
         const { isMasterKeyRequired } = await login(formData);
+
+        if (isMasterKeyRequired) {
+          setShowMasterKeyPrompt(true);
+        } else {
+          // redirect to notes page
+          redirectNotespage();
+        }
+
         setShowMasterKeyPrompt(isMasterKeyRequired);
       } catch (err: unknown) {
         if (err instanceof Error) {
@@ -69,7 +84,7 @@ export function LoginForm() {
         }
       }
     },
-    [login],
+    [login, redirectNotespage],
   );
 
   const handleConfirmMasterKey = useCallback(async () => {
@@ -79,13 +94,13 @@ export function LoginForm() {
         masterKey: masterKeyInput.trim(),
       });
 
-      router.push(ROUTES.NOTES);
+      redirectNotespage();
     } catch (error) {
       console.log("Error", error);
       setError("Invalid master key provided. Please check it and try again.");
       setShowMasterKeyPrompt(false);
     }
-  }, [masterKeyInput, router]);
+  }, [masterKeyInput, redirectNotespage]);
 
   return (
     <Card className="w-full max-w-md mx-auto shadow-2xl bg-card/60 backdrop-blur-xl border-foreground/10">
