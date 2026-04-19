@@ -16,7 +16,7 @@ export class NotesService {
 
     return this.notesRepository.createWithKeySlot(
       dto.id,
-      Buffer.from(dto.ciphertext, 'base64'),
+      Buffer.from(dto.ciphertext, 'utf8'),
       Buffer.from(dto.encryptedNoteKey, 'base64'),
     );
   }
@@ -46,7 +46,7 @@ export class NotesService {
     // We increment the DB version and snapshot the version so previous inputs can be recovered.
     return this.notesRepository.saveNewVersion(
       id,
-      Buffer.from(dto.ciphertext, 'base64'),
+      Buffer.from(dto.ciphertext, 'utf8'),
       note.version,
     );
   }

@@ -166,24 +166,20 @@ export const cryptoService = {
   decryptDocument: async (
     ciphertextPayload: string,
     encryptedDocKeyBase64: string,
-  ): Promise<any> => {
+  ): Promise<{ payload: any; noteKeyBase64: string } | undefined> => {
     // 1. Get raw Master Key & encrypted Private Key from Storage
     const base64MasterKey = await storageService.get<string>(
       STORAGE_KEYS.MASTER_KEY,
     );
 
-    logService.log("Master key", base64MasterKey);
-
     const privateKey = await storageService.get(STORAGE_KEYS.PRIVATE_KEY);
 
     if (!base64MasterKey || !privateKey) {
-      logService.log(
+      logService.warn(
         "Missing local keys correctly established to decrypt private key.",
       );
       return;
     }
-
-    logService.log("private key", privateKey);
 
     // 2. Import User's Private RSA Key
     const rsaPrivateKey = await globalThis.crypto.subtle.importKey(
@@ -196,8 +192,6 @@ export const cryptoService = {
       false,
       ["decrypt"],
     );
-
-    logService.log("RSA Private key", rsaPrivateKey);
 
     // 4. Decrypt Doc Key using RSA
     const encryptedDocKeyBuffer = cryptoService.decodeBase64(
@@ -219,6 +213,10 @@ export const cryptoService = {
     );
 
     // 6. Decrypt Document Ciphertext
+    if (!ciphertextPayload || !ciphertextPayload.includes(":")) {
+      throw new Error("Invalid ciphertext payload format");
+    }
+    
     const [docIv64, docCipher64] = ciphertextPayload.split(":");
     const docIv = cryptoService.decodeBase64(docIv64);
     const docCipher = cryptoService.decodeBase64(docCipher64);
@@ -233,7 +231,10 @@ export const cryptoService = {
     );
 
     const documentJsonStr = new TextDecoder().decode(decryptedDocBuffer);
-    logService.log("Document json str", documentJsonStr);
-    return JSON.parse(documentJsonStr);
+    
+    return {
+      payload: JSON.parse(documentJsonStr),
+      noteKeyBase64: cryptoService.encodeBase64(decryptedDocKeyBuffer),
+    };
   },
 };

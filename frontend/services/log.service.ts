@@ -5,4 +5,7 @@ export const logService = {
   error: (message: string) => {
     console.error(`Error logged ${message}`);
   },
+  warn: (...args: unknown[]) => {
+    console.warn(...args);
+  },
 };

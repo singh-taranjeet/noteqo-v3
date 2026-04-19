@@ -165,7 +165,7 @@ export class NotesRepository {
   private toDomain(entity: NoteEntity): Note {
     return {
       id: entity.id,
-      ciphertext: entity.ciphertext.toString('base64'),
+      ciphertext: entity.ciphertext.toString('utf8'),
       version: entity.version,
       createdBy: entity.createdBy,
       updatedBy: entity.updatedBy,

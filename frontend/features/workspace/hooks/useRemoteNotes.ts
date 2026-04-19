@@ -22,27 +22,38 @@ export function useRemoteNotes() {
             const encryptedNoteKey = note.keySlots?.[0]?.encryptedNoteKey;
 
             if (!encryptedNoteKey) {
-              logService.error(
+              logService.warn(
                 `No keySlot found for note! Note ID: ${note.id}`,
               );
+              return null;
             }
 
-            const decryptedPayload = await cryptoService.decryptDocument(
+            if (!note.ciphertext || !note.ciphertext.includes(":")) {
+              logService.warn(
+                `Invalid ciphertext format for note! Note ID: ${note.id}`,
+              );
+              return null;
+            }
+
+            const decryptedResult = await cryptoService.decryptDocument(
               note.ciphertext,
               encryptedNoteKey,
             );
 
-            logService.log("Decrypted Payload", decryptedPayload);
+            if (!decryptedResult) {
+              return null;
+            }
 
             return {
               id: note.id,
-              title: decryptedPayload.title || "Untitled",
-              emoji: decryptedPayload.emoji || "📄",
-              coverImage: decryptedPayload.coverImage,
-              content: decryptedPayload.content,
+              title: decryptedResult.payload.title || "Untitled",
+              emoji: decryptedResult.payload.emoji || "📄",
+              coverImage: decryptedResult.payload.coverImage,
+              content: decryptedResult.payload.content,
               syncStatus: "synced",
               createdAt: note.createdAt,
               updatedAt: note.updatedAt,
+              noteKey: decryptedResult.noteKeyBase64,
             } as Note;
           } catch (e) {
             console.error("Failed to decrypt note", note.id, e);
