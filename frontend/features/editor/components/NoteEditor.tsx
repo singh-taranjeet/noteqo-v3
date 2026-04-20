@@ -62,16 +62,18 @@ import DEFAULT_CONTENT from "@/features/editor/components/data/content.json";
 import { logService } from "@/services/log.service";
 
 interface NoteEditorProps {
-  noteId?: string;
+  noteId: string;
 }
 
 export function NoteEditor({ noteId }: Readonly<NoteEditorProps>) {
   const [noteState, setNoteState] = useState<Note | null>(null);
-  const [initialContent, setInitialContent] = useState<JSONContent | null>(
-    null,
-  );
+  // const [initialContent, setInitialContent] = useState<JSONContent | null>(
+  //   null,
+  // );
   const [isReady, setIsReady] = useState(false);
   const editorTimeoutRef = useRef<NodeJS.Timeout>(undefined);
+
+  const content = noteState?.content || DEFAULT_CONTENT;
 
   useEffect(() => {
     
@@ -84,23 +86,13 @@ export function NoteEditor({ noteId }: Readonly<NoteEditorProps>) {
           if (note) {
             // Note exists in the local db
             setNoteState(note);
-            if (note.content) {
-              setInitialContent(note.content as JSONContent);
-            } else {
-              // Note exists in db but no content. Set the default content
-              setInitialContent(DEFAULT_CONTENT);
-            }
-          } else {
-            // we should fetch the content of the note from the remote server
-            setInitialContent(DEFAULT_CONTENT);
-          }
+            setIsReady(true);
+          } 
         } catch (error){
-          
           logService.error(`Error in rendering this note`, error);
-          setInitialContent(DEFAULT_CONTENT);
         }
         logService.log("Note with NoteId is ready to load", noteId);
-        setIsReady(true);
+        
       }
       
     }
@@ -180,7 +172,7 @@ export function NoteEditor({ noteId }: Readonly<NoteEditorProps>) {
       ColumnsExtension,
       ColumnExtension,
     ],
-    content: initialContent,
+    content,
     onUpdate: ({ editor }) => {
       const json = editor.getJSON();
       if (noteId) {
@@ -195,13 +187,13 @@ export function NoteEditor({ noteId }: Readonly<NoteEditorProps>) {
   });
 
   useEffect(() => {
-    if (editor && isReady && initialContent) {
+    if (editor && isReady && content) {
       // Defer to the macrotask queue to prevent React 19 flushSync collision during initial render loop
       setTimeout(() => {
-        editor.commands.setContent(initialContent);
+        editor.commands.setContent(content);
       }, EDITOR_CONFIG.EVENT_LOOP_DEFER_MS);
     }
-  }, [editor, isReady, initialContent]);
+  }, [editor, isReady, content]);
 
   if (!isReady) {
     return (
