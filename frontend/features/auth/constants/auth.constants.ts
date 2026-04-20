@@ -8,3 +8,8 @@ export const AUTH_CONFIG = {
   RECOVERY_FILE_NAME: "noteqo-recovery.txt",
   RECOVERY_FILE_TYPE: "text/plain",
 } as const;
+
+export const MOCK_USER = {
+  NAME: "Taranjeet Singh",
+  AVATAR: "😎",
+} as const;

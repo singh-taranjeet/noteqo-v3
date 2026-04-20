@@ -14,6 +14,7 @@ import {
   useSyncQueue,
 } from "@/features/workspace";
 import { useMergeLocalRemote } from "@/features/workspace/hooks/useMergeLocalRemote";
+import { MOCK_USER } from "@/features/auth/constants/auth.constants";
 
 export function Sidebar() {
   const { isSidebarOpen, toggleSidebar } = useAppShell();
@@ -52,8 +53,8 @@ export function Sidebar() {
         {/* Scrollable content */}
         <div className="flex-1 overflow-y-auto overflow-x-hidden">
           <SidebarUserProfile
-            username="Taranjeet Singh"
-            avatarEmoji="😎"
+            username={MOCK_USER.NAME}
+            avatarEmoji={MOCK_USER.AVATAR}
             onCloseSidebar={toggleSidebar}
           />
           <SidebarNavTabs />

@@ -344,6 +344,8 @@ export function selectionWithinConvertibleTypes(
   return false;
 }
 
+import { EDITOR_CONFIG } from "@/features/editor/constants/editor.constants";
+
 /**
  * Handles image upload with progress tracking and abort capability
  * @param file The file to upload
@@ -373,7 +375,7 @@ export const handleImageUpload = async (
     if (abortSignal?.aborted) {
       throw new Error("Upload cancelled");
     }
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, EDITOR_CONFIG.UPLOAD_CHECK_DELAY_MS));
     onProgress?.({ progress });
   }
 

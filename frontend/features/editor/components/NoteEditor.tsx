@@ -51,7 +51,10 @@ import {
   handleImageUpload,
   MAX_FILE_SIZE,
 } from "@/features/editor/utils/tiptapUtils";
-import { EDITOR_STORAGE_KEY } from "@/features/editor/constants/editor.constants";
+import {
+  EDITOR_STORAGE_KEY,
+  EDITOR_CONFIG,
+} from "@/features/editor/constants/editor.constants";
 import { noteService } from "@/features/workspace/services/note.service";
 import type { Note } from "@/features/workspace/types/workspace.types";
 
@@ -184,7 +187,7 @@ export function NoteEditor({ noteId }: Readonly<NoteEditorProps>) {
         if (editorTimeoutRef.current) clearTimeout(editorTimeoutRef.current);
         editorTimeoutRef.current = setTimeout(() => {
           void noteService.updateNote(noteId, { content: json });
-        }, 500);
+        }, EDITOR_CONFIG.AUTOSAVE_DEBOUNCE_MS);
       } else {
         localStorage.setItem(EDITOR_STORAGE_KEY, JSON.stringify(json));
       }
@@ -196,7 +199,7 @@ export function NoteEditor({ noteId }: Readonly<NoteEditorProps>) {
       // Defer to the macrotask queue to prevent React 19 flushSync collision during initial render loop
       setTimeout(() => {
         editor.commands.setContent(initialContent);
-      }, 0);
+      }, EDITOR_CONFIG.EVENT_LOOP_DEFER_MS);
     }
   }, [editor, isReady, initialContent]);
 

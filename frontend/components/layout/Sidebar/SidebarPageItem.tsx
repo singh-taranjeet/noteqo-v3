@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { ROUTES } from "@/constants/routes";
 
 interface SidebarPageItemProps {
   id: string;
@@ -23,7 +24,7 @@ export function SidebarPageItem({
       )}
       asChild
     >
-      <Link href={`/notes/${id}`}>
+      <Link href={ROUTES.NOTE(id)}>
         <span className="shrink-0 text-base" role="img" aria-hidden="true">
           {emoji}
         </span>
