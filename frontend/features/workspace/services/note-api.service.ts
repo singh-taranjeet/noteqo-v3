@@ -13,4 +13,11 @@ export interface RemoteNoteResponse {
 export const noteApiService = {
   getAllNotes: (): Promise<{ data: RemoteNoteResponse[] }> =>
     apiClient.get(WORKSPACE_API_ROUTES.NOTES, { auth: true }),
+
+  getNote: async (id: string): Promise<RemoteNoteResponse> => {
+    const response : {
+      data: RemoteNoteResponse
+    } = await apiClient.get(`${WORKSPACE_API_ROUTES.NOTES}/${id}`, { auth: true });
+    return (response.data) as RemoteNoteResponse;
+  },
 };

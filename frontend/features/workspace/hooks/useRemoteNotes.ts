@@ -1,89 +1,51 @@
-import { useQuery } from "@tanstack/react-query";
+import { useState, useCallback, useEffect } from "react";
 import { noteApiService } from "../services/note-api.service";
-import { cryptoService } from "@/features/crypto";
-import type { Note } from "../types/workspace.types";
+import type { Note, RemoteNote } from "../types/workspace.types";
 import { logService } from "@/services/log.service";
-
-interface RemoteNote {
-  id: string;
-  ciphertext: string;
-  createdAt: string;
-  updatedAt: string;
-  keySlots?: { encryptedNoteKey: string }[];
-}
-
-export const REMOTE_NOTES_QUERY_KEY = ["remote-notes"] as const;
+import { noteService } from "../services/note.service";
 
 export function useRemoteNotes() {
-  return useQuery({
-    queryKey: REMOTE_NOTES_QUERY_KEY,
-    queryFn: async (): Promise<Note[]> => {
-      // 1. Fetch remote notes
+  const [data, setData] = useState<Note[] | undefined>(undefined);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const fetchNotes = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      // 1. Fetch remote notes via the explicit API service
       const response = await noteApiService.getAllNotes();
-      console.log("response", response);
       const remoteNotes = Array.isArray(response.data) ? response.data : [];
 
-      // 2. Decrypt in parallel
+      // 2. Decrypt securely in parallel using the dedicated service logic you created
       const decryptedDocs = await Promise.all(
-        remoteNotes.map(async (note: RemoteNote) => {
-          try {
-            const encryptedNoteKey = note.keySlots?.[0]?.encryptedNoteKey;
-
-            if (!encryptedNoteKey) {
-              logService.warn(
-                `No keySlot found for note! Note ID: ${note.id}`,
-              );
-              return null;
-            }
-
-            if (!note.ciphertext || !note.ciphertext.includes(":")) {
-              logService.warn(
-                `Invalid ciphertext format for note! Note ID: ${note.id}`,
-              );
-              return null;
-            }
-
-            const decryptedResult = await cryptoService.decryptDocument(
-              note.ciphertext,
-              encryptedNoteKey,
-            );
-
-            if (!decryptedResult) {
-              return null;
-            }
-
-            const payload = decryptedResult.payload as {
-              title?: string;
-              emoji?: string;
-              coverImage?: string;
-              content?: string;
-            };
-
-            return {
-              id: note.id,
-              title: payload.title || "Untitled",
-              emoji: payload.emoji || "📄",
-              coverImage: payload.coverImage,
-              content: payload.content,
-              syncStatus: "synced",
-              createdAt: note.createdAt,
-              updatedAt: note.updatedAt,
-              noteKey: decryptedResult.noteKeyBase64,
-            } as Note;
-          } catch (e) {
-            console.error("Failed to decrypt note", note.id, e);
-            return null;
-          }
-        }),
+        remoteNotes.map((remoteNote: RemoteNote) =>
+          noteService.decryptNote(remoteNote),
+        ),
       );
 
-      // Filter out failures
-      return decryptedDocs
+      // 3. Purge decryption failures and enforce sequential time sorting
+      const safelyParsedNotes = decryptedDocs
         .filter((d): d is Note => d !== null)
         .sort(
           (a, b) =>
             new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
         );
-    },
-  });
+
+      setData(safelyParsedNotes);
+    } catch (err) {
+      logService.error("Failed to execute native remote fetch wrapper", err);
+      setError(err instanceof Error ? err : new Error(String(err)));
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  // Trigger automatically on mount aligning with behavior previously supplied by React Query
+  useEffect(() => {
+    void fetchNotes();
+  }, [fetchNotes]);
+
+  return { data, isLoading, error, refetch: fetchNotes };
 }

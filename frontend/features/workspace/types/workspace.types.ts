@@ -21,3 +21,11 @@ export interface SyncEvent {
   retryCount: number;
   createdAt: string;
 }
+
+export interface RemoteNote {
+  id: string;
+  ciphertext: string;
+  createdAt: string;
+  updatedAt: string;
+  keySlots?: { encryptedNoteKey: string }[];
+}

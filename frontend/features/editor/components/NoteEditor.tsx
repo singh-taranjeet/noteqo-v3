@@ -52,11 +52,11 @@ import {
   MAX_FILE_SIZE,
 } from "@/features/editor/utils/tiptapUtils";
 import { EDITOR_STORAGE_KEY } from "@/features/editor/constants/editor.constants";
-import { IS_BROWSER } from "@/lib/utils";
 import { noteService } from "@/features/workspace/services/note.service";
 import type { Note } from "@/features/workspace/types/workspace.types";
 
-import content from "@/features/editor/components/data/content.json";
+import DEFAULT_CONTENT from "@/features/editor/components/data/content.json";
+import { logService } from "@/services/log.service";
 
 interface NoteEditorProps {
   noteId?: string;
@@ -71,41 +71,34 @@ export function NoteEditor({ noteId }: Readonly<NoteEditorProps>) {
   const editorTimeoutRef = useRef<NodeJS.Timeout>(undefined);
 
   useEffect(() => {
+    console.log("NoteId", noteId)
     async function loadContent() {
       if (noteId) {
         try {
           const note = await noteService.getNote(noteId);
-          // console.log("Note", note);
+          console.log("NOte is here", note);
+          logService.log("Found note", note);
           if (note) {
+            // Note exists in the local db
             setNoteState(note);
             if (note.content) {
               setInitialContent(note.content as JSONContent);
             } else {
-              setInitialContent(content);
+              // Note exists in db but no content. Set the default content
+              setInitialContent(DEFAULT_CONTENT);
             }
           } else {
-            setInitialContent(content);
+            // we should fetch the content of the note from the remote server
+            setInitialContent(DEFAULT_CONTENT);
           }
-        } catch {
-          setInitialContent(content);
+        } catch (error){
+          console.log("error ", error);
+          logService.error(`Error in rendering this note`, error);
+          setInitialContent(DEFAULT_CONTENT);
         }
-      } else {
-        if (IS_BROWSER) {
-          const saved = localStorage.getItem(EDITOR_STORAGE_KEY);
-          if (saved) {
-            try {
-              setInitialContent(JSON.parse(saved));
-            } catch {
-              setInitialContent(content);
-            }
-          } else {
-            setInitialContent(content);
-          }
-        } else {
-          setInitialContent(content);
-        }
+        setIsReady(true);
       }
-      setIsReady(true);
+      
     }
     loadContent();
   }, [noteId]);
@@ -183,7 +176,7 @@ export function NoteEditor({ noteId }: Readonly<NoteEditorProps>) {
       ColumnsExtension,
       ColumnExtension,
     ],
-    content: initialContent ?? content,
+    content: initialContent,
     onUpdate: ({ editor }) => {
       const json = editor.getJSON();
       if (noteId) {
