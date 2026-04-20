@@ -67,6 +67,7 @@ export function Sidebar() {
             {notes.map((note) => (
               <SidebarPageItem
                 key={note.id}
+                id={note.id}
                 emoji={note.emoji}
                 title={note.title}
               />

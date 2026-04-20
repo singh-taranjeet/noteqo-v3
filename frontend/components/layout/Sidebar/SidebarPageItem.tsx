@@ -1,13 +1,16 @@
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 interface SidebarPageItemProps {
+  id: string;
   emoji: string;
   title: string;
   isActive?: boolean;
 }
 
 export function SidebarPageItem({
+  id,
   emoji,
   title,
   isActive = false,
@@ -18,11 +21,14 @@ export function SidebarPageItem({
       className={cn(
         "flex w-full items-center justify-start gap-2 px-3 h-7 text-sm font-normal",
       )}
+      asChild
     >
-      <span className="shrink-0 text-base" role="img" aria-hidden="true">
-        {emoji}
-      </span>
-      <span className="truncate">{title}</span>
+      <Link href={`/notes/${id}`}>
+        <span className="shrink-0 text-base" role="img" aria-hidden="true">
+          {emoji}
+        </span>
+        <span className="truncate">{title}</span>
+      </Link>
     </Button>
   );
 }
