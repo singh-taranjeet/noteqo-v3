@@ -71,12 +71,12 @@ export function NoteEditor({ noteId }: Readonly<NoteEditorProps>) {
   const editorTimeoutRef = useRef<NodeJS.Timeout>(undefined);
 
   useEffect(() => {
-    console.log("NoteId", noteId)
+    
     async function loadContent() {
       if (noteId) {
         try {
           const note = await noteService.getNote(noteId);
-          console.log("NOte is here", note);
+
           logService.log("Found note", note);
           if (note) {
             // Note exists in the local db
@@ -92,10 +92,11 @@ export function NoteEditor({ noteId }: Readonly<NoteEditorProps>) {
             setInitialContent(DEFAULT_CONTENT);
           }
         } catch (error){
-          console.log("error ", error);
+          
           logService.error(`Error in rendering this note`, error);
           setInitialContent(DEFAULT_CONTENT);
         }
+        logService.log("Note with NoteId is ready to load", noteId);
         setIsReady(true);
       }
       

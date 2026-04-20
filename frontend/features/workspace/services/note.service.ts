@@ -64,7 +64,7 @@ export const noteService = {
           logService.log("Decrypted Note", decryptedNote, remoteNote);
           await db.notes.put(decryptedNote);
         }
-        decryptedNote;
+        return decryptedNote;
       }
     }
     return note;
