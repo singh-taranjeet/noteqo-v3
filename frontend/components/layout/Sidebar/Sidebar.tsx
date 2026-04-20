@@ -13,7 +13,6 @@ import {
   useCreateNote,
   useSyncQueue,
 } from "@/features/workspace";
-import { useMergeLocalRemote } from "@/features/workspace/hooks/useMergeLocalRemote";
 import { MOCK_USER } from "@/features/auth/constants/auth.constants";
 
 export function Sidebar() {
@@ -23,9 +22,6 @@ export function Sidebar() {
 
   // Start background sync queue
   useSyncQueue();
-
-  // merge local and remote notes
-  useMergeLocalRemote();
 
   const handleCreateNote = () => {
     createNote(undefined);

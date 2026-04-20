@@ -1,19 +1,42 @@
-import { useRemoteNotes } from "../hooks/useRemoteNotes";
+import { noteService } from "./note.service";
+import { db } from "@/features/storage";
+import type { Note } from "../types/workspace.types";
+import { logService } from "@/services/log.service";
 
 export const mergeLocalRemoteService = {
-    fetchRemoteNotes: () => {
-        const { data, isLoading } = useRemoteNotes();
-    
-        console.log("notes", data, isLoading);
+  merge: async () => {
+    try {
+      // Step 1. Fetch the list of notes in our db
+      const localNotes = await noteService.getAllNotes();
+      const localNotesMap = new Map(localNotes.map((note) => [note.id, note]));
 
+      const notesToUpdate: Note[] = [];
 
-        //Step 1. Now we will fetch the list of notes in our db
+      const remoteNotes = await noteService.getAllNotes();
 
-        //Step 2. Compare the remote notes with the local notes. If local notes are the latest then skip it. If remote notes are the latest then update the local notes.
+      // Step 2. Compare the remote notes with the local notes. If local notes are the latest then skip it. If remote notes are the latest then update the local notes.
+      for (const remoteNote of remoteNotes) {
+        const localNote = localNotesMap.get(remoteNote.id);
 
-        // Step 3. Push the changes into the local db
+        if (!localNote) {
+          notesToUpdate.push(remoteNote);
+        } else {
+          const localUpdatedAt = new Date(localNote.updatedAt).getTime();
+          const remoteUpdatedAt = new Date(remoteNote.updatedAt).getTime();
 
-        
+          if (remoteUpdatedAt > localUpdatedAt) {
+            notesToUpdate.push(remoteNote);
+          }
+        }
+      }
 
+      // Step 3. Push the changes into the local db
+      if (notesToUpdate.length > 0) {
+        logService.log("Updating local DB with notes:", notesToUpdate.length);
+        await db.notes.bulkPut(notesToUpdate);
+      }
+    } catch (error) {
+      logService.error("Failed to merge local and remote notes", error);
     }
+  },
 };

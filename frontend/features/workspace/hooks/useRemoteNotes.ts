@@ -3,6 +3,7 @@ import { noteApiService } from "../services/note-api.service";
 import type { Note, RemoteNote } from "../types/workspace.types";
 import { logService } from "@/services/log.service";
 import { noteService } from "../services/note.service";
+import { mergeLocalRemoteService } from "../services/merge-local-remote.service";
 
 export function useRemoteNotes() {
   const [data, setData] = useState<Note[] | undefined>(undefined);
@@ -32,6 +33,9 @@ export function useRemoteNotes() {
           (a, b) =>
             new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
         );
+
+      // 4. Merge the remote notes with the local ones
+      await mergeLocalRemoteService.merge(safelyParsedNotes);
 
       setData(safelyParsedNotes);
     } catch (err) {

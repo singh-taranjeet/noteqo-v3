@@ -10,6 +10,7 @@ import {
   SYNC_CONFIG,
   WORKSPACE_API_ROUTES,
 } from "../constants/workspace.constants";
+import { mergeLocalRemoteService } from "./merge-local-remote.service";
 
 /**
  * Background sync queue that processes note events (CREATE, UPDATE, DELETE).
@@ -153,6 +154,7 @@ class SyncQueueService {
       }
     } finally {
       this.isProcessing = false;
+      mergeLocalRemoteService.merge();
     }
   }
 
