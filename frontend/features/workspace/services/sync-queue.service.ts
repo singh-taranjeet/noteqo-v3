@@ -118,6 +118,7 @@ class SyncQueueService {
    */
   private async processQueue(): Promise<void> {
     if (this.isProcessing) return;
+    // Check if the application is online
     if (typeof navigator !== "undefined" && !navigator.onLine) return;
 
     this.isProcessing = true;
@@ -140,7 +141,10 @@ class SyncQueueService {
             await db.syncQueue.delete(event.id);
             await db.notes.update(event.entityId, { syncStatus: "failed" });
           } else {
-            await db.syncQueue.update(event.id, { retryCount: newRetryCount });
+            // wait 3 seconds before trying again
+            setTimeout(async () => {
+              await db.syncQueue.update(event.id, { retryCount: newRetryCount });
+            }, SYNC_CONFIG.BASE_BACKOFF_MS);
           }
 
           // Stop processing remaining events on failure (preserve ordering)
@@ -161,6 +165,7 @@ class SyncQueueService {
         const { ciphertext, encryptedNoteKey } = await this.encryptPayload(
           event.payload,
         );
+        
         await apiClient.post(
           WORKSPACE_API_ROUTES.NOTES,
           {

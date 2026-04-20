@@ -71,7 +71,6 @@ export function NoteEditor({ noteId }: Readonly<NoteEditorProps>) {
   const editorTimeoutRef = useRef<NodeJS.Timeout>(undefined);
 
   useEffect(() => {
-    // TODO check why when I load the list of notes, it does not decrypts them and show in UI
     async function loadContent() {
       if (noteId) {
         try {
