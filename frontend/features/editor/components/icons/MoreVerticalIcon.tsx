@@ -1,6 +1,8 @@
-import React from "react"
+import React from "react";
 
-export const MoreVerticalIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+export const MoreVerticalIcon: React.FC<React.SVGProps<SVGSVGElement>> = (
+  props,
+) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="24"
@@ -17,4 +19,4 @@ export const MoreVerticalIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props)
     <circle cx="12" cy="5" r="1" />
     <circle cx="12" cy="19" r="1" />
   </svg>
-)
+);

@@ -22,7 +22,7 @@ export const AccordionNodeExtension = TiptapNode.create({
     return [{ tag: "div[data-type='shadcn-accordion']" }];
   },
 
-  renderHTML({ HTMLAttributes }: Record<string, any>) {
+  renderHTML({ HTMLAttributes }) {
     return [
       "div",
       mergeAttributes(HTMLAttributes, { "data-type": "shadcn-accordion" }),

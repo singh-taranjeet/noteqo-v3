@@ -1,7 +1,7 @@
-import { NodeViewContent, NodeViewWrapper } from "@tiptap/react"
-import { Checkbox } from "@/components/ui/checkbox"
-import React from "react"
-import type { NodeViewProps } from "@tiptap/react"
+import { NodeViewContent, NodeViewWrapper } from "@tiptap/react";
+import { Checkbox } from "@/components/ui/checkbox";
+import React from "react";
+import type { NodeViewProps } from "@tiptap/react";
 
 export const TaskItemNodeView: React.FC<NodeViewProps> = (props) => {
   return (
@@ -14,5 +14,5 @@ export const TaskItemNodeView: React.FC<NodeViewProps> = (props) => {
       </div>
       <NodeViewContent className="flex-1 min-w-0" />
     </NodeViewWrapper>
-  )
-}
+  );
+};

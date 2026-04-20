@@ -1,16 +1,25 @@
-import React from "react"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import React from "react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface EditorPopoverProps {
-  isOpen: boolean
-  onOpenChange: (open: boolean) => void
-  trigger: React.ReactNode
-  children: React.ReactNode
-  contentClassName?: string
-  align?: "start" | "center" | "end"
-  sideOffset?: number
-  tooltipText?: string
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  trigger: React.ReactNode;
+  children: React.ReactNode;
+  contentClassName?: string;
+  align?: "start" | "center" | "end";
+  sideOffset?: number;
+  tooltipText?: string;
 }
 
 export const EditorPopover: React.FC<EditorPopoverProps> = ({
@@ -33,22 +42,16 @@ export const EditorPopover: React.FC<EditorPopoverProps> = ({
     >
       {children}
     </PopoverContent>
-  )
+  );
 
-  const triggerContent = (
-    <PopoverTrigger asChild>
-      {trigger}
-    </PopoverTrigger>
-  )
+  const triggerContent = <PopoverTrigger asChild>{trigger}</PopoverTrigger>;
 
   if (tooltipText) {
     return (
       <Popover modal={false} open={isOpen} onOpenChange={onOpenChange}>
         <TooltipProvider delayDuration={200}>
           <Tooltip>
-            <TooltipTrigger asChild>
-              {triggerContent}
-            </TooltipTrigger>
+            <TooltipTrigger asChild>{triggerContent}</TooltipTrigger>
             <TooltipContent side="top" className="text-xs">
               {tooltipText}
             </TooltipContent>
@@ -56,7 +59,7 @@ export const EditorPopover: React.FC<EditorPopoverProps> = ({
         </TooltipProvider>
         {popoverContent}
       </Popover>
-    )
+    );
   }
 
   return (
@@ -64,5 +67,5 @@ export const EditorPopover: React.FC<EditorPopoverProps> = ({
       {triggerContent}
       {popoverContent}
     </Popover>
-  )
-}
+  );
+};

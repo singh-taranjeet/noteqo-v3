@@ -23,10 +23,13 @@ export class UsersService {
       throw new UserEmailExistsException();
     }
 
-    const hashedCredential = await bcrypt.hash(dto.authCredential, USER_CONSTANTS.AUTH_SALT_ROUNDS);
-    
+    const hashedCredential = await bcrypt.hash(
+      dto.authCredential,
+      USER_CONSTANTS.AUTH_SALT_ROUNDS,
+    );
+
     this.logger.log(`Creating user with email ${dto.email}`);
-    
+
     return this.usersRepository.create({
       ...dto,
       authCredential: hashedCredential,
@@ -57,11 +60,14 @@ export class UsersService {
     const updateData: Partial<UserEntity> = { ...dto };
 
     if (dto.authCredential) {
-      updateData.authCredential = await bcrypt.hash(dto.authCredential, USER_CONSTANTS.AUTH_SALT_ROUNDS);
+      updateData.authCredential = await bcrypt.hash(
+        dto.authCredential,
+        USER_CONSTANTS.AUTH_SALT_ROUNDS,
+      );
     }
 
     this.logger.log(`Updating user ${id}`);
-    
+
     return this.usersRepository.update(id, updateData);
   }
 
@@ -70,7 +76,7 @@ export class UsersService {
     if (!user) {
       throw new UserNotFoundException();
     }
-    
+
     this.logger.log(`Deleting user ${id}`);
     await this.usersRepository.delete(id);
   }

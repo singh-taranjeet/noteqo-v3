@@ -1,10 +1,5 @@
-import React, {
-  useState,
-  useEffect,
-  forwardRef,
-  useImperativeHandle,
-} from "react"
-import { cn } from "@/lib/utils"
+import React, { useState, forwardRef, useImperativeHandle } from "react";
+import { cn } from "@/lib/utils";
 import {
   Command,
   CommandEmpty,
@@ -13,57 +8,65 @@ import {
   CommandList as CommandListWrapper,
   CommandShortcut,
   CommandSeparator,
-} from "@/components/ui/command"
-import type { SuggestionItem } from "@/features/editor"
+} from "@/components/ui/command";
+import type { SuggestionItem } from "@/features/editor";
 
 interface CommandListProps {
-  items: SuggestionItem[]
-  command: (item: SuggestionItem) => void
-  query: string
-  closeMenu: () => void
+  items: SuggestionItem[];
+  command: (item: SuggestionItem) => void;
+  query: string;
+  closeMenu: () => void;
 }
 
 export const CommandList = forwardRef((props: CommandListProps, ref) => {
-  const [selectedIndex, setSelectedIndex] = useState(0)
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [prevQuery, setPrevQuery] = useState(props.query);
 
-  useEffect(() => setSelectedIndex(0), [props.items])
+  if (props.query !== prevQuery) {
+    setPrevQuery(props.query);
+    setSelectedIndex(0);
+  }
 
   useImperativeHandle(ref, () => ({
     onKeyDown: ({ event }: { event: KeyboardEvent }) => {
       if (event.key === "ArrowUp") {
-        setSelectedIndex((selectedIndex + props.items.length - 1) % props.items.length)
-        return true
+        setSelectedIndex(
+          (selectedIndex + props.items.length - 1) % props.items.length,
+        );
+        return true;
       }
 
       if (event.key === "ArrowDown") {
-        setSelectedIndex((selectedIndex + 1) % props.items.length)
-        return true
+        setSelectedIndex((selectedIndex + 1) % props.items.length);
+        return true;
       }
 
       if (event.key === "Enter") {
-        const item = props.items[selectedIndex]
+        const item = props.items[selectedIndex];
         if (item) {
-          props.command(item)
-          return true
+          props.command(item);
+          return true;
         }
       }
 
-      return false
+      return false;
     },
-  }))
+  }));
 
   if (!props.items.length) {
-    return null
+    return null;
   }
 
   return (
     <div className="w-64 overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md">
       <Command shouldFilter={false} className="border-none bg-transparent">
         <CommandListWrapper>
-          {props.items.length === 0 && <CommandEmpty>No results found.</CommandEmpty>}
+          {props.items.length === 0 && (
+            <CommandEmpty>No results found.</CommandEmpty>
+          )}
           <CommandGroup heading="Basic blocks">
             {props.items.map((item, index) => {
-              const Icon = item.icon
+              const Icon = item.icon;
               return (
                 <CommandItem
                   key={index}
@@ -71,14 +74,17 @@ export const CommandList = forwardRef((props: CommandListProps, ref) => {
                   value={item.title}
                   className={cn(
                     "cursor-pointer",
-                    index === selectedIndex && "bg-accent text-accent-foreground"
+                    index === selectedIndex &&
+                      "bg-accent text-accent-foreground",
                   )}
                 >
                   {Icon && <Icon className="mr-2 size-4" />}
                   <span>{item.title}</span>
-                  {item.shortcut && <CommandShortcut>{item.shortcut}</CommandShortcut>}
+                  {item.shortcut && (
+                    <CommandShortcut>{item.shortcut}</CommandShortcut>
+                  )}
                 </CommandItem>
-              )
+              );
             })}
           </CommandGroup>
           <CommandSeparator />
@@ -86,12 +92,12 @@ export const CommandList = forwardRef((props: CommandListProps, ref) => {
             <CommandItem
               onSelect={props.closeMenu}
               onClick={(e) => {
-                e.preventDefault()
-                props.closeMenu()
+                e.preventDefault();
+                props.closeMenu();
               }}
               onMouseDown={(e) => {
-                e.preventDefault()
-                e.stopPropagation()
+                e.preventDefault();
+                e.stopPropagation();
               }}
               className="cursor-pointer"
             >
@@ -102,7 +108,7 @@ export const CommandList = forwardRef((props: CommandListProps, ref) => {
         </CommandListWrapper>
       </Command>
     </div>
-  )
-})
+  );
+});
 
-CommandList.displayName = "CommandList"
+CommandList.displayName = "CommandList";

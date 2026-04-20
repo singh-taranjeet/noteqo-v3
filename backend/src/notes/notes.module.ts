@@ -8,7 +8,9 @@ import { KeySlotEntity } from './entities/key-slot.entity';
 import { NoteVersionEntity } from './entities/note-version.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([NoteEntity, KeySlotEntity, NoteVersionEntity])],
+  imports: [
+    TypeOrmModule.forFeature([NoteEntity, KeySlotEntity, NoteVersionEntity]),
+  ],
   controllers: [NotesController],
   providers: [NotesService, NotesRepository],
   exports: [NotesService],

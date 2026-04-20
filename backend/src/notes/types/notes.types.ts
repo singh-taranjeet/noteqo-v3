@@ -1,7 +1,7 @@
 export interface KeySlot {
   noteId: string;
   userId: string;
-  encryptedDocKey: string;
+  encryptedNoteKey: string;
 }
 
 export interface Note {

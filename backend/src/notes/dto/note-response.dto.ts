@@ -1,6 +1,6 @@
 export class KeySlotResponseDto {
   userId: string;
-  encryptedDocKey: string; // base64
+  encryptedNoteKey: string; // base64
 }
 
 export class NoteResponseDto {

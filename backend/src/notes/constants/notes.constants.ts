@@ -11,7 +11,7 @@ export const NOTE_COLUMN = {
 export const KEY_SLOT_COLUMN = {
   NOTE_ID: 'note_id',
   USER_ID: 'user_id',
-  ENCRYPTED_DOC_KEY: 'encrypted_doc_key',
+  ENCRYPTED_NOTE_KEY: 'encrypted_note_key',
 } as const;
 
 export const NOTE_VERSION_TABLE = { NAME: 'note_versions' } as const;

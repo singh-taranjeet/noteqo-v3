@@ -1,7 +1,8 @@
 "use client";
 
 import React from "react";
-import { NodeViewWrapper, NodeViewContent, NodeViewProps } from "@tiptap/react";
+import { NodeViewWrapper, NodeViewContent } from "@tiptap/react";
+import type { NodeViewProps } from "@tiptap/react";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Select,
@@ -10,18 +11,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { cn } from "@/utils/string.utils"; // We must use our internal cn if it exists, wait, let me use standard utility. Actually, shadcn's is at @/lib/utils normally.
 
 const THEMES: Record<string, string> = {
   default: "bg-background text-foreground",
   muted: "bg-muted text-muted-foreground",
   blue: "bg-blue-50 dark:bg-blue-950/40 text-blue-900 dark:text-blue-100 border-blue-200 dark:border-blue-900",
-  green: "bg-green-50 dark:bg-green-950/40 text-green-900 dark:text-green-100 border-green-200 dark:border-green-900",
-  yellow: "bg-yellow-50 dark:bg-yellow-950/40 text-yellow-900 dark:text-yellow-100 border-yellow-200 dark:border-yellow-900",
+  green:
+    "bg-green-50 dark:bg-green-950/40 text-green-900 dark:text-green-100 border-green-200 dark:border-green-900",
+  yellow:
+    "bg-yellow-50 dark:bg-yellow-950/40 text-yellow-900 dark:text-yellow-100 border-yellow-200 dark:border-yellow-900",
   red: "bg-red-50 dark:bg-red-950/40 text-red-900 dark:text-red-100 border-red-200 dark:border-red-900",
 };
 
-export const CardNodeView = ({ editor, node, updateAttributes }: NodeViewProps) => {
+export const CardNodeView = ({
+  editor,
+  node,
+  updateAttributes,
+}: NodeViewProps) => {
   const colorTheme = (node.attrs.colorTheme as string) || "default";
   const activeClass = THEMES[colorTheme] || THEMES.default;
 
@@ -31,7 +37,7 @@ export const CardNodeView = ({ editor, node, updateAttributes }: NodeViewProps) 
         {/* Floating Toolbar */}
         {editor.isEditable && (
           <div className="absolute -top-3 right-2 opacity-0 group-hover/card:opacity-100 transition-opacity z-10 flex items-center">
-             <Select
+            <Select
               value={colorTheme}
               onValueChange={(v) => v && updateAttributes({ colorTheme: v })}
             >

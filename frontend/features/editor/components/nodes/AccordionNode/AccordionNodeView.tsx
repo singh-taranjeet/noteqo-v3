@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useRef } from "react";
-import { NodeViewWrapper, NodeViewContent, NodeViewProps } from "@tiptap/react";
+import { NodeViewWrapper, NodeViewContent } from "@tiptap/react";
+import type { NodeViewProps } from "@tiptap/react";
 import {
   Accordion,
   AccordionItem,
@@ -9,7 +10,11 @@ import {
 } from "@/components/ui/accordion";
 import { cn } from "@/lib/utils";
 
-export const AccordionNodeView = ({ node, updateAttributes, editor }: NodeViewProps) => {
+export const AccordionNodeView = ({
+  node,
+  updateAttributes,
+  editor,
+}: NodeViewProps) => {
   const title = (node.attrs.title as string) || "";
   const isOpen = node.attrs.isOpen !== false; // defaults to true
   const inputRef = useRef<HTMLInputElement>(null);
@@ -54,7 +59,9 @@ export const AccordionNodeView = ({ node, updateAttributes, editor }: NodeViewPr
           <div
             className={cn(
               "grid transition-all duration-200 ease-in-out",
-              isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+              isOpen
+                ? "grid-rows-[1fr] opacity-100"
+                : "grid-rows-[0fr] opacity-0",
             )}
           >
             <div className="overflow-hidden px-4">

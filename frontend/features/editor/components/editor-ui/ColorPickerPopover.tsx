@@ -1,97 +1,110 @@
-"use client"
+"use client";
 
-import React from "react"
-import { Editor } from "@tiptap/react"
-import { Button } from "@/components/ui/button"
-import { EditorPopover } from "@/features/editor/components/editor-ui/EditorPopover"
-import { ChevronDownIcon } from "@/features/editor/components/icons/ChevronDownIcon"
-import { TextColorIcon } from "@/features/editor/components/icons/TextColorIcon"
-import { TEXT_COLORS, HIGHLIGHT_COLORS } from "@/features/editor/constants/colors"
+import React from "react";
+import type { Editor } from "@tiptap/react";
+import { Button } from "@/components/ui/button";
+import { EditorPopover } from "@/features/editor/components/editor-ui/EditorPopover";
+import { ChevronDownIcon } from "@/features/editor/components/icons/ChevronDownIcon";
+import { TextColorIcon } from "@/features/editor/components/icons/TextColorIcon";
+import {
+  TEXT_COLORS,
+  HIGHLIGHT_COLORS,
+} from "@/features/editor/constants/colors";
 
 interface ColorPickerPopoverProps {
-  editor: Editor
-  isOpen: boolean
-  onOpenChange: (open: boolean) => void
+  editor: Editor;
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
-export const ColorPickerPopover: React.FC<ColorPickerPopoverProps> = ({ editor, isOpen, onOpenChange }) => {
+export const ColorPickerPopover: React.FC<ColorPickerPopoverProps> = ({
+  editor,
+  isOpen,
+  onOpenChange,
+}) => {
   // Compute active colors from editor attributes
-  const currentColor = editor.getAttributes("textStyle").color || ""
-  const currentHighlight = editor.getAttributes("highlight").color || ""
+  const currentColor = editor.getAttributes("textStyle").color || "";
+  const currentHighlight = editor.getAttributes("highlight").color || "";
 
   const setTextColor = (color: string) => {
     if (!color) {
-      editor.chain().focus().unsetColor().run()
+      editor.chain().focus().unsetColor().run();
     } else {
-      editor.chain().focus().setColor(color).run()
+      editor.chain().focus().setColor(color).run();
     }
-  }
+  };
 
   const setHighlightColor = (color: string) => {
     if (!color) {
-      editor.chain().focus().unsetHighlight().run()
+      editor.chain().focus().unsetHighlight().run();
     } else {
-      editor.chain().focus().setHighlight({ color }).run()
+      editor.chain().focus().setHighlight({ color }).run();
     }
-  }
+  };
 
   return (
-    <EditorPopover 
-      isOpen={isOpen} 
+    <EditorPopover
+      isOpen={isOpen}
       onOpenChange={onOpenChange}
       align="start"
       contentClassName="w-64 p-3 overflow-y-auto max-h-80 shadow-lg z-50"
       trigger={
-        <Button 
-          variant="ghost" 
-          size="sm" 
+        <Button
+          variant="ghost"
+          size="sm"
           className="h-7 px-2 text-muted-foreground hover:bg-muted/50 rounded-sm gap-1"
-          onMouseDown={(e) => e.preventDefault()}  
+          onMouseDown={(e) => e.preventDefault()}
         >
           <TextColorIcon className="w-4 h-4" />
           <ChevronDownIcon className="w-3 h-3 opacity-50" />
         </Button>
       }
     >
-        
-        <div className="mb-4">
-          <div className="text-xs font-semibold text-muted-foreground mb-2">Text Color</div>
-          <div className="grid grid-cols-5 gap-2">
-            {TEXT_COLORS.map((swatch) => (
-              <Button
-                key={`text-${swatch.name}`}
-                variant="outline"
-                onClick={() => setTextColor(swatch.color)}
-                title={swatch.name}
-                className={`w-8 h-8 p-0 rounded-full flex items-center justify-center transition-transform hover:scale-110 ${
-                  currentColor === swatch.color ? "ring-2 ring-primary ring-offset-1 border-primary" : ""
-                }`}
-                style={{ color: swatch.color || "inherit" }}
-              >
-                <span className="font-serif font-medium text-sm">A</span>
-              </Button>
-            ))}
-          </div>
+      <div className="mb-4">
+        <div className="text-xs font-semibold text-muted-foreground mb-2">
+          Text Color
         </div>
-
-        <div>
-          <div className="text-xs font-semibold text-muted-foreground mb-2">Highlight Color</div>
-          <div className="grid grid-cols-5 gap-2">
-            {HIGHLIGHT_COLORS.map((swatch) => (
-              <Button
-                key={`bg-${swatch.name}`}
-                variant="outline"
-                onClick={() => setHighlightColor(swatch.color)}
-                title={swatch.name}
-                className={`w-8 h-8 p-0 rounded-full transition-transform hover:scale-110 ${
-                  currentHighlight === swatch.color ? "ring-2 ring-primary ring-offset-1 border-primary" : ""
-                }`}
-                style={{ backgroundColor: swatch.color || "transparent" }}
-              />
-            ))}
-          </div>
+        <div className="grid grid-cols-5 gap-2">
+          {TEXT_COLORS.map((swatch) => (
+            <Button
+              key={`text-${swatch.name}`}
+              variant="outline"
+              onClick={() => setTextColor(swatch.color)}
+              title={swatch.name}
+              className={`w-8 h-8 p-0 rounded-full flex items-center justify-center transition-transform hover:scale-110 ${
+                currentColor === swatch.color
+                  ? "ring-2 ring-primary ring-offset-1 border-primary"
+                  : ""
+              }`}
+              style={{ color: swatch.color || "inherit" }}
+            >
+              <span className="font-serif font-medium text-sm">A</span>
+            </Button>
+          ))}
         </div>
+      </div>
 
+      <div>
+        <div className="text-xs font-semibold text-muted-foreground mb-2">
+          Highlight Color
+        </div>
+        <div className="grid grid-cols-5 gap-2">
+          {HIGHLIGHT_COLORS.map((swatch) => (
+            <Button
+              key={`bg-${swatch.name}`}
+              variant="outline"
+              onClick={() => setHighlightColor(swatch.color)}
+              title={swatch.name}
+              className={`w-8 h-8 p-0 rounded-full transition-transform hover:scale-110 ${
+                currentHighlight === swatch.color
+                  ? "ring-2 ring-primary ring-offset-1 border-primary"
+                  : ""
+              }`}
+              style={{ backgroundColor: swatch.color || "transparent" }}
+            />
+          ))}
+        </div>
+      </div>
     </EditorPopover>
-  )
-}
+  );
+};

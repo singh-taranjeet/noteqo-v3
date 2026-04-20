@@ -1,6 +1,8 @@
-import React from "react"
+import React from "react";
 
-export const TextColorIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+export const TextColorIcon: React.FC<React.SVGProps<SVGSVGElement>> = (
+  props,
+) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="24"
@@ -17,4 +19,4 @@ export const TextColorIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) =>
     <path d="m6 16 6-12 6 12" />
     <path d="M8 12h8" />
   </svg>
-)
+);

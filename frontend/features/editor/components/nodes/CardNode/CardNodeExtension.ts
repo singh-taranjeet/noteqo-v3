@@ -19,7 +19,7 @@ export const CardNodeExtension = TiptapNode.create({
     return [{ tag: "div[data-type='shadcn-card']" }];
   },
 
-  renderHTML({ HTMLAttributes }: Record<string, any>) {
+  renderHTML({ HTMLAttributes }) {
     return [
       "div",
       mergeAttributes(HTMLAttributes, { "data-type": "shadcn-card" }),
