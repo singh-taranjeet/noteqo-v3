@@ -203,8 +203,12 @@ export const FileUploaderExtension = Extension.create<FileUploaderOptions>({
             if (file) {
               const pos = editor.state.selection.from;
               // We dispatch a custom event to trigger the paste handler, or just invoke handleUpload directly.
-              // Since handleUpload is trapped in addProseMirrorPlugins scope, let's expose it via the extension storage.
-              editor.storage.fileUploader?.handleUpload(file, pos);
+              interface FileUploaderStorage {
+                handleUpload: (file: File, pos: number) => void;
+              }
+              const storage = editor.storage as unknown as Record<string, unknown>;
+              const fileUploaderStorage = storage.fileUploader as FileUploaderStorage | undefined;
+              fileUploaderStorage?.handleUpload(file, pos);
             }
           };
           input.click();
