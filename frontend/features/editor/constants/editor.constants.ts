@@ -1,6 +1,3 @@
-/** localStorage key used to persist the Tiptap editor JSON state. */
-export const EDITOR_STORAGE_KEY = "noteqo-editor-state" as const;
-
 /** Shared timeout and debounce numbers for the editor */
 export const EDITOR_CONFIG = {
   AUTOSAVE_DEBOUNCE_MS: 500,

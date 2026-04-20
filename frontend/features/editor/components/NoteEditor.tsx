@@ -52,7 +52,6 @@ import {
   MAX_FILE_SIZE,
 } from "@/features/editor/utils/tiptapUtils";
 import {
-  EDITOR_STORAGE_KEY,
   EDITOR_CONFIG,
 } from "@/features/editor/constants/editor.constants";
 import { noteService } from "@/features/workspace/services/note.service";
@@ -65,27 +64,20 @@ interface NoteEditorProps {
   noteId: string;
 }
 
-export function NoteEditor({ noteId }: Readonly<NoteEditorProps>) {
-  const [noteState, setNoteState] = useState<Note | null>(null);
-  // const [initialContent, setInitialContent] = useState<JSONContent | null>(
-  //   null,
-  // );
-  const [isReady, setIsReady] = useState(false);
-  const editorTimeoutRef = useRef<NodeJS.Timeout>(undefined);
+const useLoadNoteContent = (noteId: string) => {
 
-  const content = noteState?.content || DEFAULT_CONTENT;
+  const [note, setNote] = useState<Note | null>(null);
+  const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    
     async function loadContent() {
       if (noteId) {
         try {
-          const note = await noteService.getNote(noteId);
-
-          logService.log("Found note", note);
-          if (note) {
+          const data = await noteService.getNote(noteId);
+          logService.log("Found note", data);
+          if (data) {
             // Note exists in the local db
-            setNoteState(note);
+            setNote(data);
             setIsReady(true);
           } 
         } catch (error){
@@ -98,6 +90,21 @@ export function NoteEditor({ noteId }: Readonly<NoteEditorProps>) {
     }
     loadContent();
   }, [noteId]);
+
+  return {
+    note, isReady, setNote
+  }
+}
+
+export function NoteEditor({ noteId }: Readonly<NoteEditorProps>) {
+
+  const editorTimeoutRef = useRef<NodeJS.Timeout>(undefined);
+
+  const { note, isReady, setNote } = useLoadNoteContent(noteId);
+
+  const content = note?.content || DEFAULT_CONTENT;
+
+  
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -180,8 +187,6 @@ export function NoteEditor({ noteId }: Readonly<NoteEditorProps>) {
         editorTimeoutRef.current = setTimeout(() => {
           void noteService.updateNote(noteId, { content: json });
         }, EDITOR_CONFIG.AUTOSAVE_DEBOUNCE_MS);
-      } else {
-        localStorage.setItem(EDITOR_STORAGE_KEY, JSON.stringify(json));
       }
     },
   });
@@ -206,22 +211,22 @@ export function NoteEditor({ noteId }: Readonly<NoteEditorProps>) {
   if (!editor) return null;
 
   const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (!noteState) return;
-    setNoteState({ ...noteState, title: e.target.value });
+    if (!note) return;
+    setNote({ ...note, title: e.target.value });
   };
 
   const handleTitleBlur = (e: FocusEvent<HTMLInputElement>) => {
-    if (!noteState || !noteId) return;
+    if (!note || !noteId) return;
     void noteService.updateNote(noteId, { title: e.target.value });
   };
 
   return (
     <div className="w-full h-full flex flex-col overflow-auto bg-background text-foreground font-sans group relative">
       {/* Cover Image */}
-      {noteState?.coverImage && (
+      {note?.coverImage && (
         <div className="w-full h-[25vh] sm:h-[30vh] shrink-0 relative group/cover">
           <img
-            src={noteState.coverImage}
+            src={note.coverImage}
             alt="Cover"
             className="w-full h-full object-cover"
           />
@@ -232,16 +237,16 @@ export function NoteEditor({ noteId }: Readonly<NoteEditorProps>) {
       <div className="w-full max-w-4xl mx-auto flex-1 flex flex-col px-6 sm:px-24 mb-96 relative">
         {/* Note Header Metadata */}
         <div className="mt-8 mb-6">
-          {noteState?.emoji && (
+          {note?.emoji && (
             <div className="text-[72px] leading-none mb-4 -mt-14 relative z-10 w-fit">
-              {noteState.emoji}
+              {note.emoji}
             </div>
           )}
 
           <input
             type="text"
             className="text-4xl sm:text-5xl font-bold font-sans text-foreground w-full bg-transparent border-none outline-none focus:ring-0 placeholder:text-muted-foreground"
-            value={noteState?.title ?? "Untitled"}
+            value={note?.title ?? "Untitled"}
             onChange={handleTitleChange}
             onBlur={handleTitleBlur}
             placeholder="Untitled"
