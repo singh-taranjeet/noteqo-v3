@@ -73,20 +73,28 @@ const useLoadNoteContent = (noteId: string) => {
     async function loadContent() {
       if (noteId) {
         try {
-          const data = await noteService.getNote(noteId);
-          logService.log("Found note", data);
-          if (data) {
-            // Note exists in the local db
-            setNote(data);
+          // Fetch the local state
+          const localNote = await noteService.getLocalNote(noteId);
+
+          if(localNote) {
+            setNote(localNote);
             setIsReady(true);
-          } 
+          }
+
+          // Fetch the remote state
+          const remoteNote = await noteService.getRemoteNote(noteId);
+
+          if(remoteNote) {
+            setNote(remoteNote);
+            setIsReady(true);
+          }
+
+          logService.log("Found note", note);
         } catch (error){
           logService.error(`Error in rendering this note`, error);
         }
         logService.log("Note with NoteId is ready to load", noteId);
-        
       }
-      
     }
     loadContent();
   }, [noteId]);

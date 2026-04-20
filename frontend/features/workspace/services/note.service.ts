@@ -52,22 +52,21 @@ export const noteService = {
    * Returns a single note by ID from the local Dexie DB.
    * If not found in db fetch from remote
    */
-  async getNote(id: string): Promise<Note | undefined> {
-    const note = await db.notes.get(id);
-    if (!note) {
-      // Fetch from remote
-      const remoteNote = await noteApiService.getNote(id);
-      if (remoteNote) {
-        // we need to decrypt the note and update to localdb
-        const decryptedNote = await noteService.decryptNote(remoteNote);
-        if(decryptedNote) {
-          logService.log("Decrypted Note", decryptedNote, remoteNote);
-          await db.notes.put(decryptedNote);
-        }
-        return decryptedNote ?? undefined;
+  async getLocalNote(id: string): Promise<Note | undefined> {
+    return db.notes.get(id);
+  },
+  async getRemoteNote(id: string): Promise<Note | undefined> {
+    // Fetch from remote
+    const remoteNote = await noteApiService.getNote(id);
+    if (remoteNote) {
+      // we need to decrypt the note and update to localdb
+      const decryptedNote = await noteService.decryptNote(remoteNote);
+      if(decryptedNote) {
+        logService.log("Decrypted Note", decryptedNote, remoteNote);
+        await db.notes.put(decryptedNote);
       }
+      return decryptedNote ?? undefined;
     }
-    return note;
   },
 
   /**
