@@ -6,6 +6,14 @@ import {
 import { ReactNodeViewRenderer } from "@tiptap/react";
 import { ColumnsNodeView } from "./ColumnsNodeView";
 
+declare module "@tiptap/core" {
+  interface Commands<ReturnType> {
+    columns: {
+      setColumns: (cols: number) => ReturnType;
+    };
+  }
+}
+
 export const ColumnsExtension = TiptapNode.create({
   name: "columns",
   group: "block",
@@ -21,8 +29,7 @@ export const ColumnsExtension = TiptapNode.create({
     return [{ tag: "div[data-type='columns-block']" }];
   },
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Tiptap mergeAttributes requires Record<string, any>
-  renderHTML({ HTMLAttributes }: Record<string, any>) {
+  renderHTML({ HTMLAttributes }) {
     return [
       "div",
       mergeAttributes(HTMLAttributes, {
@@ -53,7 +60,6 @@ export const ColumnsExtension = TiptapNode.create({
             content: items,
           });
         },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Custom command not in Tiptap's RawCommands type
-    } as any;
+    };
   },
 });

@@ -166,7 +166,7 @@ export const cryptoService = {
   decryptDocument: async (
     ciphertextPayload: string,
     encryptedDocKeyBase64: string,
-  ): Promise<{ payload: any; noteKeyBase64: string } | undefined> => {
+  ): Promise<{ payload: unknown; noteKeyBase64: string } | undefined> => {
     // 1. Get raw Master Key & encrypted Private Key from Storage
     const base64MasterKey = await storageService.get<string>(
       STORAGE_KEYS.MASTER_KEY,
@@ -184,7 +184,7 @@ export const cryptoService = {
     // 2. Import User's Private RSA Key
     const rsaPrivateKey = await globalThis.crypto.subtle.importKey(
       "jwk",
-      JSON.parse(privateKey as any) as JsonWebKey,
+      JSON.parse(privateKey as string) as JsonWebKey,
       {
         name: CRYPTO_CONFIG.ALGORITHMS.RSA,
         hash: CRYPTO_CONFIG.ALGORITHMS.HASH,

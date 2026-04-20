@@ -133,7 +133,6 @@ export const SLASH_COMMANDS: SuggestionItem[] = [
     icon: ColumnsIcon,
     shortcut: "/2cols",
     command: ({ editor, range }) => {
-      // @ts-expect-error - Custom extension method not mapped in Tiptap Core types
       editor.chain().focus().deleteRange(range).setColumns(2).run();
     },
   },
@@ -142,7 +141,6 @@ export const SLASH_COMMANDS: SuggestionItem[] = [
     icon: ColumnsIcon,
     shortcut: "/3cols",
     command: ({ editor, range }) => {
-      // @ts-expect-error - Custom extension method not mapped in Tiptap Core types
       editor.chain().focus().deleteRange(range).setColumns(3).run();
     },
   },

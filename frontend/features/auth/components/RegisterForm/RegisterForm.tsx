@@ -10,12 +10,12 @@ import {
 } from "@/components/ui/card";
 import { DynamicForm } from "@/components/ui/DynamicForm";
 import { RecoveryCodeDialog } from "../RecoveryCodeDialog";
-import { useRegister } from "../../hooks/useRegister";
-import { AUTH_CONFIG } from "../../constants/auth.constants";
+import { useRegister } from "@/features/auth/hooks/useRegister";
+import { AUTH_CONFIG } from "@/features/auth/constants/auth.constants";
 import { ROUTES } from "@/constants/routes";
 import { useRouter } from "next/navigation";
 
-import type { RegisterFormData } from "../../hooks/useRegister";
+import type { RegisterFormData } from "@/features/auth/hooks/useRegister";
 import type { FormFieldConfig, FormValues } from "@/components/ui/DynamicForm";
 
 const REGISTER_FIELDS: FormFieldConfig[] = [

@@ -9,17 +9,17 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { DynamicForm } from "@/components/ui/DynamicForm";
-import { useLogin } from "../../hooks/useLogin";
-import { AUTH_CONFIG } from "../../constants/auth.constants";
+import { useLogin } from "@/features/auth/hooks/useLogin";
+import { AUTH_CONFIG } from "@/features/auth/constants/auth.constants";
 import { ROUTES } from "@/constants/routes";
 import { useRouter } from "next/navigation";
 import { DynamicDialog } from "@/components/ui/DynamicDialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-import type { LoginFormData } from "../../hooks/useLogin";
+import type { LoginFormData } from "@/features/auth/hooks/useLogin";
 import type { FormFieldConfig, FormValues } from "@/components/ui/DynamicForm";
-import { KeysService } from "../../services/keys.service";
+import { KeysService } from "@/features/auth/services/keys.service";
 
 const LOGIN_FIELDS: FormFieldConfig[] = [
   {

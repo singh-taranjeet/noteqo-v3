@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Spinner } from "@/components/ui/spinner";
-import { useAuthCheck } from "../../hooks/useAuthCheck";
+import { useAuthCheck } from "@/features/auth/hooks/useAuthCheck";
 import { ROUTES } from "@/constants/routes";
 
 interface AuthGuardProps {

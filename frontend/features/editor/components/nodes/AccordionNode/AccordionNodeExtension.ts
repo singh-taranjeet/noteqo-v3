@@ -22,8 +22,7 @@ export const AccordionNodeExtension = TiptapNode.create({
     return [{ tag: "div[data-type='shadcn-accordion']" }];
   },
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Tiptap mergeAttributes requires Record<string, any>
-  renderHTML({ HTMLAttributes }: Record<string, any>) {
+  renderHTML({ HTMLAttributes }) {
     return [
       "div",
       mergeAttributes(HTMLAttributes, { "data-type": "shadcn-accordion" }),

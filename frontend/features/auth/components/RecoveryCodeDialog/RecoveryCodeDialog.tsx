@@ -2,7 +2,7 @@
 
 import { useCallback } from "react";
 import { DynamicDialog } from "@/components/ui/DynamicDialog";
-import { AUTH_CONFIG } from "../../constants/auth.constants";
+import { AUTH_CONFIG } from "@/features/auth/constants/auth.constants";
 
 import type { DialogAction } from "@/components/ui/DynamicDialog";
 

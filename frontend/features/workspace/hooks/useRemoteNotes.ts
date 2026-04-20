@@ -4,6 +4,14 @@ import { cryptoService } from "@/features/crypto";
 import type { Note } from "../types/workspace.types";
 import { logService } from "@/services/log.service";
 
+interface RemoteNote {
+  id: string;
+  ciphertext: string;
+  createdAt: string;
+  updatedAt: string;
+  keySlots?: { encryptedNoteKey: string }[];
+}
+
 export const REMOTE_NOTES_QUERY_KEY = ["remote-notes"] as const;
 
 export function useRemoteNotes() {
@@ -17,7 +25,7 @@ export function useRemoteNotes() {
 
       // 2. Decrypt in parallel
       const decryptedDocs = await Promise.all(
-        remoteNotes.map(async (note: any) => {
+        remoteNotes.map(async (note: RemoteNote) => {
           try {
             const encryptedNoteKey = note.keySlots?.[0]?.encryptedNoteKey;
 
@@ -44,12 +52,19 @@ export function useRemoteNotes() {
               return null;
             }
 
+            const payload = decryptedResult.payload as {
+              title?: string;
+              emoji?: string;
+              coverImage?: string;
+              content?: string;
+            };
+
             return {
               id: note.id,
-              title: decryptedResult.payload.title || "Untitled",
-              emoji: decryptedResult.payload.emoji || "📄",
-              coverImage: decryptedResult.payload.coverImage,
-              content: decryptedResult.payload.content,
+              title: payload.title || "Untitled",
+              emoji: payload.emoji || "📄",
+              coverImage: payload.coverImage,
+              content: payload.content,
               syncStatus: "synced",
               createdAt: note.createdAt,
               updatedAt: note.updatedAt,
