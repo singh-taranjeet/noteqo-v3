@@ -1,10 +1,9 @@
 "use client";
 
 import { EditorContent, EditorContext, useEditor } from "@tiptap/react";
-import type { JSONContent } from "@tiptap/react";
+import type { Editor } from "@tiptap/react";
 import {
   useEffect,
-  useRef,
   useState,
   useMemo,
   type ChangeEvent,
@@ -53,9 +52,7 @@ import {
   handleImageUpload,
   MAX_FILE_SIZE,
 } from "@/features/editor/utils/tiptapUtils";
-import {
-  EDITOR_CONFIG,
-} from "@/features/editor/constants/editor.constants";
+import { EDITOR_CONFIG } from "@/features/editor/constants/editor.constants";
 import { noteService } from "@/features/workspace/services/note.service";
 import type { Note } from "@/features/workspace/types/workspace.types";
 
@@ -67,7 +64,6 @@ interface NoteEditorProps {
 }
 
 const useLoadNoteContent = (noteId: string) => {
-
   const [note, setNote] = useState<Note | null>(null);
   const [isReady, setIsReady] = useState(false);
 
@@ -78,7 +74,7 @@ const useLoadNoteContent = (noteId: string) => {
           // Fetch the local state
           const localNote = await noteService.getLocalNote(noteId);
 
-          if(localNote) {
+          if (localNote) {
             setNote(localNote);
             setIsReady(true);
           }
@@ -86,13 +82,11 @@ const useLoadNoteContent = (noteId: string) => {
           // Fetch the remote state
           const remoteNote = await noteService.getRemoteNote(noteId);
 
-          if(remoteNote) {
+          if (remoteNote) {
             setNote(remoteNote);
             setIsReady(true);
           }
-
-          logService.log("Found note", note);
-        } catch (error){
+        } catch (error) {
           logService.error(`Error in rendering this note`, error);
         }
         logService.log("Note with NoteId is ready to load", noteId);
@@ -102,19 +96,23 @@ const useLoadNoteContent = (noteId: string) => {
   }, [noteId]);
 
   return {
-    note, isReady, setNote
-  }
-}
+    note,
+    isReady,
+    setNote,
+  };
+};
 
 export function NoteEditor({ noteId }: Readonly<NoteEditorProps>) {
-
   const debouncedUpdateNote = useMemo(
     () =>
-      
-      debounce((id: string, currentContent: JSONContent) => {
-        void noteService.updateNote(id, { content: currentContent });
+      debounce((props: { editor: Editor; id: string }) => {
+        const { editor, id } = props;
+        const json = editor.getJSON();
+        if (id) {
+          void noteService.updateNote(id, { content: json });
+        }
       }, EDITOR_CONFIG.AUTOSAVE_DEBOUNCE_MS),
-    []
+    [],
   );
 
   useEffect(() => {
@@ -126,8 +124,6 @@ export function NoteEditor({ noteId }: Readonly<NoteEditorProps>) {
   const { note, isReady, setNote } = useLoadNoteContent(noteId);
 
   const content = note?.content || DEFAULT_CONTENT;
-
-  
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -204,10 +200,7 @@ export function NoteEditor({ noteId }: Readonly<NoteEditorProps>) {
     ],
     content,
     onUpdate: ({ editor }) => {
-      const json = editor.getJSON();
-      if (noteId) {
-        debouncedUpdateNote(noteId, json);
-      }
+      debouncedUpdateNote({ id: noteId, editor });
     },
   });
 
@@ -245,6 +238,7 @@ export function NoteEditor({ noteId }: Readonly<NoteEditorProps>) {
       {/* Cover Image */}
       {note?.coverImage && (
         <div className="w-full h-[25vh] sm:h-[30vh] shrink-0 relative group/cover">
+          {/* eslint-disable-next-line @next/next/no-img-element*/}
           <img
             src={note.coverImage}
             alt="Cover"

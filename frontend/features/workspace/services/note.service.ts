@@ -61,7 +61,7 @@ export const noteService = {
     if (remoteNote) {
       // we need to decrypt the note and update to localdb
       const decryptedNote = await noteService.decryptNote(remoteNote);
-      if(decryptedNote) {
+      if (decryptedNote) {
         logService.log("Decrypted Note", decryptedNote, remoteNote);
         await db.notes.put(decryptedNote);
       }
@@ -102,9 +102,7 @@ export const noteService = {
       const encryptedNoteKey = note.keySlots?.[0]?.encryptedNoteKey;
 
       if (!encryptedNoteKey) {
-        logService.warn(
-          `No keySlot found for note! Note ID: ${note.id}`,
-        );
+        logService.warn(`No keySlot found for note! Note ID: ${note.id}`);
         return null;
       }
 
@@ -146,5 +144,5 @@ export const noteService = {
       logService.error("Failed to decrypt note " + JSON.stringify(e));
       return null;
     }
-  }
+  },
 };
