@@ -11,6 +11,7 @@ import {
   WORKSPACE_API_ROUTES,
 } from "../constants/workspace.constants";
 import { mergeLocalRemoteService } from "./merge-local-remote.service";
+import { noteApiService } from "./note-api.service";
 
 /**
  * Background sync queue that processes note events (CREATE, UPDATE, DELETE).
@@ -168,15 +169,11 @@ class SyncQueueService {
           event.payload,
         );
         
-        await apiClient.post(
-          WORKSPACE_API_ROUTES.NOTES,
-          {
-            id: event.entityId,
-            ciphertext,
-            encryptedNoteKey,
-          },
-          { auth: true },
-        );
+        await noteApiService.createNote({
+          id: event.entityId,
+          ciphertext,
+          encryptedNoteKey
+        });
         break;
       }
 
@@ -184,22 +181,16 @@ class SyncQueueService {
         const { ciphertext, encryptedNoteKey } = await this.encryptPayload(
           event.payload,
         );
-        await apiClient.patch(
-          `${WORKSPACE_API_ROUTES.NOTES}/${event.entityId}`,
-          {
-            ciphertext,
-            encryptedNoteKey,
-          },
-          { auth: true },
-        );
+        await noteApiService.updateNote({
+          id: event.entityId,
+          ciphertext,
+          encryptedNoteKey
+        });
         break;
       }
 
       case "DELETE": {
-        await apiClient.delete(
-          `${WORKSPACE_API_ROUTES.NOTES}/${event.entityId}`,
-          { auth: true },
-        );
+        await noteApiService.deleteNote(event.entityId);
         break;
       }
     }
