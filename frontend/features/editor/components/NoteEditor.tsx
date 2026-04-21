@@ -6,9 +6,11 @@ import {
   useEffect,
   useRef,
   useState,
+  useMemo,
   type ChangeEvent,
   type FocusEvent,
 } from "react";
+import debounce from "lodash/debounce";
 
 // --- Tiptap Core Extensions ---
 import { StarterKit } from "@tiptap/starter-kit";
@@ -106,7 +108,20 @@ const useLoadNoteContent = (noteId: string) => {
 
 export function NoteEditor({ noteId }: Readonly<NoteEditorProps>) {
 
-  const editorTimeoutRef = useRef<NodeJS.Timeout>(undefined);
+  const debouncedUpdateNote = useMemo(
+    () =>
+      
+      debounce((id: string, currentContent: JSONContent) => {
+        void noteService.updateNote(id, { content: currentContent });
+      }, EDITOR_CONFIG.AUTOSAVE_DEBOUNCE_MS),
+    []
+  );
+
+  useEffect(() => {
+    return () => {
+      debouncedUpdateNote.cancel();
+    };
+  }, [debouncedUpdateNote]);
 
   const { note, isReady, setNote } = useLoadNoteContent(noteId);
 
@@ -191,10 +206,7 @@ export function NoteEditor({ noteId }: Readonly<NoteEditorProps>) {
     onUpdate: ({ editor }) => {
       const json = editor.getJSON();
       if (noteId) {
-        if (editorTimeoutRef.current) clearTimeout(editorTimeoutRef.current);
-        editorTimeoutRef.current = setTimeout(() => {
-          void noteService.updateNote(noteId, { content: json });
-        }, EDITOR_CONFIG.AUTOSAVE_DEBOUNCE_MS);
+        debouncedUpdateNote(noteId, json);
       }
     },
   });
