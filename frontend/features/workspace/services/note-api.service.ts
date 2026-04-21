@@ -13,7 +13,18 @@ export interface RemoteNoteResponse {
 
 // Create a local query client instance for caching API responses natively
 // inside the service layer, maintaining compatibility with existing consumers.
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: SYNC_CONFIG.MAX_RETRY_COUNT,
+      retryDelay: SYNC_CONFIG.BASE_BACKOFF_MS,
+    },
+    mutations: {
+      retry: SYNC_CONFIG.MAX_RETRY_COUNT,
+      retryDelay: SYNC_CONFIG.BASE_BACKOFF_MS,
+    },
+  },
+});
 
 export const noteQueryKeys = {
   all: ["notes"] as const,
@@ -55,16 +66,17 @@ export const noteApiService = {
     ciphertext: string;
     encryptedNoteKey: string;
   }) => {
-    const { id, ciphertext, encryptedNoteKey } = payload;
-    await apiClient.post(
-      WORKSPACE_API_ROUTES.NOTES,
-      {
-        id,
-        ciphertext,
-        encryptedNoteKey,
-      },
-      { auth: true }
-    );
+    // Utilize React Query's execution layer directly to activate mutation retries
+    await queryClient.getMutationCache().build(queryClient, {
+      mutationFn: async (vars: typeof payload) => {
+        const { id, ciphertext, encryptedNoteKey } = vars;
+        await apiClient.post(
+          WORKSPACE_API_ROUTES.NOTES,
+          { id, ciphertext, encryptedNoteKey },
+          { auth: true }
+        );
+      }
+    }).execute(payload);
     
     // Invalidate the cache after successful mutation
     await queryClient.invalidateQueries({ queryKey: noteQueryKeys.lists() });
@@ -75,31 +87,38 @@ export const noteApiService = {
     ciphertext: string;
     encryptedNoteKey: string;
   }) => {
-    const { id, ciphertext, encryptedNoteKey } = payload;
-    const response: { data: RemoteNoteResponse } = await apiClient.patch(
-      `${WORKSPACE_API_ROUTES.NOTES}/${id}`,
-      {
-        ciphertext,
-        encryptedNoteKey,
-      },
-      { auth: true }
-    );
+    const response = await queryClient.getMutationCache().build(queryClient, {
+      mutationFn: async (vars: typeof payload) => {
+        const { id, ciphertext, encryptedNoteKey } = vars;
+        const res: { data: RemoteNoteResponse } = await apiClient.patch(
+          `${WORKSPACE_API_ROUTES.NOTES}/${id}`,
+          { ciphertext, encryptedNoteKey },
+          { auth: true }
+        );
+        return res.data;
+      }
+    }).execute(payload);
     
     // Invalidate the relevant caches
     await queryClient.invalidateQueries({ queryKey: noteQueryKeys.lists() });
-    await queryClient.invalidateQueries({ queryKey: noteQueryKeys.detail(id) });
-    return response.data;
+    await queryClient.invalidateQueries({ queryKey: noteQueryKeys.detail(payload.id) });
+    return response as RemoteNoteResponse;
   },
 
   deleteNote: async (id: string) => {
-    const response: { data: unknown } = await apiClient.delete(
-      `${WORKSPACE_API_ROUTES.NOTES}/${id}`,
-      { auth: true },
-    );
+    const response = await queryClient.getMutationCache().build(queryClient, {
+      mutationFn: async (noteId: string) => {
+        const res: { data: unknown } = await apiClient.delete(
+          `${WORKSPACE_API_ROUTES.NOTES}/${noteId}`,
+          { auth: true },
+        );
+        return res.data;
+      }
+    }).execute(id);
     
     // Invalidate the relevant caches
     await queryClient.invalidateQueries({ queryKey: noteQueryKeys.lists() });
     await queryClient.invalidateQueries({ queryKey: noteQueryKeys.detail(id) });
-    return response.data;
+    return response;
   },
 };
