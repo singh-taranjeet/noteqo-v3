@@ -92,7 +92,7 @@ export const noteApiService = {
   },
 
   deleteNote: async (id: string) => {
-    const response: any = await apiClient.delete(
+    const response: { data: unknown } = await apiClient.delete(
       `${WORKSPACE_API_ROUTES.NOTES}/${id}`,
       { auth: true },
     );
