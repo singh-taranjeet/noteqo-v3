@@ -4,7 +4,7 @@ import type { Note } from "../types/workspace.types";
 import { logService } from "@/services/log.service";
 
 export const mergeLocalRemoteService = {
-  merge: async () => {
+  merge: async (remoteNotes?: Note[]) => {
     try {
       // Step 1. Fetch the list of notes in our db
       const localNotes = await noteService.getAllNotes();
@@ -12,10 +12,11 @@ export const mergeLocalRemoteService = {
 
       const notesToUpdate: Note[] = [];
 
-      const remoteNotes = await noteService.getAllNotes();
+      const remoteNotesFetched = await noteService.getAllNotes();
+      const effectiveRemoteNotes = remoteNotes || remoteNotesFetched;
 
       // Step 2. Compare the remote notes with the local notes. If local notes are the latest then skip it. If remote notes are the latest then update the local notes.
-      for (const remoteNote of remoteNotes) {
+      for (const remoteNote of effectiveRemoteNotes) {
         const localNote = localNotesMap.get(remoteNote.id);
 
         if (!localNote) {

@@ -34,7 +34,7 @@ export function useRemoteNotes() {
             new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
         );
 
-      // 4. Merge the remote notes with the local ones
+      // 4. Merge the remote notes with the local ones TODO
       await mergeLocalRemoteService.merge(safelyParsedNotes);
 
       setData(safelyParsedNotes);
