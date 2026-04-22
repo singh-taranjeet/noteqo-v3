@@ -6,7 +6,6 @@ import { LAYOUT_CONFIG } from "../layout.constants";
 import { SidebarUserProfile } from "./SidebarUserProfile";
 import { SidebarNavTabs } from "./SidebarNavTabs";
 import { SidebarSection } from "./SidebarSection";
-import { SidebarSpaceGroup } from "./SidebarSpaceGroup";
 import { SidebarPageItem } from "./SidebarPageItem";
 import { SidebarNewNoteButton } from "./SidebarNewNoteButton";
 import { useSpaces } from "@/features/spaces";
@@ -17,6 +16,9 @@ import {
 } from "@/features/workspace";
 import { MOCK_USER } from "@/features/auth/constants/auth.constants";
 import { SPACE_TYPE } from "@/features/spaces/constants/spaces.constants";
+import { Button } from "@/components/ui/button";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { Add01Icon } from "@hugeicons/core-free-icons";
 
 export function Sidebar() {
   const { isSidebarOpen, toggleSidebar } = useAppShell();
@@ -33,6 +35,12 @@ export function Sidebar() {
   // Filter spaces by type
   const personalSpaces = spaces.filter(
     (s) => s.type === SPACE_TYPE.PERSONAL,
+  );
+  
+  const defaultPersonalSpace = personalSpaces[0];
+
+  const personalNotes = personalSpaces.flatMap(
+    (space) => spaceNotesMap?.[space.id] ?? []
   );
 
   const handleCreateNote = (spaceId: string) => {
@@ -67,36 +75,48 @@ export function Sidebar() {
           />
           <SidebarNavTabs />
 
-          <SidebarSection label="Private">
+          <SidebarSection
+            label="Private"
+            action={
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6 mr-1"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (defaultPersonalSpace) {
+                    handleCreateNote(defaultPersonalSpace.id);
+                  }
+                }}
+                aria-label="Create private note"
+              >
+                <HugeiconsIcon
+                  icon={Add01Icon}
+                  size={14}
+                  strokeWidth={2}
+                  className="text-muted-foreground"
+                />
+              </Button>
+            }
+          >
             {isLoading && (
               <div className="px-4 py-2 text-xs text-muted-foreground animate-pulse">
-                Loading spaces...
+                Loading notes...
               </div>
             )}
-            {personalSpaces.map((space) => {
-              const notes = spaceNotesMap?.[space.id] ?? [];
-              return (
-                <SidebarSpaceGroup
-                  key={space.id}
-                  name={space.name}
-                  onCreateNote={() => handleCreateNote(space.id)}
-                >
-                  {notes.map((note) => (
-                    <SidebarPageItem
-                      key={note.id}
-                      id={note.id}
-                      emoji={note.emoji}
-                      title={note.title}
-                    />
-                  ))}
-                  {notes.length === 0 && !isLoading && (
-                    <div className="px-5 py-1.5 text-xs text-muted-foreground">
-                      No notes yet
-                    </div>
-                  )}
-                </SidebarSpaceGroup>
-              );
-            })}
+            {!isLoading && personalNotes.length === 0 && (
+              <div className="px-5 py-1.5 text-xs text-muted-foreground">
+                No notes yet
+              </div>
+            )}
+            {personalNotes.map((note) => (
+              <SidebarPageItem
+                key={note.id}
+                id={note.id}
+                emoji={note.emoji}
+                title={note.title}
+              />
+            ))}
           </SidebarSection>
         </div>
 
@@ -104,9 +124,8 @@ export function Sidebar() {
         <SidebarNewNoteButton
           onCreateNote={() => {
             // Create in the first personal space by default
-            const defaultSpace = personalSpaces[0];
-            if (defaultSpace) {
-              handleCreateNote(defaultSpace.id);
+            if (defaultPersonalSpace) {
+              handleCreateNote(defaultPersonalSpace.id);
             }
           }}
         />

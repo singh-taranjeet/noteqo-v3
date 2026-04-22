@@ -232,25 +232,35 @@ export const spaceService = {
     ciphertext: string,
     spaceKeyBytes: Uint8Array,
   ): Promise<string> {
-    const [iv64, cipher64] = ciphertext.split(":");
-    const iv = new Uint8Array(cryptoService.decodeBase64(iv64));
-    const cipherBuffer = cryptoService.decodeBase64(cipher64);
+    if (!ciphertext || !ciphertext.includes(":")) {
+      logService.warn("Invalid ciphertext format for space name, returning as plaintext");
+      return ciphertext;
+    }
 
-    const aesKey = await globalThis.crypto.subtle.importKey(
-      "raw",
-      spaceKeyBytes as BufferSource,
-      { name: CRYPTO_CONFIG.ALGORITHMS.AES },
-      false,
-      ["decrypt"],
-    );
+    try {
+      const [iv64, cipher64] = ciphertext.split(":");
+      const iv = new Uint8Array(cryptoService.decodeBase64(iv64));
+      const cipherBuffer = cryptoService.decodeBase64(cipher64);
 
-    const decryptedBuffer = await globalThis.crypto.subtle.decrypt(
-      { name: CRYPTO_CONFIG.ALGORITHMS.AES, iv },
-      aesKey,
-      cipherBuffer,
-    );
+      const aesKey = await globalThis.crypto.subtle.importKey(
+        "raw",
+        spaceKeyBytes as BufferSource,
+        { name: CRYPTO_CONFIG.ALGORITHMS.AES },
+        false,
+        ["decrypt"],
+      );
 
-    return new TextDecoder().decode(decryptedBuffer);
+      const decryptedBuffer = await globalThis.crypto.subtle.decrypt(
+        { name: CRYPTO_CONFIG.ALGORITHMS.AES, iv },
+        aesKey,
+        cipherBuffer,
+      );
+
+      return new TextDecoder().decode(decryptedBuffer);
+    } catch (err) {
+      logService.warn("Decryption failed for space name, treating as plaintext fallback.", err);
+      return ciphertext;
+    }
   },
 
   /**
@@ -284,32 +294,20 @@ export const spaceService = {
     return cryptoService.encodeBase64(encryptedBuffer);
   },
 
-  /**
-   * RSA-decrypts a base64 encrypted space key using the user's private key.
-   */
   async rsaDecryptSpaceKey(
     encryptedSpaceKeyBase64: string,
   ): Promise<Uint8Array> {
-    const base64MasterKey = await storageService.get<string>(
-      STORAGE_KEYS.MASTER_KEY,
-    );
-    const encryptedPrivateKey = await storageService.get<string>(
+    const privateKey = await storageService.get<string>(
       STORAGE_KEYS.PRIVATE_KEY,
     );
 
-    if (!base64MasterKey || !encryptedPrivateKey) {
+    if (!privateKey) {
       throw new Error("Missing keys — cannot decrypt space key");
     }
 
-    // Decrypt the user's private key with their master key
-    const privateKeyJwk = await cryptoService.decryptPrivateKey(
-      encryptedPrivateKey,
-      base64MasterKey,
-    );
-
     const rsaPrivateKey = await globalThis.crypto.subtle.importKey(
       "jwk",
-      JSON.parse(privateKeyJwk) as JsonWebKey,
+      JSON.parse(privateKey) as JsonWebKey,
       {
         name: CRYPTO_CONFIG.ALGORITHMS.RSA,
         hash: CRYPTO_CONFIG.ALGORITHMS.HASH,
