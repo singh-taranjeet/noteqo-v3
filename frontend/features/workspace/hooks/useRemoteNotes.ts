@@ -1,52 +1,75 @@
 import { useState, useCallback, useEffect } from "react";
-import { noteApiService } from "../services/note-api.service";
-import type { Note, RemoteNote } from "../types/workspace.types";
+import { spaceApiService } from "@/features/spaces/services/space-api.service";
+import { spaceService } from "@/features/spaces/services/space.service";
+import type { Note } from "../types/workspace.types";
+import type { Space } from "@/features/spaces/types/spaces.types";
 import { logService } from "@/services/log.service";
-import { noteService } from "../services/note.service";
+import { db } from "@/features/storage";
 import { mergeLocalRemoteService } from "../services/merge-local-remote.service";
 
-export function useRemoteNotes() {
-  const [data, setData] = useState<Note[] | undefined>(undefined);
+export interface SpaceNotesMap {
+  [spaceId: string]: Note[];
+}
+
+export function useRemoteNotes(spaces: Space[] | undefined) {
+  const [data, setData] = useState<SpaceNotesMap>({});
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
 
   const fetchNotes = useCallback(async () => {
+    if (!spaces || spaces.length === 0) return;
+
     setIsLoading(true);
     setError(null);
-    
+
     try {
-      // 1. Fetch remote notes via the explicit API service
-      const response = await noteApiService.getAllNotes();
-      const remoteNotes = Array.isArray(response.data) ? response.data : [];
+      const notesMap: SpaceNotesMap = {};
 
-      // 2. Decrypt securely in parallel using the dedicated service logic you created
-      const decryptedDocs = await Promise.all(
-        remoteNotes.map((remoteNote: RemoteNote) =>
-          noteService.decryptNote(remoteNote),
-        ),
-      );
+      for (const space of spaces) {
+        try {
+          const response = await spaceApiService.getNotes(space.id);
 
-      // 3. Purge decryption failures and enforce sequential time sorting
-      const safelyParsedNotes = decryptedDocs
-        .filter((d): d is Note => d !== null)
-        .sort(
-          (a, b) =>
-            new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
-        );
+          // Decrypt all notes with the cached space key
+          const decryptedNotes = await Promise.all(
+            response.notes.map((rn) =>
+              spaceService.decryptSpaceNote(rn, space.spaceKey),
+            ),
+          );
 
-      // 4. Merge the remote notes with the local ones TODO
-      await mergeLocalRemoteService.merge(safelyParsedNotes);
+          const validNotes = decryptedNotes
+            .filter((n): n is Note => n !== null)
+            .sort(
+              (a, b) =>
+                new Date(b.updatedAt).getTime() -
+                new Date(a.updatedAt).getTime(),
+            );
 
-      setData(safelyParsedNotes);
+          notesMap[space.id] = validNotes;
+
+          // Cache notes locally in Dexie
+          await db.notes.bulkPut(validNotes);
+        } catch (err) {
+          logService.error(
+            `Failed to fetch notes for space ${space.id}`,
+            err,
+          );
+          notesMap[space.id] = [];
+        }
+      }
+
+      // Merge with local notes
+      const allNotes = Object.values(notesMap).flat();
+      await mergeLocalRemoteService.merge(allNotes);
+
+      setData(notesMap);
     } catch (err) {
-      logService.error("Failed to execute native remote fetch wrapper", err);
+      logService.error("Failed to fetch remote notes", err);
       setError(err instanceof Error ? err : new Error(String(err)));
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [spaces]);
 
-  // Trigger automatically on mount aligning with behavior previously supplied by React Query
   useEffect(() => {
     void fetchNotes();
   }, [fetchNotes]);

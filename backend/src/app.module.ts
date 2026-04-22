@@ -35,7 +35,7 @@ import { SharedModule } from './shared/shared.module';
         const dbConfig = configService.get(CONFIG_KEYS.DATABASE);
         return {
           type: 'postgres',
-          host: dbConfig.host,
+          host: dbConfig.host || undefined,
           port: dbConfig.port,
           database: dbConfig.name,
           username: dbConfig.username,

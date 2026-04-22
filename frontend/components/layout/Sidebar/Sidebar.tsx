@@ -6,25 +6,37 @@ import { LAYOUT_CONFIG } from "../layout.constants";
 import { SidebarUserProfile } from "./SidebarUserProfile";
 import { SidebarNavTabs } from "./SidebarNavTabs";
 import { SidebarSection } from "./SidebarSection";
+import { SidebarSpaceGroup } from "./SidebarSpaceGroup";
 import { SidebarPageItem } from "./SidebarPageItem";
 import { SidebarNewNoteButton } from "./SidebarNewNoteButton";
+import { useSpaces } from "@/features/spaces";
 import {
   useRemoteNotes,
   useCreateNote,
   useSyncQueue,
 } from "@/features/workspace";
 import { MOCK_USER } from "@/features/auth/constants/auth.constants";
+import { SPACE_TYPE } from "@/features/spaces/constants/spaces.constants";
 
 export function Sidebar() {
   const { isSidebarOpen, toggleSidebar } = useAppShell();
-  const { data: notes = [], isLoading } = useRemoteNotes();
+  const { data: spaces = [], isLoading: spacesLoading } = useSpaces();
+  const { data: spaceNotesMap, isLoading: notesLoading } =
+    useRemoteNotes(spaces.length > 0 ? spaces : undefined);
   const { mutate: createNote } = useCreateNote();
 
   // Start background sync queue
   useSyncQueue();
 
-  const handleCreateNote = () => {
-    createNote(undefined);
+  const isLoading = spacesLoading || notesLoading;
+
+  // Filter spaces by type
+  const personalSpaces = spaces.filter(
+    (s) => s.type === SPACE_TYPE.PERSONAL,
+  );
+
+  const handleCreateNote = (spaceId: string) => {
+    createNote({ spaceId });
   };
 
   return (
@@ -58,22 +70,46 @@ export function Sidebar() {
           <SidebarSection label="Private">
             {isLoading && (
               <div className="px-4 py-2 text-xs text-muted-foreground animate-pulse">
-                Decrypting remote notes...
+                Loading spaces...
               </div>
             )}
-            {notes.map((note) => (
-              <SidebarPageItem
-                key={note.id}
-                id={note.id}
-                emoji={note.emoji}
-                title={note.title}
-              />
-            ))}
+            {personalSpaces.map((space) => {
+              const notes = spaceNotesMap?.[space.id] ?? [];
+              return (
+                <SidebarSpaceGroup
+                  key={space.id}
+                  name={space.name}
+                  onCreateNote={() => handleCreateNote(space.id)}
+                >
+                  {notes.map((note) => (
+                    <SidebarPageItem
+                      key={note.id}
+                      id={note.id}
+                      emoji={note.emoji}
+                      title={note.title}
+                    />
+                  ))}
+                  {notes.length === 0 && !isLoading && (
+                    <div className="px-5 py-1.5 text-xs text-muted-foreground">
+                      No notes yet
+                    </div>
+                  )}
+                </SidebarSpaceGroup>
+              );
+            })}
           </SidebarSection>
         </div>
 
         {/* Sticky bottom */}
-        <SidebarNewNoteButton onCreateNote={handleCreateNote} />
+        <SidebarNewNoteButton
+          onCreateNote={() => {
+            // Create in the first personal space by default
+            const defaultSpace = personalSpaces[0];
+            if (defaultSpace) {
+              handleCreateNote(defaultSpace.id);
+            }
+          }}
+        />
       </div>
     </aside>
   );

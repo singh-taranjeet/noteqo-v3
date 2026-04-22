@@ -1,15 +1,7 @@
 import { QueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/services/api";
 import { SYNC_CONFIG, WORKSPACE_API_ROUTES } from "../constants/workspace.constants";
-
-export interface RemoteNoteResponse {
-  id: string;
-  ciphertext: string;
-  encryptedNoteKey: string;
-  createdAt: string;
-  updatedAt: string;
-  keySlots?: { userId: string; encryptedNoteKey: string }[];
-}
+import type { RemoteNote } from "../types/workspace.types";
 
 // Create a local query client instance for caching API responses natively
 // inside the service layer, maintaining compatibility with existing consumers.
@@ -33,25 +25,11 @@ export const noteQueryKeys = {
 };
 
 export const noteApiService = {
-  getAllNotes: (): Promise<{ data: RemoteNoteResponse[] }> => {
-    return queryClient.fetchQuery({
-      queryKey: noteQueryKeys.lists(),
-      queryFn: async () => {
-        const response: { data: RemoteNoteResponse[] } = await apiClient.get(
-          WORKSPACE_API_ROUTES.NOTES,
-          { auth: true }
-        );
-        return response;
-      },
-      staleTime: SYNC_CONFIG.CACHE_STALE_TIME_MS,
-    });
-  },
-
-  getNote: async (id: string): Promise<RemoteNoteResponse> => {
+  getNote: async (id: string): Promise<RemoteNote> => {
     return queryClient.fetchQuery({
       queryKey: noteQueryKeys.detail(id),
       queryFn: async () => {
-        const response: { data: RemoteNoteResponse } = await apiClient.get(
+        const response: { data: RemoteNote } = await apiClient.get(
           `${WORKSPACE_API_ROUTES.NOTES}/${id}`,
           { auth: true }
         );
@@ -64,45 +42,40 @@ export const noteApiService = {
   createNote: async (payload: {
     id: string;
     ciphertext: string;
-    encryptedNoteKey: string;
+    spaceId: string;
+    type: string;
   }) => {
-    // Utilize React Query's execution layer directly to activate mutation retries
     await queryClient.getMutationCache().build(queryClient, {
       mutationFn: async (vars: typeof payload) => {
-        const { id, ciphertext, encryptedNoteKey } = vars;
         await apiClient.post(
           WORKSPACE_API_ROUTES.NOTES,
-          { id, ciphertext, encryptedNoteKey },
+          vars,
           { auth: true }
         );
       }
     }).execute(payload);
     
-    // Invalidate the cache after successful mutation
     await queryClient.invalidateQueries({ queryKey: noteQueryKeys.lists() });
   },
 
   updateNote: async (payload: {
     id: string;
     ciphertext: string;
-    encryptedNoteKey: string;
   }) => {
     const response = await queryClient.getMutationCache().build(queryClient, {
       mutationFn: async (vars: typeof payload) => {
-        const { id, ciphertext, encryptedNoteKey } = vars;
-        const res: { data: RemoteNoteResponse } = await apiClient.patch(
-          `${WORKSPACE_API_ROUTES.NOTES}/${id}`,
-          { ciphertext, encryptedNoteKey },
+        const res: { data: RemoteNote } = await apiClient.patch(
+          `${WORKSPACE_API_ROUTES.NOTES}/${vars.id}`,
+          { ciphertext: vars.ciphertext },
           { auth: true }
         );
         return res.data;
       }
     }).execute(payload);
     
-    // Invalidate the relevant caches
     await queryClient.invalidateQueries({ queryKey: noteQueryKeys.lists() });
     await queryClient.invalidateQueries({ queryKey: noteQueryKeys.detail(payload.id) });
-    return response as RemoteNoteResponse;
+    return response as RemoteNote;
   },
 
   deleteNote: async (id: string) => {
@@ -116,7 +89,6 @@ export const noteApiService = {
       }
     }).execute(id);
     
-    // Invalidate the relevant caches
     await queryClient.invalidateQueries({ queryKey: noteQueryKeys.lists() });
     await queryClient.invalidateQueries({ queryKey: noteQueryKeys.detail(id) });
     return response;

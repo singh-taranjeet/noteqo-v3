@@ -1,5 +1,4 @@
 import { db } from "@/features/storage";
-import { cryptoService } from "@/features/crypto";
 import type { Note, RemoteNote } from "../types/workspace.types";
 import {
   NOTE_DEFAULTS,
@@ -9,6 +8,8 @@ import {
 import { syncQueueService } from "./sync-queue.service";
 import { noteApiService } from "./note-api.service";
 import { logService } from "@/services/log.service";
+import { spaceService } from "@/features/spaces/services/space.service";
+import { cryptoService, CRYPTO_CONFIG } from "@/features/crypto";
 
 function getRandomItem<T>(pool: readonly T[]): T {
   return pool[Math.floor(Math.random() * pool.length)];
@@ -19,10 +20,13 @@ export const noteService = {
    * Creates a new note locally in Dexie and enqueues a CREATE sync event.
    * Returns the note immediately — no network call.
    */
-  async createNote(title?: string): Promise<Note> {
-    const docKeyBase64 = cryptoService.generateDocumentKey();
-
+  async createNote(spaceId: string, title?: string): Promise<Note> {
     const now = new Date().toISOString();
+
+    // Determine note type from the cached space
+    const space = await db.spaces.get(spaceId);
+    const noteType = space?.type === "shared" ? "shared" : "private";
+
     const note: Note = {
       id: crypto.randomUUID(),
       title: title ?? NOTE_DEFAULTS.TITLE,
@@ -30,9 +34,10 @@ export const noteService = {
       coverImage: getRandomItem(NOTE_COVER_POOL),
       content: null,
       syncStatus: "pending",
+      spaceId,
+      type: noteType,
       createdAt: now,
       updatedAt: now,
-      noteKey: docKeyBase64,
     };
 
     await db.notes.put(note);
@@ -49,17 +54,29 @@ export const noteService = {
   },
 
   /**
+   * Returns all notes for a given space from local Dexie DB.
+   */
+  async getNotesForSpace(spaceId: string): Promise<Note[]> {
+    return db.notes
+      .where("spaceId")
+      .equals(spaceId)
+      .reverse()
+      .sortBy("updatedAt");
+  },
+
+  /**
    * Returns a single note by ID from the local Dexie DB.
-   * If not found in db fetch from remote
    */
   async getLocalNote(id: string): Promise<Note | undefined> {
     return db.notes.get(id);
   },
+
+  /**
+   * Fetches a single note from remote, decrypts with space key, and caches locally.
+   */
   async getRemoteNote(id: string): Promise<Note | undefined> {
-    // Fetch from remote
     const remoteNote = await noteApiService.getNote(id);
     if (remoteNote) {
-      // we need to decrypt the note and update to localdb
       const decryptedNote = await noteService.decryptNote(remoteNote);
       if (decryptedNote) {
         logService.log("Decrypted Note", decryptedNote, remoteNote);
@@ -97,15 +114,11 @@ export const noteService = {
     await syncQueueService.enqueue("DELETE", id, { id });
   },
 
+  /**
+   * Decrypts a remote note using the space key.
+   */
   async decryptNote(note: RemoteNote): Promise<Note | null> {
     try {
-      const encryptedNoteKey = note.keySlots?.[0]?.encryptedNoteKey;
-
-      if (!encryptedNoteKey) {
-        logService.warn(`No keySlot found for note! Note ID: ${note.id}`);
-        return null;
-      }
-
       if (!note.ciphertext || !note.ciphertext.includes(":")) {
         logService.warn(
           `Invalid ciphertext format for note! Note ID: ${note.id}`,
@@ -113,33 +126,57 @@ export const noteService = {
         return null;
       }
 
-      const decryptedResult = await cryptoService.decryptDocument(
-        note.ciphertext,
-        encryptedNoteKey,
-      );
-
-      if (!decryptedResult) {
+      // Get the space key from the cache
+      const spaceKeyBase64 = await spaceService.getCachedSpaceKey(note.spaceId);
+      if (!spaceKeyBase64) {
+        logService.warn(`No cached space key for space ${note.spaceId}`);
         return null;
       }
 
-      const payload = decryptedResult.payload as {
+      const spaceKeyBuffer = cryptoService.decodeBase64(spaceKeyBase64);
+      const spaceKeyBytes = new Uint8Array(spaceKeyBuffer);
+
+      // Parse iv:ciphertext
+      const [iv64, cipher64] = note.ciphertext.split(":");
+      const iv = new Uint8Array(cryptoService.decodeBase64(iv64));
+      const cipherBuffer = cryptoService.decodeBase64(cipher64);
+
+      // Import AES key
+      const aesKey = await globalThis.crypto.subtle.importKey(
+        "raw",
+        spaceKeyBytes,
+        { name: CRYPTO_CONFIG.ALGORITHMS.AES },
+        false,
+        ["decrypt"],
+      );
+
+      // Decrypt
+      const decryptedBuffer = await globalThis.crypto.subtle.decrypt(
+        { name: CRYPTO_CONFIG.ALGORITHMS.AES, iv },
+        aesKey,
+        cipherBuffer,
+      );
+
+      const jsonStr = new TextDecoder().decode(decryptedBuffer);
+      const payload = JSON.parse(jsonStr) as {
         title?: string;
         emoji?: string;
         coverImage?: string;
-        content?: string;
+        content?: unknown;
       };
 
       return {
         id: note.id,
-        title: payload.title || "Untitled",
-        emoji: payload.emoji || "📄",
-        coverImage: payload.coverImage,
-        content: payload.content,
+        title: payload.title ?? "Untitled",
+        emoji: payload.emoji ?? "📄",
+        coverImage: payload.coverImage ?? "",
+        content: payload.content ?? null,
         syncStatus: "synced",
+        spaceId: note.spaceId,
+        type: note.type as "private" | "shared",
         createdAt: note.createdAt,
         updatedAt: note.updatedAt,
-        noteKey: decryptedResult.noteKeyBase64,
-      } as Note;
+      };
     } catch (e) {
       logService.error("Failed to decrypt note " + JSON.stringify(e));
       return null;

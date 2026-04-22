@@ -9,7 +9,8 @@ export function useCreateNote() {
   const router = useRouter();
 
   return useMutation({
-    mutationFn: (title?: string) => noteService.createNote(title),
+    mutationFn: ({ spaceId, title }: { spaceId: string; title?: string }) =>
+      noteService.createNote(spaceId, title),
     onSuccess: (note) => {
       void queryClient.invalidateQueries({ queryKey: NOTES_QUERY_KEY });
       router.push(ROUTES.NOTE(note.id));

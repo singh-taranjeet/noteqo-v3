@@ -1,5 +1,6 @@
 export type SyncStatus = "pending" | "synced" | "failed";
 export type SyncEventType = "CREATE" | "UPDATE" | "DELETE";
+export type NoteType = "private" | "shared";
 
 export interface Note {
   id: string;
@@ -8,9 +9,10 @@ export interface Note {
   coverImage: string;
   content: unknown;
   syncStatus: SyncStatus;
+  spaceId: string;
+  type: NoteType;
   createdAt: string;
   updatedAt: string;
-  noteKey?: string;
 }
 
 export interface SyncEvent {
@@ -25,7 +27,9 @@ export interface SyncEvent {
 export interface RemoteNote {
   id: string;
   ciphertext: string;
+  version: number;
+  spaceId: string;
+  type: string;
   createdAt: string;
   updatedAt: string;
-  keySlots?: { encryptedNoteKey: string }[];
 }

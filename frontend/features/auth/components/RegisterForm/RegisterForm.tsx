@@ -14,6 +14,8 @@ import { useRegister } from "@/features/auth/hooks/useRegister";
 import { AUTH_CONFIG } from "@/features/auth/constants/auth.constants";
 import { ROUTES } from "@/constants/routes";
 import { useRouter } from "next/navigation";
+import { KeysService } from "@/features/auth/services/keys.service";
+import { spaceService } from "@/features/spaces/services/space.service";
 
 import type { RegisterFormData } from "@/features/auth/hooks/useRegister";
 import type { FormFieldConfig, FormValues } from "@/components/ui/DynamicForm";
@@ -64,9 +66,20 @@ export function RegisterForm() {
           authCredential: values.authCredential as string,
         };
         const result = await register(formData);
-        // Registration successful, keys generated, we now have the master key.
+        
+        // 1. Store keys and access token locally
+        await KeysService.store({
+          accessToken: result.response.data.accessToken,
+          publicKey: result.response.data.user.publicKey,
+          privateKey: result.response.data.user.privateKey,
+          masterKey: result.masterKey,
+        });
+
+        // 2. Create default personal space
+        await spaceService.createSpace();
+
+        // 3. Show recovery code dialog
         setGeneratedMasterKey(result.masterKey);
-        // set master key in local storage
       } catch (err: unknown) {
         if (err instanceof Error) {
           setError(err.message || "Registration failed. Please try again.");
@@ -79,8 +92,8 @@ export function RegisterForm() {
   );
 
   const handleDialogClose = useCallback(() => {
-    // Acknowledged, we can seamlessly push to login or dashboard
-    router.push(ROUTES.LOGIN);
+    // Acknowledged, we can seamlessly push to dashboard
+    router.push(ROUTES.NOTES);
   }, [router]);
 
   return (
