@@ -25,9 +25,7 @@ export const spaceService = {
     const spaceKeyBytes = globalThis.crypto.getRandomValues(
       new Uint8Array(CRYPTO_CONFIG.MASTER_KEY_BYTES_LENGTH),
     );
-    const spaceKeyBase64 = cryptoService.encodeBase64(
-      spaceKeyBytes.buffer as ArrayBuffer,
-    );
+    const spaceKeyBase64 = cryptoService.encodeBase64(spaceKeyBytes.buffer);
 
     // 2. Encrypt the space name with the space key
     const encryptedName = await spaceService.encryptWithSpaceKey(
@@ -73,9 +71,7 @@ export const spaceService = {
       remoteSpaces.map((rs) => spaceService.decryptRemoteSpace(rs)),
     );
 
-    const validSpaces = decryptedSpaces.filter(
-      (s): s is Space => s !== null,
-    );
+    const validSpaces = decryptedSpaces.filter((s): s is Space => s !== null);
 
     // Cache all spaces locally
     await db.spaces.bulkPut(validSpaces);
@@ -146,7 +142,7 @@ export const spaceService = {
     spaceKeyBase64: string,
   ): Promise<Note | null> {
     try {
-      if (!remoteNote.ciphertext || !remoteNote.ciphertext.includes(":")) {
+      if (!remoteNote.ciphertext?.includes(":")) {
         logService.warn(`Invalid ciphertext for note ${remoteNote.id}`);
         return null;
       }
@@ -322,9 +318,7 @@ export const spaceService = {
       ["decrypt"],
     );
 
-    const encryptedBuffer = cryptoService.decodeBase64(
-      encryptedSpaceKeyBase64,
-    );
+    const encryptedBuffer = cryptoService.decodeBase64(encryptedSpaceKeyBase64);
     const decryptedBuffer = await globalThis.crypto.subtle.decrypt(
       { name: CRYPTO_CONFIG.ALGORITHMS.RSA },
       rsaPrivateKey,

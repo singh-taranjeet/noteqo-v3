@@ -66,7 +66,7 @@ export function RegisterForm() {
           authCredential: values.authCredential as string,
         };
         const result = await register(formData);
-        
+
         // 1. Store keys and access token locally
         await KeysService.store({
           accessToken: result.response.data.accessToken,
