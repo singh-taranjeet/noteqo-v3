@@ -30,6 +30,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { logService } from "@/services/log.service";
 
 const CREATE_SPACE_FIELDS: FormFieldConfig[] = [
   {
@@ -61,6 +62,9 @@ export function Sidebar() {
   );
   
   const defaultPersonalSpace = personalSpaces.find(pesonalSpace => pesonalSpace.isDefault);
+
+
+  logService.log("Default space", defaultPersonalSpace);
 
   const handleCreateNote = (spaceId: string) => {
     createNote({ spaceId });

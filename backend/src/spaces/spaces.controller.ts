@@ -192,6 +192,7 @@ export class SpacesController {
       id: space.id,
       encryptedName: space.encryptedName,
       type: space.type,
+      isDefault: space.isDefault,
       createdBy: space.createdBy,
       updatedBy: space.updatedBy,
       deletedBy: space.deletedBy,

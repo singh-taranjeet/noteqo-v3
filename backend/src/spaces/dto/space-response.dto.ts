@@ -14,6 +14,7 @@ export class SpaceResponseDto {
   id: string;
   encryptedName: string; // base64
   type: SpaceType;
+  isDefault: boolean;
   createdBy: string;
   updatedBy?: string;
   deletedBy?: string;
