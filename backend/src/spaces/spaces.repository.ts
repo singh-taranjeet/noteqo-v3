@@ -5,7 +5,7 @@ import { SpaceEntity } from './entities/space.entity';
 import { SpaceMemberEntity } from './entities/space-member.entity';
 import { SpaceKeySlotEntity } from './entities/space-key-slot.entity';
 import { Space, SpaceRole } from './types/spaces.types';
-import { SPACE_ROLE } from './constants/spaces.constants';
+import { SPACE_ROLE, SPACE_TYPE } from './constants/spaces.constants';
 import { getCurrentUserId } from '../shared/utils/cls.utils';
 
 @Injectable()
@@ -37,11 +37,28 @@ export class SpacesRepository {
     try {
       const currentUserId = getCurrentUserId();
 
+      // The space to be created is private and user does not have any private space, mark it as default true
+      let isDefault = false;
+      if (type === SPACE_TYPE.PERSONAL) {
+        const existingPrivateSpace = await queryRunner.manager
+          .createQueryBuilder(SpaceEntity, 'space')
+          .innerJoin('space.members', 'member', 'member.userId = :userId', { userId: currentUserId })
+          .where('space.type = :type', { type: SPACE_TYPE.PERSONAL })
+          .getOne();
+          
+        if (!existingPrivateSpace) {
+          isDefault = true;
+        }
+      }
+      
+
+
       // 1. Create the space
       const space = queryRunner.manager.create(SpaceEntity, {
         id,
         encryptedName,
         type,
+        isDefault,
       });
       const savedSpace = await queryRunner.manager.save(SpaceEntity, space);
 
@@ -223,8 +240,9 @@ export class SpacesRepository {
   private toDomain(entity: SpaceEntity): Space {
     return {
       id: entity.id,
-      encryptedName: entity.encryptedName.toString('base64'),
+      encryptedName: entity.encryptedName.toString('utf8'),
       type: entity.type as Space['type'],
+      isDefault: entity.isDefault,
       createdBy: entity.createdBy,
       updatedBy: entity.updatedBy,
       deletedBy: entity.deletedBy,

@@ -25,6 +25,7 @@ export const SPACE_COLUMN = {
   ID: 'id',
   ENCRYPTED_NAME: 'encrypted_name',
   TYPE: 'type',
+  IS_DEFAULT: 'is_default'
 } as const;
 
 export const SPACE_MEMBER_COLUMN = {

@@ -37,7 +37,7 @@ export class SpacesService {
 
     return this.spacesRepository.createWithOwner(
       dto.id,
-      Buffer.from(dto.encryptedName, 'base64'),
+      Buffer.from(dto.encryptedName, 'utf8'),
       dto.type,
       Buffer.from(dto.ownerKeySlot, 'base64'),
     );
@@ -72,7 +72,7 @@ export class SpacesService {
     this.logger.log(`Updating space ${id}`);
     return this.spacesRepository.updateName(
       id,
-      Buffer.from(dto.encryptedName, 'base64'),
+      Buffer.from(dto.encryptedName, 'utf8'),
     );
   }
 

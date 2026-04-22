@@ -14,6 +14,7 @@ export interface Space {
   id: string;
   encryptedName: string;
   type: SpaceType;
+  isDefault: boolean;
   createdBy: string;
   updatedBy?: string;
   deletedBy?: string;

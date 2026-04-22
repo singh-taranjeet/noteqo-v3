@@ -4,6 +4,7 @@ export interface Space {
   id: string;
   name: string; // decrypted client-side
   type: SpaceType;
+  isDefault: boolean;
   spaceKey: string; // base64 AES key — cached locally, never sent to server
   createdAt: string;
   updatedAt: string;

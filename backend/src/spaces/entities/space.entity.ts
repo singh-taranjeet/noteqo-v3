@@ -20,6 +20,14 @@ export class SpaceEntity extends AppBaseEntity {
   })
   type: string;
 
+  // isDefault
+  @Column({
+    name: SPACE_COLUMN.IS_DEFAULT,
+    type: 'boolean',
+    default: false,
+  })
+  isDefault: boolean;
+
   @OneToMany(() => SpaceMemberEntity, (member) => member.space, {
     cascade: true,
   })
