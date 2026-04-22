@@ -1,15 +1,6 @@
-import {
-  Entity,
-  Column,
-  ManyToOne,
-  JoinColumn,
-  Index,
-  OneToMany,
-} from 'typeorm';
+import { Entity, Column, Index, OneToMany } from 'typeorm';
 import { AppBaseEntity } from '../../shared/entities/base.entity';
-import { USER_TABLE } from '../../users/constants/users.constants';
-import { NOTE_TABLE, NOTE_COLUMN } from '../constants/notes.constants';
-import { KeySlotEntity } from './key-slot.entity';
+import { NOTE_TABLE, NOTE_COLUMN, NOTE_TYPE } from '../constants/notes.constants';
 import { NoteVersionEntity } from './note-version.entity';
 
 @Entity({ name: NOTE_TABLE.NAME })
@@ -20,8 +11,16 @@ export class NoteEntity extends AppBaseEntity {
   @Column({ name: NOTE_COLUMN.VERSION, type: 'int', default: 1 })
   version: number;
 
-  @OneToMany(() => KeySlotEntity, (keySlot) => keySlot.note, { cascade: true })
-  keySlots: KeySlotEntity[];
+  @Column({ name: NOTE_COLUMN.SPACE_ID, type: 'uuid' })
+  @Index()
+  spaceId: string;
+
+  @Column({
+    name: NOTE_COLUMN.TYPE,
+    type: 'varchar',
+    default: NOTE_TYPE.PRIVATE,
+  })
+  type: string;
 
   @OneToMany(() => NoteVersionEntity, (version) => version.note, {
     cascade: true,

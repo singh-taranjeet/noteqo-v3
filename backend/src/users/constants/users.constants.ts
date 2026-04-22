@@ -12,6 +12,7 @@ export const USER_COLUMN = {
 export const USER_ROUTES = {
   BASE: 'users',
   BY_ID: ':userId',
+  PUBLIC_KEY: 'public-key',
 } as const;
 
 export const USER_ERROR_MESSAGES = {
