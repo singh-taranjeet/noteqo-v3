@@ -9,6 +9,7 @@ import { SidebarNavTabs } from "./SidebarNavTabs";
 import { SidebarSection } from "./SidebarSection";
 import { SidebarPageItem } from "./SidebarPageItem";
 import { SidebarSpaceGroup } from "./SidebarSpaceGroup";
+import { SharedSpaceSettingsDialog } from "./SharedSpaceSettingsDialog";
 import { SidebarNewNoteButton } from "./SidebarNewNoteButton";
 import { useSpaces, useCreateSpace } from "@/features/spaces";
 import {
@@ -18,6 +19,7 @@ import {
 } from "@/features/workspace";
 import { MOCK_USER } from "@/features/auth/constants/auth.constants";
 import { SPACE_TYPE } from "@/features/spaces/constants/spaces.constants";
+import type { Space, SpaceType } from "@/features/spaces/types/spaces.types";
 import { Button } from "@/components/ui/button";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Add01Icon, PencilEdit01Icon } from "@hugeicons/core-free-icons";
@@ -38,7 +40,7 @@ const CREATE_SPACE_FIELDS: FormFieldConfig[] = [
     label: "Space Name",
     type: "text",
     required: true,
-    placeholder: "e.g. My Private Vault",
+    placeholder: "e.g. My Vault",
   },
 ];
 
@@ -49,7 +51,12 @@ export function Sidebar() {
     useRemoteNotes(spaces.length > 0 ? spaces : undefined);
   const { mutate: createNote } = useCreateNote();
   const { createSpace, isLoading: isCreatingSpace } = useCreateSpace();
-  const [isCreateSpaceOpen, setIsCreateSpaceOpen] = useState(false);
+  
+  // Track which type of space is being created to show the correct dialog
+  const [createSpaceType, setCreateSpaceType] = useState<SpaceType | null>(null);
+  
+  // Track which space we are managing settings for
+  const [settingsSpace, setSettingsSpace] = useState<Space | null>(null);
 
   // Start background sync queue
   useSyncQueue();
@@ -61,19 +68,22 @@ export function Sidebar() {
     (s) => s.type === SPACE_TYPE.PERSONAL,
   );
   
+  const sharedSpaces = spaces.filter(
+    (s) => s.type === SPACE_TYPE.SHARED,
+  );
+  
   const defaultPersonalSpace = personalSpaces.find(pesonalSpace => pesonalSpace.isDefault);
-
-
-  logService.log("Default space", defaultPersonalSpace);
+  const defaultSharedSpace = sharedSpaces.find(sharedSpace => sharedSpace.isDefault) || sharedSpaces[0];
 
   const handleCreateNote = (spaceId: string) => {
     createNote({ spaceId });
   };
 
   const handleCreateSpaceSubmit = async (values: FormValues) => {
+    if (!createSpaceType) return;
     const spaceName = values.name as string;
-    await createSpace(spaceName, SPACE_TYPE.PERSONAL);
-    setIsCreateSpaceOpen(false);
+    await createSpace(spaceName, createSpaceType);
+    setCreateSpaceType(null);
   };
 
   return (
@@ -104,6 +114,103 @@ export function Sidebar() {
           />
           <SidebarNavTabs />
 
+          {/* Shared Spaces Section */}
+          <SidebarSection
+            label="Shared"
+            action={
+              <TooltipProvider>
+                <div className="flex items-center">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (defaultSharedSpace) {
+                            handleCreateNote(defaultSharedSpace.id);
+                          }
+                        }}
+                        aria-label="Create shared note"
+                        disabled={!defaultSharedSpace}
+                      >
+                        <HugeiconsIcon
+                          icon={PencilEdit01Icon}
+                          size={14}
+                          strokeWidth={2}
+                          className="text-muted-foreground"
+                        />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Create shared note</TooltipContent>
+                  </Tooltip>
+                  
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 mr-1"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setCreateSpaceType(SPACE_TYPE.SHARED);
+                        }}
+                        aria-label="Create shared space"
+                      >
+                        <HugeiconsIcon
+                          icon={Add01Icon}
+                          size={14}
+                          strokeWidth={2}
+                          className="text-muted-foreground"
+                        />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Create shared space</TooltipContent>
+                  </Tooltip>
+                </div>
+              </TooltipProvider>
+            }
+          >
+            {isLoading && (
+              <div className="px-4 py-2 text-xs text-muted-foreground animate-pulse">
+                Loading spaces...
+              </div>
+            )}
+            {!isLoading && sharedSpaces.length === 0 && (
+              <div className="px-5 py-1.5 text-xs text-muted-foreground">
+                No shared spaces
+              </div>
+            )}
+            {!isLoading && sharedSpaces.map((space) => {
+              const notes = spaceNotesMap?.[space.id] ?? [];
+              return (
+                <SidebarSpaceGroup
+                  key={space.id}
+                  name={space.name}
+                  onCreateNote={() => handleCreateNote(space.id)}
+                  onSettingsClick={() => setSettingsSpace(space)}
+                >
+                  {notes.length === 0 ? (
+                    <div className="px-5 py-1 text-xs text-muted-foreground italic pl-9">
+                      No notes
+                    </div>
+                  ) : (
+                    notes.map((note) => (
+                      <SidebarPageItem
+                        key={note.id}
+                        id={note.id}
+                        emoji={note.emoji}
+                        title={note.title}
+                      />
+                    ))
+                  )}
+                </SidebarSpaceGroup>
+              );
+            })}
+          </SidebarSection>
+
+          {/* Private Spaces Section */}
           <SidebarSection
             label="Private"
             action={
@@ -142,7 +249,7 @@ export function Sidebar() {
                         className="h-6 w-6 mr-1"
                         onClick={(e) => {
                           e.stopPropagation();
-                          setIsCreateSpaceOpen(true);
+                          setCreateSpaceType(SPACE_TYPE.PERSONAL);
                         }}
                         aria-label="Create private space"
                       >
@@ -210,10 +317,16 @@ export function Sidebar() {
       </div>
 
       <DynamicDialog
-        title="Create Private Space"
-        description="A private space where only you can access your encrypted notes."
-        isOpen={isCreateSpaceOpen}
-        onOpenChange={setIsCreateSpaceOpen}
+        title={`Create ${createSpaceType === SPACE_TYPE.SHARED ? "Shared" : "Private"} Space`}
+        description={
+          createSpaceType === SPACE_TYPE.SHARED
+            ? "A shared space that you can securely collaborate with others on."
+            : "A private space where only you can access your encrypted notes."
+        }
+        isOpen={createSpaceType !== null}
+        onOpenChange={(isOpen) => {
+          if (!isOpen) setCreateSpaceType(null);
+        }}
       >
         <div className="py-2">
           <DynamicForm
@@ -225,6 +338,14 @@ export function Sidebar() {
           />
         </div>
       </DynamicDialog>
+
+      <SharedSpaceSettingsDialog
+        space={settingsSpace}
+        isOpen={settingsSpace !== null}
+        onOpenChange={(isOpen) => {
+          if (!isOpen) setSettingsSpace(null);
+        }}
+      />
     </aside>
   );
 }

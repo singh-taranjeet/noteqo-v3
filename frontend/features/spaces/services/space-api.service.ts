@@ -142,4 +142,32 @@ export const spaceApiService = {
     await queryClient.invalidateQueries({ queryKey: spaceQueryKeys.notes(spaceId) });
     return response;
   },
+
+  getMembers: async (spaceId: string): Promise<unknown[]> => {
+    const res = await apiClient.get<{ data: unknown[] }>(
+      SPACES_API_ROUTES.MEMBERS(spaceId),
+      { auth: true },
+    );
+    return res.data;
+  },
+
+  addMember: async (
+    spaceId: string,
+    payload: { email: string; encryptedSpaceKey: string; role: string },
+  ): Promise<unknown> => {
+    const res = await apiClient.post<{ data: unknown }>(
+      SPACES_API_ROUTES.MEMBERS(spaceId),
+      payload,
+      { auth: true },
+    );
+    return res.data;
+  },
+
+  removeMember: async (spaceId: string, userId: string): Promise<unknown> => {
+    const res = await apiClient.delete<{ data: unknown }>(
+      SPACES_API_ROUTES.MEMBER(spaceId, userId),
+      { auth: true },
+    );
+    return res.data;
+  },
 };

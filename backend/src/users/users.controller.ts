@@ -32,6 +32,14 @@ export class UsersController {
     return this.mapToResponse(user);
   }
 
+  @Get(USER_ROUTES.PUBLIC_KEY)
+  async getPublicKey(
+    @Query('email') email: string,
+  ): Promise<{ publicKey: string }> {
+    const user = await this.usersService.findByEmail(email);
+    return { publicKey: user.publicKey ?? '' };
+  }
+
   @Get(USER_ROUTES.BY_ID)
   async findOne(
     @Param('userId', ParseUUIDPipe) id: string,
@@ -55,13 +63,7 @@ export class UsersController {
     await this.usersService.remove(id);
   }
 
-  @Get(USER_ROUTES.PUBLIC_KEY)
-  async getPublicKey(
-    @Query('email') email: string,
-  ): Promise<{ publicKey: string }> {
-    const user = await this.usersService.findByEmail(email);
-    return { publicKey: user.publicKey ?? '' };
-  }
+
 
   private mapToResponse(user: User): UserResponseDto {
     return {

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import type { ReactNode } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { ArrowRight01Icon, Add01Icon } from "@hugeicons/core-free-icons";
+import { ArrowRight01Icon, Add01Icon, MoreHorizontalIcon } from "@hugeicons/core-free-icons";
 import { cn } from "@/lib/utils";
 import {
   Collapsible,
@@ -17,6 +17,7 @@ interface SidebarSpaceGroupProps {
   children: ReactNode;
   defaultOpen?: boolean;
   onCreateNote?: () => void;
+  onSettingsClick?: () => void;
 }
 
 export function SidebarSpaceGroup({
@@ -24,6 +25,7 @@ export function SidebarSpaceGroup({
   children,
   defaultOpen = true,
   onCreateNote,
+  onSettingsClick,
 }: SidebarSpaceGroupProps) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
@@ -50,6 +52,23 @@ export function SidebarSpaceGroup({
           </Button>
         </CollapsibleTrigger>
 
+        {onSettingsClick && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6 mr-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+            onClick={onSettingsClick}
+            aria-label={`Settings for ${name}`}
+          >
+            <HugeiconsIcon
+              icon={MoreHorizontalIcon}
+              size={14}
+              strokeWidth={2}
+              className="text-muted-foreground"
+            />
+          </Button>
+        )}
+        
         {onCreateNote && (
           <Button
             variant="ghost"
