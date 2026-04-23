@@ -12,6 +12,7 @@ import {
   SPACE_ROLE,
 } from '../constants/spaces.constants';
 import { SpaceEntity } from './space.entity';
+import { UserEntity } from '../../users/entities/user.entity';
 
 @Entity({ name: SPACE_MEMBER_TABLE.NAME })
 export class SpaceMemberEntity extends AppBaseEntity {
@@ -33,4 +34,10 @@ export class SpaceMemberEntity extends AppBaseEntity {
   })
   @JoinColumn({ name: SPACE_MEMBER_COLUMN.SPACE_ID })
   space: SpaceEntity;
+
+  @ManyToOne(() => UserEntity, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: SPACE_MEMBER_COLUMN.USER_ID })
+  user: UserEntity;
 }

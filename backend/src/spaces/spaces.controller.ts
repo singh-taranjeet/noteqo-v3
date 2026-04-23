@@ -103,6 +103,8 @@ export class SpacesController {
     return members.map((m) => ({
       userId: m.userId,
       role: m.role as SpaceMemberResponseDto['role'],
+      name: m.user?.name,
+      email: m.user?.email,
     }));
   }
 

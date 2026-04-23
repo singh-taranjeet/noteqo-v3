@@ -25,6 +25,8 @@ export interface RemoteSpace {
 export interface RemoteSpaceMember {
   userId: string;
   role: string;
+  name?: string;
+  email?: string;
 }
 
 export interface RemoteSpaceKeySlot {

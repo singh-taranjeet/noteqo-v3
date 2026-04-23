@@ -92,7 +92,7 @@ export function SharedSpaceSettingsDialog({
               {members.map((member) => (
                 <div key={member.userId} className="flex items-center justify-between p-2 rounded-md bg-secondary/50 border border-border">
                   <div className="flex flex-col">
-                    <span className="text-sm font-medium">{member.userId}</span>
+                    <span className="text-sm font-medium">{member.name || member.email || member.userId}</span>
                     <span className="text-xs text-muted-foreground capitalize">{member.role}</span>
                   </div>
                   <Button

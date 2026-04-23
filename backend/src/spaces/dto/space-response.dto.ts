@@ -8,6 +8,8 @@ export class SpaceKeySlotResponseDto {
 export class SpaceMemberResponseDto {
   userId: string;
   role: SpaceRole;
+  name?: string;
+  email?: string;
 }
 
 export class SpaceResponseDto {

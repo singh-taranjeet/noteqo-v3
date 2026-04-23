@@ -192,7 +192,7 @@ export class SpacesRepository {
    * Returns all members for a given space.
    */
   async findMembers(spaceId: string): Promise<SpaceMemberEntity[]> {
-    return this.memberOrm.find({ where: { spaceId } });
+    return this.memberOrm.find({ where: { spaceId }, relations: ['user'] });
   }
 
   /**
