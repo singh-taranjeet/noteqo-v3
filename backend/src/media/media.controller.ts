@@ -5,51 +5,38 @@ import {
   Param,
   Body,
   UseGuards,
-  UseInterceptors,
-  UploadedFile,
   ParseUUIDPipe,
   HttpCode,
   HttpStatus,
+  Req,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { MediaService } from './media.service';
-import { UploadMediaDto } from './dto/upload-media.dto';
 import { MediaResponseDto } from './dto/media-response.dto';
-import { MEDIA_ROUTES, MEDIA_CONFIG } from './constants/media.constants';
+import { MEDIA_ROUTES } from './constants/media.constants';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller(MEDIA_ROUTES.BASE)
-@UseGuards(JwtAuthGuard)
 export class MediaController {
   constructor(private readonly mediaService: MediaService) {}
 
   /**
-   * Upload an encrypted media blob.
-   * The client encrypts the file before sending — the server stores opaque bytes.
-   *
-   * Multipart form:
-   *  - file: the encrypted blob
-   *  - id, noteId, spaceId, mimeType, sizeBytes: metadata fields
+   * Handle Vercel Blob client upload requests and webhook callbacks.
    */
-  @Post()
-  @HttpCode(HttpStatus.CREATED)
-  @UseInterceptors(
-    FileInterceptor(MEDIA_CONFIG.UPLOAD_FIELD_NAME, {
-      limits: { fileSize: MEDIA_CONFIG.MAX_FILE_SIZE_BYTES },
-    }),
-  )
-  async upload(
-    @UploadedFile() file: Express.Multer.File,
-    @Body() dto: UploadMediaDto,
-  ): Promise<MediaResponseDto> {
-    const media = await this.mediaService.upload(dto, file.buffer);
-    return this.mapToResponse(media);
+  @Post('upload')
+  @HttpCode(HttpStatus.OK)
+  async handleUpload(
+    @Req() request: any,
+    @Body() body: any,
+  ): Promise<any> {
+    const result = await this.mediaService.handleVercelBlobUpload(request, body);
+    return { success: true, ...result };
   }
 
   /**
    * Delete a media blob (Vercel Blob + Postgres).
    */
   @Delete(MEDIA_ROUTES.BY_ID)
+  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(
     @Param('mediaId', ParseUUIDPipe) mediaId: string,

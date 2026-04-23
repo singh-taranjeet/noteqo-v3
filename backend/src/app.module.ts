@@ -28,6 +28,7 @@ import { SyncModule } from './sync/sync.module';
     }),
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: ['.env.local', '.env'],
       validationSchema: configValidationSchema,
       load: [databaseConfig, appConfig, jwtConfig, vercelBlobConfig],
     }),

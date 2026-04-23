@@ -7,6 +7,7 @@ import { LAYOUT_CONFIG } from "../layout.constants";
 import { SidebarUserProfile } from "./SidebarUserProfile";
 import { SidebarNavTabs } from "./SidebarNavTabs";
 import { SidebarSpaceCategory } from "./SidebarSpaceCategory";
+import { RecentSection } from "./RecentSection";
 import { SharedSpaceSettingsDialog } from "./SharedSpaceSettingsDialog";
 import { SidebarNewNoteButton } from "./SidebarNewNoteButton";
 import { useSpaces, useCreateSpace } from "@/features/spaces";
@@ -29,10 +30,13 @@ const CREATE_SPACE_FIELDS: FormFieldConfig[] = [
   },
 ];
 
+import { useIsMobile } from "@/hooks/useIsMobile";
+
 export function Sidebar() {
   const { isSidebarOpen, toggleSidebar } = useAppShell();
   const { data, isLoading: spacesLoading, spaceNotesMap } = useSpaces();
   const { spaces = [] } = data || {};
+  const isMobile = useIsMobile();
 
   // Start background sync queue
   useSyncQueue();
@@ -79,11 +83,14 @@ export function Sidebar() {
       className={cn(
         "flex flex-col h-full bg-sidebar border-r border-sidebar-border shrink-0 overflow-hidden",
         "transition-all ease-in-out",
+        !isSidebarOpen && isMobile && "border-r-0",
       )}
       style={{
         width: isSidebarOpen
           ? `${LAYOUT_CONFIG.SIDEBAR_WIDTH}px`
-          : `${LAYOUT_CONFIG.SIDEBAR_COLLAPSED_WIDTH}px`,
+          : isMobile
+            ? "0px"
+            : `${LAYOUT_CONFIG.SIDEBAR_COLLAPSED_WIDTH}px`,
         transitionDuration: `${LAYOUT_CONFIG.TRANSITION_DURATION}ms`,
       }}
       aria-label="Sidebar navigation"
@@ -102,9 +109,13 @@ export function Sidebar() {
           />
           <SidebarNavTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
+          {/* Recent Section */}
+          <RecentSection />
+
           {/* Shared Spaces Section */}
           <SidebarSpaceCategory
             label="Shared"
+            type={SPACE_TYPE.SHARED}
             spaces={sharedSpaces}
             isLoading={isLoading}
             emptyMessage="No shared spaces"
@@ -118,6 +129,7 @@ export function Sidebar() {
           {/* Private Spaces Section */}
           <SidebarSpaceCategory
             label="Private"
+            type={SPACE_TYPE.PERSONAL}
             spaces={personalSpaces}
             isLoading={isLoading}
             emptyMessage="No spaces yet"
