@@ -35,7 +35,7 @@ export function SidebarSpaceCategory({
   addSpaceTooltip,
   onCreateNote,
   onSettingsClick,
-}: SidebarSpaceCategoryProps) {
+}: Readonly<SidebarSpaceCategoryProps>) {
   return (
     <SidebarSection
       label={label}

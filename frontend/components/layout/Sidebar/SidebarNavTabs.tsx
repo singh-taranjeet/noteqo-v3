@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import { Home01Icon, Search01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Button } from "@/components/ui/button";
@@ -7,6 +10,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import type { ActiveTabType } from "../types";
+import { SearchSheet } from "./Search";
 
 interface SidebarNavTabsProps {
   activeTab?: ActiveTabType;
@@ -17,6 +21,8 @@ export function SidebarNavTabs({
   activeTab = "home",
   setActiveTab,
 }: Readonly<SidebarNavTabsProps>) {
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+
   return (
     <div className="">
       <div className="flex px-2 gap-5">
@@ -43,7 +49,7 @@ export function SidebarNavTabs({
               size="sm"
               className="flex gap-5"
               aria-label={"search"}
-              onClick={() => setActiveTab("search")}
+              onClick={() => setIsSearchOpen(true)}
             >
               <HugeiconsIcon icon={Search01Icon} size={18} strokeWidth={1.5} />
               {activeTab === "search" ? <p>{"search"}</p> : undefined}
@@ -52,6 +58,7 @@ export function SidebarNavTabs({
           <TooltipContent side="bottom">{"search"}</TooltipContent>
         </Tooltip>
       </div>
+      <SearchSheet open={isSearchOpen} onOpenChange={setIsSearchOpen} />
     </div>
   );
 }
