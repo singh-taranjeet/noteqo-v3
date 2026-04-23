@@ -1,22 +1,17 @@
-import { db, storageService, STORAGE_KEYS } from "@/features/storage";
+import { db } from "@/features/storage";
 import { cryptoService, CRYPTO_CONFIG } from "@/features/crypto";
-import { apiClient } from "@/services/api";
-import type {
-  SyncEvent,
-  SyncEventType,
-  Note,
-} from "../types/workspace.types";
-import {
-  SYNC_CONFIG,
-  WORKSPACE_API_ROUTES,
-} from "../constants/workspace.constants";
+import type { SyncEvent, SyncEventType, Note } from "../types/workspace.types";
+import { SYNC_CONFIG } from "../constants/workspace.constants";
+import { mergeLocalRemoteService } from "./merge-local-remote.service";
+import { noteApiService } from "./note-api.service";
+import { spaceService } from "@/features/spaces/services/space.service";
 
 /**
  * Background sync queue that processes note events (CREATE, UPDATE, DELETE).
  *
  * - Coalesces events: if a pending event for the same entity exists, it merges
  *   instead of creating duplicates.
- * - Encrypts note content via cryptoService before sending to the API.
+ * - Encrypts note content via the space key before sending to the API.
  * - Deletes events from queue after successful sync.
  * - Retries with exponential backoff up to MAX_RETRY_COUNT.
  */
@@ -118,6 +113,7 @@ class SyncQueueService {
    */
   private async processQueue(): Promise<void> {
     if (this.isProcessing) return;
+    // Check if the application is online
     if (typeof navigator !== "undefined" && !navigator.onLine) return;
 
     this.isProcessing = true;
@@ -140,7 +136,12 @@ class SyncQueueService {
             await db.syncQueue.delete(event.id);
             await db.notes.update(event.entityId, { syncStatus: "failed" });
           } else {
-            await db.syncQueue.update(event.id, { retryCount: newRetryCount });
+            // wait 3 seconds before trying again
+            setTimeout(async () => {
+              await db.syncQueue.update(event.id, {
+                retryCount: newRetryCount,
+              });
+            }, SYNC_CONFIG.BASE_BACKOFF_MS);
           }
 
           // Stop processing remaining events on failure (preserve ordering)
@@ -149,6 +150,7 @@ class SyncQueueService {
       }
     } finally {
       this.isProcessing = false;
+      mergeLocalRemoteService.merge();
     }
   }
 
@@ -158,79 +160,68 @@ class SyncQueueService {
   private async processEvent(event: SyncEvent): Promise<void> {
     switch (event.type) {
       case "CREATE": {
-        const { ciphertext, encryptedNoteKey } = await this.encryptPayload(
-          event.payload,
-        );
-        await apiClient.post(
-          WORKSPACE_API_ROUTES.NOTES,
-          {
-            id: event.entityId,
-            ciphertext,
-            encryptedNoteKey,
-          },
-          { auth: true },
-        );
+        const note = event.payload as Note;
+        const ciphertext = await this.encryptPayload(note);
+
+        await noteApiService.createNote({
+          id: event.entityId,
+          ciphertext,
+          spaceId: note.spaceId,
+          type: note.type,
+        });
         break;
       }
 
       case "UPDATE": {
-        const { ciphertext, encryptedNoteKey } = await this.encryptPayload(
-          event.payload,
-        );
-        await apiClient.patch(
-          `${WORKSPACE_API_ROUTES.NOTES}/${event.entityId}`,
-          {
-            ciphertext,
-            encryptedNoteKey,
-          },
-          { auth: true },
-        );
+        const note = event.payload as Note;
+        const ciphertext = await this.encryptPayload(note);
+        await noteApiService.updateNote({
+          id: event.entityId,
+          ciphertext,
+        });
         break;
       }
 
       case "DELETE": {
-        await apiClient.delete(
-          `${WORKSPACE_API_ROUTES.NOTES}/${event.entityId}`,
-          { auth: true },
-        );
+        await noteApiService.deleteNote(event.entityId);
         break;
       }
     }
   }
 
   /**
-   * Encrypt a note payload for the API.
+   * Encrypt a note payload using the space key.
    *
-   * 1. Serialize the payload (title, emoji, coverImage, content) to JSON
-   * 2. Generate a random AES note key
-   * 3. Encrypt the JSON with the doc key → ciphertext
-   * 4. Encrypt the doc key with the user's public RSA key → encryptedNoteKey
+   * 1. Look up the space key from Dexie by spaceId
+   * 2. Serialize the payload (title, emoji, coverImage, content) to JSON
+   * 3. Encrypt with AES-GCM using the space key → "iv:ciphertext"
    */
-  private async encryptPayload(
-    payload: unknown,
-  ): Promise<{ ciphertext: string; encryptedNoteKey: string }> {
-    const note = payload as Note;
-
-    // Extract base64 noteKey and remove it from the object before serializing
-    const { noteKey: noteKeyBase64, ...payloadToEncrypt } = note;
-
-    const dataString = JSON.stringify(payloadToEncrypt);
-
-    let noteKey: Uint8Array;
-    if (typeof noteKeyBase64 === "string") {
-      const buffer = cryptoService.decodeBase64(noteKeyBase64);
-      noteKey = new Uint8Array(buffer);
-    } else {
-      // Generate a random note key (AES-256)
-      noteKey = globalThis.crypto.getRandomValues(
-        new Uint8Array(CRYPTO_CONFIG.MASTER_KEY_BYTES_LENGTH),
+  private async encryptPayload(note: Note): Promise<string> {
+    // Get the space key from Dexie cache
+    const spaceKeyBase64 = await spaceService.getCachedSpaceKey(note.spaceId);
+    if (!spaceKeyBase64) {
+      throw new Error(
+        `Space key not found for space ${note.spaceId} — cannot encrypt`,
       );
     }
+
+    const spaceKeyBuffer = cryptoService.decodeBase64(spaceKeyBase64);
+    const spaceKeyBytes = new Uint8Array(spaceKeyBuffer);
+
+    // Build the payload to encrypt (exclude internal fields)
+    const payloadToEncrypt = {
+      title: note.title,
+      emoji: note.emoji,
+      coverImage: note.coverImage,
+      content: note.content,
+    };
+
+    const dataString = JSON.stringify(payloadToEncrypt);
 
     // Import as AES-GCM key
     const aesKey = await globalThis.crypto.subtle.importKey(
       "raw",
-      noteKey as BufferSource,
+      spaceKeyBytes as BufferSource,
       { name: CRYPTO_CONFIG.ALGORITHMS.AES },
       false,
       ["encrypt"],
@@ -247,38 +238,7 @@ class SyncQueueService {
       encoder.encode(dataString),
     );
 
-    const ciphertext = `${cryptoService.encodeBase64(iv.buffer)}:${cryptoService.encodeBase64(encrypted)}`;
-
-    // Get user's public key from storage and encrypt the doc key with RSA
-    const publicKeyJwk = await storageService.get<string>(
-      STORAGE_KEYS.PUBLIC_KEY,
-    );
-    if (!publicKeyJwk) {
-      throw new Error(
-        "Public key not found in storage — cannot encrypt note key",
-      );
-    }
-
-    const rsaPublicKey = await globalThis.crypto.subtle.importKey(
-      "jwk",
-      JSON.parse(publicKeyJwk) as JsonWebKey,
-      {
-        name: CRYPTO_CONFIG.ALGORITHMS.RSA,
-        hash: CRYPTO_CONFIG.ALGORITHMS.HASH,
-      },
-      false,
-      ["encrypt"],
-    );
-
-    const encryptedDocKeyBuffer = await globalThis.crypto.subtle.encrypt(
-      { name: CRYPTO_CONFIG.ALGORITHMS.RSA },
-      rsaPublicKey,
-      noteKey as BufferSource,
-    );
-
-    const encryptedNoteKey = cryptoService.encodeBase64(encryptedDocKeyBuffer);
-
-    return { ciphertext, encryptedNoteKey };
+    return `${cryptoService.encodeBase64(iv.buffer)}:${cryptoService.encodeBase64(encrypted)}`;
   }
 }
 

@@ -1,4 +1,6 @@
-import { IsString, IsNotEmpty, IsUUID } from 'class-validator';
+import { IsString, IsNotEmpty, IsUUID, IsIn } from 'class-validator';
+import { NOTE_TYPE } from '../constants/notes.constants';
+import type { NoteType } from '../types/notes.types';
 
 export class CreateNoteDto {
   @IsUUID()
@@ -7,9 +9,13 @@ export class CreateNoteDto {
 
   @IsString()
   @IsNotEmpty()
-  ciphertext: string; // base64
+  ciphertext: string; // base64 — AES-GCM(spaceKey, notePayload)
 
-  @IsString()
+  @IsUUID()
   @IsNotEmpty()
-  encryptedNoteKey: string; // base64
+  spaceId: string;
+
+  @IsIn(Object.values(NOTE_TYPE))
+  @IsNotEmpty()
+  type: NoteType; // 'private' | 'shared'
 }

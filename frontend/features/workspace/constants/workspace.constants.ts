@@ -50,7 +50,8 @@ export const NOTE_COVER_POOL = [
 export const SYNC_CONFIG = {
   INTERVAL_MS: 5000,
   MAX_RETRY_COUNT: 5,
-  BASE_BACKOFF_MS: 1000,
+  BASE_BACKOFF_MS: 3000,
+  CACHE_STALE_TIME_MS: 10 * 1000,
 } as const;
 
 export const WORKSPACE_API_ROUTES = {

@@ -12,6 +12,7 @@ import {
 } from './config';
 import { UsersModule } from './users';
 import { NotesModule } from './notes';
+import { SpacesModule } from './spaces';
 import { AuthModule } from './auth/auth.module';
 import { ClsModule } from 'nestjs-cls';
 import { SharedModule } from './shared/shared.module';
@@ -34,7 +35,7 @@ import { SharedModule } from './shared/shared.module';
         const dbConfig = configService.get(CONFIG_KEYS.DATABASE);
         return {
           type: 'postgres',
-          host: dbConfig.host,
+          host: dbConfig.host || undefined,
           port: dbConfig.port,
           database: dbConfig.name,
           username: dbConfig.username,
@@ -47,6 +48,7 @@ import { SharedModule } from './shared/shared.module';
     }),
     UsersModule,
     NotesModule,
+    SpacesModule,
     AuthModule,
     SharedModule,
   ],

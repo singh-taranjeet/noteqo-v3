@@ -2,9 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { NoteEntity } from './entities/note.entity';
-import { KeySlotEntity } from './entities/key-slot.entity';
 import { NoteVersionEntity } from './entities/note-version.entity';
-import { Note } from './types/notes.types';
+import { Note, NoteType } from './types/notes.types';
 import { getCurrentUserId } from '../shared/utils/cls.utils';
 
 @Injectable()
@@ -18,55 +17,42 @@ export class NotesRepository {
   ) {}
 
   /**
-   * Retrieves a Note accurately from the master table, natively querying
-   * and merging all associated contextual KeySlots securely providing
-   * authorization capabilities locally.
+   * Retrieves a Note by ID.
    */
   async findById(id: string): Promise<Note | null> {
-    const entity = await this.noteOrm.findOne({
-      where: { id },
-      relations: ['keySlots'],
-    });
+    const entity = await this.noteOrm.findOne({ where: { id } });
     return entity ? this.toDomain(entity) : null;
   }
 
   /**
-   * Retrieves all Notes organically assigned mapping structural elements
-   * via KeySlot associations for the currently specified user.
+   * Retrieves all Notes belonging to a specific space.
    */
-  async findAllForUser(userId: string): Promise<Note[]> {
-    const entities = await this.noteOrm
-      .createQueryBuilder('note')
-      .innerJoinAndSelect(
-        'note.keySlots',
-        'keySlot',
-        'keySlot.userId = :userId',
-        { userId },
-      )
-      .orderBy('note.updatedAt', 'DESC')
-      .getMany();
+  async findAllForSpace(spaceId: string): Promise<Note[]> {
+    const entities = await this.noteOrm.find({
+      where: { spaceId },
+      order: { updatedAt: 'DESC' },
+    });
 
     return entities.map((e) => this.toDomain(e));
   }
 
   /**
-   * Executes a robust database transaction bridging creation natively across three distinct tables:
-   * 1. Constructs the master Note object locally ensuring ID alignment universally.
-   * 2. Binds the explicit starting permission structurally locally via KeySlot tables mapping document keys.
-   * 3. Triggers the baseline version history Snapshot organically natively defining Version 1 safely.
+   * Creates a note with an initial version snapshot atomically.
    */
-  async createWithKeySlot(
+  async create(
     id: string,
     ciphertext: Buffer,
-    encryptedNoteKey: Buffer,
+    spaceId: string,
+    type: NoteType,
   ): Promise<Note> {
     const note = this.noteOrm.create({
       id,
       ciphertext,
       version: 1,
+      spaceId,
+      type,
     });
 
-    // We start a transaction to ensure both Note, KeySlot, and initial Version are saved atomically.
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -75,17 +61,7 @@ export class NotesRepository {
       // 1. Save note
       const savedNote = await queryRunner.manager.save(NoteEntity, note);
 
-      // 2. Save owner's key slot
-      const currentUserId = getCurrentUserId();
-
-      const keySlot = queryRunner.manager.create(KeySlotEntity, {
-        noteId: savedNote.id,
-        userId: currentUserId,
-        encryptedNoteKey,
-      });
-      await queryRunner.manager.save(KeySlotEntity, keySlot);
-
-      // 3. Save initial version history
+      // 2. Save initial version history
       const noteVersion = queryRunner.manager.create(NoteVersionEntity, {
         noteId: savedNote.id,
         ciphertext,
@@ -106,9 +82,8 @@ export class NotesRepository {
   }
 
   /**
-   * Employs Option B (Last-Write-Wins + Version History) offline synchronization cleanly natively:
-   * Wraps an unconditional update across the master NoteEntity inherently advancing its iteration logically,
-   * while sequentially spawning a permanent append-only `NoteVersionEntity` log capturing historical differences perfectly!
+   * Last-Write-Wins + Version History: updates ciphertext, bumps version,
+   * and appends a version snapshot for history.
    */
   async saveNewVersion(
     id: string,
@@ -124,14 +99,14 @@ export class NotesRepository {
     try {
       const currentUserId = getCurrentUserId();
 
-      // 1. Update the parent note unconditionally (Option B - last write wins)
+      // 1. Update the note (last-write-wins)
       await queryRunner.manager.update(NoteEntity, id, {
         ciphertext: newCiphertext,
         version: nextVersion,
-        updatedBy: currentUserId, // TypeORM .update() mathematically bypasses @BeforeUpdate hooks, so we map it out here!
+        updatedBy: currentUserId,
       });
 
-      // 2. Record the historical snapshot
+      // 2. Record version snapshot
       const snapshot = queryRunner.manager.create(NoteVersionEntity, {
         noteId: id,
         ciphertext: newCiphertext,
@@ -151,32 +126,27 @@ export class NotesRepository {
   }
 
   /**
-   * Operates an implicit soft-deletion natively gracefully activating the `@DeleteDateColumn` mapping TypeOrm interceptors,
-   * safely hiding the explicit note statically structurally without physically annihilating immutable logging dependencies.
+   * Soft-deletes a note.
    */
   async delete(id: string): Promise<void> {
     await this.noteOrm.softDelete(id);
   }
 
   /**
-   * Mathematically isolates database abstractions implicitly bridging TypeOrm constraints securely
-   * ensuring pure Domain mapping definitions structurally cascade functionally ensuring robust clean code implementations.
+   * Maps entity to domain type. Entity shape never leaks outside the repository.
    */
   private toDomain(entity: NoteEntity): Note {
     return {
       id: entity.id,
       ciphertext: entity.ciphertext.toString('utf8'),
       version: entity.version,
+      spaceId: entity.spaceId,
+      type: entity.type as NoteType,
       createdBy: entity.createdBy,
       updatedBy: entity.updatedBy,
       deletedBy: entity.deletedBy,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
-      keySlots: entity.keySlots?.map((ks) => ({
-        noteId: ks.noteId,
-        userId: ks.userId,
-        encryptedNoteKey: ks.encryptedNoteKey.toString('base64'),
-      })),
     };
   }
 }

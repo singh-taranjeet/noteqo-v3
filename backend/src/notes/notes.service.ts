@@ -12,17 +12,18 @@ export class NotesService {
   constructor(private readonly notesRepository: NotesRepository) {}
 
   async create(dto: CreateNoteDto): Promise<Note> {
-    this.logger.log(`Creating note locally offline-first`);
+    this.logger.log(`Creating note in space ${dto.spaceId}`);
 
-    return this.notesRepository.createWithKeySlot(
+    return this.notesRepository.create(
       dto.id,
       Buffer.from(dto.ciphertext, 'utf8'),
-      Buffer.from(dto.encryptedNoteKey, 'base64'),
+      dto.spaceId,
+      dto.type,
     );
   }
 
-  async findAll(userId: string): Promise<Note[]> {
-    return this.notesRepository.findAllForUser(userId);
+  async findAllForSpace(spaceId: string): Promise<Note[]> {
+    return this.notesRepository.findAllForSpace(spaceId);
   }
 
   async findOne(id: string): Promise<Note> {
@@ -30,7 +31,6 @@ export class NotesService {
     if (!note) {
       throw new NoteNotFoundException();
     }
-    // Auth checking would occur here if we weren't just prototyping
     return note;
   }
 
@@ -42,8 +42,6 @@ export class NotesService {
 
     this.logger.log(`Saving new version for note ID ${id}`);
 
-    // According to Option B: Last-write-wins + Version history.
-    // We increment the DB version and snapshot the version so previous inputs can be recovered.
     return this.notesRepository.saveNewVersion(
       id,
       Buffer.from(dto.ciphertext, 'utf8'),

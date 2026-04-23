@@ -4,9 +4,47 @@ import { logService } from "@/services/log.service";
 
 const TEMP_KEYS_LOCAL_STORAGE = "TEMP_KEYS_LOCAL_STORAGE";
 
-function removeTempStorage() {
-  localStorage.removeItem(TEMP_KEYS_LOCAL_STORAGE);
-}
+const LocalService = {
+  get: () => {
+    const keys = localStorage.getItem(TEMP_KEYS_LOCAL_STORAGE);
+    if (keys) {
+      try {
+        const parsedKeys = JSON.parse(keys);
+        return parsedKeys;
+      } catch {
+        return {};
+      }
+    }
+    return {};
+  },
+  removeCurrent: (publicKey: string) => {
+    const keys = LocalService.get();
+    keys[publicKey].current = false;
+    LocalService.set(keys);
+  },
+  setCurrent: (payload: {
+    publicKey: string;
+    privateKey: string;
+    masterKey: string;
+  }) => {
+    const { privateKey, publicKey, masterKey } = payload;
+    const keys = LocalService.get();
+    // iterate each property and set current to false
+    for (const property of Object.keys(keys)) {
+      keys[property].current = false;
+    }
+
+    keys[publicKey] = {
+      privateKey,
+      masterKey,
+      current: true,
+    };
+    LocalService.set(keys);
+  },
+  set: (payload: unknown) => {
+    localStorage.setItem(TEMP_KEYS_LOCAL_STORAGE, JSON.stringify(payload));
+  },
+};
 
 export const KeysService = {
   // This is invoked at registeration and will store the keys in localStorage
@@ -20,14 +58,11 @@ export const KeysService = {
       masterKey,
     );
 
-    localStorage.setItem(
-      TEMP_KEYS_LOCAL_STORAGE,
-      JSON.stringify({
-        masterKey,
-        privateKey,
-        publicKey,
-      }),
-    );
+    LocalService.setCurrent({
+      publicKey,
+      masterKey,
+      privateKey,
+    });
 
     return {
       encryptedPrivateKey,
@@ -38,22 +73,12 @@ export const KeysService = {
   isMasterInLocalStorage: async (
     payloadPublicKey: string,
   ): Promise<string | boolean> => {
-    const keys = localStorage.getItem(TEMP_KEYS_LOCAL_STORAGE);
-    if (keys) {
-      try {
-        const { masterKey, publicKey } = JSON.parse(keys);
-
-        if (publicKey === payloadPublicKey) {
-          // Master is already present
-          return masterKey;
-        } else {
-          // the user is a different. We need a new masterKey for this user as well
-          return false;
-        }
-      } catch {
-        return false;
-      }
+    const parsedKeys = LocalService.get();
+    if (parsedKeys[payloadPublicKey]) {
+      // Master is already present
+      return parsedKeys[payloadPublicKey].masterKey;
     } else {
+      // the user is a different. We need a new masterKey for this user as well
       return false;
     }
   },
@@ -62,6 +87,7 @@ export const KeysService = {
       storageService.clear(),
       db.notes.clear(),
       db.syncQueue.clear(),
+      db.spaces.clear(),
     ]);
   },
   store: async (payload: {
@@ -85,7 +111,6 @@ export const KeysService = {
         storageService.put(STORAGE_KEYS.PRIVATE_KEY, decryptedPrivateKey),
         storageService.put(STORAGE_KEYS.MASTER_KEY, masterKey),
       ]);
-      removeTempStorage();
     } else {
       await Promise.all([
         storageService.put(STORAGE_KEYS.PUBLIC_KEY, publicKey),
@@ -109,7 +134,6 @@ export const KeysService = {
         storageService.put(STORAGE_KEYS.PRIVATE_KEY, decryptedPrivateKey),
         storageService.put(STORAGE_KEYS.MASTER_KEY, masterKey),
       ]);
-      removeTempStorage();
     } else {
       logService.error("Private key is not present");
     }

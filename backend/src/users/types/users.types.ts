@@ -10,3 +10,11 @@ export interface User {
   updatedBy?: string;
   deletedBy?: string;
 }
+
+export interface UserWithAuth extends User {
+  authCredential?: string;
+}
+
+export type UpdateUserPayload = Partial<
+  Omit<UserWithAuth, 'id' | 'createdAt' | 'updatedAt'>
+>;
