@@ -6,9 +6,7 @@ import { useAppShell } from "../AppShell";
 import { LAYOUT_CONFIG } from "../layout.constants";
 import { SidebarUserProfile } from "./SidebarUserProfile";
 import { SidebarNavTabs } from "./SidebarNavTabs";
-import { SidebarSection } from "./SidebarSection";
-import { SidebarPageItem } from "./SidebarPageItem";
-import { SidebarSpaceGroup } from "./SidebarSpaceGroup";
+import { SidebarSpaceCategory } from "./SidebarSpaceCategory";
 import { SharedSpaceSettingsDialog } from "./SharedSpaceSettingsDialog";
 import { SidebarNewNoteButton } from "./SidebarNewNoteButton";
 import { useSpaces, useCreateSpace } from "@/features/spaces";
@@ -20,18 +18,9 @@ import {
 import { MOCK_USER } from "@/features/auth/constants/auth.constants";
 import { SPACE_TYPE } from "@/features/spaces/constants/spaces.constants";
 import type { Space, SpaceType } from "@/features/spaces/types/spaces.types";
-import { Button } from "@/components/ui/button";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { Add01Icon, PencilEdit01Icon } from "@hugeicons/core-free-icons";
 import { DynamicDialog } from "@/components/ui/DynamicDialog";
 import { DynamicForm } from "@/components/ui/DynamicForm";
 import type { FormFieldConfig, FormValues } from "@/components/ui/DynamicForm";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { logService } from "@/services/log.service";
 
 const CREATE_SPACE_FIELDS: FormFieldConfig[] = [
@@ -115,194 +104,29 @@ export function Sidebar() {
           <SidebarNavTabs />
 
           {/* Shared Spaces Section */}
-          <SidebarSection
+          <SidebarSpaceCategory
             label="Shared"
-            action={
-              <TooltipProvider>
-                <div className="flex items-center">
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (defaultSharedSpace) {
-                            handleCreateNote(defaultSharedSpace.id);
-                          }
-                        }}
-                        aria-label="Create shared note"
-                        disabled={!defaultSharedSpace}
-                      >
-                        <HugeiconsIcon
-                          icon={PencilEdit01Icon}
-                          size={14}
-                          strokeWidth={2}
-                          className="text-muted-foreground"
-                        />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>Create shared note</TooltipContent>
-                  </Tooltip>
-                  
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6 mr-1"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setCreateSpaceType(SPACE_TYPE.SHARED);
-                        }}
-                        aria-label="Create shared space"
-                      >
-                        <HugeiconsIcon
-                          icon={Add01Icon}
-                          size={14}
-                          strokeWidth={2}
-                          className="text-muted-foreground"
-                        />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>Create shared space</TooltipContent>
-                  </Tooltip>
-                </div>
-              </TooltipProvider>
-            }
-          >
-            {isLoading && (
-              <div className="px-4 py-2 text-xs text-muted-foreground animate-pulse">
-                Loading spaces...
-              </div>
-            )}
-            {!isLoading && sharedSpaces.length === 0 && (
-              <div className="px-5 py-1.5 text-xs text-muted-foreground">
-                No shared spaces
-              </div>
-            )}
-            {!isLoading && sharedSpaces.map((space) => {
-              const notes = spaceNotesMap?.[space.id] ?? [];
-              return (
-                <SidebarSpaceGroup
-                  key={space.id}
-                  name={space.name}
-                  onCreateNote={() => handleCreateNote(space.id)}
-                  onSettingsClick={() => setSettingsSpace(space)}
-                >
-                  {notes.length === 0 ? (
-                    <div className="px-5 py-1 text-xs text-muted-foreground italic pl-9">
-                      No notes
-                    </div>
-                  ) : (
-                    notes.map((note) => (
-                      <SidebarPageItem
-                        key={note.id}
-                        id={note.id}
-                        emoji={note.emoji}
-                        title={note.title}
-                      />
-                    ))
-                  )}
-                </SidebarSpaceGroup>
-              );
-            })}
-          </SidebarSection>
+            spaces={sharedSpaces}
+            isLoading={isLoading}
+            emptyMessage="No shared spaces"
+            spaceNotesMap={spaceNotesMap}
+            onAddSpaceClick={() => setCreateSpaceType(SPACE_TYPE.SHARED)}
+            addSpaceTooltip="Create shared space"
+            onCreateNote={handleCreateNote}
+            onSettingsClick={(space) => setSettingsSpace(space)}
+          />
 
           {/* Private Spaces Section */}
-          <SidebarSection
+          <SidebarSpaceCategory
             label="Private"
-            action={
-              <TooltipProvider>
-                <div className="flex items-center">
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (defaultPersonalSpace) {
-                            handleCreateNote(defaultPersonalSpace.id);
-                          }
-                        }}
-                        aria-label="Create private note"
-                      >
-                        <HugeiconsIcon
-                          icon={PencilEdit01Icon}
-                          size={14}
-                          strokeWidth={2}
-                          className="text-muted-foreground"
-                        />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>Create private note</TooltipContent>
-                  </Tooltip>
-                  
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6 mr-1"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setCreateSpaceType(SPACE_TYPE.PERSONAL);
-                        }}
-                        aria-label="Create private space"
-                      >
-                        <HugeiconsIcon
-                          icon={Add01Icon}
-                          size={14}
-                          strokeWidth={2}
-                          className="text-muted-foreground"
-                        />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>Create private space</TooltipContent>
-                  </Tooltip>
-                </div>
-              </TooltipProvider>
-            }
-          >
-            {isLoading && (
-              <div className="px-4 py-2 text-xs text-muted-foreground animate-pulse">
-                Loading spaces...
-              </div>
-            )}
-            {!isLoading && personalSpaces.length === 0 && (
-              <div className="px-5 py-1.5 text-xs text-muted-foreground">
-                No spaces yet
-              </div>
-            )}
-            {!isLoading && personalSpaces.map((space) => {
-              const notes = spaceNotesMap?.[space.id] ?? [];
-              return (
-                <SidebarSpaceGroup
-                  key={space.id}
-                  name={space.name}
-                  onCreateNote={() => handleCreateNote(space.id)}
-                >
-                  {notes.length === 0 ? (
-                    <div className="px-5 py-1 text-xs text-muted-foreground italic pl-9">
-                      No notes
-                    </div>
-                  ) : (
-                    notes.map((note) => (
-                      <SidebarPageItem
-                        key={note.id}
-                        id={note.id}
-                        emoji={note.emoji}
-                        title={note.title}
-                      />
-                    ))
-                  )}
-                </SidebarSpaceGroup>
-              );
-            })}
-          </SidebarSection>
+            spaces={personalSpaces}
+            isLoading={isLoading}
+            emptyMessage="No spaces yet"
+            spaceNotesMap={spaceNotesMap}
+            onAddSpaceClick={() => setCreateSpaceType(SPACE_TYPE.PERSONAL)}
+            addSpaceTooltip="Create private space"
+            onCreateNote={handleCreateNote}
+          />
         </div>
 
         {/* Sticky bottom */}
