@@ -1,8 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { UsersRepository } from './users.repository';
-import { User } from './types/users.types';
-import { UserEntity } from './entities/user.entity';
+import { User, UserWithAuth, UpdateUserPayload } from './types/users.types';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import {
@@ -52,6 +51,14 @@ export class UsersService {
     return user;
   }
 
+  async findByEmailWithAuth(email: string): Promise<UserWithAuth> {
+    const user = await this.usersRepository.findByEmailWithAuth(email);
+    if (!user) {
+      throw new UserNotFoundException();
+    }
+    return user;
+  }
+
   async update(id: string, dto: UpdateUserDto): Promise<User> {
     const user = await this.usersRepository.findById(id);
     if (!user) {
@@ -65,7 +72,7 @@ export class UsersService {
       }
     }
 
-    const updateData: Partial<UserEntity> = { ...dto };
+    const updateData: UpdateUserPayload = { ...dto };
 
     if (dto.authCredential) {
       updateData.authCredential = await bcrypt.hash(

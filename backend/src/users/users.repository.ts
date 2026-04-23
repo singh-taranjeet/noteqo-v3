@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserEntity } from './entities/user.entity';
-import { User } from './types/users.types';
+import { User, UserWithAuth, UpdateUserPayload } from './types/users.types';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
@@ -23,8 +23,8 @@ export class UsersRepository {
     return entity ? this.toDomain(entity) : null;
   }
 
-  async findByEmailWithAuth(email: string): Promise<UserEntity | null> {
-    return this.orm.findOne({
+  async findByEmailWithAuth(email: string): Promise<UserWithAuth | null> {
+    const entity = await this.orm.findOne({
       where: { email },
       select: [
         'id',
@@ -40,6 +40,7 @@ export class UsersRepository {
         'deletedBy',
       ],
     });
+    return entity ? this.toDomainWithAuth(entity) : null;
   }
 
   async create(user: CreateUserDto): Promise<User> {
@@ -50,7 +51,7 @@ export class UsersRepository {
     return this.toDomain(saved);
   }
 
-  async update(id: string, data: Partial<UserEntity>): Promise<User> {
+  async update(id: string, data: UpdateUserPayload): Promise<User> {
     await this.orm.update(id, data);
     return this.findById(id) as Promise<User>;
   }
@@ -71,6 +72,13 @@ export class UsersRepository {
       createdBy: entity.createdBy,
       updatedBy: entity.updatedBy,
       deletedBy: entity.deletedBy,
+    };
+  }
+
+  private toDomainWithAuth(entity: UserEntity): UserWithAuth {
+    return {
+      ...this.toDomain(entity),
+      authCredential: entity.authCredential,
     };
   }
 }
