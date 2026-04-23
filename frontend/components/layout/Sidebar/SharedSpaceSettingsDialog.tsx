@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { DynamicDialog } from "@/components/ui/DynamicDialog";
 import { DynamicForm } from "@/components/ui/DynamicForm";
@@ -54,8 +56,8 @@ export function SharedSpaceSettingsDialog({
         email: values.email as string,
         role: values.role as string,
       });
-    } catch (err: any) {
-      setError(err.message || "Failed to invite member");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to invite member");
     }
   };
 
