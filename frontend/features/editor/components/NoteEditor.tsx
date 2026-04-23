@@ -22,7 +22,6 @@ import { TextStyle } from "@tiptap/extension-text-style";
 import { Color } from "@tiptap/extension-color";
 import { Subscript } from "@tiptap/extension-subscript";
 import { Superscript } from "@tiptap/extension-superscript";
-import { Underline } from "@tiptap/extension-underline";
 import { Selection } from "@tiptap/extensions";
 
 // --- Tiptap Node Custom Views ---
@@ -186,7 +185,6 @@ export function NoteEditor({ noteId }: Readonly<NoteEditorProps>) {
       Typography,
       Superscript,
       Subscript,
-      Underline,
       Selection,
       ImageUploadNode.configure({
         accept: "image/*",
