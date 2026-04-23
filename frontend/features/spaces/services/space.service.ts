@@ -51,6 +51,7 @@ export const spaceService = {
       id: remoteSpace.id,
       name,
       type,
+      isDefault: remoteSpace.isDefault,
       spaceKey: spaceKeyBase64,
       createdAt: remoteSpace.createdAt ?? now,
       updatedAt: remoteSpace.updatedAt ?? now,
@@ -123,6 +124,7 @@ export const spaceService = {
       return {
         id: remote.id,
         name,
+        isDefault: remote.isDefault,
         type: remote.type,
         spaceKey: spaceKeyBase64,
         createdAt: remote.createdAt,

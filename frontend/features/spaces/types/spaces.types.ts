@@ -14,6 +14,7 @@ export interface RemoteSpace {
   id: string;
   encryptedName: string; // base64 from server
   type: SpaceType;
+  isDefault: boolean;
   createdBy: string;
   createdAt: string;
   updatedAt?: string;
