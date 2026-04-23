@@ -15,6 +15,7 @@ import { useRemoteNotes } from "@/features/workspace";
 import Link from "next/link";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Home01Icon, Folder01Icon, File01Icon } from "@hugeicons/core-free-icons";
+import { ROUTES } from "@/constants/routes";
 
 interface BreadcrumbEntry {
   emoji: string;
@@ -78,7 +79,7 @@ export function HeaderBreadcrumb({ items }: HeaderBreadcrumbProps) {
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild className="flex items-center gap-1.5 text-sm cursor-pointer">
-              <Link href="/notes">
+              <Link href={ROUTES.NOTES}>
                 <HugeiconsIcon icon={Home01Icon} size={14} strokeWidth={2} />
                 <span className="truncate">Home</span>
               </Link>
@@ -94,7 +95,7 @@ export function HeaderBreadcrumb({ items }: HeaderBreadcrumbProps) {
       <BreadcrumbList>
         <BreadcrumbItem>
           <BreadcrumbLink asChild className="flex items-center gap-1.5 text-sm cursor-pointer">
-            <Link href="/notes">
+            <Link href={ROUTES.NOTES}>
               <HugeiconsIcon icon={Folder01Icon} size={14} strokeWidth={2} />
               <span className="truncate">{activeSpace.name}</span>
             </Link>
