@@ -15,4 +15,6 @@ export interface UserWithAuth extends User {
   authCredential?: string;
 }
 
-export type UpdateUserPayload = Partial<Omit<UserWithAuth, 'id' | 'createdAt' | 'updatedAt'>>;
+export type UpdateUserPayload = Partial<
+  Omit<UserWithAuth, 'id' | 'createdAt' | 'updatedAt'>
+>;

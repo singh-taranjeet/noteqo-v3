@@ -38,15 +38,15 @@ export class SpacesController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  async create(
-    @Body() dto: CreateSpaceDto,
-  ): Promise<SpaceResponseDto> {
+  async create(@Body() dto: CreateSpaceDto): Promise<SpaceResponseDto> {
     const space = await this.spacesService.create(dto);
     return this.mapSpaceToResponse(space);
   }
 
   @Get()
-  async findAll(@Req() req: { user: { id: string } }): Promise<SpaceResponseDto[]> {
+  async findAll(
+    @Req() req: { user: { id: string } },
+  ): Promise<SpaceResponseDto[]> {
     const spaces = await this.spacesService.findAll(req.user.id);
     return spaces.map((s) => this.mapSpaceToResponse(s));
   }
@@ -96,10 +96,7 @@ export class SpacesController {
     @Param('spaceId', ParseUUIDPipe) spaceId: string,
     @Req() req: { user: { id: string } },
   ): Promise<SpaceMemberResponseDto[]> {
-    const members = await this.spacesService.findMembers(
-      spaceId,
-      req.user.id,
-    );
+    const members = await this.spacesService.findMembers(spaceId, req.user.id);
     return members.map((m) => ({
       userId: m.userId,
       role: m.role as SpaceMemberResponseDto['role'],
@@ -127,11 +124,7 @@ export class SpacesController {
     @Body() dto: CreateNoteDto,
     @Req() req: { user: { id: string } },
   ): Promise<NoteResponseDto> {
-    const note = await this.spacesService.createNote(
-      spaceId,
-      dto,
-      req.user.id,
-    );
+    const note = await this.spacesService.createNote(spaceId, dto, req.user.id);
     return this.mapNoteToResponse(note);
   }
 

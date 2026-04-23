@@ -63,8 +63,6 @@ export class UsersController {
     await this.usersService.remove(id);
   }
 
-
-
   private mapToResponse(user: User): UserResponseDto {
     return {
       id: user.id,

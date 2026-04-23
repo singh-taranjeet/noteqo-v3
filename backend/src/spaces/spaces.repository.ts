@@ -42,16 +42,16 @@ export class SpacesRepository {
       if (type === SPACE_TYPE.PERSONAL) {
         const existingPrivateSpace = await queryRunner.manager
           .createQueryBuilder(SpaceEntity, 'space')
-          .innerJoin('space.members', 'member', 'member.userId = :userId', { userId: currentUserId })
+          .innerJoin('space.members', 'member', 'member.userId = :userId', {
+            userId: currentUserId,
+          })
           .where('space.type = :type', { type: SPACE_TYPE.PERSONAL })
           .getOne();
-          
+
         if (!existingPrivateSpace) {
           isDefault = true;
         }
       }
-      
-
 
       // 1. Create the space
       const space = queryRunner.manager.create(SpaceEntity, {

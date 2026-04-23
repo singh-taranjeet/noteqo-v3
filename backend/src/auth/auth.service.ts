@@ -27,9 +27,7 @@ export class AuthService {
 
   async login(dto: LoginDto) {
     // 1. We must fetch the user explicitly including the select: false authCredential
-    const userWithAuth = await this.usersService.findByEmailWithAuth(
-      dto.email,
-    );
+    const userWithAuth = await this.usersService.findByEmailWithAuth(dto.email);
 
     if (!userWithAuth?.authCredential) {
       throw new UnauthorizedException(AUTH_ERROR_MESSAGES.INVALID_CREDENTIALS);

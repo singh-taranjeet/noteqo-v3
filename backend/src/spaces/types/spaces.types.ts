@@ -1,7 +1,4 @@
-import {
-  SPACE_TYPE,
-  SPACE_ROLE,
-} from '../constants/spaces.constants';
+import { SPACE_TYPE, SPACE_ROLE } from '../constants/spaces.constants';
 
 // ─── Union Types (derived from const objects per NestJS rules §16) ───────────
 
