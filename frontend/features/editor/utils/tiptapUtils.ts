@@ -375,7 +375,9 @@ export const handleImageUpload = async (
     if (abortSignal?.aborted) {
       throw new Error("Upload cancelled");
     }
-    await new Promise((resolve) => setTimeout(resolve, EDITOR_CONFIG.UPLOAD_CHECK_DELAY_MS));
+    await new Promise((resolve) =>
+      setTimeout(resolve, EDITOR_CONFIG.UPLOAD_CHECK_DELAY_MS),
+    );
     onProgress?.({ progress });
   }
 

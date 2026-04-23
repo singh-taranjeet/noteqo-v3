@@ -26,9 +26,9 @@ export function useSpaceNotes(spaceId: string | null) {
         const spaceKeyBytes = await spaceService.rsaDecryptSpaceKey(
           response.encryptedSpaceKey,
         );
-        spaceKeyBase64 = (await import("@/features/crypto")).cryptoService.encodeBase64(
-          spaceKeyBytes.buffer as ArrayBuffer,
-        );
+        spaceKeyBase64 = (
+          await import("@/features/crypto")
+        ).cryptoService.encodeBase64(spaceKeyBytes.buffer as ArrayBuffer);
       }
 
       if (!spaceKeyBase64) {

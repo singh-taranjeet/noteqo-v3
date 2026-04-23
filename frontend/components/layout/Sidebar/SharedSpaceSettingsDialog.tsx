@@ -4,7 +4,11 @@ import { useState } from "react";
 import { DynamicDialog } from "@/components/ui/DynamicDialog";
 import { DynamicForm } from "@/components/ui/DynamicForm";
 import type { FormFieldConfig, FormValues } from "@/components/ui/DynamicForm";
-import { useSpaceMembers, useAddSpaceMember, useRemoveSpaceMember } from "@/features/spaces/hooks/useSpaceMembers";
+import {
+  useSpaceMembers,
+  useAddSpaceMember,
+  useRemoveSpaceMember,
+} from "@/features/spaces/hooks/useSpaceMembers";
 import { Button } from "@/components/ui/button";
 import { Delete01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -41,7 +45,9 @@ export function SharedSpaceSettingsDialog({
   isOpen,
   onOpenChange,
 }: SharedSpaceSettingsDialogProps) {
-  const { data: members = [], isLoading: isMembersLoading } = useSpaceMembers(space?.id ?? "");
+  const { data: members = [], isLoading: isMembersLoading } = useSpaceMembers(
+    space?.id ?? "",
+  );
   const { mutateAsync: addMember, isPending: isAdding } = useAddSpaceMember();
   const { mutateAsync: removeMember } = useRemoveSpaceMember();
 
@@ -84,16 +90,27 @@ export function SharedSpaceSettingsDialog({
         <div>
           <h4 className="text-sm font-medium mb-3">Members</h4>
           {isMembersLoading ? (
-            <p className="text-xs text-muted-foreground animate-pulse">Loading members...</p>
+            <p className="text-xs text-muted-foreground animate-pulse">
+              Loading members...
+            </p>
           ) : members.length === 0 ? (
-            <p className="text-xs text-muted-foreground">No members yet. You are the only one here.</p>
+            <p className="text-xs text-muted-foreground">
+              No members yet. You are the only one here.
+            </p>
           ) : (
             <div className="flex flex-col gap-2">
               {members.map((member) => (
-                <div key={member.userId} className="flex items-center justify-between p-2 rounded-md bg-secondary/50 border border-border">
+                <div
+                  key={member.userId}
+                  className="flex items-center justify-between p-2 rounded-md bg-secondary/50 border border-border"
+                >
                   <div className="flex flex-col">
-                    <span className="text-sm font-medium">{member.name || member.email || member.userId}</span>
-                    <span className="text-xs text-muted-foreground capitalize">{member.role}</span>
+                    <span className="text-sm font-medium">
+                      {member.name || member.email || member.userId}
+                    </span>
+                    <span className="text-xs text-muted-foreground capitalize">
+                      {member.role}
+                    </span>
                   </div>
                   <Button
                     variant="ghost"

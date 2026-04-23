@@ -21,7 +21,6 @@ import type { Space, SpaceType } from "@/features/spaces/types/spaces.types";
 import { DynamicDialog } from "@/components/ui/DynamicDialog";
 import { DynamicForm } from "@/components/ui/DynamicForm";
 import type { FormFieldConfig, FormValues } from "@/components/ui/DynamicForm";
-import { logService } from "@/services/log.service";
 
 const CREATE_SPACE_FIELDS: FormFieldConfig[] = [
   {
@@ -36,14 +35,17 @@ const CREATE_SPACE_FIELDS: FormFieldConfig[] = [
 export function Sidebar() {
   const { isSidebarOpen, toggleSidebar } = useAppShell();
   const { data: spaces = [], isLoading: spacesLoading } = useSpaces();
-  const { data: spaceNotesMap, isLoading: notesLoading } =
-    useRemoteNotes(spaces.length > 0 ? spaces : undefined);
+  const { data: spaceNotesMap, isLoading: notesLoading } = useRemoteNotes(
+    spaces.length > 0 ? spaces : undefined,
+  );
   const { mutate: createNote } = useCreateNote();
   const { createSpace, isLoading: isCreatingSpace } = useCreateSpace();
-  
+
   // Track which type of space is being created to show the correct dialog
-  const [createSpaceType, setCreateSpaceType] = useState<SpaceType | null>(null);
-  
+  const [createSpaceType, setCreateSpaceType] = useState<SpaceType | null>(
+    null,
+  );
+
   // Track which space we are managing settings for
   const [settingsSpace, setSettingsSpace] = useState<Space | null>(null);
 
@@ -53,16 +55,13 @@ export function Sidebar() {
   const isLoading = spacesLoading || notesLoading;
 
   // Filter spaces by type
-  const personalSpaces = spaces.filter(
-    (s) => s.type === SPACE_TYPE.PERSONAL,
+  const personalSpaces = spaces.filter((s) => s.type === SPACE_TYPE.PERSONAL);
+
+  const sharedSpaces = spaces.filter((s) => s.type === SPACE_TYPE.SHARED);
+
+  const defaultPersonalSpace = personalSpaces.find(
+    (pesonalSpace) => pesonalSpace.isDefault,
   );
-  
-  const sharedSpaces = spaces.filter(
-    (s) => s.type === SPACE_TYPE.SHARED,
-  );
-  
-  const defaultPersonalSpace = personalSpaces.find(pesonalSpace => pesonalSpace.isDefault);
-  const defaultSharedSpace = sharedSpaces.find(sharedSpace => sharedSpace.isDefault) || sharedSpaces[0];
 
   const handleCreateNote = (spaceId: string) => {
     createNote({ spaceId });

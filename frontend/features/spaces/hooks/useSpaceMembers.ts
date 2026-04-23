@@ -8,7 +8,8 @@ import type { RemoteSpaceMember } from "../types/spaces.types";
 export function useSpaceMembers(spaceId: string) {
   return useQuery({
     queryKey: ["spaces", "members", spaceId],
-    queryFn: () => spaceApiService.getMembers(spaceId) as Promise<RemoteSpaceMember[]>,
+    queryFn: () =>
+      spaceApiService.getMembers(spaceId) as Promise<RemoteSpaceMember[]>,
     enabled: !!spaceId,
   });
 }
@@ -17,7 +18,15 @@ export function useAddSpaceMember() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ spaceId, email, role }: { spaceId: string; email: string; role: string }) => {
+    mutationFn: async ({
+      spaceId,
+      email,
+      role,
+    }: {
+      spaceId: string;
+      email: string;
+      role: string;
+    }) => {
       // 1. Fetch the user's public key by email
       const { publicKey } = await userApiService.getPublicKeyByEmail(email);
       if (!publicKey) {
@@ -29,7 +38,7 @@ export function useAddSpaceMember() {
       if (!spaceKeyBase64) {
         throw new Error("Missing local space key");
       }
-      
+
       const spaceKeyBuffer = cryptoService.decodeBase64(spaceKeyBase64);
       const spaceKeyBytes = new Uint8Array(spaceKeyBuffer);
 
@@ -62,7 +71,9 @@ export function useAddSpaceMember() {
       });
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["spaces", "members", variables.spaceId] });
+      queryClient.invalidateQueries({
+        queryKey: ["spaces", "members", variables.spaceId],
+      });
     },
   });
 }
@@ -71,11 +82,19 @@ export function useRemoveSpaceMember() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ spaceId, userId }: { spaceId: string; userId: string }) => {
+    mutationFn: async ({
+      spaceId,
+      userId,
+    }: {
+      spaceId: string;
+      userId: string;
+    }) => {
       return spaceApiService.removeMember(spaceId, userId);
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["spaces", "members", variables.spaceId] });
+      queryClient.invalidateQueries({
+        queryKey: ["spaces", "members", variables.spaceId],
+      });
     },
   });
 }

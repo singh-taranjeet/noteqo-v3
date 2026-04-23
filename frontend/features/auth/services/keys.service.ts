@@ -7,7 +7,7 @@ const TEMP_KEYS_LOCAL_STORAGE = "TEMP_KEYS_LOCAL_STORAGE";
 const LocalService = {
   get: () => {
     const keys = localStorage.getItem(TEMP_KEYS_LOCAL_STORAGE);
-    if(keys) {
+    if (keys) {
       try {
         const parsedKeys = JSON.parse(keys);
         return parsedKeys;
@@ -22,8 +22,12 @@ const LocalService = {
     keys[publicKey].current = false;
     LocalService.set(keys);
   },
-  setCurrent: (payload: {publicKey: string, privateKey: string, masterKey: string}) => {
-    const {privateKey, publicKey, masterKey} = payload;
+  setCurrent: (payload: {
+    publicKey: string;
+    privateKey: string;
+    masterKey: string;
+  }) => {
+    const { privateKey, publicKey, masterKey } = payload;
     const keys = LocalService.get();
     // iterate each property and set current to false
     for (const property of Object.keys(keys)) {
@@ -33,14 +37,14 @@ const LocalService = {
     keys[publicKey] = {
       privateKey,
       masterKey,
-      current: true
+      current: true,
     };
     LocalService.set(keys);
   },
   set: (payload: unknown) => {
     localStorage.setItem(TEMP_KEYS_LOCAL_STORAGE, JSON.stringify(payload));
-  }
-}
+  },
+};
 
 export const KeysService = {
   // This is invoked at registeration and will store the keys in localStorage
@@ -57,7 +61,7 @@ export const KeysService = {
     LocalService.setCurrent({
       publicKey,
       masterKey,
-      privateKey
+      privateKey,
     });
 
     return {
@@ -71,12 +75,12 @@ export const KeysService = {
   ): Promise<string | boolean> => {
     const parsedKeys = LocalService.get();
     if (parsedKeys[payloadPublicKey]) {
-          // Master is already present
-          return parsedKeys[payloadPublicKey].masterKey;
-        } else {
-          // the user is a different. We need a new masterKey for this user as well
-          return false;
-        }
+      // Master is already present
+      return parsedKeys[payloadPublicKey].masterKey;
+    } else {
+      // the user is a different. We need a new masterKey for this user as well
+      return false;
+    }
   },
   clear: async () => {
     await Promise.all([
@@ -107,7 +111,6 @@ export const KeysService = {
         storageService.put(STORAGE_KEYS.PRIVATE_KEY, decryptedPrivateKey),
         storageService.put(STORAGE_KEYS.MASTER_KEY, masterKey),
       ]);
-
     } else {
       await Promise.all([
         storageService.put(STORAGE_KEYS.PUBLIC_KEY, publicKey),
@@ -131,7 +134,6 @@ export const KeysService = {
         storageService.put(STORAGE_KEYS.PRIVATE_KEY, decryptedPrivateKey),
         storageService.put(STORAGE_KEYS.MASTER_KEY, masterKey),
       ]);
-      
     } else {
       logService.error("Private key is not present");
     }

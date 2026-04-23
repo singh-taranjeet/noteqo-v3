@@ -235,7 +235,9 @@ export const spaceService = {
     spaceKeyBytes: Uint8Array,
   ): Promise<string> {
     if (!ciphertext || !ciphertext.includes(":")) {
-      logService.warn("Invalid ciphertext format for space name, returning as plaintext");
+      logService.warn(
+        "Invalid ciphertext format for space name, returning as plaintext",
+      );
       return ciphertext;
     }
 
@@ -260,7 +262,10 @@ export const spaceService = {
 
       return new TextDecoder().decode(decryptedBuffer);
     } catch (err) {
-      logService.warn("Decryption failed for space name, treating as plaintext fallback.", err);
+      logService.warn(
+        "Decryption failed for space name, treating as plaintext fallback.",
+        err,
+      );
       return ciphertext;
     }
   },

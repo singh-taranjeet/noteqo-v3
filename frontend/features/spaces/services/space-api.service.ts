@@ -42,8 +42,10 @@ export const spaceQueryKeys = {
   all: ["spaces"] as const,
   lists: () => [...spaceQueryKeys.all, "list"] as const,
   detail: (id: string) => [...spaceQueryKeys.all, "detail", id] as const,
-  notes: (spaceId: string) => [...spaceQueryKeys.detail(spaceId), "notes"] as const,
-  members: (spaceId: string) => [...spaceQueryKeys.detail(spaceId), "members"] as const,
+  notes: (spaceId: string) =>
+    [...spaceQueryKeys.detail(spaceId), "notes"] as const,
+  members: (spaceId: string) =>
+    [...spaceQueryKeys.detail(spaceId), "members"] as const,
 };
 
 export const spaceApiService = {
@@ -62,17 +64,20 @@ export const spaceApiService = {
   },
 
   create: async (payload: CreateSpacePayload): Promise<RemoteSpace> => {
-    const response = await queryClient.getMutationCache().build(queryClient, {
-      mutationFn: async (vars: typeof payload) => {
-        const res = await apiClient.post<{ data: RemoteSpace }>(
-          SPACES_API_ROUTES.SPACES,
-          vars,
-          { auth: true },
-        );
-        return res.data;
-      }
-    }).execute(payload);
-    
+    const response = await queryClient
+      .getMutationCache()
+      .build(queryClient, {
+        mutationFn: async (vars: typeof payload) => {
+          const res = await apiClient.post<{ data: RemoteSpace }>(
+            SPACES_API_ROUTES.SPACES,
+            vars,
+            { auth: true },
+          );
+          return res.data;
+        },
+      })
+      .execute(payload);
+
     await queryClient.invalidateQueries({ queryKey: spaceQueryKeys.lists() });
     return response as RemoteSpace;
   },
@@ -95,18 +100,23 @@ export const spaceApiService = {
     spaceId: string,
     payload: CreateSpaceNotePayload,
   ): Promise<unknown> => {
-    const response = await queryClient.getMutationCache().build(queryClient, {
-      mutationFn: async (vars: typeof payload) => {
-        const res = await apiClient.post<{ data: unknown }>(
-          SPACES_API_ROUTES.SPACE_NOTES(spaceId),
-          vars,
-          { auth: true },
-        );
-        return res.data;
-      }
-    }).execute(payload);
+    const response = await queryClient
+      .getMutationCache()
+      .build(queryClient, {
+        mutationFn: async (vars: typeof payload) => {
+          const res = await apiClient.post<{ data: unknown }>(
+            SPACES_API_ROUTES.SPACE_NOTES(spaceId),
+            vars,
+            { auth: true },
+          );
+          return res.data;
+        },
+      })
+      .execute(payload);
 
-    await queryClient.invalidateQueries({ queryKey: spaceQueryKeys.notes(spaceId) });
+    await queryClient.invalidateQueries({
+      queryKey: spaceQueryKeys.notes(spaceId),
+    });
     return response;
   },
 
@@ -115,33 +125,43 @@ export const spaceApiService = {
     noteId: string,
     payload: { ciphertext: string },
   ): Promise<unknown> => {
-    const response = await queryClient.getMutationCache().build(queryClient, {
-      mutationFn: async (vars: typeof payload) => {
-        const res = await apiClient.patch<{ data: unknown }>(
-          SPACES_API_ROUTES.SPACE_NOTE(spaceId, noteId),
-          vars,
-          { auth: true },
-        );
-        return res.data;
-      }
-    }).execute(payload);
+    const response = await queryClient
+      .getMutationCache()
+      .build(queryClient, {
+        mutationFn: async (vars: typeof payload) => {
+          const res = await apiClient.patch<{ data: unknown }>(
+            SPACES_API_ROUTES.SPACE_NOTE(spaceId, noteId),
+            vars,
+            { auth: true },
+          );
+          return res.data;
+        },
+      })
+      .execute(payload);
 
-    await queryClient.invalidateQueries({ queryKey: spaceQueryKeys.notes(spaceId) });
+    await queryClient.invalidateQueries({
+      queryKey: spaceQueryKeys.notes(spaceId),
+    });
     return response;
   },
 
   deleteNote: async (spaceId: string, noteId: string): Promise<unknown> => {
-    const response = await queryClient.getMutationCache().build(queryClient, {
-      mutationFn: async (vars: { spaceId: string; noteId: string }) => {
-        const res = await apiClient.delete<{ data: unknown }>(
-          SPACES_API_ROUTES.SPACE_NOTE(vars.spaceId, vars.noteId),
-          { auth: true },
-        );
-        return res.data;
-      }
-    }).execute({ spaceId, noteId });
+    const response = await queryClient
+      .getMutationCache()
+      .build(queryClient, {
+        mutationFn: async (vars: { spaceId: string; noteId: string }) => {
+          const res = await apiClient.delete<{ data: unknown }>(
+            SPACES_API_ROUTES.SPACE_NOTE(vars.spaceId, vars.noteId),
+            { auth: true },
+          );
+          return res.data;
+        },
+      })
+      .execute({ spaceId, noteId });
 
-    await queryClient.invalidateQueries({ queryKey: spaceQueryKeys.notes(spaceId) });
+    await queryClient.invalidateQueries({
+      queryKey: spaceQueryKeys.notes(spaceId),
+    });
     return response;
   },
 
@@ -163,31 +183,39 @@ export const spaceApiService = {
     spaceId: string,
     payload: { email: string; encryptedSpaceKey: string; role: string },
   ): Promise<void> => {
-    const response = await queryClient.getMutationCache().build(queryClient, {
-      mutationFn: async (vars: typeof payload) => {
-        await apiClient.post(
-          SPACES_API_ROUTES.MEMBERS(spaceId),
-          vars,
-          { auth: true },
-        );
-      }
-    }).execute(payload);
+    const response = await queryClient
+      .getMutationCache()
+      .build(queryClient, {
+        mutationFn: async (vars: typeof payload) => {
+          await apiClient.post(SPACES_API_ROUTES.MEMBERS(spaceId), vars, {
+            auth: true,
+          });
+        },
+      })
+      .execute(payload);
 
-    await queryClient.invalidateQueries({ queryKey: spaceQueryKeys.members(spaceId) });
+    await queryClient.invalidateQueries({
+      queryKey: spaceQueryKeys.members(spaceId),
+    });
     return response;
   },
 
   removeMember: async (spaceId: string, userId: string): Promise<void> => {
-    const response = await queryClient.getMutationCache().build(queryClient, {
-      mutationFn: async (vars: { spaceId: string; userId: string }) => {
-        await apiClient.delete(
-          SPACES_API_ROUTES.MEMBER(vars.spaceId, vars.userId),
-          { auth: true },
-        );
-      }
-    }).execute({ spaceId, userId });
+    const response = await queryClient
+      .getMutationCache()
+      .build(queryClient, {
+        mutationFn: async (vars: { spaceId: string; userId: string }) => {
+          await apiClient.delete(
+            SPACES_API_ROUTES.MEMBER(vars.spaceId, vars.userId),
+            { auth: true },
+          );
+        },
+      })
+      .execute({ spaceId, userId });
 
-    await queryClient.invalidateQueries({ queryKey: spaceQueryKeys.members(spaceId) });
+    await queryClient.invalidateQueries({
+      queryKey: spaceQueryKeys.members(spaceId),
+    });
     return response;
   },
 };

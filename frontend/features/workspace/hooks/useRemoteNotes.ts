@@ -49,10 +49,7 @@ export function useRemoteNotes(spaces: Space[] | undefined) {
           // Cache notes locally in Dexie
           await db.notes.bulkPut(validNotes);
         } catch (err) {
-          logService.error(
-            `Failed to fetch notes for space ${space.id}`,
-            err,
-          );
+          logService.error(`Failed to fetch notes for space ${space.id}`, err);
           notesMap[space.id] = [];
         }
       }

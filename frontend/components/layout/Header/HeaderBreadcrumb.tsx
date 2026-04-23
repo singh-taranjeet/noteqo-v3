@@ -14,7 +14,11 @@ import { useSpaces } from "@/features/spaces";
 import { useRemoteNotes } from "@/features/workspace";
 import Link from "next/link";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Home01Icon, Folder01Icon, File01Icon } from "@hugeicons/core-free-icons";
+import {
+  Home01Icon,
+  Folder01Icon,
+  File01Icon,
+} from "@hugeicons/core-free-icons";
 import { ROUTES } from "@/constants/routes";
 
 interface BreadcrumbEntry {
@@ -31,7 +35,9 @@ export function HeaderBreadcrumb({ items }: HeaderBreadcrumbProps) {
   const noteId = params?.note_id as string | undefined;
 
   const { data: spaces = [] } = useSpaces();
-  const { data: spaceNotesMap = {} } = useRemoteNotes(spaces.length > 0 ? spaces : undefined);
+  const { data: spaceNotesMap = {} } = useRemoteNotes(
+    spaces.length > 0 ? spaces : undefined,
+  );
 
   // If items are passed explicitly, use them (for fallback/static routes)
   if (items && items.length > 0) {
@@ -63,7 +69,7 @@ export function HeaderBreadcrumb({ items }: HeaderBreadcrumbProps) {
   if (noteId) {
     for (const space of spaces) {
       const notes = spaceNotesMap[space.id] || [];
-      const note = notes.find(n => n.id === noteId);
+      const note = notes.find((n) => n.id === noteId);
       if (note) {
         activeSpace = space;
         activeNote = note;
@@ -78,7 +84,10 @@ export function HeaderBreadcrumb({ items }: HeaderBreadcrumbProps) {
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink asChild className="flex items-center gap-1.5 text-sm cursor-pointer">
+            <BreadcrumbLink
+              asChild
+              className="flex items-center gap-1.5 text-sm cursor-pointer"
+            >
               <Link href={ROUTES.NOTES}>
                 <HugeiconsIcon icon={Home01Icon} size={14} strokeWidth={2} />
                 <span className="truncate">Home</span>
@@ -94,7 +103,10 @@ export function HeaderBreadcrumb({ items }: HeaderBreadcrumbProps) {
     <Breadcrumb>
       <BreadcrumbList>
         <BreadcrumbItem>
-          <BreadcrumbLink asChild className="flex items-center gap-1.5 text-sm cursor-pointer">
+          <BreadcrumbLink
+            asChild
+            className="flex items-center gap-1.5 text-sm cursor-pointer"
+          >
             <Link href={ROUTES.NOTES}>
               <HugeiconsIcon icon={Folder01Icon} size={14} strokeWidth={2} />
               <span className="truncate">{activeSpace.name}</span>
@@ -105,11 +117,20 @@ export function HeaderBreadcrumb({ items }: HeaderBreadcrumbProps) {
         <BreadcrumbItem>
           <BreadcrumbPage className="flex items-center gap-1.5 text-sm font-medium">
             {activeNote.emoji ? (
-              <span role="img" aria-hidden="true" className="shrink-0 text-[14px]">
+              <span
+                role="img"
+                aria-hidden="true"
+                className="shrink-0 text-[14px]"
+              >
                 {activeNote.emoji}
               </span>
             ) : (
-              <HugeiconsIcon icon={File01Icon} size={14} strokeWidth={2} className="text-muted-foreground" />
+              <HugeiconsIcon
+                icon={File01Icon}
+                size={14}
+                strokeWidth={2}
+                className="text-muted-foreground"
+              />
             )}
             <span className="truncate">{activeNote.title || "Untitled"}</span>
           </BreadcrumbPage>

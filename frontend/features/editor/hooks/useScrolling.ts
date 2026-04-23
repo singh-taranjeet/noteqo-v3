@@ -15,7 +15,10 @@ export function useScrolling(
   target?: ScrollTarget,
   options: UseScrollingOptions = {},
 ): boolean {
-  const { debounce = EDITOR_CONFIG.SCROLL_DEBOUNCE_MS, fallbackToDocument = true } = options;
+  const {
+    debounce = EDITOR_CONFIG.SCROLL_DEBOUNCE_MS,
+    fallbackToDocument = true,
+  } = options;
   const [isScrolling, setIsScrolling] = useState(false);
 
   useEffect(() => {

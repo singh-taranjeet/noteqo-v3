@@ -145,7 +145,9 @@ export function LoginForm() {
                 redirectNotespage();
               } catch (err) {
                 console.log("Error", err);
-                setError("Invalid master key provided. Please check it and try again.");
+                setError(
+                  "Invalid master key provided. Please check it and try again.",
+                );
                 setShowMasterKeyPrompt(false);
               }
             }}

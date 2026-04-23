@@ -1,15 +1,7 @@
-import { db, storageService, STORAGE_KEYS } from "@/features/storage";
+import { db } from "@/features/storage";
 import { cryptoService, CRYPTO_CONFIG } from "@/features/crypto";
-import { apiClient } from "@/services/api";
-import type {
-  SyncEvent,
-  SyncEventType,
-  Note,
-} from "../types/workspace.types";
-import {
-  SYNC_CONFIG,
-  WORKSPACE_API_ROUTES,
-} from "../constants/workspace.constants";
+import type { SyncEvent, SyncEventType, Note } from "../types/workspace.types";
+import { SYNC_CONFIG } from "../constants/workspace.constants";
 import { mergeLocalRemoteService } from "./merge-local-remote.service";
 import { noteApiService } from "./note-api.service";
 import { spaceService } from "@/features/spaces/services/space.service";
@@ -146,7 +138,9 @@ class SyncQueueService {
           } else {
             // wait 3 seconds before trying again
             setTimeout(async () => {
-              await db.syncQueue.update(event.id, { retryCount: newRetryCount });
+              await db.syncQueue.update(event.id, {
+                retryCount: newRetryCount,
+              });
             }, SYNC_CONFIG.BASE_BACKOFF_MS);
           }
 
@@ -168,7 +162,7 @@ class SyncQueueService {
       case "CREATE": {
         const note = event.payload as Note;
         const ciphertext = await this.encryptPayload(note);
-        
+
         await noteApiService.createNote({
           id: event.entityId,
           ciphertext,

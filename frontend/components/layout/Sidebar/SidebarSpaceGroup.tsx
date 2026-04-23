@@ -3,7 +3,11 @@
 import { useState } from "react";
 import type { ReactNode } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { ArrowRight01Icon, Add01Icon, MoreHorizontalIcon } from "@hugeicons/core-free-icons";
+import {
+  ArrowRight01Icon,
+  Add01Icon,
+  MoreHorizontalIcon,
+} from "@hugeicons/core-free-icons";
 import { cn } from "@/lib/utils";
 import {
   Collapsible,
@@ -68,7 +72,7 @@ export function SidebarSpaceGroup({
             />
           </Button>
         )}
-        
+
         {onCreateNote && (
           <Button
             variant="ghost"
