@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import type {
+  AiActionType,
   AiWorkerMessage,
   AiWorkerResponse,
   AiWorkerStatus,
@@ -13,6 +14,7 @@ interface UseAiWorkerReturn {
   downloadProgressLabel: string;
   generate: (
     prompt: string,
+    actionType: AiActionType,
     onToken: (token: string) => void,
   ) => Promise<string>;
   abort: () => void;
@@ -95,7 +97,11 @@ export function useAiWorker(): UseAiWorkerReturn {
   }, []);
 
   const generate = useCallback(
-    (prompt: string, onToken: (token: string) => void): Promise<string> => {
+    (
+      prompt: string,
+      actionType: AiActionType,
+      onToken: (token: string) => void,
+    ): Promise<string> => {
       const worker = getWorker();
       setStatus("inferring");
 
@@ -106,7 +112,7 @@ export function useAiWorker(): UseAiWorkerReturn {
 
         const message: AiWorkerMessage = {
           type: "GENERATE",
-          payload: { prompt, actionType: "reformat" },
+          payload: { prompt, actionType },
         };
         worker.postMessage(message);
       });

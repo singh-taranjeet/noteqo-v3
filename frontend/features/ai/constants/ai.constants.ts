@@ -1,10 +1,10 @@
 import type { AiActionType } from "@/features/ai/types/ai.types";
 
 export const AI_CONFIG = {
-  MODEL_ID: "HuggingFaceTB/SmolLM2-360M-Instruct",
+  MODEL_ID: "onnx-community/Qwen2.5-0.5B-Instruct",
   MAX_NEW_TOKENS: 512,
   WORKER_TIMEOUT_MS: 60_000,
-  MODEL_DOWNLOAD_SIZE_LABEL: "~360MB",
+  MODEL_DOWNLOAD_SIZE_LABEL: "~500MB",
 } as const;
 
 export const AI_ACTION_LABELS: Record<

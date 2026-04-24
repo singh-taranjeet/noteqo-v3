@@ -33,6 +33,7 @@ async function loadModel(): Promise<void> {
   logService.log("loading model");
 
   try {
+    console.log("AI Model is not loaded yet", generator);
     generator = (await pipeline("text-generation", AI_CONFIG.MODEL_ID, {
       progress_callback: (progress: ProgressInfo) => {
         if ("progress" in progress && typeof progress.progress === "number") {
@@ -47,12 +48,14 @@ async function loadModel(): Promise<void> {
                 : `Preparing model... ${percentage}%`,
             },
           });
-          console.log("Progress", progress);
+          
         }
       },
     })) as TextGenerationPipeline;
 
+    
     postResponse({ type: "MODEL_READY" });
+    console.log("[AI] Model loaded and ready for inference.");
   } catch (error: unknown) {
     const message =
       error instanceof Error ? error.message : "Unknown error loading model";
