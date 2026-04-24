@@ -41,7 +41,7 @@ export function SearchHeaderInput({
           className="text-muted-foreground"
           aria-label={SEARCH_LABELS.SEARCH_RESULTS_REGION_LABEL}
         >
-          <HugeiconsIcon  icon={LayoutLeftIcon} size={16} strokeWidth={1.5} />
+          <HugeiconsIcon icon={LayoutLeftIcon} size={16} strokeWidth={1.5} />
         </Button>
       </div>
     </div>

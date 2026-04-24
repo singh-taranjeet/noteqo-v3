@@ -18,7 +18,6 @@ interface SearchResultRowProps {
   onHover: (id: string) => void;
 }
 
-
 export function SearchResultRow({
   item,
   isSelected,
