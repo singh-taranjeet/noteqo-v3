@@ -2,6 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from '../users/users.service';
+import { User, UserWithAuth } from '../users/types/users.types';
 import { AUTH_ERROR_MESSAGES } from './constants/auth.constants';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -13,7 +14,9 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async register(dto: RegisterDto) {
+  async register(
+    dto: RegisterDto,
+  ): Promise<{ user: User; accessToken: string }> {
     // Rely natively on usersService to properly hash the credential and abstract creation correctly
     const user = await this.usersService.create(dto);
 
@@ -25,7 +28,10 @@ export class AuthService {
     };
   }
 
-  async login(dto: LoginDto) {
+  async login(dto: LoginDto): Promise<{
+    user: Omit<UserWithAuth, 'authCredential'>;
+    accessToken: string;
+  }> {
     // 1. We must fetch the user explicitly including the select: false authCredential
     const userWithAuth = await this.usersService.findByEmailWithAuth(dto.email);
 
