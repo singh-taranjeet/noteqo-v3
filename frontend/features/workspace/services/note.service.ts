@@ -8,7 +8,8 @@ import {
 import { syncQueueService } from "./sync-queue.service";
 import { noteApiService } from "./note-api.service";
 import { logService } from "@/services/log.service";
-import { spaceService } from "@/features/spaces/services/space.service";
+import { spaceService } from "@/features/spaces";
+import { NOTE_FALLBACKS } from "@/features/spaces";
 import { cryptoService, CRYPTO_CONFIG } from "@/features/crypto";
 
 function getRandomItem<T>(pool: readonly T[]): T {
@@ -167,9 +168,9 @@ export const noteService = {
 
       return {
         id: note.id,
-        title: payload.title ?? "Untitled",
-        emoji: payload.emoji ?? "📄",
-        coverImage: payload.coverImage ?? "",
+        title: payload.title ?? NOTE_FALLBACKS.TITLE,
+        emoji: payload.emoji ?? NOTE_FALLBACKS.EMOJI,
+        coverImage: payload.coverImage ?? NOTE_FALLBACKS.COVER_IMAGE,
         content: payload.content ?? null,
         syncStatus: "synced",
         spaceId: note.spaceId,

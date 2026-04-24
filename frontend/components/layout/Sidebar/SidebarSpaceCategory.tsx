@@ -10,8 +10,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import type { Space } from "@/features/spaces/types/spaces.types";
-import type { Note } from "@/features/workspace/types/workspace.types";
+import type { Space } from "@/features/spaces";
+import type { Note } from "@/features/workspace";
 
 interface SidebarSpaceCategoryProps {
   label: string;
@@ -35,7 +35,7 @@ export function SidebarSpaceCategory({
   addSpaceTooltip,
   onCreateNote,
   onSettingsClick,
-}: SidebarSpaceCategoryProps) {
+}: Readonly<SidebarSpaceCategoryProps>) {
   return (
     <SidebarSection
       label={label}

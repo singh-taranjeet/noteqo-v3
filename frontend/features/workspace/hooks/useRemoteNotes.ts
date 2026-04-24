@@ -1,8 +1,7 @@
 import { useState, useCallback, useEffect } from "react";
-import { spaceApiService } from "@/features/spaces/services/space-api.service";
-import { spaceService } from "@/features/spaces/services/space.service";
+import { spaceApiService, spaceService } from "@/features/spaces";
 import type { Note } from "../types/workspace.types";
-import type { Space } from "@/features/spaces/types/spaces.types";
+import type { Space } from "@/features/spaces";
 import { logService } from "@/services/log.service";
 import { db } from "@/features/storage";
 import { mergeLocalRemoteService } from "../services/merge-local-remote.service";

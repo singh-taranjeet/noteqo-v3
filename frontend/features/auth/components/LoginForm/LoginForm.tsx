@@ -10,7 +10,10 @@ import {
 } from "@/components/ui/card";
 import { DynamicForm } from "@/components/ui/DynamicForm";
 import { useLogin } from "@/features/auth/hooks/useLogin";
-import { AUTH_CONFIG } from "@/features/auth/constants/auth.constants";
+import {
+  AUTH_CONFIG,
+  AUTH_MESSAGES,
+} from "@/features/auth/constants/auth.constants";
 import { ROUTES } from "@/constants/routes";
 import { useRouter } from "next/navigation";
 import { DynamicDialog } from "@/components/ui/DynamicDialog";
@@ -73,11 +76,9 @@ export function LoginForm() {
         setShowMasterKeyPrompt(isMasterKeyRequired);
       } catch (err: unknown) {
         if (err instanceof Error) {
-          setError(
-            err.message || "Invalid email or password. Please try again.",
-          );
+          setError(err.message || AUTH_MESSAGES.INVALID_CREDENTIALS);
         } else {
-          setError("Invalid email or password. Please try again.");
+          setError(AUTH_MESSAGES.INVALID_CREDENTIALS);
         }
       }
     },
@@ -144,10 +145,8 @@ export function LoginForm() {
                 await KeysService.storeMasterKey({ masterKey: key.trim() });
                 redirectNotespage();
               } catch (err) {
-                console.log("Error", err);
-                setError(
-                  "Invalid master key provided. Please check it and try again.",
-                );
+                console.error("Error", err);
+                setError(AUTH_MESSAGES.INVALID_MASTER_KEY);
                 setShowMasterKeyPrompt(false);
               }
             }}

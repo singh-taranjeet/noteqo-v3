@@ -22,9 +22,9 @@ interface SidebarSectionProps {
 export function SidebarSection({
   label,
   children,
-  defaultOpen = true,
+  defaultOpen = false,
   action,
-}: SidebarSectionProps) {
+}: Readonly<SidebarSectionProps>) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   return (
@@ -40,7 +40,7 @@ export function SidebarSection({
               size={12}
               strokeWidth={2}
               className={cn(
-                "text-muted-foreground transition-transform duration-200 opacity-0 group-hover:opacity-100",
+                "text-muted-foreground transition-transform duration-200 opacity-100",
                 isOpen && "rotate-90",
               )}
             />

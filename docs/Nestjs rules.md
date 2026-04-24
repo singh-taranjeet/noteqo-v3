@@ -21,16 +21,16 @@ Follow **all** rules below on every file you create or modify. No exceptions.
 12. [Constants File Conventions](#12-constants-file-conventions)
 13. [Services — Business Logic Rules](#13-services--business-logic-rules)
 14. [Controllers — HTTP Layer Rules](#14-controllers--http-layer-rules)
-15. [Repositories — Data Access Rules](#15-repositories--data-access-rules)
-16. [Enums and Union Types](#16-enums-and-union-types)
-17. [Error Handling](#17-error-handling)
-18. [Validation](#18-validation)
-19. [Decorators & Guards](#19-decorators--guards)
-20. [Naming Conventions](#20-naming-conventions)
-21. [Code Quality Rules](#21-code-quality-rules)
-22. [Database & Migrations](#22-database--migrations)
-23. [Testing Architecture](#23-testing-architecture)
-24. [Imports & Barrel Files](#24-imports--barrel-files)
+15. [Enums and Union Types](#15-enums-and-union-types)
+16. [Error Handling](#16-error-handling)
+17. [Validation](#17-validation)
+18. [Decorators & Guards](#18-decorators--guards)
+19. [Naming Conventions](#19-naming-conventions)
+20. [Code Quality Rules](#20-code-quality-rules)
+21. [Database & Migrations](#21-database--migrations)
+22. [Testing Architecture](#22-testing-architecture)
+23. [Imports & Barrel Files](#23-imports--barrel-files)
+24. [Advanced NestJS Best Practices](#24-advanced-nestjs-best-practices)
 25. [Quick Checklist](#25-quick-checklist)
 
 ---
@@ -551,6 +551,12 @@ export const NOTE_RELATIONS = {
 } as const;
 ```
 
+### Repository rules
+
+- All DB access goes through a repository class — never call ORM directly in a service.
+- Repositories return domain types — the `toDomain` mapper is a private method and never exported.
+- Repository methods must have explicit parameter and return types.
+
 ### Repository pattern
 
 ```typescript
@@ -904,23 +910,6 @@ export const NOTE_EVENTS = {
   RESTORED: 'note.restored',
 } as const;
 
-// DB mapping
-export const NOTE_TABLE  = { NAME: 'notes' } as const;
-export const NOTE_COLUMN = {
-  ID:             'id',
-  TITLE:          'title',
-  VISIBILITY:     'visibility',
-  STATUS:         'status',
-  OWNER_ID:       'owner_id',
-  WORKSPACE_ID:   'workspace_id',
-  PARENT_NOTE_ID: 'parent_note_id',
-  CREATED_AT:     'created_at',
-  UPDATED_AT:     'updated_at',
-} as const;
-export const NOTE_RELATIONS = {
-  DEFAULT: ['blocks']                       as const,
-  FULL:    ['blocks', 'owner', 'workspace'] as const,
-} as const;
 ```
 
 ---
@@ -1007,17 +996,7 @@ export class NotesController {
 
 ---
 
-## 15. Repositories — Data Access Rules
-
-- All DB access goes through a repository class — never call ORM directly in a service.
-- Repositories return domain types — the `toDomain` mapper is a private method and never exported.
-- Repository methods must have explicit parameter and return types.
-
-See Section 6 for the full repository implementation pattern.
-
----
-
-## 16. Enums and Union Types
+## 15. Enums and Union Types
 
 Prefer `as const` objects over TypeScript `enum`. Derive the union type from the object.
 
@@ -1044,7 +1023,7 @@ enum BlockType { Paragraph = 'paragraph' }
 
 ---
 
-## 17. Error Handling
+## 16. Error Handling
 
 - Catch errors at the service layer and rethrow as NestJS HTTP exceptions.
 - Use **typed custom exception classes** from `src/shared/exceptions/`.
@@ -1088,7 +1067,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
 ---
 
-## 18. Validation
+## 17. Validation
 
 - Use `ValidationPipe` globally: `{ whitelist: true, forbidNonWhitelisted: true, transform: true }`.
 - Every DTO property must have at least one `class-validator` decorator.
@@ -1097,7 +1076,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
 ---
 
-## 19. Decorators & Guards
+## 18. Decorators & Guards
 
 - Global decorators → `src/shared/decorators/`.
 - Feature-specific decorators → `src/<feature>/decorators/`.
@@ -1117,7 +1096,7 @@ export const CurrentUser = createParamDecorator(
 
 ---
 
-## 20. Naming Conventions
+## 19. Naming Conventions
 
 | Artifact | Convention | Example |
 |---|---|---|
@@ -1137,7 +1116,7 @@ export const CurrentUser = createParamDecorator(
 
 ---
 
-## 21. Code Quality Rules
+## 20. Code Quality Rules
 
 - **No magic numbers** — every numeric literal in logic must be a named constant.
 - **No nested ternaries** — use early returns or `if/else`.
@@ -1160,7 +1139,7 @@ async create(dto: CreateNoteDto, userId: string): Promise<NoteResponse> {
 
 ---
 
-## 22. Database & Migrations
+## 21. Database & Migrations
 
 - **Never** use `synchronize: true` outside of isolated test environments.
 - Migration file naming: `database/migrations/<timestamp>-<description>.ts`.
@@ -1170,7 +1149,7 @@ async create(dto: CreateNoteDto, userId: string): Promise<NoteResponse> {
 
 ---
 
-## 23. Testing Architecture
+## 22. Testing Architecture
 
 ### Unit tests — co-located with source
 
@@ -1243,7 +1222,7 @@ describe('NotesService', () => {
 
 ---
 
-## 24. Imports & Barrel Files
+## 23. Imports & Barrel Files
 
 - Use path aliases — never `../../../`.
 - Import order: NestJS/external libs → internal modules → types → constants. Blank line between groups.
@@ -1283,6 +1262,33 @@ import { PaginatedResult, PaginationOptions } from '@shared/types/pagination.typ
 
 import { NOTE_ERROR_MESSAGES, NOTE_EVENTS } from '@notes/constants/notes.constants';
 ```
+
+---
+
+## 23. Advanced NestJS Best Practices
+
+### Dependency Injection Scope
+- **Default to Singleton Scope**: Avoid using `Scope.REQUEST` or `Scope.TRANSIENT` unless absolutely necessary (e.g., multi-tenant DB connections per request). They have a significant performance impact due to garbage collection and instantiation per request.
+
+### Transaction Management
+- Always handle transactions explicitly for multi-step database operations to ensure data consistency.
+- Prefer passing a query runner or transaction entity manager through service methods, or use a Unit of Work / `cls-hooked` (AsyncLocalStorage) pattern to avoid cluttering business logic with transaction objects.
+
+### Graceful Shutdown
+- Enable shutdown hooks in `main.ts` (`app.enableShutdownHooks()`) to ensure database connections and server ports are closed gracefully when the application receives termination signals (SIGINT, SIGTERM).
+
+### Logging Contexts
+- Always instantiate the NestJS built-in `Logger` with the class name as context: `private readonly logger = new Logger(MyClass.name);`.
+- Use correlation IDs (Request IDs) injected via middleware/interceptors to trace request flows across logs.
+
+### Performance & Security
+- **Rate Limiting**: Apply `@nestjs/throttler` to rate-limit endpoints, specifically public-facing ones (e.g., auth routes).
+- **Helmet**: Always configure helmet in `main.ts` to set appropriate HTTP security headers.
+- **Serialization**: Use `ClassSerializerInterceptor` combined with `@Exclude()` in entities/DTOs to prevent leaking sensitive information like passwords.
+
+### API Versioning & Documentation
+- Enable global URI versioning (e.g., `v1`, `v2`) in `main.ts`.
+- Use `@nestjs/swagger` decorators on all controllers and DTOs to maintain a single source of truth for the OpenAPI specification.
 
 ---
 

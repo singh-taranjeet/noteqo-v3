@@ -4,7 +4,12 @@ import { Repository, DataSource } from 'typeorm';
 import { SpaceEntity } from './entities/space.entity';
 import { SpaceMemberEntity } from './entities/space-member.entity';
 import { SpaceKeySlotEntity } from './entities/space-key-slot.entity';
-import { Space, SpaceRole } from './types/spaces.types';
+import {
+  Space,
+  SpaceRole,
+  SpaceMember,
+  SpaceKeySlot,
+} from './types/spaces.types';
 import { SPACE_ROLE, SPACE_TYPE } from './constants/spaces.constants';
 import { getCurrentUserId } from '../shared/utils/cls.utils';
 
@@ -191,8 +196,17 @@ export class SpacesRepository {
   /**
    * Returns all members for a given space.
    */
-  async findMembers(spaceId: string): Promise<SpaceMemberEntity[]> {
-    return this.memberOrm.find({ where: { spaceId }, relations: ['user'] });
+  async findMembers(spaceId: string): Promise<SpaceMember[]> {
+    const entities = await this.memberOrm.find({
+      where: { spaceId },
+      relations: ['user'],
+    });
+    return entities.map((e) => ({
+      spaceId: e.spaceId,
+      userId: e.userId,
+      role: e.role as SpaceRole,
+      user: e.user ? { name: e.user.name, email: e.user.email } : undefined,
+    }));
   }
 
   /**
@@ -201,8 +215,14 @@ export class SpacesRepository {
   async findMember(
     spaceId: string,
     userId: string,
-  ): Promise<SpaceMemberEntity | null> {
-    return this.memberOrm.findOne({ where: { spaceId, userId } });
+  ): Promise<SpaceMember | null> {
+    const entity = await this.memberOrm.findOne({ where: { spaceId, userId } });
+    if (!entity) return null;
+    return {
+      spaceId: entity.spaceId,
+      userId: entity.userId,
+      role: entity.role as SpaceRole,
+    };
   }
 
   /**
@@ -211,8 +231,16 @@ export class SpacesRepository {
   async findKeySlot(
     spaceId: string,
     userId: string,
-  ): Promise<SpaceKeySlotEntity | null> {
-    return this.keySlotOrm.findOne({ where: { spaceId, userId } });
+  ): Promise<SpaceKeySlot | null> {
+    const entity = await this.keySlotOrm.findOne({
+      where: { spaceId, userId },
+    });
+    if (!entity) return null;
+    return {
+      spaceId: entity.spaceId,
+      userId: entity.userId,
+      encryptedSpaceKey: entity.encryptedSpaceKey.toString('base64'),
+    };
   }
 
   /**

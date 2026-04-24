@@ -17,3 +17,9 @@ export const MOCK_USER = {
   NAME: "Taranjeet Singh",
   AVATAR: "😎",
 } as const;
+
+export const AUTH_MESSAGES = {
+  INVALID_CREDENTIALS: "Invalid email or password. Please try again.",
+  INVALID_MASTER_KEY:
+    "Invalid master key provided. Please check it and try again.",
+} as const;

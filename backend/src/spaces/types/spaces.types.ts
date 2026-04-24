@@ -25,6 +25,10 @@ export interface SpaceMember {
   spaceId: string;
   userId: string;
   role: SpaceRole;
+  user?: {
+    name: string;
+    email: string;
+  };
 }
 
 export interface SpaceKeySlot {

@@ -1,6 +1,6 @@
 "use client";
 
-import { EditorContent, EditorContext, useEditor } from "@tiptap/react";
+import { useEditor } from "@tiptap/react";
 import type { Editor } from "@tiptap/react";
 import {
   useEffect,
@@ -43,8 +43,6 @@ import { CardNodeExtension } from "@/features/editor/components/nodes/CardNode/C
 import { AccordionNodeExtension } from "@/features/editor/components/nodes/AccordionNode/AccordionNodeExtension";
 
 // --- Tiptap UI Hooks & Components ---
-import { BlockDragHandle } from "@/features/editor/components/editor-ui/BlockDragHandle";
-import { EditorBubbleMenu } from "@/features/editor/components/editor-ui/EditorBubbleMenu";
 
 // --- Lib ---
 import {
@@ -52,25 +50,42 @@ import {
   MAX_FILE_SIZE,
 } from "@/features/editor/utils/tiptapUtils";
 import { EDITOR_CONFIG } from "@/features/editor/constants/editor.constants";
+import { NOTE_DEFAULTS } from "@/features/workspace/constants/workspace.constants";
 import { noteService } from "@/features/workspace/services/note.service";
 import type { Note } from "@/features/workspace/types/workspace.types";
+import { NoteEditorSurface } from "./NoteEditorSurface";
+import { NoteEditorSkeleton } from "./NoteEditorSkeleton";
 
 import DEFAULT_CONTENT from "@/features/editor/components/data/content.json";
 import { logService } from "@/services/log.service";
 
 interface NoteEditorProps {
-  noteId: string;
+  noteId?: string;
+  note?: Note;
+  isReadOnly?: boolean;
+  disableRemoteLoad?: boolean;
+  className?: string;
+  contentWrapperClassName?: string;
 }
 
-const useLoadNoteContent = (noteId: string) => {
-  const [note, setNote] = useState<Note | null>(null);
-  const [isReady, setIsReady] = useState(false);
+interface LoadNoteContentOptions {
+  noteId?: string;
+  initialNote?: Note;
+  disableRemoteLoad: boolean;
+}
+
+const useLoadNoteContent = ({
+  noteId,
+  initialNote,
+  disableRemoteLoad,
+}: Readonly<LoadNoteContentOptions>) => {
+  const [note, setNote] = useState<Note | null>(initialNote ?? null);
+  const [isReady, setIsReady] = useState<boolean>(Boolean(initialNote));
 
   useEffect(() => {
     async function loadContent() {
-      if (noteId) {
+      if (noteId && !initialNote) {
         try {
-          // Fetch the local state
           const localNote = await noteService.getLocalNote(noteId);
 
           if (localNote) {
@@ -78,7 +93,10 @@ const useLoadNoteContent = (noteId: string) => {
             setIsReady(true);
           }
 
-          // Fetch the remote state
+          if (disableRemoteLoad) {
+            return;
+          }
+
           const remoteNote = await noteService.getRemoteNote(noteId);
 
           if (remoteNote) {
@@ -92,7 +110,7 @@ const useLoadNoteContent = (noteId: string) => {
       }
     }
     loadContent();
-  }, [noteId]);
+  }, [disableRemoteLoad, initialNote, noteId]);
 
   return {
     note,
@@ -101,7 +119,14 @@ const useLoadNoteContent = (noteId: string) => {
   };
 };
 
-export function NoteEditor({ noteId }: Readonly<NoteEditorProps>) {
+export function NoteEditor({
+  noteId,
+  note: providedNote,
+  isReadOnly = false,
+  disableRemoteLoad = false,
+  className,
+  contentWrapperClassName,
+}: Readonly<NoteEditorProps>) {
   const debouncedUpdateNote = useMemo(
     () =>
       debounce((props: { editor: Editor; id: string }) => {
@@ -120,12 +145,17 @@ export function NoteEditor({ noteId }: Readonly<NoteEditorProps>) {
     };
   }, [debouncedUpdateNote]);
 
-  const { note, isReady, setNote } = useLoadNoteContent(noteId);
+  const { note, isReady, setNote } = useLoadNoteContent({
+    noteId,
+    initialNote: providedNote,
+    disableRemoteLoad,
+  });
 
   const content = note?.content || DEFAULT_CONTENT;
 
   const editor = useEditor({
     immediatelyRender: false,
+    editable: !isReadOnly,
     editorProps: {
       attributes: {
         autocomplete: "off",
@@ -198,6 +228,9 @@ export function NoteEditor({ noteId }: Readonly<NoteEditorProps>) {
     ],
     content,
     onUpdate: ({ editor }) => {
+      if (isReadOnly || !noteId) {
+        return;
+      }
       debouncedUpdateNote({ id: noteId, editor });
     },
   });
@@ -212,69 +245,34 @@ export function NoteEditor({ noteId }: Readonly<NoteEditorProps>) {
   }, [editor, isReady, content]);
 
   if (!isReady) {
-    return (
-      <div className="flex w-full h-full items-center justify-center bg-background text-muted-foreground text-sm">
-        Loading note...
-      </div>
-    );
+    return <NoteEditorSkeleton />;
   }
 
   if (!editor) return null;
 
   const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (isReadOnly) return;
     if (!note) return;
     setNote({ ...note, title: e.target.value });
   };
 
   const handleTitleBlur = (e: FocusEvent<HTMLInputElement>) => {
+    if (isReadOnly) return;
     if (!note || !noteId) return;
     void noteService.updateNote(noteId, { title: e.target.value });
   };
 
   return (
-    <div className="w-full h-full flex flex-col overflow-auto bg-background text-foreground font-sans group relative">
-      {/* Cover Image */}
-      {note?.coverImage && (
-        <div className="w-full h-[25vh] sm:h-[30vh] shrink-0 relative group/cover">
-          {/* eslint-disable-next-line @next/next/no-img-element*/}
-          <img
-            src={note.coverImage}
-            alt="Cover"
-            className="w-full h-full object-cover"
-          />
-        </div>
-      )}
-
-      {/* Main Content Area */}
-      <div className="w-full max-w-4xl mx-auto flex-1 flex flex-col px-6 sm:px-24 mb-96 relative">
-        {/* Note Header Metadata */}
-        <div className="mt-8 mb-6">
-          {note?.emoji && (
-            <div className="text-[72px] leading-none mb-4 -mt-14 relative z-10 w-fit">
-              {note.emoji}
-            </div>
-          )}
-
-          <input
-            type="text"
-            className="text-4xl sm:text-5xl font-bold font-sans text-foreground w-full bg-transparent border-none outline-none focus:ring-0 placeholder:text-muted-foreground"
-            value={note?.title ?? "Untitled"}
-            onChange={handleTitleChange}
-            onBlur={handleTitleBlur}
-            placeholder="Untitled"
-          />
-        </div>
-
-        <EditorContext.Provider value={{ editor }}>
-          <BlockDragHandle editor={editor} />
-          <EditorBubbleMenu editor={editor} />
-          <EditorContent
-            editor={editor}
-            role="presentation"
-            className="flex-1 w-full"
-          />
-        </EditorContext.Provider>
-      </div>
-    </div>
+    <NoteEditorSurface
+      editor={editor}
+      title={note?.title ?? NOTE_DEFAULTS.TITLE}
+      emoji={note?.emoji ?? ""}
+      coverImage={note?.coverImage ?? ""}
+      isReadOnly={isReadOnly}
+      onTitleChange={handleTitleChange}
+      onTitleBlur={handleTitleBlur}
+      className={className}
+      contentWrapperClassName={contentWrapperClassName}
+    />
   );
 }
