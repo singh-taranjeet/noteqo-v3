@@ -144,7 +144,7 @@ export function SearchSheet({
         showCloseButton={false}
       >
         <SheetTitle className="sr-only">{SEARCH_LABELS.SHEET_TITLE}</SheetTitle>
-        <SearchHeaderInput value={queryInput} onChange={setQueryInput} />
+        <SearchHeaderInput onClose={() => onOpenChange(false)} value={queryInput} onChange={setQueryInput} />
         <Separator />
         <SearchFilterBar
           titleOnly={titleOnly}

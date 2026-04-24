@@ -9,11 +9,13 @@ import { SEARCH_LABELS } from "../constants/search.constants";
 interface SearchHeaderInputProps {
   value: string;
   onChange: (value: string) => void;
+  onClose(): void;
 }
 
 export function SearchHeaderInput({
   value,
   onChange,
+  onClose,
 }: Readonly<SearchHeaderInputProps>) {
   return (
     <div className="relative flex items-center">
@@ -35,10 +37,11 @@ export function SearchHeaderInput({
         <Button
           variant="ghost"
           size="icon-sm"
+          onClick={onClose}
           className="text-muted-foreground"
           aria-label={SEARCH_LABELS.SEARCH_RESULTS_REGION_LABEL}
         >
-          <HugeiconsIcon icon={LayoutLeftIcon} size={16} strokeWidth={1.5} />
+          <HugeiconsIcon  icon={LayoutLeftIcon} size={16} strokeWidth={1.5} />
         </Button>
       </div>
     </div>
