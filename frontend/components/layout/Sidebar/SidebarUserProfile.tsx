@@ -1,13 +1,13 @@
 "use client";
 
 import { HugeiconsIcon } from "@hugeicons/react";
-import { ArrowLeft02Icon, Logout02Icon } from "@hugeicons/core-free-icons";
-import { Button } from "@/components/ui/button";
+import { Logout02Icon } from "@hugeicons/core-free-icons";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+  useSidebar,
+} from "@/components/ui/sidebar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,69 +21,58 @@ import { useLogout } from "@/features/auth";
 interface SidebarUserProfileProps {
   username: string;
   avatarEmoji?: string;
-  onCloseSidebar?: () => void;
 }
 
 export function SidebarUserProfile({
   username,
   avatarEmoji = "😎",
-  onCloseSidebar,
 }: SidebarUserProfileProps) {
   const { logout } = useLogout();
+  const { isMobile } = useSidebar();
 
   return (
-    <div className="flex items-center justify-between px-3 py-2 group">
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <button
-            className="flex items-center gap-2 min-w-0 rounded-lg px-1.5 py-1 -ml-1.5 hover:bg-sidebar-accent transition-colors outline-none"
-            id="sidebar-user-profile-trigger"
-          >
-            <span
-              className="text-lg shrink-0"
-              role="img"
-              aria-label="User avatar"
+    <SidebarMenu>
+      <SidebarMenuItem>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <SidebarMenuButton
+              size="lg"
+              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              id="sidebar-user-profile-trigger"
             >
-              {avatarEmoji}
-            </span>
-            <span className="text-sm font-medium truncate">{username}</span>
-          </button>
-        </DropdownMenuTrigger>
+              <span
+                className="text-lg shrink-0"
+                role="img"
+                aria-label="User avatar"
+              >
+                {avatarEmoji}
+              </span>
+              <span className="text-sm font-medium truncate">{username}</span>
+            </SidebarMenuButton>
+          </DropdownMenuTrigger>
 
-        <DropdownMenuContent side="bottom" align="start" className="w-56">
-          <DropdownMenuLabel>{username}</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            variant="destructive"
-            onClick={logout}
-            id="sidebar-logout-button"
+          <DropdownMenuContent
+            side={isMobile ? "bottom" : "right"}
+            align="start"
+            className="w-56"
           >
-            <HugeiconsIcon icon={Logout02Icon} size={16} strokeWidth={1.5} />
-            Log out
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-
-      {onCloseSidebar && (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={onCloseSidebar}
-              className="h-6 w-6 opacity-0 group-hover:opacity-100 shrink-0"
-              aria-label="Close sidebar"
+            <DropdownMenuLabel>{username}</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              variant="destructive"
+              onClick={logout}
+              id="sidebar-logout-button"
             >
               <HugeiconsIcon
-                icon={ArrowLeft02Icon}
+                icon={Logout02Icon}
                 size={16}
                 strokeWidth={1.5}
               />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent side="right">Close sidebar</TooltipContent>
-        </Tooltip>
-      )}
-    </div>
+              Log out
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </SidebarMenuItem>
+    </SidebarMenu>
   );
 }

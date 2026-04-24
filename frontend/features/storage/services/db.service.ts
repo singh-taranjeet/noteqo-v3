@@ -78,4 +78,3 @@ export const storageService = {
 
 /** Expose the raw Dexie instance for direct table access (documents, syncQueue, mediaBlobs). */
 export { db };
-

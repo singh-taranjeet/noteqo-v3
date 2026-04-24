@@ -8,6 +8,12 @@ import {
 } from "../actions/pwa.actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { toast } from "sonner";
 
 function urlBase64ToUint8Array(base64String: string) {
@@ -98,35 +104,39 @@ export function PushNotificationManager() {
   }
 
   return (
-    <div className="space-y-4 rounded-lg border p-4 bg-card">
-      <h3 className="text-lg font-semibold">Push Notifications</h3>
-      {subscription ? (
-        <div className="space-y-4">
-          <p className="text-sm text-muted-foreground">
-            You are subscribed to push notifications.
-          </p>
-          <Button variant="destructive" onClick={unsubscribeFromPush}>
-            Unsubscribe
-          </Button>
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-lg">Push Notifications</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {subscription ? (
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              You are subscribed to push notifications.
+            </p>
+            <Button variant="destructive" onClick={unsubscribeFromPush}>
+              Unsubscribe
+            </Button>
 
-          <div className="flex gap-2">
-            <Input
-              type="text"
-              placeholder="Enter notification message"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-            />
-            <Button onClick={sendTestNotification}>Send Test</Button>
+            <div className="flex gap-2">
+              <Input
+                type="text"
+                placeholder="Enter notification message"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+              />
+              <Button onClick={sendTestNotification}>Send Test</Button>
+            </div>
           </div>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          <p className="text-sm text-muted-foreground">
-            You are not subscribed to push notifications.
-          </p>
-          <Button onClick={subscribeToPush}>Subscribe</Button>
-        </div>
-      )}
-    </div>
+        ) : (
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              You are not subscribed to push notifications.
+            </p>
+            <Button onClick={subscribeToPush}>Subscribe</Button>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }

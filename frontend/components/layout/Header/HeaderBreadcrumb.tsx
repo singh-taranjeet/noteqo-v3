@@ -39,13 +39,13 @@ export function HeaderBreadcrumb({ items }: HeaderBreadcrumbProps) {
   // If items are passed explicitly, use them (for fallback/static routes)
   if (items && items.length > 0) {
     return (
-      <Breadcrumb>
-        <BreadcrumbList>
+      <Breadcrumb className="min-w-0 flex-1">
+        <BreadcrumbList className="flex-nowrap overflow-x-auto scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {items.map((item, index) => (
             <React.Fragment key={item.label}>
-              {index > 0 && <BreadcrumbSeparator />}
-              <BreadcrumbItem>
-                <BreadcrumbLink className="flex items-center gap-1 text-sm cursor-pointer">
+              {index > 0 && <BreadcrumbSeparator className="shrink-0" />}
+              <BreadcrumbItem className="shrink-0">
+                <BreadcrumbLink className="flex items-center gap-1 text-sm cursor-pointer whitespace-nowrap">
                   <span role="img" aria-hidden="true" className="shrink-0">
                     {item.emoji}
                   </span>
@@ -97,12 +97,12 @@ export function HeaderBreadcrumb({ items }: HeaderBreadcrumbProps) {
   }
 
   return (
-    <Breadcrumb>
-      <BreadcrumbList>
-        <BreadcrumbItem>
+    <Breadcrumb className="min-w-0 flex-1">
+      <BreadcrumbList className="flex-nowrap overflow-x-auto scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        <BreadcrumbItem className="shrink-0">
           <BreadcrumbLink
             asChild
-            className="flex items-center gap-1.5 text-sm cursor-pointer"
+            className="flex items-center gap-1.5 text-sm cursor-pointer whitespace-nowrap"
           >
             <Link href={ROUTES.NOTES}>
               <HugeiconsIcon icon={Folder01Icon} size={14} strokeWidth={2} />
@@ -110,9 +110,9 @@ export function HeaderBreadcrumb({ items }: HeaderBreadcrumbProps) {
             </Link>
           </BreadcrumbLink>
         </BreadcrumbItem>
-        <BreadcrumbSeparator />
-        <BreadcrumbItem>
-          <BreadcrumbPage className="flex items-center gap-1.5 text-sm font-medium">
+        <BreadcrumbSeparator className="shrink-0" />
+        <BreadcrumbItem className="shrink-0">
+          <BreadcrumbPage className="flex items-center gap-1.5 text-sm font-medium whitespace-nowrap">
             {activeNote.emoji ? (
               <span
                 role="img"

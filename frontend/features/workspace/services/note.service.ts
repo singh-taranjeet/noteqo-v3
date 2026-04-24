@@ -109,6 +109,32 @@ export const noteService = {
   },
 
   /**
+   * Duplicates an existing note locally with a new UUID and enqueues a CREATE sync event.
+   * Appends " (Copy)" to the title of the duplicated note.
+   */
+  async duplicateNote(noteId: string): Promise<Note> {
+    const existingNote = await db.notes.get(noteId);
+    if (!existingNote) {
+      throw new Error(`Note not found: ${noteId}`);
+    }
+
+    const now = new Date().toISOString();
+    const duplicate: Note = {
+      ...existingNote,
+      id: crypto.randomUUID(),
+      title: `${existingNote.title} (Copy)`,
+      syncStatus: "pending",
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    await db.notes.put(duplicate);
+    await syncQueueService.enqueue("CREATE", duplicate.id, duplicate);
+
+    return duplicate;
+  },
+
+  /**
    * Marks a note as deleted locally and enqueues a DELETE sync event.
    */
   async deleteNote(id: string): Promise<void> {

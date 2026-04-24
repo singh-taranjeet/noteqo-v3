@@ -11,6 +11,13 @@ import {
   SPACES_MESSAGES,
 } from "@/features/spaces";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import {
+  Item,
+  ItemContent,
+  ItemTitle,
+  ItemDescription,
+} from "@/components/ui/item";
 import { Delete01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import type { Space } from "@/features/spaces";
@@ -104,18 +111,19 @@ export function SharedSpaceSettingsDialog({
           ) : (
             <div className="flex flex-col gap-2">
               {members.map((member) => (
-                <div
+                <Item
                   key={member.userId}
-                  className="flex items-center justify-between p-2 rounded-md bg-secondary/50 border border-border"
+                  size="sm"
+                  className="bg-secondary/50 border border-border rounded-md"
                 >
-                  <div className="flex flex-col">
-                    <span className="text-sm font-medium">
+                  <ItemContent>
+                    <ItemTitle>
                       {member.name || member.email || member.userId}
-                    </span>
-                    <span className="text-xs text-muted-foreground capitalize">
+                    </ItemTitle>
+                    <ItemDescription className="capitalize">
                       {member.role}
-                    </span>
-                  </div>
+                    </ItemDescription>
+                  </ItemContent>
                   <Button
                     variant="ghost"
                     size="icon"
@@ -124,13 +132,13 @@ export function SharedSpaceSettingsDialog({
                   >
                     <HugeiconsIcon icon={Delete01Icon} size={14} />
                   </Button>
-                </div>
+                </Item>
               ))}
             </div>
           )}
         </div>
 
-        <div className="w-full h-px bg-border" />
+        <Separator />
 
         {/* Invite Form */}
         <div>

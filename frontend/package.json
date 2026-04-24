@@ -5,7 +5,7 @@
   "scripts": {
     "kill:old:dev": "kill -9 $(lsof -t -i:3000)",
     "dev": "next dev",
-    "build": "next build && serwist build",
+    "build": "next build --webpack && serwist build",
     "start:prod": "next start",
     "start": "npm run build && npm run start:prod",
     "lint": "eslint",
@@ -29,6 +29,7 @@
     "@tiptap/extension-horizontal-rule": "^3.22.3",
     "@tiptap/extension-image": "^3.22.3",
     "@tiptap/extension-list": "^3.22.3",
+    "@tiptap/extension-mention": "^3.22.5",
     "@tiptap/extension-subscript": "^3.22.3",
     "@tiptap/extension-superscript": "^3.22.3",
     "@tiptap/extension-text-align": "^3.22.3",

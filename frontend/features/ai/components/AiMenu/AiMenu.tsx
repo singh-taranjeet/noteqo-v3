@@ -4,12 +4,17 @@ import { useEffect, useCallback, useState } from "react";
 import type { Editor } from "@tiptap/react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 import { useAiActions } from "@/features/ai/hooks/useAiActions";
 import { AiMenuContent } from "./AiMenuContent";
 import type { AiActionType } from "@/features/ai/types/ai.types";
-import { EditorPopover } from "@/features/editor";
-import { SparklesIcon } from "@/features/editor/components/icons/SparklesIcon";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { SparklesIcon } from "@hugeicons/core-free-icons";
 
 interface AiMenuProps {
   editor: Editor;
@@ -83,53 +88,56 @@ export function AiMenu({
   );
 
   return (
-    <EditorPopover
-      isOpen={isOpen}
-      onOpenChange={onOpenChange}
-      align="center"
-      contentClassName="w-52 p-0 overflow-hidden shadow-lg z-50"
-      trigger={
+    <Popover modal={false} open={isOpen} onOpenChange={onOpenChange}>
+      <PopoverTrigger asChild>
         <Button
           variant="ghost"
           size="sm"
           className="h-7 px-2 text-purple-500 hover:text-purple-600 hover:bg-purple-500/10 rounded-sm gap-1 transition-colors"
           onMouseDown={(e) => e.preventDefault()}
         >
-          <SparklesIcon className="w-4 h-4" />
+          <HugeiconsIcon icon={SparklesIcon} className="text-purple-500" size={14} />
           <span className="text-xs font-medium">Ask AI</span>
         </Button>
-      }
-    >
-      <div className="flex flex-col">
-        {/* Header */}
-        <div className="flex items-center justify-between border-b bg-muted/30 px-2.5 py-2">
-          <div className="flex items-center gap-1.5">
-            <SparklesIcon className="w-3.5 h-3.5 text-purple-500" />
-            <span className="text-xs font-semibold text-foreground">
-              AI Assistant
-            </span>
+      </PopoverTrigger>
+      <PopoverContent
+        align="center"
+        sideOffset={8}
+        className="w-52 p-0 overflow-hidden shadow-lg z-50 bg-popover rounded-md"
+        onOpenAutoFocus={(e: Event) => e.preventDefault()}
+        onCloseAutoFocus={(e: Event) => e.preventDefault()}
+      >
+        <div className="flex flex-col">
+          {/* Header */}
+          <div className="flex items-center justify-between border-b bg-muted/30 px-2.5 py-2">
+            <div className="flex items-center gap-1.5">
+              <HugeiconsIcon icon={SparklesIcon} className="text-purple-500" size={14} />
+              <span className="text-xs font-semibold text-foreground">
+                AI Assistant
+              </span>
+            </div>
+            <Badge
+              variant="outline"
+              className="h-4 px-1 text-[9px] font-normal text-muted-foreground"
+            >
+              Local
+            </Badge>
           </div>
-          <Badge
-            variant="outline"
-            className="h-4 px-1 text-[9px] font-normal text-muted-foreground"
-          >
-            Local
-          </Badge>
-        </div>
 
-        {/* Body */}
-        <div className="p-1.5">
-          <AiMenuContent
-            isLoading={isLoading}
-            downloadProgress={downloadProgress}
-            downloadProgressLabel={downloadProgressLabel}
-            streamingPreview={streamingPreview}
-            error={error}
-            onActionClick={handleActionClick}
-            onAbort={abort}
-          />
+          {/* Body */}
+          <div className="p-1.5">
+            <AiMenuContent
+              isLoading={isLoading}
+              downloadProgress={downloadProgress}
+              downloadProgressLabel={downloadProgressLabel}
+              streamingPreview={streamingPreview}
+              error={error}
+              onActionClick={handleActionClick}
+              onAbort={abort}
+            />
+          </div>
         </div>
-      </div>
-    </EditorPopover>
+      </PopoverContent>
+    </Popover>
   );
 }
