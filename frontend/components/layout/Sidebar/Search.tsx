@@ -140,7 +140,7 @@ export function SearchSheet({
   return (
     <Sheet open={open} onOpenChange={handleOpenChange}>
       <SheetContent
-        className="!w-[90vw] !max-w-none md:!w-[80vw] p-0 flex flex-col gap-0"
+        className="!w-[100vw] !max-w-none md:!wd-[80vw] p-0 flex flex-col gap-0"
         showCloseButton={false}
       >
         <SheetTitle className="sr-only">{SEARCH_LABELS.SHEET_TITLE}</SheetTitle>
