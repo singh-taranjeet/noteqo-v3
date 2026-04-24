@@ -54,6 +54,7 @@ import { NOTE_DEFAULTS } from "@/features/workspace/constants/workspace.constant
 import { noteService } from "@/features/workspace/services/note.service";
 import type { Note } from "@/features/workspace/types/workspace.types";
 import { NoteEditorSurface } from "./NoteEditorSurface";
+import { NoteEditorSkeleton } from "./NoteEditorSkeleton";
 
 import DEFAULT_CONTENT from "@/features/editor/components/data/content.json";
 import { logService } from "@/services/log.service";
@@ -244,11 +245,7 @@ export function NoteEditor({
   }, [editor, isReady, content]);
 
   if (!isReady) {
-    return (
-      <div className="flex w-full h-full items-center justify-center bg-background text-muted-foreground text-sm">
-        Loading note...
-      </div>
-    );
+    return <NoteEditorSkeleton />;
   }
 
   if (!editor) return null;
