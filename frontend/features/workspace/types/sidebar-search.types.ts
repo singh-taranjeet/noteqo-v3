@@ -2,6 +2,8 @@ export interface SidebarSearchResultItem {
   id: string;
   title: string;
   emoji: string;
+  coverImage: string;
+  content: unknown;
   spaceId: string;
   spaceName: string;
   createdAt: string;

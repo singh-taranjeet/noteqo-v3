@@ -1,18 +1,27 @@
 "use client";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { NoteEditor } from "@/features/editor/components/NoteEditor";
 import { SEARCH_LABELS } from "../constants/search.constants";
 import type { SidebarSearchResultItem } from "@/features/workspace/types/sidebar-search.types";
+import type { Note } from "@/features/workspace/types/workspace.types";
 
 interface SearchPreviewPaneProps {
   item: SidebarSearchResultItem | undefined;
+}
+
+function toPreviewNote(item: SidebarSearchResultItem): Note {
+  return {
+    id: item.id,
+    title: item.title,
+    emoji: item.emoji,
+    coverImage: item.coverImage,
+    content: item.content,
+    syncStatus: "synced",
+    spaceId: item.spaceId,
+    type: "private",
+    createdAt: item.createdAt,
+    updatedAt: item.updatedAt,
+  };
 }
 
 export function SearchPreviewPane({ item }: Readonly<SearchPreviewPaneProps>) {
@@ -24,27 +33,18 @@ export function SearchPreviewPane({ item }: Readonly<SearchPreviewPaneProps>) {
     );
   }
 
-  const previewText = item.previewText || SEARCH_LABELS.CONTENT_UNAVAILABLE;
+  const previewNote = toPreviewNote(item);
 
   return (
-    <ScrollArea
-      className="flex-1"
-      aria-label={SEARCH_LABELS.PREVIEW_REGION_LABEL}
-    >
-      <div className="p-4">
-        <Card size="sm" className="ring-border">
-          <CardHeader>
-            <div className="text-4xl" role="img" aria-hidden="true">
-              {item.emoji}
-            </div>
-            <CardDescription>{item.spaceName}</CardDescription>
-            <CardTitle>{item.title}</CardTitle>
-          </CardHeader>
-          <CardContent className="text-sm text-muted-foreground whitespace-pre-wrap">
-            {previewText}
-          </CardContent>
-        </Card>
-      </div>
-    </ScrollArea>
+    <div className="h-full" aria-label={SEARCH_LABELS.PREVIEW_REGION_LABEL}>
+      <NoteEditor
+        key={previewNote.id}
+        note={previewNote}
+        isReadOnly
+        disableRemoteLoad
+        className="h-full"
+        contentWrapperClassName="mb-0 px-6 sm:px-8"
+      />
+    </div>
   );
 }

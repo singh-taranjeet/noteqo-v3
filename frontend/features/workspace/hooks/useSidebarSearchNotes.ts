@@ -116,6 +116,8 @@ export function useSidebarSearchNotes() {
         id: note.id,
         title: note.title,
         emoji: note.emoji,
+        coverImage: note.coverImage,
+        content: note.content,
         spaceId: note.spaceId,
         spaceName: spaceNameById.get(note.spaceId) ?? "",
         createdAt: note.createdAt,
