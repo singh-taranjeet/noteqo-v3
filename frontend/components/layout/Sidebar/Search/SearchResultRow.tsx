@@ -8,7 +8,7 @@ import {
   ItemTitle,
 } from "@/components/ui/item";
 import { cn } from "@/lib/utils";
-import type { SidebarSearchResultItem } from "@/features/workspace/types/sidebar-search.types";
+import type { SidebarSearchResultItem } from "@/features/workspace";
 
 interface SearchResultRowProps {
   item: SidebarSearchResultItem;

@@ -8,11 +8,12 @@ import {
   useSpaceMembers,
   useAddSpaceMember,
   useRemoveSpaceMember,
-} from "@/features/spaces/hooks/useSpaceMembers";
+  SPACES_MESSAGES,
+} from "@/features/spaces";
 import { Button } from "@/components/ui/button";
 import { Delete01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import type { Space } from "@/features/spaces/types/spaces.types";
+import type { Space } from "@/features/spaces";
 
 interface SharedSpaceSettingsDialogProps {
   space: Space | null;
@@ -63,7 +64,9 @@ export function SharedSpaceSettingsDialog({
         role: values.role as string,
       });
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Failed to invite member");
+      setError(
+        err instanceof Error ? err.message : SPACES_MESSAGES.INVITE_FAILED,
+      );
     }
   };
 

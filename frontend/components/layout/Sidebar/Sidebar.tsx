@@ -15,9 +15,9 @@ import {
   useCreateNote,
   useSyncQueue,
 } from "@/features/workspace";
-import { MOCK_USER } from "@/features/auth/constants/auth.constants";
-import { SPACE_TYPE } from "@/features/spaces/constants/spaces.constants";
-import type { Space, SpaceType } from "@/features/spaces/types/spaces.types";
+import { MOCK_USER } from "@/features/auth";
+import { SPACE_TYPE } from "@/features/spaces";
+import type { Space, SpaceType } from "@/features/spaces";
 import { DynamicDialog } from "@/components/ui/DynamicDialog";
 import { DynamicForm } from "@/components/ui/DynamicForm";
 import type { FormFieldConfig, FormValues } from "@/components/ui/DynamicForm";

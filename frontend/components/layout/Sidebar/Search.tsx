@@ -6,7 +6,7 @@ import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import type {
   SidebarSearchResultItem,
   SidebarSearchSection,
-} from "@/features/workspace/types/sidebar-search.types";
+} from "@/features/workspace";
 import { useSidebarSearchNotes } from "@/features/workspace";
 import { SEARCH_CONFIG, SEARCH_LABELS } from "./constants/search.constants";
 import { SearchFilterBar } from "./Search/SearchFilterBar";

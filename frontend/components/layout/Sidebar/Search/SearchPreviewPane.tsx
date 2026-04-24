@@ -1,9 +1,9 @@
 "use client";
 
-import { NoteEditor } from "@/features/editor/components/NoteEditor";
+import { NoteEditor } from "@/features/editor";
 import { SEARCH_LABELS } from "../constants/search.constants";
-import type { SidebarSearchResultItem } from "@/features/workspace/types/sidebar-search.types";
-import type { Note } from "@/features/workspace/types/workspace.types";
+import type { SidebarSearchResultItem } from "@/features/workspace";
+import type { Note } from "@/features/workspace";
 
 interface SearchPreviewPaneProps {
   item: SidebarSearchResultItem | undefined;

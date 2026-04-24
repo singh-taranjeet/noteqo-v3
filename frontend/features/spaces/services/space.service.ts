@@ -1,17 +1,20 @@
-"use client";
-
 import { cryptoService, CRYPTO_CONFIG } from "@/features/crypto";
 import { storageService, STORAGE_KEYS, db } from "@/features/storage";
 import { logService } from "@/services/log.service";
 import { spaceApiService } from "./space-api.service";
-import { SPACE_DEFAULTS, SPACE_TYPE } from "../constants/spaces.constants";
+import {
+  SPACE_DEFAULTS,
+  SPACE_TYPE,
+  SPACES_MESSAGES,
+  NOTE_FALLBACKS,
+} from "../constants/spaces.constants";
 import type {
   Space,
   SpaceType,
   RemoteSpace,
   RemoteSpaceNote,
 } from "../types/spaces.types";
-import type { Note } from "@/features/workspace/types/workspace.types";
+import type { Note } from "@/features/workspace";
 
 export const spaceService = {
   /**
@@ -183,9 +186,9 @@ export const spaceService = {
 
       return {
         id: remoteNote.id,
-        title: payload.title ?? "Untitled",
-        emoji: payload.emoji ?? "📄",
-        coverImage: payload.coverImage ?? "",
+        title: payload.title ?? NOTE_FALLBACKS.TITLE,
+        emoji: payload.emoji ?? NOTE_FALLBACKS.EMOJI,
+        coverImage: payload.coverImage ?? NOTE_FALLBACKS.COVER_IMAGE,
         content: payload.content ?? null,
         syncStatus: "synced",
         spaceId: remoteNote.spaceId,
@@ -278,7 +281,7 @@ export const spaceService = {
       STORAGE_KEYS.PUBLIC_KEY,
     );
     if (!publicKeyJwk) {
-      throw new Error("Public key not found — cannot encrypt space key");
+      throw new Error(SPACES_MESSAGES.MISSING_PUBLIC_KEY);
     }
 
     const rsaPublicKey = await globalThis.crypto.subtle.importKey(
@@ -309,7 +312,7 @@ export const spaceService = {
     );
 
     if (!privateKey) {
-      throw new Error("Missing keys — cannot decrypt space key");
+      throw new Error(SPACES_MESSAGES.MISSING_PRIVATE_KEY);
     }
 
     const rsaPrivateKey = await globalThis.crypto.subtle.importKey(
