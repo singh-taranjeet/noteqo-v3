@@ -135,7 +135,7 @@ export function useAiActions({
       const prompt = AI_PROMPTS[actionType] + selectedText;
 
       try {
-        console.log("AI is working", selectedText, prompt);
+        console.log("AI is working", prompt);
         const result = await generate(prompt, actionType, (token) => {
           streamingPreviewRef.current += token;
           setStreamingPreview(streamingPreviewRef.current);
