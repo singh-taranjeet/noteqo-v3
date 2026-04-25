@@ -2,16 +2,19 @@
 
 import { useEffect, useCallback, useState } from "react";
 import type { Editor } from "@tiptap/react";
-import { BubbleMenu } from "@tiptap/react/menus";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 import { useAiActions } from "@/features/ai/hooks/useAiActions";
 import { AiMenuContent } from "./AiMenuContent";
 import type { AiActionType } from "@/features/ai/types/ai.types";
+import { EditorPopover } from "@/features/editor";
+import { SparklesIcon } from "@/features/editor/components/icons/SparklesIcon";
 
 interface AiMenuProps {
   editor: Editor;
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
 interface SelectionState {
@@ -26,7 +29,7 @@ const EMPTY_SELECTION: SelectionState = {
   selectionTo: 0,
 };
 
-export function AiMenu({ editor }: Readonly<AiMenuProps>) {
+export function AiMenu({ editor, isOpen, onOpenChange }: Readonly<AiMenuProps>) {
   const [selection, setSelection] = useState<SelectionState>(EMPTY_SELECTION);
 
   const {
@@ -76,48 +79,53 @@ export function AiMenu({ editor }: Readonly<AiMenuProps>) {
   );
 
   return (
-    <BubbleMenu
-      editor={editor}
-      shouldShow={({ state }) => {
-        const { selection: sel } = state;
-        if (sel.empty) return false;
-        const text = state.doc.textBetween(sel.from, sel.to, " ");
-        return text.trim().length > 0;
-      }}
-      className="z-50"
+    <EditorPopover
+      isOpen={isOpen}
+      onOpenChange={onOpenChange}
+      align="center"
+      contentClassName="w-52 p-0 overflow-hidden shadow-lg z-50"
+      trigger={
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-7 px-2 text-purple-500 hover:text-purple-600 hover:bg-purple-500/10 rounded-sm gap-1 transition-colors"
+          onMouseDown={(e) => e.preventDefault()}
+        >
+          <SparklesIcon className="w-4 h-4" />
+          <span className="text-xs font-medium">Ask AI</span>
+        </Button>
+      }
     >
-      <TooltipProvider delayDuration={300}>
-        <div className="w-52 overflow-hidden rounded-lg border bg-popover text-popover-foreground shadow-lg">
-          {/* Header */}
-          <div className="flex items-center justify-between border-b bg-muted/30 px-2.5 py-2">
-            <div className="flex items-center gap-1.5">
-              <span className="text-sm">✨</span>
-              <span className="text-xs font-semibold text-foreground">
-                AI Assistant
-              </span>
-            </div>
-            <Badge
-              variant="outline"
-              className="h-4 px-1 text-[9px] font-normal text-muted-foreground"
-            >
-              Local
-            </Badge>
+      <div className="flex flex-col">
+        {/* Header */}
+        <div className="flex items-center justify-between border-b bg-muted/30 px-2.5 py-2">
+          <div className="flex items-center gap-1.5">
+            <SparklesIcon className="w-3.5 h-3.5 text-purple-500" />
+            <span className="text-xs font-semibold text-foreground">
+              AI Assistant
+            </span>
           </div>
-
-          {/* Body */}
-          <div className="p-1.5">
-            <AiMenuContent
-              isLoading={isLoading}
-              downloadProgress={downloadProgress}
-              downloadProgressLabel={downloadProgressLabel}
-              streamingPreview={streamingPreview}
-              error={error}
-              onActionClick={handleActionClick}
-              onAbort={abort}
-            />
-          </div>
+          <Badge
+            variant="outline"
+            className="h-4 px-1 text-[9px] font-normal text-muted-foreground"
+          >
+            Local
+          </Badge>
         </div>
-      </TooltipProvider>
-    </BubbleMenu>
+
+        {/* Body */}
+        <div className="p-1.5">
+          <AiMenuContent
+            isLoading={isLoading}
+            downloadProgress={downloadProgress}
+            downloadProgressLabel={downloadProgressLabel}
+            streamingPreview={streamingPreview}
+            error={error}
+            onActionClick={handleActionClick}
+            onAbort={abort}
+          />
+        </div>
+      </div>
+    </EditorPopover>
   );
 }
