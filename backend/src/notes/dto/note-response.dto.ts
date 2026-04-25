@@ -6,6 +6,7 @@ export class NoteResponseDto {
   version: number;
   spaceId: string;
   type: NoteType;
+  isFavorite: boolean;
   createdBy: string;
   updatedBy?: string;
   deletedBy?: string;

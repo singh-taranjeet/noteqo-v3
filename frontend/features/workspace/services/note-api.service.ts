@@ -47,6 +47,7 @@ export const noteApiService = {
     ciphertext: string;
     spaceId: string;
     type: string;
+    isFavorite?: boolean;
     createdAt: string;
     updatedAt: string;
   }) => {
@@ -67,6 +68,7 @@ export const noteApiService = {
   updateNote: async (payload: {
     id: string;
     ciphertext: string;
+    isFavorite?: boolean;
     updatedAt: string;
   }) => {
     const response = await queryClient
@@ -75,7 +77,7 @@ export const noteApiService = {
         mutationFn: async (vars: typeof payload) => {
           const res: { data: RemoteNote } = await apiClient.patch(
             `${WORKSPACE_API_ROUTES.NOTES}/${vars.id}`,
-            { ciphertext: vars.ciphertext, updatedAt: vars.updatedAt },
+            { ciphertext: vars.ciphertext, updatedAt: vars.updatedAt, isFavorite: vars.isFavorite },
             { auth: true },
           );
           return res.data;
