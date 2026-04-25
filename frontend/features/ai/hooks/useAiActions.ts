@@ -154,7 +154,7 @@ export function useAiActions({
           case "reformat":
           case "spellcheck":
           case "summarize":
-            applyTextResult(`finalText`, selectionFrom, selectionTo);
+            applyTextResult(finalText, selectionFrom, selectionTo);
             break;
           case "restructure_accordion":
             applyAccordionResult(finalText, selectionFrom, selectionTo);
