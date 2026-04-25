@@ -34,7 +34,13 @@ async function loadModel(): Promise<void> {
 
   try {
     console.log("AI Model is not loaded yet", generator);
+
+    const device = "gpu" in navigator ? "webgpu" : "wasm";
+    console.log(`[AI] Initializing model with device: ${device}`);
+
     generator = (await pipeline("text-generation", AI_CONFIG.MODEL_ID, {
+      device,
+      dtype: "q4",
       progress_callback: (progress: ProgressInfo) => {
         if ("progress" in progress && typeof progress.progress === "number") {
           const percentage = Math.round(progress.progress * 100);
@@ -48,12 +54,10 @@ async function loadModel(): Promise<void> {
                 : `Preparing model... ${percentage}%`,
             },
           });
-          
         }
       },
     })) as TextGenerationPipeline;
 
-    
     postResponse({ type: "MODEL_READY" });
     console.log("[AI] Model loaded and ready for inference.");
   } catch (error: unknown) {

@@ -135,7 +135,7 @@ export function useAiActions({
       const prompt = AI_PROMPTS[actionType] + selectedText;
 
       try {
-        console.log("AI is not working", selectedText, prompt);
+        console.log("AI is working", selectedText, prompt);
         const result = await generate(prompt, actionType, (token) => {
           streamingPreviewRef.current += token;
           setStreamingPreview(streamingPreviewRef.current);
@@ -154,7 +154,7 @@ export function useAiActions({
           case "reformat":
           case "spellcheck":
           case "summarize":
-            applyTextResult(`-${finalText}-`, selectionFrom, selectionTo);
+            applyTextResult(`finalText`, selectionFrom, selectionTo);
             break;
           case "restructure_accordion":
             applyAccordionResult(finalText, selectionFrom, selectionTo);
