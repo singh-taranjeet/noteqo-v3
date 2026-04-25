@@ -1,4 +1,9 @@
-export type AiActionType = "spellcheck";
+export type AiActionType =
+  | "reformat"
+  | "spellcheck"
+  | "restructure_accordion"
+  | "restructure_card"
+  | "summarize";
 
 export type AiWorkerStatus =
   | "idle"
@@ -30,4 +35,9 @@ export interface AiMenuState {
   selectedText: string;
   selectionFrom: number;
   selectionTo: number;
+}
+
+export interface AccordionItem {
+  title: string;
+  content: string;
 }

@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef } from "react";
 import type { Editor } from "@tiptap/react";
-import type { AiActionType } from "@/features/ai/types/ai.types";
+import type { AiActionType, AccordionItem } from "@/features/ai/types/ai.types";
 import { AI_PROMPTS } from "@/features/ai/constants/ai.constants";
 import { useAiWorker } from "./useAiWorker";
 
@@ -53,6 +53,77 @@ export function useAiActions({
     [editor],
   );
 
+  const applyAccordionResult = useCallback(
+    (result: string, from: number, to: number) => {
+      if (!editor) return;
+
+      let items: AccordionItem[] = [];
+      try {
+        // Strip any markdown fences the model may have added
+        const cleaned = result
+          .replace(/```json\n?/g, "")
+          .replace(/```\n?/g, "")
+          .trim();
+        const parsed: unknown = JSON.parse(cleaned);
+        if (Array.isArray(parsed)) {
+          items = (parsed as AccordionItem[]).filter(
+            (item) =>
+              typeof item === "object" &&
+              typeof item.title === "string" &&
+              typeof item.content === "string",
+          );
+        }
+      } catch {
+        // Fallback: insert result as plain text in an accordion
+        items = [{ title: "Summary", content: result }];
+      }
+
+      if (items.length === 0) {
+        items = [{ title: "Content", content: result }];
+      }
+
+      const accordionNodes = items.map((item) => ({
+        type: "shadcnAccordion",
+        attrs: { title: item.title, isOpen: true },
+        content: [
+          {
+            type: "paragraph",
+            content: [{ type: "text", text: item.content }],
+          },
+        ],
+      }));
+
+      editor
+        .chain()
+        .focus()
+        .deleteRange({ from, to })
+        .insertContentAt(from, accordionNodes)
+        .run();
+    },
+    [editor],
+  );
+
+  const applyCardResult = useCallback(
+    (result: string, from: number, to: number) => {
+      if (!editor) return;
+      editor
+        .chain()
+        .focus()
+        .deleteRange({ from, to })
+        .insertContentAt(from, {
+          type: "shadcnCard",
+          content: [
+            {
+              type: "paragraph",
+              content: [{ type: "text", text: result }],
+            },
+          ],
+        })
+        .run();
+    },
+    [editor],
+  );
+
   const executeAction = useCallback(
     async (actionType: AiActionType): Promise<void> => {
       if (!editor || !selectedText.trim()) return;
@@ -72,21 +143,7 @@ export function useAiActions({
 
         console.log("Got result", result);
 
-        let finalText = result.trim() || streamingPreviewRef.current.trim();
-
-        // Extract content inside markdown code blocks to ignore conversational filler
-        const codeBlockMatch = finalText.match(
-          /```(?:html|xml|markdown)?\n([\s\S]*?)```/i,
-        );
-        if (codeBlockMatch && codeBlockMatch[1]) {
-          finalText = codeBlockMatch[1].trim();
-        } else {
-          // Cleanup stray fences if no full block was matched
-          finalText = finalText
-            .replace(/^```[a-zA-Z]*\n?/, "")
-            .replace(/\n?```$/, "")
-            .trim();
-        }
+        const finalText = result.trim() || streamingPreviewRef.current.trim();
 
         if (!finalText) {
           setError("The AI returned an empty response. Please try again.");
@@ -94,8 +151,16 @@ export function useAiActions({
         }
 
         switch (actionType) {
+          case "reformat":
           case "spellcheck":
-            applyTextResult(finalText, selectionFrom, selectionTo);
+          case "summarize":
+            applyTextResult(`finalText`, selectionFrom, selectionTo);
+            break;
+          case "restructure_accordion":
+            applyAccordionResult(finalText, selectionFrom, selectionTo);
+            break;
+          case "restructure_card":
+            applyCardResult(finalText, selectionFrom, selectionTo);
             break;
         }
 
@@ -114,6 +179,8 @@ export function useAiActions({
       selectionTo,
       generate,
       applyTextResult,
+      applyAccordionResult,
+      applyCardResult,
     ],
   );
 
