@@ -6,7 +6,7 @@ import type { ChangeEvent, FocusEvent } from "react";
 import { cn } from "@/lib/utils";
 import { BlockDragHandle } from "@/features/editor/components/editor-ui/BlockDragHandle";
 import { EditorBubbleMenu } from "@/features/editor/components/editor-ui/EditorBubbleMenu";
-import { AiMenu } from "@/features/ai";
+
 import { NOTE_DEFAULTS } from "@/features/workspace/constants/workspace.constants";
 
 interface NoteEditorSurfaceProps {
@@ -82,7 +82,7 @@ export function NoteEditorSurface({
         <EditorContext.Provider value={{ editor }}>
           {!isReadOnly ? <BlockDragHandle editor={editor} /> : null}
           {!isReadOnly ? <EditorBubbleMenu editor={editor} /> : null}
-          {!isReadOnly ? <AiMenu editor={editor} /> : null}
+
           <EditorContent
             editor={editor}
             role="presentation"

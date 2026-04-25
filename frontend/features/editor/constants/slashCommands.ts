@@ -219,33 +219,9 @@ const dispatchAiSlashAction = (
 
 export const AI_SLASH_COMMANDS: AiSuggestionItem[] = [
   {
-    title: "AI: Reformat",
-    aiActionType: "reformat",
-    command: ({ editor, range }) =>
-      dispatchAiSlashAction(editor, range, "reformat"),
-  },
-  {
     title: "AI: Fix Spelling",
     aiActionType: "spellcheck",
     command: ({ editor, range }) =>
       dispatchAiSlashAction(editor, range, "spellcheck"),
-  },
-  {
-    title: "AI: Summarize",
-    aiActionType: "summarize",
-    command: ({ editor, range }) =>
-      dispatchAiSlashAction(editor, range, "summarize"),
-  },
-  {
-    title: "AI: To Accordion",
-    aiActionType: "restructure_accordion",
-    command: ({ editor, range }) =>
-      dispatchAiSlashAction(editor, range, "restructure_accordion"),
-  },
-  {
-    title: "AI: Wrap in Card",
-    aiActionType: "restructure_card",
-    command: ({ editor, range }) =>
-      dispatchAiSlashAction(editor, range, "restructure_card"),
   },
 ];
