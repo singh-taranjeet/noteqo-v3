@@ -73,12 +73,24 @@ export const TableNodeView = ({
   const data = parseTableData(node.attrs.tableData as string);
   const [isHovered, setIsHovered] = useState(false);
   const [dragCol, setDragCol] = useState<number | null>(null);
+  const dragColRef = useRef<number | null>(null);
   const [dropTarget, setDropTarget] = useState<number | null>(null);
+  const dropTargetRef = useRef<number | null>(null);
   const [resizingCol, setResizingCol] = useState<number | null>(null);
   const [menuCol, setMenuCol] = useState(-1);
   const tableRef = useRef<HTMLDivElement>(null);
   const resizeStartX = useRef(0);
   const resizeStartWidth = useRef(0);
+
+  const setDragColSafe = useCallback((val: number | null) => {
+    setDragCol(val);
+    dragColRef.current = val;
+  }, []);
+
+  const setDropTargetSafe = useCallback((val: number | null) => {
+    setDropTarget(val);
+    dropTargetRef.current = val;
+  }, []);
 
   const colCount = data.headers.length;
   const rowCount = data.rows.length;
@@ -212,56 +224,7 @@ export const TableNodeView = ({
     [data, persist],
   );
 
-  /* ─── Column Drag & Drop Reorder ──────────────────────────── */
 
-  const handleDragStart = useCallback(
-    (e: React.DragEvent, colIdx: number) => {
-      setDragCol(colIdx);
-      e.dataTransfer.effectAllowed = "move";
-      e.dataTransfer.setData("text/plain", String(colIdx));
-    },
-    [],
-  );
-
-  const handleDragOver = useCallback(
-    (e: React.DragEvent, colIdx: number) => {
-      e.preventDefault();
-      e.dataTransfer.dropEffect = "move";
-      setDropTarget(colIdx);
-    },
-    [],
-  );
-
-  const handleDrop = useCallback(
-    (e: React.DragEvent, toIdx: number) => {
-      e.preventDefault();
-      const fromIdx = dragCol;
-      setDragCol(null);
-      setDropTarget(null);
-
-      if (fromIdx === null || fromIdx === toIdx) return;
-
-      const reorder = <T,>(arr: T[]): T[] => {
-        const result = [...arr];
-        const [moved] = result.splice(fromIdx, 1);
-        result.splice(toIdx, 0, moved);
-        return result;
-      };
-
-      const next: TableData = {
-        headers: reorder(data.headers),
-        rows: data.rows.map((r) => reorder(r)),
-        columnWidths: reorder(data.columnWidths),
-      };
-      persist(next);
-    },
-    [dragCol, data, persist],
-  );
-
-  const handleDragEnd = useCallback(() => {
-    setDragCol(null);
-    setDropTarget(null);
-  }, []);
 
   /* ─── Column Resize ───────────────────────────────────────── */
 
@@ -327,101 +290,6 @@ export const TableNodeView = ({
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        {/* ── Column grip handles (above table) ─────────────── */}
-        {isEditable && (
-          <div
-            className={cn(
-              "flex transition-opacity duration-150",
-              isHovered ? "opacity-100" : "opacity-0",
-            )}
-          >
-            {data.headers.map((_, colIdx) => (
-              <div
-                key={`grip-${colIdx}`}
-                className="flex justify-center"
-                style={getColStyle(colIdx)}
-              >
-                <DropdownMenu
-                  open={menuCol === colIdx}
-                  onOpenChange={(open) =>
-                    setMenuCol(open ? colIdx : -1)
-                  }
-                >
-                  <DropdownMenuTrigger asChild>
-                    <button
-                      draggable
-                      onDragStart={(e) => handleDragStart(e, colIdx)}
-                      onDragOver={(e) => handleDragOver(e, colIdx)}
-                      onDrop={(e) => handleDrop(e, colIdx)}
-                      onDragEnd={handleDragEnd}
-                      className={cn(
-                        "flex items-center justify-center w-6 h-5 cursor-grab active:cursor-grabbing",
-                        "bg-background border border-border rounded-sm text-muted-foreground",
-                        "hover:bg-muted transition-colors duration-150 mb-1",
-                      )}
-                      aria-label={`Column ${colIdx + 1} options`}
-                    >
-                      <GripDotsIcon />
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start" className="w-48">
-                    <DropdownMenuSub>
-                      <DropdownMenuSubTrigger>
-                        <span className="flex items-center gap-2">
-                          <PaletteIcon />
-                          Color
-                        </span>
-                      </DropdownMenuSubTrigger>
-                      <DropdownMenuSubContent>
-                        {COLUMN_COLORS.map((color) => (
-                          <DropdownMenuItem
-                            key={color.label}
-                            onClick={() => {
-                              // Color is visual only — future enhancement
-                              setMenuCol(-1);
-                            }}
-                          >
-                            <span className="flex items-center gap-2">
-                              <span
-                                className="inline-block w-4 h-4 rounded border border-border"
-                                style={{ backgroundColor: color.swatch }}
-                              />
-                              {color.label}
-                            </span>
-                          </DropdownMenuItem>
-                        ))}
-                      </DropdownMenuSubContent>
-                    </DropdownMenuSub>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => { insertColumnBefore(colIdx); setMenuCol(-1); }}>
-                      <span className="flex items-center gap-2"><ArrowLeftIcon /> Insert left</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => { insertColumnAfter(colIdx); setMenuCol(-1); }}>
-                      <span className="flex items-center gap-2"><ArrowRightIcon /> Insert right</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => { insertColumnAfter(colIdx); setMenuCol(-1); }}>
-                      <span className="flex items-center justify-between w-full">
-                        <span className="flex items-center gap-2"><DuplicateIcon /> Duplicate</span>
-                        <kbd className="text-xs text-muted-foreground">⌘D</kbd>
-                      </span>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => { clearColumnContents(colIdx); setMenuCol(-1); }}>
-                      <span className="flex items-center gap-2"><ClearIcon /> Clear contents</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => { deleteColumn(colIdx); setMenuCol(-1); }}
-                      className="text-destructive focus:text-destructive"
-                    >
-                      <span className="flex items-center gap-2"><TrashIcon /> Delete</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            ))}
-          </div>
-        )}
-
         {/* ── Drop indicator during column drag ─────────────── */}
         {dragCol !== null && dropTarget !== null && dropTarget !== dragCol && (
           <div
@@ -430,7 +298,9 @@ export const TableNodeView = ({
               left: (() => {
                 const table = tableRef.current?.querySelector("table");
                 if (!table) return 0;
-                const cells = table.querySelectorAll("th");
+                const headerRow = table.querySelector("thead tr:last-child");
+                if (!headerRow) return 0;
+                const cells = headerRow.querySelectorAll("th");
                 if (cells[dropTarget]) {
                   const rect = cells[dropTarget].getBoundingClientRect();
                   const tableRect = table.getBoundingClientRect();
@@ -446,9 +316,86 @@ export const TableNodeView = ({
 
         {/* ── The actual table ──────────────────────────────── */}
         <div className="overflow-x-auto">
-          <table className="w-full border-collapse border border-border rounded-md">
-            {/* Header row */}
+          <table className="w-full border-collapse border border-border">
+            {/* Colgroup for width control */}
+            <colgroup>
+              {data.headers.map((_, colIdx) => (
+                <col key={`col-${colIdx}`} style={getColStyle(colIdx)} />
+              ))}
+            </colgroup>
+
             <thead>
+              {/* ── Grip handles row (inside table for alignment) ── */}
+              {isEditable && (
+                <tr
+                  className={cn(
+                    "transition-opacity duration-150",
+                    isHovered ? "opacity-100" : "opacity-0",
+                  )}
+                >
+                  {data.headers.map((_, colIdx) => (
+                    <th
+                      key={`grip-${colIdx}`}
+                      className="border-none p-0 bg-transparent"
+                    >
+                      <div className="flex justify-center pb-1">
+                        <ColumnGripButton
+                          colIdx={colIdx}
+                          menuCol={menuCol}
+                          setMenuCol={setMenuCol}
+                          dragCol={dragCol}
+                          onDragStart={setDragColSafe}
+                          onDragMove={(clientX) => {
+                            const table = tableRef.current?.querySelector("table");
+                            if (!table) return;
+                            const headerRow = table.querySelector("thead tr:last-child");
+                            if (!headerRow) return;
+                            const cells = headerRow.querySelectorAll("th");
+                            let closest = 0;
+                            let closestDist = Infinity;
+                            cells.forEach((cell, i) => {
+                              const rect = cell.getBoundingClientRect();
+                              const center = rect.left + rect.width / 2;
+                              const dist = Math.abs(clientX - center);
+                              if (dist < closestDist) {
+                                closestDist = dist;
+                                closest = i;
+                              }
+                            });
+                            setDropTargetSafe(closest);
+                          }}
+                          onDragEnd={(fromIdx) => {
+                            const currentDropTarget = dropTargetRef.current;
+                            if (currentDropTarget !== null && fromIdx !== currentDropTarget) {
+                              const reorder = <T,>(arr: T[]): T[] => {
+                                const result = [...arr];
+                                const [moved] = result.splice(fromIdx, 1);
+                                result.splice(currentDropTarget, 0, moved);
+                                return result;
+                              };
+                              const next: TableData = {
+                                headers: reorder(data.headers),
+                                rows: data.rows.map((r) => reorder(r)),
+                                columnWidths: reorder(data.columnWidths),
+                              };
+                              persist(next);
+                            }
+                            setDragColSafe(null);
+                            setDropTargetSafe(null);
+                          }}
+                          insertColumnBefore={insertColumnBefore}
+                          insertColumnAfter={insertColumnAfter}
+                          clearColumnContents={clearColumnContents}
+                          deleteColumn={deleteColumn}
+                          colCount={colCount}
+                        />
+                      </div>
+                    </th>
+                  ))}
+                </tr>
+              )}
+
+              {/* ── Actual header row ─────────────────────────── */}
               <tr>
                 {data.headers.map((header, colIdx) => (
                   <th
@@ -457,9 +404,6 @@ export const TableNodeView = ({
                       "border border-border px-3 py-2 text-left font-semibold bg-muted text-foreground relative",
                       dragCol === colIdx && "opacity-50",
                     )}
-                    style={getColStyle(colIdx)}
-                    onDragOver={(e) => handleDragOver(e, colIdx)}
-                    onDrop={(e) => handleDrop(e, colIdx)}
                   >
                     {isEditable ? (
                       <input
@@ -500,9 +444,6 @@ export const TableNodeView = ({
                         "border border-border px-3 py-2 align-top relative",
                         dragCol === colIdx && "opacity-50",
                       )}
-                      style={getColStyle(colIdx)}
-                      onDragOver={(e) => handleDragOver(e, colIdx)}
-                      onDrop={(e) => handleDrop(e, colIdx)}
                     >
                       {isEditable ? (
                         <input
@@ -572,6 +513,159 @@ export const TableNodeView = ({
     </NodeViewWrapper>
   );
 };
+
+/* ─── Column Grip Button ─────────────────────────────────────
+   Separates click (opens context menu) from drag (reorders columns).
+   Uses mousedown + mousemove threshold instead of HTML5 DnD
+   so it doesn't conflict with the DropdownMenu trigger.        */
+
+const DRAG_THRESHOLD = 5;
+
+interface ColumnGripButtonProps {
+  colIdx: number;
+  menuCol: number;
+  setMenuCol: (col: number) => void;
+  dragCol: number | null;
+  onDragStart: (colIdx: number) => void;
+  onDragMove: (clientX: number) => void;
+  onDragEnd: (fromIdx: number) => void;
+  insertColumnBefore: (colIdx: number) => void;
+  insertColumnAfter: (colIdx: number) => void;
+  clearColumnContents: (colIdx: number) => void;
+  deleteColumn: (colIdx: number) => void;
+  colCount: number;
+}
+
+function ColumnGripButton({
+  colIdx,
+  menuCol,
+  setMenuCol,
+  dragCol,
+  onDragStart,
+  onDragMove,
+  onDragEnd,
+  insertColumnBefore,
+  insertColumnAfter,
+  clearColumnContents,
+  deleteColumn,
+  colCount,
+}: ColumnGripButtonProps) {
+  const isDraggingRef = useRef(false);
+
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      if (e.button !== 0) return;
+      e.preventDefault();
+
+      const startX = e.clientX;
+      const startY = e.clientY;
+      isDraggingRef.current = false;
+
+      const handleMouseMove = (moveEvent: MouseEvent) => {
+        const dx = Math.abs(moveEvent.clientX - startX);
+        const dy = Math.abs(moveEvent.clientY - startY);
+
+        if (!isDraggingRef.current && (dx > DRAG_THRESHOLD || dy > DRAG_THRESHOLD)) {
+          isDraggingRef.current = true;
+          onDragStart(colIdx);
+        }
+
+        if (isDraggingRef.current) {
+          onDragMove(moveEvent.clientX);
+        }
+      };
+
+      const handleMouseUp = () => {
+        document.removeEventListener("mousemove", handleMouseMove);
+        document.removeEventListener("mouseup", handleMouseUp);
+
+        if (isDraggingRef.current) {
+          onDragEnd(colIdx);
+          isDraggingRef.current = false;
+        } else {
+          // It was a click — toggle the dropdown menu
+          setMenuCol(menuCol === colIdx ? -1 : colIdx);
+        }
+      };
+
+      document.addEventListener("mousemove", handleMouseMove);
+      document.addEventListener("mouseup", handleMouseUp);
+    },
+    [colIdx, menuCol, setMenuCol, onDragStart, onDragMove, onDragEnd],
+  );
+
+  return (
+    <DropdownMenu
+      open={menuCol === colIdx}
+      onOpenChange={(open) => {
+        if (!open) setMenuCol(-1);
+      }}
+    >
+      <DropdownMenuTrigger asChild>
+        <button
+          onMouseDown={handleMouseDown}
+          className={cn(
+            "flex items-center justify-center w-6 h-5 cursor-grab active:cursor-grabbing",
+            "bg-background border border-border rounded-sm text-muted-foreground",
+            "hover:bg-muted transition-colors duration-150",
+            dragCol === colIdx && "opacity-50",
+          )}
+          aria-label={`Column ${colIdx + 1} options`}
+        >
+          <GripDotsIcon />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="w-48">
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger>
+            <span className="flex items-center gap-2"><PaletteIcon /> Color</span>
+          </DropdownMenuSubTrigger>
+          <DropdownMenuSubContent>
+            {COLUMN_COLORS.map((color) => (
+              <DropdownMenuItem
+                key={color.label}
+                onClick={() => setMenuCol(-1)}
+              >
+                <span className="flex items-center gap-2">
+                  <span
+                    className="inline-block w-4 h-4 rounded border border-border"
+                    style={{ backgroundColor: color.swatch }}
+                  />
+                  {color.label}
+                </span>
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuSubContent>
+        </DropdownMenuSub>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => { insertColumnBefore(colIdx); setMenuCol(-1); }}>
+          <span className="flex items-center gap-2"><ArrowLeftIcon /> Insert left</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => { insertColumnAfter(colIdx); setMenuCol(-1); }}>
+          <span className="flex items-center gap-2"><ArrowRightIcon /> Insert right</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => { insertColumnAfter(colIdx); setMenuCol(-1); }}>
+          <span className="flex items-center justify-between w-full">
+            <span className="flex items-center gap-2"><DuplicateIcon /> Duplicate</span>
+            <kbd className="text-xs text-muted-foreground">⌘D</kbd>
+          </span>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => { clearColumnContents(colIdx); setMenuCol(-1); }}>
+          <span className="flex items-center gap-2"><ClearIcon /> Clear contents</span>
+        </DropdownMenuItem>
+        {colCount > 1 && (
+          <DropdownMenuItem
+            onClick={() => { deleteColumn(colIdx); setMenuCol(-1); }}
+            className="text-destructive focus:text-destructive"
+          >
+            <span className="flex items-center gap-2"><TrashIcon /> Delete</span>
+          </DropdownMenuItem>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
 
 /* ─── Small inline SVG icons ─────────────────────────────────── */
 
