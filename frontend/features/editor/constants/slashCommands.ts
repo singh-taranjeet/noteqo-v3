@@ -184,7 +184,10 @@ export const SLASH_COMMANDS: SuggestionItem[] = [
         .chain()
         .focus()
         .deleteRange(range)
-        .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
+        .insertContent({
+          type: "notionTable",
+          content: [{ type: "paragraph" }],
+        })
         .run();
     },
   },

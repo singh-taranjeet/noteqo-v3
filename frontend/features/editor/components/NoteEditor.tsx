@@ -47,9 +47,6 @@ import { AccordionNodeExtension } from "@/features/editor/components/nodes/Accor
 
 // --- Tiptap Table ---
 import { TableNodeExtension } from "@/features/editor/components/nodes/TableNode/TableNodeExtension";
-import { TableRowExtension } from "@/features/editor/components/nodes/TableNode/TableRowExtension";
-import { TableHeaderExtension } from "@/features/editor/components/nodes/TableNode/TableHeaderExtension";
-import { TableCellExtension } from "@/features/editor/components/nodes/TableNode/TableCellExtension";
 
 // --- Tiptap UI Hooks & Components ---
 
@@ -236,9 +233,6 @@ export function NoteEditor({
       ColumnsExtension,
       ColumnExtension,
       TableNodeExtension,
-      TableRowExtension,
-      TableHeaderExtension,
-      TableCellExtension,
     ],
     content,
     onUpdate: ({ editor }) => {
