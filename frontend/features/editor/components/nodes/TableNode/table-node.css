@@ -7,8 +7,11 @@
   overflow-x: auto;
 }
 
-/* Base table structure */
-.noteqo-table {
+/* ─── Base table structure ───────────────────────────────────── */
+/* Target the table both via the class Tiptap injects and
+   as a descendant of the wrapper (for NodeView rendering).    */
+.noteqo-table,
+.noteqo-table-wrapper table {
   width: 100%;
   border-collapse: collapse;
   border-spacing: 0;
@@ -18,17 +21,20 @@
   overflow: hidden;
 }
 
-/* Header row styling */
-.noteqo-table th {
+/* ─── Header row styling ────────────────────────────────────── */
+.noteqo-table th,
+.noteqo-table-wrapper table th {
   font-weight: 600;
   background: hsl(var(--muted));
   color: hsl(var(--foreground));
   text-align: left;
 }
 
-/* Cell borders */
+/* ─── Cell borders ───────────────────────────────────────────── */
 .noteqo-table td,
-.noteqo-table th {
+.noteqo-table th,
+.noteqo-table-wrapper table td,
+.noteqo-table-wrapper table th {
   border: 1px solid hsl(var(--border));
   padding: 8px 12px;
   vertical-align: top;
@@ -36,15 +42,18 @@
   min-width: 100px;
 }
 
-/* Paragraph inside cells */
+/* ─── Paragraph inside cells ─────────────────────────────────── */
 .noteqo-table td p,
-.noteqo-table th p {
+.noteqo-table th p,
+.noteqo-table-wrapper table td p,
+.noteqo-table-wrapper table th p {
   margin: 0;
   line-height: 1.5;
 }
 
-/* Selected cell highlight (Tiptap applies this class) */
-.noteqo-table .selectedCell::after {
+/* ─── Selected cell highlight (Tiptap applies this class) ────── */
+.noteqo-table .selectedCell::after,
+.noteqo-table-wrapper table .selectedCell::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -53,8 +62,9 @@
   z-index: 1;
 }
 
-/* Column resize handle — ProseMirror injects this */
-.noteqo-table .column-resize-handle {
+/* ─── Column resize handle — ProseMirror injects this ────────── */
+.noteqo-table .column-resize-handle,
+.noteqo-table-wrapper .column-resize-handle {
   position: absolute;
   right: -2px;
   top: 0;
@@ -65,9 +75,11 @@
   z-index: 20;
 }
 
-/* Resize cursor on cells when near border */
+/* ─── Resize cursor on cells when near border ────────────────── */
 .noteqo-table.resize-cursor td,
-.noteqo-table.resize-cursor th {
+.noteqo-table.resize-cursor th,
+.noteqo-table-wrapper .resize-cursor td,
+.noteqo-table-wrapper .resize-cursor th {
   cursor: col-resize;
 }
 
@@ -83,7 +95,9 @@
   justify-content: center;
   cursor: pointer;
   opacity: 0;
-  transition: opacity 0.15s ease, background-color 0.15s ease;
+  transition:
+    opacity 0.15s ease,
+    background-color 0.15s ease;
   background: hsl(var(--muted) / 0.6);
   border-radius: 0 0 4px 4px;
   z-index: 10;
@@ -115,7 +129,9 @@
   justify-content: center;
   cursor: pointer;
   opacity: 0;
-  transition: opacity 0.15s ease, background-color 0.15s ease;
+  transition:
+    opacity 0.15s ease,
+    background-color 0.15s ease;
   background: hsl(var(--muted) / 0.6);
   border-radius: 0 4px 4px 0;
   z-index: 10;
@@ -146,7 +162,9 @@
   height: 20px;
   cursor: grab;
   opacity: 0;
-  transition: opacity 0.15s ease, background-color 0.15s ease;
+  transition:
+    opacity 0.15s ease,
+    background-color 0.15s ease;
   background: hsl(var(--background));
   border: 1px solid hsl(var(--border));
   border-radius: 4px;

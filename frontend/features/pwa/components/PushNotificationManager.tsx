@@ -1,14 +1,18 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { subscribeUser, unsubscribeUser, sendNotification } from '../actions/pwa.actions';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { toast } from 'sonner';
+import { useState, useEffect } from "react";
+import {
+  subscribeUser,
+  unsubscribeUser,
+  sendNotification,
+} from "../actions/pwa.actions";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
 
 function urlBase64ToUint8Array(base64String: string) {
-  const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
-  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
 
   const rawData = window.atob(base64);
   const outputArray = new Uint8Array(rawData.length);
@@ -21,20 +25,22 @@ function urlBase64ToUint8Array(base64String: string) {
 
 export function PushNotificationManager() {
   const [isSupported, setIsSupported] = useState(false);
-  const [subscription, setSubscription] = useState<PushSubscription | null>(null);
-  const [message, setMessage] = useState('');
+  const [subscription, setSubscription] = useState<PushSubscription | null>(
+    null,
+  );
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
-    if ('serviceWorker' in navigator && 'PushManager' in window) {
+    if ("serviceWorker" in navigator && "PushManager" in window) {
       setIsSupported(true);
       registerServiceWorker();
     }
   }, []);
 
   async function registerServiceWorker() {
-    const registration = await navigator.serviceWorker.register('/sw.js', {
-      scope: '/',
-      updateViaCache: 'none',
+    const registration = await navigator.serviceWorker.register("/sw.js", {
+      scope: "/",
+      updateViaCache: "none",
     });
     const sub = await registration.pushManager.getSubscription();
     setSubscription(sub);
@@ -46,16 +52,16 @@ export function PushNotificationManager() {
       const sub = await registration.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(
-          process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!
+          process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
         ),
       });
       setSubscription(sub);
       const serializedSub = JSON.parse(JSON.stringify(sub));
       await subscribeUser(serializedSub);
-      toast.success('Subscribed to notifications!');
+      toast.success("Subscribed to notifications!");
     } catch (error) {
       console.error(error);
-      toast.error('Failed to subscribe to notifications.');
+      toast.error("Failed to subscribe to notifications.");
     }
   }
 
@@ -64,27 +70,31 @@ export function PushNotificationManager() {
       await subscription?.unsubscribe();
       setSubscription(null);
       await unsubscribeUser();
-      toast.success('Unsubscribed from notifications.');
+      toast.success("Unsubscribed from notifications.");
     } catch (error) {
       console.error(error);
-      toast.error('Failed to unsubscribe.');
+      toast.error("Failed to unsubscribe.");
     }
   }
 
   async function sendTestNotification() {
     if (subscription) {
-      const result = await sendNotification(message || 'Hello from Noteqo!');
+      const result = await sendNotification(message || "Hello from Noteqo!");
       if (result.success) {
-        toast.success('Notification sent!');
+        toast.success("Notification sent!");
       } else {
-        toast.error('Failed to send notification.');
+        toast.error("Failed to send notification.");
       }
-      setMessage('');
+      setMessage("");
     }
   }
 
   if (!isSupported) {
-    return <p className="text-sm text-muted-foreground">Push notifications are not supported in this browser.</p>;
+    return (
+      <p className="text-sm text-muted-foreground">
+        Push notifications are not supported in this browser.
+      </p>
+    );
   }
 
   return (
@@ -92,9 +102,13 @@ export function PushNotificationManager() {
       <h3 className="text-lg font-semibold">Push Notifications</h3>
       {subscription ? (
         <div className="space-y-4">
-          <p className="text-sm text-muted-foreground">You are subscribed to push notifications.</p>
-          <Button variant="destructive" onClick={unsubscribeFromPush}>Unsubscribe</Button>
-          
+          <p className="text-sm text-muted-foreground">
+            You are subscribed to push notifications.
+          </p>
+          <Button variant="destructive" onClick={unsubscribeFromPush}>
+            Unsubscribe
+          </Button>
+
           <div className="flex gap-2">
             <Input
               type="text"
@@ -107,7 +121,9 @@ export function PushNotificationManager() {
         </div>
       ) : (
         <div className="space-y-4">
-          <p className="text-sm text-muted-foreground">You are not subscribed to push notifications.</p>
+          <p className="text-sm text-muted-foreground">
+            You are not subscribed to push notifications.
+          </p>
           <Button onClick={subscribeToPush}>Subscribe</Button>
         </div>
       )}

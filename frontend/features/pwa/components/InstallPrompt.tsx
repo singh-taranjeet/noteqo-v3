@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
 
 export function InstallPrompt() {
   const [isIOS, setIsIOS] = useState(false);
@@ -9,9 +9,9 @@ export function InstallPrompt() {
 
   useEffect(() => {
     setIsIOS(
-      /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream
+      /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream,
     );
-    setIsStandalone(window.matchMedia('(display-mode: standalone)').matches);
+    setIsStandalone(window.matchMedia("(display-mode: standalone)").matches);
   }, []);
 
   if (isStandalone) {
@@ -24,7 +24,7 @@ export function InstallPrompt() {
       <p className="text-sm text-muted-foreground">
         Install Noteqo to your home screen for a better experience.
       </p>
-      
+
       {/* 
         A custom button to trigger beforeinstallprompt would go here if supported,
         but since it's highly browser-dependent and not supported on iOS Safari,
@@ -33,18 +33,20 @@ export function InstallPrompt() {
 
       {isIOS ? (
         <p className="text-sm border rounded p-3 bg-muted">
-          To install this app on your iOS device, tap the share button{' '}
+          To install this app on your iOS device, tap the share button{" "}
           <span role="img" aria-label="share icon">
             ⎋
-          </span>{' '}
-          and then <strong>"Add to Home Screen"</strong>{' '}
+          </span>{" "}
+          and then <strong>"Add to Home Screen"</strong>{" "}
           <span role="img" aria-label="plus icon">
             ➕
-          </span>.
+          </span>
+          .
         </p>
       ) : (
         <p className="text-sm text-muted-foreground italic">
-          Look for the install icon in your browser's address bar to add this app to your device.
+          Look for the install icon in your browser's address bar to add this
+          app to your device.
         </p>
       )}
     </div>

@@ -40,7 +40,10 @@ export default function RootLayout({
       )}
     >
       <body className="min-h-full flex flex-col">
-        <SerwistProvider swUrl="/sw.js" disable={process.env.NODE_ENV === "development"}>
+        <SerwistProvider
+          swUrl="/sw.js"
+          disable={process.env.NODE_ENV === "development"}
+        >
           <Providers>
             <TooltipProvider>{children}</TooltipProvider>
           </Providers>

@@ -13,15 +13,27 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useTableControls } from "./useTableControls";
 import { reorderColumn } from "./TableColumnReorder";
 import "./table-node.css";
 
 /** Color options for column/cell coloring via context menu. */
-const COLUMN_COLORS: Array<{ label: string; value: string | null; swatch: string }> = [
+const COLUMN_COLORS: Array<{
+  label: string;
+  value: string | null;
+  swatch: string;
+}> = [
   { label: "Default", value: null, swatch: "transparent" },
-  { label: "Light Gray", value: "hsl(var(--muted))", swatch: "hsl(var(--muted))" },
+  {
+    label: "Light Gray",
+    value: "hsl(var(--muted))",
+    swatch: "hsl(var(--muted))",
+  },
   { label: "Blue", value: "hsl(210 100% 95%)", swatch: "#dbeafe" },
   { label: "Green", value: "hsl(142 76% 93%)", swatch: "#dcfce7" },
   { label: "Yellow", value: "hsl(48 96% 89%)", swatch: "#fef9c3" },
@@ -32,7 +44,11 @@ const COLUMN_COLORS: Array<{ label: string; value: string | null; swatch: string
 /** Grip icon (6-dot drag handle). */
 function GripIcon() {
   return (
-    <svg viewBox="0 0 10 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      viewBox="0 0 10 16"
+      fill="currentColor"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <circle cx="3" cy="2" r="1.5" />
       <circle cx="7" cy="2" r="1.5" />
       <circle cx="3" cy="8" r="1.5" />
@@ -46,7 +62,14 @@ function GripIcon() {
 /** Plus icon for add row/column buttons. */
 function PlusIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <line x1="12" y1="5" x2="12" y2="19" />
       <line x1="5" y1="12" x2="19" y2="12" />
     </svg>
@@ -287,11 +310,15 @@ export const TableNodeView = ({ editor }: NodeViewProps) => {
   const isEditable = editor.isEditable;
 
   return (
-    <NodeViewWrapper className="w-full my-4 not-prose block">
+    <NodeViewWrapper className="w-full my-4 not-prose block hover:border-dashed">
       <div
         ref={tableWrapperRef}
         className="noteqo-table-wrapper"
-        style={{ paddingTop: isEditable ? 28 : 0, paddingRight: isEditable ? 20 : 0, paddingBottom: isEditable ? 20 : 0 }}
+        style={{
+          paddingTop: isEditable ? 28 : 0,
+          paddingRight: isEditable ? 20 : 0,
+          paddingBottom: isEditable ? 20 : 0,
+        }}
       >
         {/* Column drag handles */}
         {isEditable &&
@@ -323,14 +350,23 @@ export const TableNodeView = ({ editor }: NodeViewProps) => {
                         const dy = Math.abs(moveEvent.clientY - startY);
                         if (dx > 5 || dy > 5) {
                           // User is dragging, not clicking
-                          document.removeEventListener("mousemove", handleMouseMove);
-                          document.removeEventListener("mouseup", handleMouseUp);
+                          document.removeEventListener(
+                            "mousemove",
+                            handleMouseMove,
+                          );
+                          document.removeEventListener(
+                            "mouseup",
+                            handleMouseUp,
+                          );
                           handleDragStart(e, col.index);
                         }
                       };
 
                       const handleMouseUp = () => {
-                        document.removeEventListener("mousemove", handleMouseMove);
+                        document.removeEventListener(
+                          "mousemove",
+                          handleMouseMove,
+                        );
                         document.removeEventListener("mouseup", handleMouseUp);
                         // It was a click — the DropdownMenu handles opening
                       };
@@ -415,17 +451,19 @@ export const TableNodeView = ({ editor }: NodeViewProps) => {
           ))}
 
         {/* Drop indicator line during column drag */}
-        {dragColumnIndex !== -1 && dropTargetIndex !== -1 && columns[dropTargetIndex] && (
-          <div
-            className="table-drop-indicator"
-            style={{
-              left:
-                dropTargetIndex <= dragColumnIndex
-                  ? columns[dropTargetIndex].left
-                  : columns[dropTargetIndex].right,
-            }}
-          />
-        )}
+        {dragColumnIndex !== -1 &&
+          dropTargetIndex !== -1 &&
+          columns[dropTargetIndex] && (
+            <div
+              className="table-drop-indicator"
+              style={{
+                left:
+                  dropTargetIndex <= dragColumnIndex
+                    ? columns[dropTargetIndex].left
+                    : columns[dropTargetIndex].right,
+              }}
+            />
+          )}
 
         {/* The actual table content rendered by Tiptap */}
         <NodeViewContent />
@@ -444,7 +482,9 @@ export const TableNodeView = ({ editor }: NodeViewProps) => {
             </TooltipTrigger>
             <TooltipContent side="bottom" className="text-center text-xs">
               <p className="font-medium">Click to add a new row</p>
-              <p className="text-muted-foreground">Drag to add or remove rows</p>
+              <p className="text-muted-foreground">
+                Drag to add or remove rows
+              </p>
             </TooltipContent>
           </Tooltip>
         )}
@@ -463,7 +503,9 @@ export const TableNodeView = ({ editor }: NodeViewProps) => {
             </TooltipTrigger>
             <TooltipContent side="right" className="text-center text-xs">
               <p className="font-medium">Click to add a new column</p>
-              <p className="text-muted-foreground">Drag to add or remove columns</p>
+              <p className="text-muted-foreground">
+                Drag to add or remove columns
+              </p>
             </TooltipContent>
           </Tooltip>
         )}
@@ -473,7 +515,10 @@ export const TableNodeView = ({ editor }: NodeViewProps) => {
 };
 
 // ─── Helper: select a cell in a specific column ─────────────────
-function selectColumnCell(editor: ReturnType<typeof import("@tiptap/react").useEditor> & object, columnIndex: number): void {
+function selectColumnCell(
+  editor: ReturnType<typeof import("@tiptap/react").useEditor> & object,
+  columnIndex: number,
+): void {
   const editorInstance = editor as import("@tiptap/core").Editor;
   const { state } = editorInstance;
   const { $from } = state.selection;
@@ -502,7 +547,16 @@ function selectColumnCell(editor: ReturnType<typeof import("@tiptap/react").useE
 // ─── Tiny inline icons for the context menu ─────────────────────
 function ColorSwatchIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <circle cx="13.5" cy="6.5" r="2.5" />
       <circle cx="6.5" cy="13.5" r="2.5" />
       <circle cx="17.5" cy="13.5" r="2.5" />
@@ -513,7 +567,16 @@ function ColorSwatchIcon() {
 
 function ArrowLeftIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <path d="m12 19-7-7 7-7" />
       <path d="M19 12H5" />
     </svg>
@@ -522,7 +585,16 @@ function ArrowLeftIcon() {
 
 function ArrowRightIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <path d="m12 5 7 7-7 7" />
       <path d="M5 12h14" />
     </svg>
@@ -531,7 +603,16 @@ function ArrowRightIcon() {
 
 function DuplicateIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <rect width="14" height="14" x="8" y="8" rx="2" />
       <path d="M4 16V4a2 2 0 0 1 2-2h12" />
     </svg>
@@ -540,7 +621,16 @@ function DuplicateIcon() {
 
 function ClearIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <circle cx="12" cy="12" r="10" />
       <path d="m15 9-6 6" />
       <path d="m9 9 6 6" />
@@ -550,7 +640,16 @@ function ClearIcon() {
 
 function TrashIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <path d="M3 6h18" />
       <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
       <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
