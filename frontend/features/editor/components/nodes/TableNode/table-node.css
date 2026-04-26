@@ -1,0 +1,214 @@
+/* ─── Noteqo Table Styles ───────────────────────────────────── */
+
+/* Wrapper around the table for hover detection */
+.noteqo-table-wrapper {
+  position: relative;
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* Base table structure */
+.noteqo-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  table-layout: fixed;
+  border: 1px solid hsl(var(--border));
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+/* Header row styling */
+.noteqo-table th {
+  font-weight: 600;
+  background: hsl(var(--muted));
+  color: hsl(var(--foreground));
+  text-align: left;
+}
+
+/* Cell borders */
+.noteqo-table td,
+.noteqo-table th {
+  border: 1px solid hsl(var(--border));
+  padding: 8px 12px;
+  vertical-align: top;
+  position: relative;
+  min-width: 100px;
+}
+
+/* Paragraph inside cells */
+.noteqo-table td p,
+.noteqo-table th p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Selected cell highlight (Tiptap applies this class) */
+.noteqo-table .selectedCell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: hsl(var(--primary) / 0.08);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Column resize handle — ProseMirror injects this */
+.noteqo-table .column-resize-handle {
+  position: absolute;
+  right: -2px;
+  top: 0;
+  bottom: -2px;
+  width: 4px;
+  background-color: hsl(var(--primary));
+  pointer-events: none;
+  z-index: 20;
+}
+
+/* Resize cursor on cells when near border */
+.noteqo-table.resize-cursor td,
+.noteqo-table.resize-cursor th {
+  cursor: col-resize;
+}
+
+/* ─── Add Row Button ─────────────────────────────────────────── */
+.table-add-row-btn {
+  position: absolute;
+  bottom: -16px;
+  left: 0;
+  right: 0;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s ease, background-color 0.15s ease;
+  background: hsl(var(--muted) / 0.6);
+  border-radius: 0 0 4px 4px;
+  z-index: 10;
+}
+
+.noteqo-table-wrapper:hover .table-add-row-btn {
+  opacity: 1;
+}
+
+.table-add-row-btn:hover {
+  background: hsl(var(--muted));
+}
+
+.table-add-row-btn svg {
+  width: 14px;
+  height: 14px;
+  color: hsl(var(--muted-foreground));
+}
+
+/* ─── Add Column Button ──────────────────────────────────────── */
+.table-add-col-btn {
+  position: absolute;
+  top: 0;
+  right: -16px;
+  bottom: 0;
+  width: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s ease, background-color 0.15s ease;
+  background: hsl(var(--muted) / 0.6);
+  border-radius: 0 4px 4px 0;
+  z-index: 10;
+}
+
+.noteqo-table-wrapper:hover .table-add-col-btn {
+  opacity: 1;
+}
+
+.table-add-col-btn:hover {
+  background: hsl(var(--muted));
+}
+
+.table-add-col-btn svg {
+  width: 14px;
+  height: 14px;
+  color: hsl(var(--muted-foreground));
+}
+
+/* ─── Column Drag Handle ─────────────────────────────────────── */
+.table-column-grip {
+  position: absolute;
+  top: -24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 20px;
+  cursor: grab;
+  opacity: 0;
+  transition: opacity 0.15s ease, background-color 0.15s ease;
+  background: hsl(var(--background));
+  border: 1px solid hsl(var(--border));
+  border-radius: 4px;
+  z-index: 20;
+}
+
+.noteqo-table-wrapper:hover .table-column-grip {
+  opacity: 1;
+}
+
+.table-column-grip:hover {
+  background: hsl(var(--muted));
+}
+
+.table-column-grip:active {
+  cursor: grabbing;
+}
+
+.table-column-grip svg {
+  width: 12px;
+  height: 12px;
+  color: hsl(var(--muted-foreground));
+}
+
+/* ─── Drop Indicator ─────────────────────────────────────────── */
+.table-drop-indicator {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: hsl(var(--primary));
+  border-radius: 2px;
+  z-index: 30;
+  pointer-events: none;
+  transition: left 0.1s ease;
+}
+
+/* ─── Column Highlight During Drag ───────────────────────────── */
+.table-column-dragging {
+  opacity: 0.5;
+}
+
+/* ─── Tooltip for Add Buttons ────────────────────────────────── */
+.table-control-tooltip {
+  position: absolute;
+  bottom: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: hsl(var(--foreground));
+  color: hsl(var(--background));
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  line-height: 1.4;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  z-index: 50;
+}
+
+.table-add-row-btn:hover .table-control-tooltip,
+.table-add-col-btn:hover .table-control-tooltip {
+  opacity: 1;
+}

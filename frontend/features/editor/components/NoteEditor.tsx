@@ -45,6 +45,12 @@ import { ColumnExtension } from "@/features/editor/components/nodes/ColumnsNode/
 import { CardNodeExtension } from "@/features/editor/components/nodes/CardNode/CardNodeExtension";
 import { AccordionNodeExtension } from "@/features/editor/components/nodes/AccordionNode/AccordionNodeExtension";
 
+// --- Tiptap Table ---
+import { TableNodeExtension } from "@/features/editor/components/nodes/TableNode/TableNodeExtension";
+import { TableRowExtension } from "@/features/editor/components/nodes/TableNode/TableRowExtension";
+import { TableHeaderExtension } from "@/features/editor/components/nodes/TableNode/TableHeaderExtension";
+import { TableCellExtension } from "@/features/editor/components/nodes/TableNode/TableCellExtension";
+
 // --- Tiptap UI Hooks & Components ---
 
 // --- Lib ---
@@ -229,6 +235,10 @@ export function NoteEditor({
       AiExtension,
       ColumnsExtension,
       ColumnExtension,
+      TableNodeExtension,
+      TableRowExtension,
+      TableHeaderExtension,
+      TableCellExtension,
     ],
     content,
     onUpdate: ({ editor }) => {

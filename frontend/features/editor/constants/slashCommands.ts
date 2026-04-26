@@ -14,6 +14,7 @@ import { ImagePlusIcon } from "@/features/editor/components/icons/ImagePlusIcon"
 import { ColumnsIcon } from "@/features/editor/components/icons/ColumnsIcon";
 import { CardIcon } from "@/features/editor/components/icons/CardIcon";
 import { AccordionIcon } from "@/features/editor/components/icons/AccordionIcon";
+import { TableIcon } from "@/features/editor/components/icons/TableIcon";
 import type { AiActionType } from "@/features/ai/types/ai.types";
 
 export interface SuggestionItem {
@@ -172,6 +173,18 @@ export const SLASH_COMMANDS: SuggestionItem[] = [
           type: "shadcnAccordion",
           content: [{ type: "paragraph" }],
         })
+        .run();
+    },
+  },
+  {
+    title: "Table",
+    icon: TableIcon,
+    command: ({ editor, range }) => {
+      editor
+        .chain()
+        .focus()
+        .deleteRange(range)
+        .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
         .run();
     },
   },
