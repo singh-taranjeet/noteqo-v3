@@ -14,6 +14,7 @@ import { ImagePlusIcon } from "@/features/editor/components/icons/ImagePlusIcon"
 import { ColumnsIcon } from "@/features/editor/components/icons/ColumnsIcon";
 import { CardIcon } from "@/features/editor/components/icons/CardIcon";
 import { AccordionIcon } from "@/features/editor/components/icons/AccordionIcon";
+import type { AiActionType } from "@/features/ai/types/ai.types";
 
 export interface SuggestionItem {
   title: string;
@@ -173,5 +174,78 @@ export const SLASH_COMMANDS: SuggestionItem[] = [
         })
         .run();
     },
+  },
+];
+
+/**
+ * AI slash command items — dispatches a custom event that AiMenu listens to.
+ * The event carries the current paragraph text and action type so the
+ * AiMenu can perform the action without requiring a text selection.
+ */
+export interface AiSuggestionItem extends SuggestionItem {
+  aiActionType: AiActionType;
+}
+
+const dispatchAiSlashAction = (
+  editor: Editor,
+  range: Range,
+  actionType: AiActionType,
+) => {
+  // Resolve the text of the paragraph that contains the slash command
+  const { state } = editor;
+  const { $from } = state.selection;
+  const start = $from.start();
+  const end = $from.end();
+  const blockText = state.doc
+    .textBetween(start, end, " ")
+    .replace(/^\/\S*\s*/, "")
+    .trim();
+
+  // Delete the slash command text
+  editor.chain().focus().deleteRange(range).run();
+
+  // Dispatch custom event so AiMenu can handle the action
+  const event = new CustomEvent("ai:slash-command", {
+    detail: {
+      actionType,
+      selectedText: blockText,
+      selectionFrom: start,
+      selectionTo: end,
+    },
+    bubbles: true,
+  });
+  editor.view.dom.dispatchEvent(event);
+};
+
+export const AI_SLASH_COMMANDS: AiSuggestionItem[] = [
+  {
+    title: "AI: Reformat",
+    aiActionType: "reformat",
+    command: ({ editor, range }) =>
+      dispatchAiSlashAction(editor, range, "reformat"),
+  },
+  {
+    title: "AI: Fix Spelling",
+    aiActionType: "spellcheck",
+    command: ({ editor, range }) =>
+      dispatchAiSlashAction(editor, range, "spellcheck"),
+  },
+  {
+    title: "AI: Summarize",
+    aiActionType: "summarize",
+    command: ({ editor, range }) =>
+      dispatchAiSlashAction(editor, range, "summarize"),
+  },
+  {
+    title: "AI: To Accordion",
+    aiActionType: "restructure_accordion",
+    command: ({ editor, range }) =>
+      dispatchAiSlashAction(editor, range, "restructure_accordion"),
+  },
+  {
+    title: "AI: Wrap in Card",
+    aiActionType: "restructure_card",
+    command: ({ editor, range }) =>
+      dispatchAiSlashAction(editor, range, "restructure_card"),
   },
 ];

@@ -10,6 +10,7 @@ import {
   CommandSeparator,
 } from "@/components/ui/command";
 import type { SuggestionItem } from "@/features/editor";
+import { AI_SLASH_COMMANDS } from "@/features/editor/constants/slashCommands";
 
 interface CommandListProps {
   items: SuggestionItem[];
@@ -27,22 +28,29 @@ export const CommandList = forwardRef((props: CommandListProps, ref) => {
     setSelectedIndex(0);
   }
 
+  // Separate AI commands from standard commands for display
+  const aiTitles = new Set(AI_SLASH_COMMANDS.map((c) => c.title));
+  const standardItems = props.items.filter((item) => !aiTitles.has(item.title));
+  const aiItems = props.items.filter((item) => aiTitles.has(item.title));
+
+  const allItems = props.items;
+
   useImperativeHandle(ref, () => ({
     onKeyDown: ({ event }: { event: KeyboardEvent }) => {
       if (event.key === "ArrowUp") {
         setSelectedIndex(
-          (selectedIndex + props.items.length - 1) % props.items.length,
+          (selectedIndex + allItems.length - 1) % allItems.length,
         );
         return true;
       }
 
       if (event.key === "ArrowDown") {
-        setSelectedIndex((selectedIndex + 1) % props.items.length);
+        setSelectedIndex((selectedIndex + 1) % allItems.length);
         return true;
       }
 
       if (event.key === "Enter") {
-        const item = props.items[selectedIndex];
+        const item = allItems[selectedIndex];
         if (item) {
           props.command(item);
           return true;
@@ -53,40 +61,54 @@ export const CommandList = forwardRef((props: CommandListProps, ref) => {
     },
   }));
 
-  if (!props.items.length) {
+  if (!allItems.length) {
     return null;
   }
+
+  const renderItem = (item: SuggestionItem, index: number) => {
+    const Icon = item.icon;
+    return (
+      <CommandItem
+        key={index}
+        onSelect={() => props.command(item)}
+        value={item.title}
+        className={cn(
+          "cursor-pointer",
+          index === selectedIndex && "bg-accent text-accent-foreground",
+        )}
+      >
+        {Icon && <Icon className="mr-2 size-4" />}
+        <span>{item.title}</span>
+        {item.shortcut && <CommandShortcut>{item.shortcut}</CommandShortcut>}
+      </CommandItem>
+    );
+  };
 
   return (
     <div className="w-64 overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md">
       <Command shouldFilter={false} className="border-none bg-transparent">
         <CommandListWrapper>
-          {props.items.length === 0 && (
+          {allItems.length === 0 && (
             <CommandEmpty>No results found.</CommandEmpty>
           )}
-          <CommandGroup heading="Basic blocks">
-            {props.items.map((item, index) => {
-              const Icon = item.icon;
-              return (
-                <CommandItem
-                  key={index}
-                  onSelect={() => props.command(item)}
-                  value={item.title}
-                  className={cn(
-                    "cursor-pointer",
-                    index === selectedIndex &&
-                      "bg-accent text-accent-foreground",
-                  )}
-                >
-                  {Icon && <Icon className="mr-2 size-4" />}
-                  <span>{item.title}</span>
-                  {item.shortcut && (
-                    <CommandShortcut>{item.shortcut}</CommandShortcut>
-                  )}
-                </CommandItem>
-              );
-            })}
-          </CommandGroup>
+
+          {standardItems.length > 0 && (
+            <CommandGroup heading="Basic blocks">
+              {standardItems.map((item, index) => renderItem(item, index))}
+            </CommandGroup>
+          )}
+
+          {aiItems.length > 0 && (
+            <>
+              <CommandSeparator />
+              <CommandGroup heading="AI ✨">
+                {aiItems.map((item, index) =>
+                  renderItem(item, standardItems.length + index),
+                )}
+              </CommandGroup>
+            </>
+          )}
+
           <CommandSeparator />
           <CommandGroup>
             <CommandItem
