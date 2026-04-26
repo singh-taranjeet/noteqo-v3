@@ -21,6 +21,8 @@ export const metadata: Metadata = {
     "Securely encrypt and sync your documents across all devices with E2E encryption.",
 };
 
+import { SerwistProvider } from "./serwist";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -38,9 +40,11 @@ export default function RootLayout({
       )}
     >
       <body className="min-h-full flex flex-col">
-        <Providers>
-          <TooltipProvider>{children}</TooltipProvider>
-        </Providers>
+        <SerwistProvider swUrl="/sw.js" disable={process.env.NODE_ENV === "development"}>
+          <Providers>
+            <TooltipProvider>{children}</TooltipProvider>
+          </Providers>
+        </SerwistProvider>
       </body>
     </html>
   );
