@@ -12,4 +12,6 @@ export const configValidationSchema = Joi.object({
   DB_PASSWORD: Joi.string().allow('').optional(),
   JWT_SECRET: Joi.string().required(),
   JWT_EXPIRES_IN: Joi.string().default('7d'),
+  BLOB_READ_WRITE_TOKEN: Joi.string().required(),
 });
+
