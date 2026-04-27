@@ -49,5 +49,5 @@ export interface RemoteSpaceNote {
   createdBy: string;
   updatedBy?: string;
   createdAt: string;
-  updatedAt?: string;
+  updatedAt: string;
 }

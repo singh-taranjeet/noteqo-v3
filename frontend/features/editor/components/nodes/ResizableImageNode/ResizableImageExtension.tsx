@@ -5,7 +5,9 @@ import { AlignLeft, AlignCenter, AlignRight, Maximize2 } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useDecryptedMedia } from "@/hooks/use-decrypted-media";
 
-const ResizableImageNodeView = (props: any) => {
+import type { NodeViewProps } from "@tiptap/react";
+
+const ResizableImageNodeView = (props: NodeViewProps) => {
   const { node, updateAttributes, selected } = props;
   const imageRef = useRef<HTMLImageElement>(null);
   const [resizing, setResizing] = useState(false);
@@ -66,6 +68,7 @@ const ResizableImageNodeView = (props: any) => {
         className={`relative group inline-block rounded-md ${selected ? "ring-2 ring-primary ring-offset-2" : ""}`}
         style={{ width: widthStyle }}
       >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           ref={imageRef}
           src={decryptedSrc || node.attrs.src}
@@ -119,6 +122,7 @@ const ResizableImageNodeView = (props: any) => {
 
       <Dialog open={isFullscreen} onOpenChange={setIsFullscreen}>
         <DialogContent className="!max-w-none w-screen h-screen m-0 p-0 border-none bg-black shadow-none flex flex-col items-center justify-center [&>button]:text-white z-[100] [&>button]:bg-black/50 [&>button]:p-2 [&>button]:rounded-full [&>button]:right-4 [&>button]:top-4 [&>button]:w-10 [&>button]:h-10">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={decryptedSrc || node.attrs.src}
             alt={node.attrs.alt || "Fullscreen Preview"}
@@ -168,8 +172,8 @@ export const ResizableImage = Node.create({
     const {
       width,
       alignment,
-      "data-width": dw,
-      "data-alignment": da,
+      "data-width": _dw,
+      "data-alignment": _da,
       ...rest
     } = HTMLAttributes;
 

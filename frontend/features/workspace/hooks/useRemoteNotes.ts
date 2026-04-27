@@ -1,10 +1,11 @@
 import { useState, useCallback, useEffect } from "react";
-import { spaceApiService, spaceService } from "@/features/spaces";
+import { spaceApiService } from "@/features/spaces";
 import type { Note } from "../types/workspace.types";
 import type { Space } from "@/features/spaces";
 import { logService } from "@/services/log.service";
 import { db } from "@/features/storage";
 import { mergeLocalRemoteService } from "../services/merge-local-remote.service";
+import { noteService } from "../services/note.service";
 
 export interface SpaceNotesMap {
   [spaceId: string]: Note[];
@@ -30,9 +31,7 @@ export function useRemoteNotes(spaces: Space[] | undefined) {
 
           // Decrypt all notes with the cached space key
           const decryptedNotes = await Promise.all(
-            response.notes.map((rn) =>
-              spaceService.decryptSpaceNote(rn, space.spaceKey),
-            ),
+            response.notes.map((rn) => noteService.decryptNote(rn)),
           );
 
           const validNotes = decryptedNotes

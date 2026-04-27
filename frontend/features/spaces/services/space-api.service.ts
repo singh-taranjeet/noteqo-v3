@@ -14,8 +14,8 @@ export interface CreateSpacePayload {
   encryptedName: string; // base64
   type: SpaceType;
   ownerKeySlot: string; // base64 — RSA(spaceKey, ownerPublicKey)
-  updatedAt: Date;
-  createdAt: Date;
+  updatedAt: string;
+  createdAt: string;
 }
 
 export interface CreateSpaceNotePayload {
@@ -23,8 +23,8 @@ export interface CreateSpaceNotePayload {
   ciphertext: string; // base64
   spaceId: string;
   type: string; // 'private' | 'shared'
-  updatedAt: Date;
-  createdAt: Date;
+  updatedAt: string;
+  createdAt: string;
 }
 
 // Create a local query client instance for caching API responses natively
@@ -112,94 +112,6 @@ export const spaceApiService = {
       },
       staleTime: SYNC_CONFIG.CACHE_STALE_TIME_MS,
     });
-  },
-
-  /**
-   * This creates a new note in a particular space
-   * @param spaceId - The ID of the space
-   * @param payload - The payload for creating a new note
-   * @returns Resolves to the created note
-   */
-  createNote: async (
-    spaceId: string,
-    payload: CreateSpaceNotePayload,
-  ): Promise<unknown> => {
-    const response = await queryClient
-      .getMutationCache()
-      .build(queryClient, {
-        mutationFn: async (vars: typeof payload) => {
-          const res = await apiClient.post<{ data: unknown }>(
-            SPACES_API_ROUTES.SPACE_NOTES(spaceId),
-            vars,
-            { auth: true },
-          );
-          return res.data;
-        },
-      })
-      .execute(payload);
-
-    await queryClient.invalidateQueries({
-      queryKey: spaceQueryKeys.notes(spaceId),
-    });
-    return response;
-  },
-
-  /**
-   * This updates a note in a particular space
-   * @param spaceId - The ID of the space
-   * @param noteId - The ID of the note
-   * @param payload - The payload for updating the note
-   * @returns Resolves to the updated note
-   */
-  updateNote: async (
-    spaceId: string,
-    noteId: string,
-    payload: { ciphertext: string },
-  ): Promise<unknown> => {
-    const response = await queryClient
-      .getMutationCache()
-      .build(queryClient, {
-        mutationFn: async (vars: typeof payload) => {
-          const res = await apiClient.patch<{ data: unknown }>(
-            SPACES_API_ROUTES.SPACE_NOTE(spaceId, noteId),
-            vars,
-            { auth: true },
-          );
-          return res.data;
-        },
-      })
-      .execute(payload);
-
-    await queryClient.invalidateQueries({
-      queryKey: spaceQueryKeys.notes(spaceId),
-    });
-    return response;
-  },
-
-  /**
-   * This deletes a note from a particular space
-   * @param spaceId - The ID of the space
-   * @param noteId - The ID of the note
-   * @returns Resolves to the deleted note
-   */
-  deleteNote: async (spaceId: string, noteId: string): Promise<unknown> => {
-    const response = await queryClient
-      .getMutationCache()
-      .build(queryClient, {
-        mutationFn: async (vars: { spaceId: string; noteId: string }) => {
-          const res = await apiClient.delete<{ data: unknown }>(
-            SPACES_API_ROUTES.SPACE_NOTE(vars.spaceId, vars.noteId),
-            { auth: true },
-          );
-          return res.data;
-        },
-      })
-      .execute({ spaceId, noteId });
-
-    await queryClient.invalidateQueries({
-      queryKey: spaceQueryKeys.notes(spaceId),
-    });
-    return response;
   },
 
   /**

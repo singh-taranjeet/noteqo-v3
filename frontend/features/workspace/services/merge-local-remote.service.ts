@@ -7,12 +7,12 @@ export const mergeLocalRemoteService = {
   merge: async (remoteNotes?: Note[]) => {
     try {
       // Step 1. Fetch the list of notes in our db
-      const localNotes = await noteService.getAllNotes();
+      const localNotes = await noteService.getAllLocalNotes();
       const localNotesMap = new Map(localNotes.map((note) => [note.id, note]));
 
       const notesToUpdate: Note[] = [];
 
-      const remoteNotesFetched = await noteService.getAllNotes();
+      const remoteNotesFetched = await noteService.getAllLocalNotes();
       const effectiveRemoteNotes = remoteNotes || remoteNotesFetched;
 
       // Step 2. Compare the remote notes with the local notes. If local notes are the latest then skip it. If remote notes are the latest then update the local notes.

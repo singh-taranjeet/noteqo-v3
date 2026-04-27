@@ -3,8 +3,6 @@
 import { useRef, useState } from "react";
 import type { NodeViewProps } from "@tiptap/react";
 import { NodeViewWrapper } from "@tiptap/react";
-import { Button } from "@/components/ui/button";
-import { CloseIcon } from "@/features/editor/components/icons/CloseIcon";
 import { FileIcon } from "@/features/editor/components/icons/FileIcon";
 import {
   focusNextNode,
@@ -201,8 +199,7 @@ export const FileUploadNode: React.FC<NodeViewProps> = (props) => {
     onError: extension.options.onError,
   };
 
-  const { fileItems, uploadFiles, removeFileItem, clearAllFiles } =
-    useFileUpload(uploadOptions);
+  const { fileItems, uploadFiles } = useFileUpload(uploadOptions);
 
   const handleUpload = async (files: File[]) => {
     const results = await uploadFiles(files);

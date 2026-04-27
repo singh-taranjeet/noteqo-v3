@@ -64,6 +64,7 @@ export const EncryptedImageNode = (props: NodeViewProps) => {
   return (
     <NodeViewWrapper className="tiptap-encrypted-image">
       {decryptedSrc ? (
+        // eslint-disable-next-line @next/next/no-img-element
         <img
           src={decryptedSrc}
           alt={alt || "Decrypted Image"}

@@ -6,15 +6,8 @@ import {
   SPACE_DEFAULTS,
   SPACE_TYPE,
   SPACES_MESSAGES,
-  NOTE_FALLBACKS,
 } from "../constants/spaces.constants";
-import type {
-  Space,
-  SpaceType,
-  RemoteSpace,
-  RemoteSpaceNote,
-} from "../types/spaces.types";
-import type { Note } from "@/features/workspace";
+import type { Space, SpaceType, RemoteSpace } from "../types/spaces.types";
 
 export const spaceService = {
   /**
@@ -24,6 +17,7 @@ export const spaceService = {
     name: string = SPACE_DEFAULTS.NAME,
     type: SpaceType = SPACE_TYPE.PERSONAL,
   ): Promise<Space> {
+    const now = new Date().toISOString();
     // 1. Generate a random AES-256 space key
     const spaceKeyBytes = globalThis.crypto.getRandomValues(
       new Uint8Array(CRYPTO_CONFIG.MASTER_KEY_BYTES_LENGTH),
@@ -46,10 +40,11 @@ export const spaceService = {
       encryptedName,
       type,
       ownerKeySlot,
+      createdAt: now,
+      updatedAt: now,
     });
 
     // 5. Cache locally in Dexie
-    const now = new Date().toISOString();
     const space: Space = {
       id: remoteSpace.id,
       name,
@@ -86,7 +81,7 @@ export const spaceService = {
   /**
    * Returns locally cached spaces from Dexie.
    */
-  async getCachedSpaces(): Promise<Space[]> {
+  async getLocalSpaces(): Promise<Space[]> {
     return db.spaces.toArray();
   },
 
@@ -139,68 +134,68 @@ export const spaceService = {
     }
   },
 
-  /**
-   * Decrypts a note using the space key (not per-note RSA).
-   */
-  async decryptSpaceNote(
-    remoteNote: RemoteSpaceNote,
-    spaceKeyBase64: string,
-  ): Promise<Note | null> {
-    try {
-      if (!remoteNote.ciphertext?.includes(":")) {
-        logService.warn(`Invalid ciphertext for note ${remoteNote.id}`);
-        return null;
-      }
+  // /**
+  //  * Decrypts a note using the space key (not per-note RSA).
+  //  */
+  // async decryptSpaceNote(
+  //   remoteNote: RemoteSpaceNote,
+  //   spaceKeyBase64: string,
+  // ): Promise<Note | null> {
+  //   try {
+  //     if (!remoteNote.ciphertext?.includes(":")) {
+  //       logService.warn(`Invalid ciphertext for note ${remoteNote.id}`);
+  //       return null;
+  //     }
 
-      const spaceKeyBuffer = cryptoService.decodeBase64(spaceKeyBase64);
-      const spaceKeyBytes = new Uint8Array(spaceKeyBuffer);
+  //     const spaceKeyBuffer = cryptoService.decodeBase64(spaceKeyBase64);
+  //     const spaceKeyBytes = new Uint8Array(spaceKeyBuffer);
 
-      // Parse iv:ciphertext
-      const [iv64, cipher64] = remoteNote.ciphertext.split(":");
-      const iv = new Uint8Array(cryptoService.decodeBase64(iv64));
-      const cipherBuffer = cryptoService.decodeBase64(cipher64);
+  //     // Parse iv:ciphertext
+  //     const [iv64, cipher64] = remoteNote.ciphertext.split(":");
+  //     const iv = new Uint8Array(cryptoService.decodeBase64(iv64));
+  //     const cipherBuffer = cryptoService.decodeBase64(cipher64);
 
-      // Import AES key
-      const aesKey = await globalThis.crypto.subtle.importKey(
-        "raw",
-        spaceKeyBytes as BufferSource,
-        { name: CRYPTO_CONFIG.ALGORITHMS.AES },
-        false,
-        ["decrypt"],
-      );
+  //     // Import AES key
+  //     const aesKey = await globalThis.crypto.subtle.importKey(
+  //       "raw",
+  //       spaceKeyBytes as BufferSource,
+  //       { name: CRYPTO_CONFIG.ALGORITHMS.AES },
+  //       false,
+  //       ["decrypt"],
+  //     );
 
-      // Decrypt
-      const decryptedBuffer = await globalThis.crypto.subtle.decrypt(
-        { name: CRYPTO_CONFIG.ALGORITHMS.AES, iv },
-        aesKey,
-        cipherBuffer,
-      );
+  //     // Decrypt
+  //     const decryptedBuffer = await globalThis.crypto.subtle.decrypt(
+  //       { name: CRYPTO_CONFIG.ALGORITHMS.AES, iv },
+  //       aesKey,
+  //       cipherBuffer,
+  //     );
 
-      const jsonStr = new TextDecoder().decode(decryptedBuffer);
-      const payload = JSON.parse(jsonStr) as {
-        title?: string;
-        emoji?: string;
-        coverImage?: string;
-        content?: unknown;
-      };
+  //     const jsonStr = new TextDecoder().decode(decryptedBuffer);
+  //     const payload = JSON.parse(jsonStr) as {
+  //       title?: string;
+  //       emoji?: string;
+  //       coverImage?: string;
+  //       content?: unknown;
+  //     };
 
-      return {
-        id: remoteNote.id,
-        title: payload.title ?? NOTE_FALLBACKS.TITLE,
-        emoji: payload.emoji ?? NOTE_FALLBACKS.EMOJI,
-        coverImage: payload.coverImage ?? NOTE_FALLBACKS.COVER_IMAGE,
-        content: payload.content ?? null,
-        syncStatus: "synced",
-        spaceId: remoteNote.spaceId,
-        type: remoteNote.type as "private" | "shared",
-        createdAt: remoteNote.createdAt,
-        updatedAt: remoteNote.updatedAt ?? remoteNote.createdAt,
-      };
-    } catch (err) {
-      logService.error(`Failed to decrypt note ${remoteNote.id}`, err);
-      return null;
-    }
-  },
+  //     return {
+  //       id: remoteNote.id,
+  //       title: payload.title ?? NOTE_FALLBACKS.TITLE,
+  //       emoji: payload.emoji ?? NOTE_FALLBACKS.EMOJI,
+  //       coverImage: payload.coverImage ?? NOTE_FALLBACKS.COVER_IMAGE,
+  //       content: payload.content ?? null,
+  //       syncStatus: "synced",
+  //       spaceId: remoteNote.spaceId,
+  //       type: remoteNote.type as "private" | "shared",
+  //       createdAt: remoteNote.createdAt,
+  //       updatedAt: remoteNote.updatedAt ?? remoteNote.createdAt,
+  //     };
+  //   } catch (err) {
+  //     logService.error(`Failed to decrypt note ${remoteNote.id}`, err);
+  //     return null;
+  //   }
+  // },
 
   /**
    * Encrypts a plaintext string with the AES space key. Returns base64 "iv:ciphertext".
@@ -231,7 +226,10 @@ export const spaceService = {
   },
 
   /**
-   * Decrypts a "iv:ciphertext" string with the AES space key. Returns plaintext.
+   * Decrypt the space parameters
+   * @param ciphertext
+   * @param spaceKeyBytes
+   * @returns
    */
   async decryptWithSpaceKey(
     ciphertext: string,

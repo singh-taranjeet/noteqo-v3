@@ -28,7 +28,7 @@ export class SpacesService {
     private readonly spacesRepository: SpacesRepository,
     private readonly notesService: NotesService,
     private readonly usersService: UsersService,
-  ) {}
+  ) { }
 
   // ─── Space CRUD ──────────────────────────────────────────────────────────────
 
@@ -176,6 +176,7 @@ export class SpacesService {
     await this.spacesRepository.removeMember(spaceId, targetUserId);
   }
 
+  /*
   // ─── Space Notes ─────────────────────────────────────────────────────────────
 
   async createNote(
@@ -222,6 +223,7 @@ export class SpacesService {
     await this.verifyMembership(spaceId, userId);
     await this.notesService.remove(noteId);
   }
+  */
 
   // ─── Guards ──────────────────────────────────────────────────────────────────
 

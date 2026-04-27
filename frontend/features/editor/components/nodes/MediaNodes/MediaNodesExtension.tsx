@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Node as TiptapNode, mergeAttributes } from "@tiptap/core";
 import { ReactNodeViewRenderer, NodeViewWrapper } from "@tiptap/react";
+import type { NodeViewProps } from "@tiptap/react";
 import {
   Accordion as ShadcnAccordion,
   AccordionItem,
@@ -9,7 +10,7 @@ import {
 } from "@/components/ui/accordion";
 import { useDecryptedMedia } from "@/hooks/use-decrypted-media";
 
-export function AudioNodeView({ node }: any) {
+export function AudioNodeView({ node }: NodeViewProps) {
   const decryptedSrc = useDecryptedMedia(node.attrs.src);
   return (
     <NodeViewWrapper className="my-4 w-full">
@@ -22,7 +23,7 @@ export function AudioNodeView({ node }: any) {
   );
 }
 
-export function VideoNodeView({ node }: any) {
+export function VideoNodeView({ node }: NodeViewProps) {
   const decryptedSrc = useDecryptedMedia(node.attrs.src);
   return (
     <NodeViewWrapper className="my-4 w-full aspect-video">
@@ -79,7 +80,7 @@ export const Iframe = TiptapNode.create({
     ];
   },
 
-  renderHTML({ HTMLAttributes }: any) {
+  renderHTML({ HTMLAttributes }: { HTMLAttributes: Record<string, unknown> }) {
     return [
       "div",
       { class: "relative w-full aspect-video my-4" },
@@ -91,6 +92,7 @@ export const Iframe = TiptapNode.create({
     return {
       setIframe:
         (options: { src: string }) =>
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ({ tr, dispatch }: any) => {
           const { selection } = tr;
           const node = this.type.create(options);
@@ -99,6 +101,7 @@ export const Iframe = TiptapNode.create({
           }
           return true;
         },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any;
   },
 });
@@ -118,7 +121,7 @@ export const AudioNode = TiptapNode.create({
     return [{ tag: "audio" }];
   },
 
-  renderHTML({ HTMLAttributes }: any) {
+  renderHTML({ HTMLAttributes }: { HTMLAttributes: Record<string, unknown> }) {
     return [
       "div",
       { "data-type": "audio-node" },
@@ -134,6 +137,7 @@ export const AudioNode = TiptapNode.create({
     return {
       setAudio:
         (options: { src: string }) =>
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ({ tr, dispatch }: any) => {
           const { selection } = tr;
           const node = this.type.create(options);
@@ -142,6 +146,7 @@ export const AudioNode = TiptapNode.create({
           }
           return true;
         },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any;
   },
 });
@@ -161,7 +166,7 @@ export const VideoNode = TiptapNode.create({
     return [{ tag: "video" }];
   },
 
-  renderHTML({ HTMLAttributes }: any) {
+  renderHTML({ HTMLAttributes }: { HTMLAttributes: Record<string, unknown> }) {
     return [
       "div",
       { "data-type": "video-node" },
@@ -177,6 +182,7 @@ export const VideoNode = TiptapNode.create({
     return {
       setVideo:
         (options: { src: string }) =>
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ({ tr, dispatch }: any) => {
           const { selection } = tr;
           const node = this.type.create(options);
@@ -185,6 +191,7 @@ export const VideoNode = TiptapNode.create({
           }
           return true;
         },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any;
   },
 });
@@ -207,7 +214,7 @@ export const FileNode = TiptapNode.create({
     return [{ tag: "div[data-type='file-attachment']" }];
   },
 
-  renderHTML({ HTMLAttributes }: any) {
+  renderHTML({ HTMLAttributes }: { HTMLAttributes: Record<string, unknown> }) {
     return [
       "div",
       mergeAttributes(HTMLAttributes, {
@@ -224,6 +231,7 @@ export const FileNode = TiptapNode.create({
     return {
       setFile:
         (options: { src: string; filename: string; filetype: string }) =>
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ({ tr, dispatch }: any) => {
           const { selection } = tr;
           const node = this.type.create({ ...options, isOpen: true });
@@ -232,11 +240,12 @@ export const FileNode = TiptapNode.create({
           }
           return true;
         },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any;
   },
 });
 
-export function FileNodeView({ node, updateAttributes }: any) {
+export function FileNodeView({ node, updateAttributes }: NodeViewProps) {
   const { src, filename, filetype, isOpen } = node.attrs;
   const fType = (filetype || "").toLowerCase();
 
@@ -306,7 +315,7 @@ export function FileNodeView({ node, updateAttributes }: any) {
       <ShadcnAccordion
         type="multiple"
         value={isOpen ? ["item-1"] : []}
-        onValueChange={(v: any) =>
+        onValueChange={(v: string[]) =>
           updateAttributes({ isOpen: v.includes("item-1") })
         }
         className="w-full border rounded-md bg-card"

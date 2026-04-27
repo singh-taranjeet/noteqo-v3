@@ -5,7 +5,7 @@ import { EncryptedImageNode as EncryptedImageNodeComponent } from "./EncryptedIm
 export interface EncryptedImageOptions {
   inline: boolean;
   allowBase64: boolean;
-  HTMLAttributes: Record<string, any>;
+  HTMLAttributes: Record<string, unknown>;
   spaceId: string | null;
 }
 

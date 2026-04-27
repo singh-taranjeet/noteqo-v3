@@ -9,6 +9,7 @@
     "start:prod": "next start",
     "start": "npm run build && npm run start:prod",
     "lint": "eslint",
+    "lint:fix": "eslint --fix",
     "format": "prettier --write \"**/*.{ts,tsx,css,json,md}\""
   },
   "dependencies": {

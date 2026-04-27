@@ -3,8 +3,6 @@ import { cryptoService } from "@/features/crypto";
 import { spaceService } from "@/features/spaces";
 import { mediaApiService } from "./media-api.service";
 import type { Media } from "../types/media.types";
-import { logService } from "@/services/log.service";
-import { syncQueueService } from "@/features/workspace/services/sync-queue.service";
 
 export const mediaService = {
   /**

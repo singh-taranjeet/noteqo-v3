@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback, useRef, useEffect } from "react";
+import React, { useState, useCallback, useRef } from "react";
 import { NodeViewWrapper } from "@tiptap/react";
 import type { NodeViewProps } from "@tiptap/react";
 import {
@@ -93,7 +93,6 @@ export const TableNodeView = ({
   }, []);
 
   const colCount = data.headers.length;
-  const rowCount = data.rows.length;
   const isEditable = editor.isEditable;
 
   /* ─── Persist changes ─────────────────────────────────────── */
@@ -297,6 +296,7 @@ export const TableNodeView = ({
           <div
             className="absolute top-0 bottom-0 w-0.5 bg-primary z-30 pointer-events-none"
             style={{
+              // eslint-disable-next-line react-hooks/refs
               left: (() => {
                 const table = tableRef.current?.querySelector("table");
                 if (!table) return 0;

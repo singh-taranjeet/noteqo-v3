@@ -216,7 +216,7 @@ export function NoteEditor({
         "aria-label": "Main content area, start typing to enter text.",
         class: "flex-1 focus:outline-none min-h-full",
       },
-      handlePaste: (view, event, slice) => {
+      handlePaste: (view, event) => {
         const items = Array.from(event.clipboardData?.items || []);
         const hasFiles = items.some((item) => item.kind === "file");
 
@@ -289,6 +289,7 @@ export function NoteEditor({
       Superscript,
       Subscript,
       Selection,
+      // eslint-disable-next-line react-hooks/refs
       ImageUploadNode.configure({
         accept: "image/*",
         maxSize: MAX_FILE_SIZE,
@@ -307,6 +308,7 @@ export function NoteEditor({
           );
         },
       }),
+      // eslint-disable-next-line react-hooks/refs
       FileUploadNode.configure({
         accept: "*/*",
         maxSize: MAX_FILE_SIZE,

@@ -1,4 +1,4 @@
-import { Metadata } from "next";
+import type { Metadata } from "next";
 import { OfflineView } from "@/features/pwa";
 
 export const metadata: Metadata = {

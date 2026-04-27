@@ -48,16 +48,17 @@ export const noteService = {
   },
 
   /**
-   * Returns all documents from the local Dexie DB.
+   * Get all notes from local db
+   * @returns
    */
-  async getAllNotes(): Promise<Note[]> {
+  async getAllLocalNotes(): Promise<Note[]> {
     return db.notes.orderBy("updatedAt").reverse().toArray();
   },
 
   /**
    * Returns all notes for a given space from local Dexie DB.
    */
-  async getNotesForSpace(spaceId: string): Promise<Note[]> {
+  async getLocalNotesForSpace(spaceId: string): Promise<Note[]> {
     return db.notes
       .where("spaceId")
       .equals(spaceId)
@@ -172,7 +173,7 @@ export const noteService = {
         emoji: payload.emoji ?? NOTE_FALLBACKS.EMOJI,
         coverImage: payload.coverImage ?? NOTE_FALLBACKS.COVER_IMAGE,
         content: payload.content ?? null,
-        syncStatus: "synced",
+        syncStatus: "pending",
         spaceId: note.spaceId,
         type: note.type as "private" | "shared",
         createdAt: note.createdAt,

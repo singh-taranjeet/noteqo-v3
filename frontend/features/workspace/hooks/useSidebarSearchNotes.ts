@@ -84,7 +84,7 @@ export function useSidebarSearchNotes() {
     error: notesError,
   } = useQuery({
     queryKey: SIDEBAR_SEARCH_NOTES_QUERY_KEY,
-    queryFn: () => noteService.getAllNotes(),
+    queryFn: () => noteService.getAllLocalNotes(),
     refetchInterval: SEARCH_CONFIG.LOCAL_REFRESH_INTERVAL_MS,
   });
 
@@ -94,7 +94,7 @@ export function useSidebarSearchNotes() {
     error: spacesError,
   } = useQuery({
     queryKey: SIDEBAR_SEARCH_SPACES_QUERY_KEY,
-    queryFn: () => spaceService.getCachedSpaces(),
+    queryFn: () => spaceService.getLocalSpaces(),
     refetchInterval: SEARCH_CONFIG.LOCAL_REFRESH_INTERVAL_MS,
   });
 

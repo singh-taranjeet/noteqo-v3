@@ -3,7 +3,7 @@ import { ReactNodeViewRenderer } from "@tiptap/react";
 import { EncryptedFileAttachmentNode as EncryptedFileAttachmentNodeComponent } from "./EncryptedFileAttachmentNode";
 
 export interface EncryptedFileAttachmentOptions {
-  HTMLAttributes: Record<string, any>;
+  HTMLAttributes: Record<string, unknown>;
   spaceId: string | null;
 }
 

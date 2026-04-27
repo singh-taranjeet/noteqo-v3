@@ -48,7 +48,7 @@ export async function proxyToBackend({
     method: method ?? request.method,
     headers,
     ...(body
-      ? { body: isFormData ? (body as any) : JSON.stringify(body) }
+      ? { body: isFormData ? (body as FormData) : JSON.stringify(body) }
       : {}),
     next: { revalidate },
   };

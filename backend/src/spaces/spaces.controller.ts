@@ -32,7 +32,7 @@ import { Note } from '../notes/types/notes.types';
 @Controller(SPACE_ROUTES.BASE)
 @UseGuards(JwtAuthGuard)
 export class SpacesController {
-  constructor(private readonly spacesService: SpacesService) {}
+  constructor(private readonly spacesService: SpacesService) { }
 
   // ─── Spaces CRUD ─────────────────────────────────────────────────────────────
 
@@ -115,6 +115,7 @@ export class SpacesController {
     await this.spacesService.removeMember(spaceId, userId, req.user.id);
   }
 
+  /*
   // ─── Space Notes ─────────────────────────────────────────────────────────────
 
   @Post(SPACE_ROUTES.NOTES)
@@ -179,8 +180,7 @@ export class SpacesController {
   ): Promise<void> {
     await this.spacesService.removeNote(spaceId, noteId, req.user.id);
   }
-
-  // ─── Mappers ─────────────────────────────────────────────────────────────────
+  */
 
   private mapSpaceToResponse(space: Space): SpaceResponseDto {
     return {
