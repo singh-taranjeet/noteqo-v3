@@ -108,7 +108,7 @@ class SyncQueueService {
     await db.syncQueue.put(event);
   }
 
-  private updatedAt() {
+  private getUpdatedAt() {
     return new Date().toISOString();
   }
 
@@ -173,7 +173,7 @@ class SyncQueueService {
           spaceId: note.spaceId,
           type: note.type,
           createdAt: note.createdAt,
-          updatedAt: this.updatedAt()
+          updatedAt: this.getUpdatedAt(),
         });
         break;
       }
@@ -184,7 +184,7 @@ class SyncQueueService {
         await noteApiService.updateNote({
           id: event.entityId,
           ciphertext,
-          updatedAt: this.updatedAt()
+          updatedAt: this.getUpdatedAt(),
         });
         break;
       }

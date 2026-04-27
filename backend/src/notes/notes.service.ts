@@ -9,7 +9,7 @@ import { NoteNotFoundException } from '../shared/exceptions/note.exception';
 export class NotesService {
   private readonly logger = new Logger(NotesService.name);
 
-  constructor(private readonly notesRepository: NotesRepository) {}
+  constructor(private readonly notesRepository: NotesRepository) { }
 
   async create(dto: CreateNoteDto): Promise<Note> {
     this.logger.log(`Creating note in space ${dto.spaceId}`);
@@ -19,6 +19,8 @@ export class NotesService {
       Buffer.from(dto.ciphertext, 'utf8'),
       dto.spaceId,
       dto.type,
+      dto.createdAt,
+      dto.updatedAt,
     );
   }
 
@@ -46,6 +48,7 @@ export class NotesService {
       id,
       Buffer.from(dto.ciphertext, 'utf8'),
       note.version,
+      dto.updatedAt,
     );
   }
 

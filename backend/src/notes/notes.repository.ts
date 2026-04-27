@@ -14,7 +14,7 @@ export class NotesRepository {
     @InjectRepository(NoteVersionEntity)
     private readonly versionOrm: Repository<NoteVersionEntity>,
     private readonly dataSource: DataSource,
-  ) {}
+  ) { }
 
   /**
    * Retrieves a Note by ID.
@@ -44,6 +44,8 @@ export class NotesRepository {
     ciphertext: Buffer,
     spaceId: string,
     type: NoteType,
+    createdAt: Date,
+    updatedAt: Date,
   ): Promise<Note> {
     const note = this.noteOrm.create({
       id,
@@ -51,6 +53,8 @@ export class NotesRepository {
       version: 1,
       spaceId,
       type,
+      createdAt,
+      updatedAt,
     });
 
     const queryRunner = this.dataSource.createQueryRunner();
@@ -89,6 +93,7 @@ export class NotesRepository {
     id: string,
     newCiphertext: Buffer,
     currentVersion: number,
+    updatedAt: Date
   ): Promise<Note> {
     const nextVersion = currentVersion + 1;
 
@@ -104,6 +109,7 @@ export class NotesRepository {
         ciphertext: newCiphertext,
         version: nextVersion,
         updatedBy: currentUserId,
+        updatedAt,
       });
 
       // 2. Record version snapshot
@@ -111,6 +117,7 @@ export class NotesRepository {
         noteId: id,
         ciphertext: newCiphertext,
         version: nextVersion,
+        updatedAt,
       });
       await queryRunner.manager.save(NoteVersionEntity, snapshot);
 
