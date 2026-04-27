@@ -52,9 +52,9 @@ export function useRemoteNotes(spaces: Space[] | undefined) {
         }
       }
 
-      // Merge with local notes
-      const allNotes = Object.values(notesMap).flat();
-      await mergeLocalRemoteService.merge(allNotes);
+      // // Merge with local notes
+      // const allNotes = Object.values(notesMap).flat();
+      // await mergeLocalRemoteService.merge(allNotes);
 
       setData(notesMap);
     } catch (err) {
@@ -69,5 +69,5 @@ export function useRemoteNotes(spaces: Space[] | undefined) {
     void fetchNotes();
   }, [fetchNotes]);
 
-  return { data, isLoading, error, refetch: fetchNotes };
+  return { data, isLoading, error };
 }

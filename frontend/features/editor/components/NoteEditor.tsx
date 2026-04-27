@@ -335,11 +335,14 @@ export function NoteEditor({
       TableNodeExtension,
     ],
     content,
-    onUpdate: ({ editor }) => {
+    onTransaction: ({ editor, transaction }) => {
       if (isReadOnly || !noteId) {
         return;
       }
-      debouncedUpdateNote({ id: noteId, editor });
+      // check if update is actually made and not just a click
+      if (transaction.docChanged) {
+        debouncedUpdateNote({ id: noteId, editor });
+      }
     },
   });
 
