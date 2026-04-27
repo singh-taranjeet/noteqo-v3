@@ -53,6 +53,63 @@ export const cryptoService = {
   },
 
   /**
+   * AES-GCM encrypt a plaintext string using raw key bytes.
+   * Returns a base64 string in the format "iv:ciphertext".
+   */
+  encryptString: async (
+    plaintext: string,
+    keyBytes: Uint8Array,
+  ): Promise<string> => {
+    const aesKey = await globalThis.crypto.subtle.importKey(
+      CRYPTO_CONFIG.EXPORT_FORMAT.RAW,
+      keyBytes as BufferSource,
+      { name: CRYPTO_CONFIG.ALGORITHMS.AES },
+      false,
+      ["encrypt"],
+    );
+
+    const iv = globalThis.crypto.getRandomValues(
+      new Uint8Array(CRYPTO_CONFIG.IV_BYTES_LENGTH),
+    );
+    const encrypted = await globalThis.crypto.subtle.encrypt(
+      { name: CRYPTO_CONFIG.ALGORITHMS.AES, iv },
+      aesKey,
+      new TextEncoder().encode(plaintext),
+    );
+
+    return `${cryptoService.encodeBase64(iv.buffer)}:${cryptoService.encodeBase64(encrypted)}`;
+  },
+
+  /**
+   * AES-GCM decrypt a "iv:ciphertext" base64 string using raw key bytes.
+   * Returns the decrypted plaintext string.
+   */
+  decryptString: async (
+    ciphertext: string,
+    keyBytes: Uint8Array,
+  ): Promise<string> => {
+    const [iv64, cipher64] = ciphertext.split(":");
+    const iv = new Uint8Array(cryptoService.decodeBase64(iv64));
+    const cipherBuffer = cryptoService.decodeBase64(cipher64);
+
+    const aesKey = await globalThis.crypto.subtle.importKey(
+      CRYPTO_CONFIG.EXPORT_FORMAT.RAW,
+      keyBytes as BufferSource,
+      { name: CRYPTO_CONFIG.ALGORITHMS.AES },
+      false,
+      ["decrypt"],
+    );
+
+    const decryptedBuffer = await globalThis.crypto.subtle.decrypt(
+      { name: CRYPTO_CONFIG.ALGORITHMS.AES, iv },
+      aesKey,
+      cipherBuffer,
+    );
+
+    return new TextDecoder().decode(decryptedBuffer);
+  },
+
+  /**
    * Generates an RSA-OAEP Key Pair.
    * Exports the public and private keys in JWK format.
    */
@@ -94,38 +151,10 @@ export const cryptoService = {
     privateKeyPayload: string,
     base64MasterKey: string,
   ): Promise<string> => {
-    // 1. Import Master Key
-    const rawKey = cryptoService.decodeBase64(base64MasterKey);
-    const cryptoKey = await globalThis.crypto.subtle.importKey(
-      CRYPTO_CONFIG.EXPORT_FORMAT.RAW,
-      rawKey,
-      { name: CRYPTO_CONFIG.ALGORITHMS.AES },
-      false,
-      ["encrypt"],
+    const keyBytes = new Uint8Array(
+      cryptoService.decodeBase64(base64MasterKey),
     );
-
-    // 2. Prepare payload
-    const encoder = new TextEncoder();
-    const data = encoder.encode(privateKeyPayload);
-
-    // 3. Encrypt
-    const iv = globalThis.crypto.getRandomValues(
-      new Uint8Array(CRYPTO_CONFIG.IV_BYTES_LENGTH),
-    );
-    const encryptedContent = await globalThis.crypto.subtle.encrypt(
-      {
-        name: CRYPTO_CONFIG.ALGORITHMS.AES,
-        iv: iv,
-      },
-      cryptoKey,
-      data,
-    );
-
-    // 4. Combine IV and Ciphertext as base64 strings separated by a colon
-    const encodedIv = cryptoService.encodeBase64(iv.buffer);
-    const encodedCiphertext = cryptoService.encodeBase64(encryptedContent);
-
-    return `${encodedIv}:${encodedCiphertext}`;
+    return cryptoService.encryptString(privateKeyPayload, keyBytes);
   },
 
   /**
@@ -135,29 +164,10 @@ export const cryptoService = {
     encryptedPrivateKeyPayload: string,
     base64MasterKey: string,
   ): Promise<string> => {
-    const [privIv64, privCipher64] = encryptedPrivateKeyPayload.split(":");
-    const privIv = cryptoService.decodeBase64(privIv64);
-    const privCipher = cryptoService.decodeBase64(privCipher64);
-
-    const rawMasterKey = cryptoService.decodeBase64(base64MasterKey);
-    const masterCryptoKey = await globalThis.crypto.subtle.importKey(
-      CRYPTO_CONFIG.EXPORT_FORMAT.RAW,
-      rawMasterKey,
-      { name: CRYPTO_CONFIG.ALGORITHMS.AES },
-      false,
-      ["decrypt"],
+    const keyBytes = new Uint8Array(
+      cryptoService.decodeBase64(base64MasterKey),
     );
-
-    const decryptedPrivKeyBuffer = await globalThis.crypto.subtle.decrypt(
-      {
-        name: CRYPTO_CONFIG.ALGORITHMS.AES,
-        iv: new Uint8Array(privIv),
-      },
-      masterCryptoKey,
-      privCipher,
-    );
-
-    return new TextDecoder().decode(decryptedPrivKeyBuffer);
+    return cryptoService.decryptString(encryptedPrivateKeyPayload, keyBytes);
   },
 
   /**

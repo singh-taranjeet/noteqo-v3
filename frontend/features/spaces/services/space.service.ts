@@ -94,6 +94,18 @@ export const spaceService = {
   },
 
   /**
+   * Returns the space key as a Uint8Array for a given spaceId.
+   * Throws if no cached key is found.
+   */
+  async getSpaceKeyBytes(spaceId: string): Promise<Uint8Array> {
+    const spaceKeyBase64 = await spaceService.getCachedSpaceKey(spaceId);
+    if (!spaceKeyBase64) {
+      throw new Error(`Space key not found for space ${spaceId}`);
+    }
+    return new Uint8Array(cryptoService.decodeBase64(spaceKeyBase64));
+  },
+
+  /**
    * Decrypts a remote space response into a local Space object.
    */
   async decryptRemoteSpace(remote: RemoteSpace): Promise<Space | null> {
@@ -134,69 +146,6 @@ export const spaceService = {
     }
   },
 
-  // /**
-  //  * Decrypts a note using the space key (not per-note RSA).
-  //  */
-  // async decryptSpaceNote(
-  //   remoteNote: RemoteSpaceNote,
-  //   spaceKeyBase64: string,
-  // ): Promise<Note | null> {
-  //   try {
-  //     if (!remoteNote.ciphertext?.includes(":")) {
-  //       logService.warn(`Invalid ciphertext for note ${remoteNote.id}`);
-  //       return null;
-  //     }
-
-  //     const spaceKeyBuffer = cryptoService.decodeBase64(spaceKeyBase64);
-  //     const spaceKeyBytes = new Uint8Array(spaceKeyBuffer);
-
-  //     // Parse iv:ciphertext
-  //     const [iv64, cipher64] = remoteNote.ciphertext.split(":");
-  //     const iv = new Uint8Array(cryptoService.decodeBase64(iv64));
-  //     const cipherBuffer = cryptoService.decodeBase64(cipher64);
-
-  //     // Import AES key
-  //     const aesKey = await globalThis.crypto.subtle.importKey(
-  //       "raw",
-  //       spaceKeyBytes as BufferSource,
-  //       { name: CRYPTO_CONFIG.ALGORITHMS.AES },
-  //       false,
-  //       ["decrypt"],
-  //     );
-
-  //     // Decrypt
-  //     const decryptedBuffer = await globalThis.crypto.subtle.decrypt(
-  //       { name: CRYPTO_CONFIG.ALGORITHMS.AES, iv },
-  //       aesKey,
-  //       cipherBuffer,
-  //     );
-
-  //     const jsonStr = new TextDecoder().decode(decryptedBuffer);
-  //     const payload = JSON.parse(jsonStr) as {
-  //       title?: string;
-  //       emoji?: string;
-  //       coverImage?: string;
-  //       content?: unknown;
-  //     };
-
-  //     return {
-  //       id: remoteNote.id,
-  //       title: payload.title ?? NOTE_FALLBACKS.TITLE,
-  //       emoji: payload.emoji ?? NOTE_FALLBACKS.EMOJI,
-  //       coverImage: payload.coverImage ?? NOTE_FALLBACKS.COVER_IMAGE,
-  //       content: payload.content ?? null,
-  //       syncStatus: "synced",
-  //       spaceId: remoteNote.spaceId,
-  //       type: remoteNote.type as "private" | "shared",
-  //       createdAt: remoteNote.createdAt,
-  //       updatedAt: remoteNote.updatedAt ?? remoteNote.createdAt,
-  //     };
-  //   } catch (err) {
-  //     logService.error(`Failed to decrypt note ${remoteNote.id}`, err);
-  //     return null;
-  //   }
-  // },
-
   /**
    * Encrypts a plaintext string with the AES space key. Returns base64 "iv:ciphertext".
    */
@@ -204,32 +153,11 @@ export const spaceService = {
     plaintext: string,
     spaceKeyBytes: Uint8Array,
   ): Promise<string> {
-    const aesKey = await globalThis.crypto.subtle.importKey(
-      "raw",
-      spaceKeyBytes as BufferSource,
-      { name: CRYPTO_CONFIG.ALGORITHMS.AES },
-      false,
-      ["encrypt"],
-    );
-
-    const iv = globalThis.crypto.getRandomValues(
-      new Uint8Array(CRYPTO_CONFIG.IV_BYTES_LENGTH),
-    );
-    const encoder = new TextEncoder();
-    const encrypted = await globalThis.crypto.subtle.encrypt(
-      { name: CRYPTO_CONFIG.ALGORITHMS.AES, iv },
-      aesKey,
-      encoder.encode(plaintext),
-    );
-
-    return `${cryptoService.encodeBase64(iv.buffer)}:${cryptoService.encodeBase64(encrypted)}`;
+    return cryptoService.encryptString(plaintext, spaceKeyBytes);
   },
 
   /**
-   * Decrypt the space parameters
-   * @param ciphertext
-   * @param spaceKeyBytes
-   * @returns
+   * Decrypt the space parameters.
    */
   async decryptWithSpaceKey(
     ciphertext: string,
@@ -243,25 +171,7 @@ export const spaceService = {
     }
 
     try {
-      const [iv64, cipher64] = ciphertext.split(":");
-      const iv = new Uint8Array(cryptoService.decodeBase64(iv64));
-      const cipherBuffer = cryptoService.decodeBase64(cipher64);
-
-      const aesKey = await globalThis.crypto.subtle.importKey(
-        "raw",
-        spaceKeyBytes as BufferSource,
-        { name: CRYPTO_CONFIG.ALGORITHMS.AES },
-        false,
-        ["decrypt"],
-      );
-
-      const decryptedBuffer = await globalThis.crypto.subtle.decrypt(
-        { name: CRYPTO_CONFIG.ALGORITHMS.AES, iv },
-        aesKey,
-        cipherBuffer,
-      );
-
-      return new TextDecoder().decode(decryptedBuffer);
+      return await cryptoService.decryptString(ciphertext, spaceKeyBytes);
     } catch (err) {
       logService.warn(
         "Decryption failed for space name, treating as plaintext fallback.",
