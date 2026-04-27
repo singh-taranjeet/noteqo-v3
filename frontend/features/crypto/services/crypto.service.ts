@@ -237,4 +237,55 @@ export const cryptoService = {
       noteKeyBase64: cryptoService.encodeBase64(decryptedDocKeyBuffer),
     };
   },
+
+  /**
+   * Encrypts an ArrayBuffer (e.g. File) using the AES-GCM Space Key.
+   * Returns a Blob containing the concatenated IV and Ciphertext.
+   */
+  encryptBuffer: async (buffer: ArrayBuffer, base64SpaceKey: string): Promise<Blob> => {
+    const rawSpaceKey = cryptoService.decodeBase64(base64SpaceKey);
+    const aesKey = await globalThis.crypto.subtle.importKey(
+      CRYPTO_CONFIG.EXPORT_FORMAT.RAW,
+      rawSpaceKey,
+      { name: CRYPTO_CONFIG.ALGORITHMS.AES },
+      false,
+      ["encrypt"],
+    );
+
+    const iv = globalThis.crypto.getRandomValues(
+      new Uint8Array(CRYPTO_CONFIG.IV_BYTES_LENGTH),
+    );
+    const ciphertext = await globalThis.crypto.subtle.encrypt(
+      { name: CRYPTO_CONFIG.ALGORITHMS.AES, iv },
+      aesKey,
+      buffer,
+    );
+
+    return new Blob([iv, ciphertext], { type: "application/octet-stream" });
+  },
+
+  /**
+   * Decrypts a Blob containing IV + Ciphertext using the AES-GCM Space Key.
+   * Returns the decrypted ArrayBuffer.
+   */
+  decryptBuffer: async (encryptedBlob: Blob, base64SpaceKey: string): Promise<ArrayBuffer> => {
+    const rawSpaceKey = cryptoService.decodeBase64(base64SpaceKey);
+    const aesKey = await globalThis.crypto.subtle.importKey(
+      CRYPTO_CONFIG.EXPORT_FORMAT.RAW,
+      rawSpaceKey,
+      { name: CRYPTO_CONFIG.ALGORITHMS.AES },
+      false,
+      ["decrypt"],
+    );
+
+    const buffer = await encryptedBlob.arrayBuffer();
+    const iv = buffer.slice(0, CRYPTO_CONFIG.IV_BYTES_LENGTH);
+    const ciphertext = buffer.slice(CRYPTO_CONFIG.IV_BYTES_LENGTH);
+
+    return await globalThis.crypto.subtle.decrypt(
+      { name: CRYPTO_CONFIG.ALGORITHMS.AES, iv: new Uint8Array(iv) },
+      aesKey,
+      ciphertext,
+    );
+  },
 };

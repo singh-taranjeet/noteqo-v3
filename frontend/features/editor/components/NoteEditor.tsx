@@ -8,12 +8,12 @@ import {
   useMemo,
   type ChangeEvent,
   type FocusEvent,
+  useRef,
 } from "react";
 import debounce from "lodash/debounce";
 
 // --- Tiptap Core Extensions ---
 import { StarterKit } from "@tiptap/starter-kit";
-import { Image } from "@tiptap/extension-image";
 import { TaskList } from "@tiptap/extension-list";
 import { TextAlign } from "@tiptap/extension-text-align";
 import { Typography } from "@tiptap/extension-typography";
@@ -25,7 +25,10 @@ import { Superscript } from "@tiptap/extension-superscript";
 import { Selection } from "@tiptap/extensions";
 
 // --- Tiptap Node Custom Views ---
+import { ResizableImage } from "@/features/editor/components/nodes/ResizableImageNode/ResizableImageExtension";
 import { ImageUploadNode } from "@/features/editor/components/nodes/ImageUploadNode/ImageUploadNodeExtension";
+import { FileUploadNode } from "@/features/editor/components/nodes/FileUploadNode/FileUploadNodeExtension";
+import { FileNode, AudioNode, VideoNode, Iframe } from "@/features/editor/components/nodes/MediaNodes/MediaNodesExtension";
 import { HorizontalRule } from "@/features/editor/components/nodes/HorizontalRuleNode/HorizontalRuleNodeExtension";
 import { CodeBlockNode } from "@/features/editor/components/nodes/CodeBlockNode/CodeBlockNodeExtension";
 import { TaskItemNode } from "@/features/editor/components/nodes/TaskItemNode/TaskItemNodeExtension";
@@ -51,11 +54,9 @@ import { TableNodeExtension } from "@/features/editor/components/nodes/TableNode
 // --- Tiptap UI Hooks & Components ---
 
 // --- Lib ---
-import {
-  handleImageUpload,
-  MAX_FILE_SIZE,
-} from "@/features/editor/utils/tiptapUtils";
+import { MAX_FILE_SIZE } from "@/features/editor/utils/tiptapUtils";
 import { EDITOR_CONFIG } from "@/features/editor/constants/editor.constants";
+import { mediaService } from "@/features/media/services/media.service";
 import { NOTE_DEFAULTS } from "@/features/workspace/constants/workspace.constants";
 import { noteService } from "@/features/workspace/services/note.service";
 import type { Note } from "@/features/workspace/types/workspace.types";
@@ -66,10 +67,9 @@ import DEFAULT_CONTENT from "@/features/editor/components/data/content.json";
 import { logService } from "@/services/log.service";
 
 interface NoteEditorProps {
-  noteId?: string;
+  noteId: string;
   note?: Note;
   isReadOnly?: boolean;
-  disableRemoteLoad?: boolean;
   className?: string;
   contentWrapperClassName?: string;
 }
@@ -77,13 +77,13 @@ interface NoteEditorProps {
 interface LoadNoteContentOptions {
   noteId?: string;
   initialNote?: Note;
-  disableRemoteLoad: boolean;
+  isReadOnly: boolean;
 }
 
 const useLoadNoteContent = ({
   noteId,
   initialNote,
-  disableRemoteLoad,
+  isReadOnly = false,
 }: Readonly<LoadNoteContentOptions>) => {
   const [note, setNote] = useState<Note | null>(initialNote ?? null);
   const [isReady, setIsReady] = useState<boolean>(Boolean(initialNote));
@@ -94,16 +94,20 @@ const useLoadNoteContent = ({
         try {
           const localNote = await noteService.getLocalNote(noteId);
 
+          console.log("This is localNote", localNote);
           if (localNote) {
             setNote(localNote);
             setIsReady(true);
           }
 
-          if (disableRemoteLoad) {
+          if (isReadOnly) {
             return;
           }
 
+          // Fetch decrypted note
           const remoteNote = await noteService.getRemoteNote(noteId);
+          console.log("this is remote Note", remoteNote);
+
 
           if (remoteNote) {
             setNote(remoteNote);
@@ -116,7 +120,7 @@ const useLoadNoteContent = ({
       }
     }
     loadContent();
-  }, [disableRemoteLoad, initialNote, noteId]);
+  }, [isReadOnly, initialNote, noteId]);
 
   return {
     note,
@@ -129,7 +133,6 @@ export function NoteEditor({
   noteId,
   note: providedNote,
   isReadOnly = false,
-  disableRemoteLoad = false,
   className,
   contentWrapperClassName,
 }: Readonly<NoteEditorProps>) {
@@ -145,19 +148,50 @@ export function NoteEditor({
     [],
   );
 
+  const { note, isReady, setNote } = useLoadNoteContent({
+    noteId,
+    initialNote: providedNote,
+    isReadOnly,
+  });
+
+  const noteRef = useRef(note);
+  useEffect(() => {
+    noteRef.current = note;
+  }, [note]);
+
   useEffect(() => {
     return () => {
       debouncedUpdateNote.cancel();
     };
   }, [debouncedUpdateNote]);
 
-  const { note, isReady, setNote } = useLoadNoteContent({
-    noteId,
-    initialNote: providedNote,
-    disableRemoteLoad,
-  });
-
   const content = note?.content || DEFAULT_CONTENT;
+
+  const handlePasteFiles = async (editor: Editor, files: File[]) => {
+    const currentNote = noteRef.current;
+    if (!noteId || !currentNote?.spaceId) return;
+
+    for (const file of files) {
+      try {
+        const url = await mediaService.uploadMedia(file, noteId, currentNote.spaceId);
+        const isImage = file.type.startsWith("image/");
+
+        if (isImage) {
+          editor.commands.insertContent({
+            type: "image",
+            attrs: { src: url, alt: file.name }
+          });
+        } else {
+          editor.commands.insertContent({
+            type: "fileAttachment",
+            attrs: { src: url, filename: file.name, filetype: file.name.split('.').pop()?.toUpperCase() || "FILE" }
+          });
+        }
+      } catch (err) {
+        logService.error("Failed to paste file", err);
+      }
+    }
+  };
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -169,6 +203,24 @@ export function NoteEditor({
         autocapitalize: "off",
         "aria-label": "Main content area, start typing to enter text.",
         class: "flex-1 focus:outline-none min-h-full",
+      },
+      handlePaste: (view, event, slice) => {
+        const items = Array.from(event.clipboardData?.items || []);
+        const hasFiles = items.some(item => item.kind === 'file');
+
+        if (hasFiles) {
+          event.preventDefault();
+          const files = items
+            .filter(item => item.kind === 'file')
+            .map(item => item.getAsFile())
+            .filter((file): file is File => file !== null);
+
+          if (files.length > 0 && editor) {
+            void handlePasteFiles(editor, files);
+          }
+          return true;
+        }
+        return false;
       },
     },
     extensions: [
@@ -217,7 +269,10 @@ export function NoteEditor({
       Highlight.configure({ multicolor: true }),
       TextStyle,
       Color,
-      Image,
+      ResizableImage,
+      AudioNode,
+      VideoNode,
+      Iframe,
       Typography,
       Superscript,
       Subscript,
@@ -226,8 +281,27 @@ export function NoteEditor({
         accept: "image/*",
         maxSize: MAX_FILE_SIZE,
         limit: 3,
-        upload: handleImageUpload,
+        upload: async (file, onProgress, signal) => {
+          const currentNote = noteRef.current;
+          if (!noteId || !currentNote?.spaceId) {
+            throw new Error("Cannot upload image before note is initialized.");
+          }
+          return mediaService.uploadMedia(file, noteId, currentNote.spaceId, onProgress, signal);
+        },
       }),
+      FileUploadNode.configure({
+        accept: "*/*",
+        maxSize: MAX_FILE_SIZE,
+        limit: 3,
+        upload: async (file, onProgress, signal) => {
+          const currentNote = noteRef.current;
+          if (!noteId || !currentNote?.spaceId) {
+            throw new Error("Cannot upload file before note is initialized.");
+          }
+          return mediaService.uploadMedia(file, noteId, currentNote.spaceId, onProgress, signal);
+        },
+      }),
+      FileNode,
       SlashCommandExtension,
       AiExtension,
       ColumnsExtension,

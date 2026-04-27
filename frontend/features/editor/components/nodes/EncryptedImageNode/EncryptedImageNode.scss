@@ -1,0 +1,50 @@
+.tiptap-encrypted-image {
+  display: inline-block;
+  max-width: 100%;
+  
+  img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    border-radius: 0.5rem;
+    transition: outline 0.2s;
+    
+    &.ProseMirror-selectednode {
+      outline: 3px solid hsl(var(--primary));
+    }
+  }
+
+  .tiptap-encrypted-image-loading,
+  .tiptap-encrypted-image-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+    background-color: hsl(var(--muted));
+    border-radius: 0.5rem;
+    color: hsl(var(--muted-foreground));
+    font-size: 0.875rem;
+    gap: 0.5rem;
+  }
+
+  .tiptap-encrypted-image-error {
+    color: hsl(var(--destructive));
+    background-color: hsl(var(--destructive) / 0.1);
+  }
+
+  .spinner {
+    width: 24px;
+    height: 24px;
+    border: 2px solid hsl(var(--muted-foreground) / 0.3);
+    border-top-color: hsl(var(--primary));
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+}

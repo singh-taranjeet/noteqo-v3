@@ -34,13 +34,20 @@ export async function proxyToBackend({
 }: ProxyRequestOptions): Promise<NextResponse> {
   const authHeader = request.headers.get("Authorization");
 
+  const isFormData = body instanceof FormData;
+  
+  const headers: Record<string, string> = {
+    ...(authHeader ? { Authorization: authHeader } : {}),
+  };
+
+  if (!isFormData) {
+    headers["Content-Type"] = "application/json";
+  }
+
   const fetchInit: RequestInit & { next?: { revalidate: number } } = {
     method: method ?? request.method,
-    headers: {
-      "Content-Type": "application/json",
-      ...(authHeader ? { Authorization: authHeader } : {}),
-    },
-    ...(body ? { body: JSON.stringify(body) } : {}),
+    headers,
+    ...(body ? { body: isFormData ? (body as any) : JSON.stringify(body) } : {}),
     next: { revalidate },
   };
 

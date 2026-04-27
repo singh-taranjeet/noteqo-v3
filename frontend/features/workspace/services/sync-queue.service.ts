@@ -108,6 +108,10 @@ class SyncQueueService {
     await db.syncQueue.put(event);
   }
 
+  private updatedAt() {
+    return new Date().toISOString();
+  }
+
   /**
    * Process all pending events in FIFO order.
    */
@@ -168,6 +172,8 @@ class SyncQueueService {
           ciphertext,
           spaceId: note.spaceId,
           type: note.type,
+          createdAt: note.createdAt,
+          updatedAt: this.updatedAt()
         });
         break;
       }
@@ -178,6 +184,7 @@ class SyncQueueService {
         await noteApiService.updateNote({
           id: event.entityId,
           ciphertext,
+          updatedAt: this.updatedAt()
         });
         break;
       }

@@ -1,0 +1,88 @@
+.tiptap-file-attachment {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  margin: 0.5rem 0;
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.5rem;
+  background-color: hsl(var(--background));
+  cursor: pointer;
+  transition: background-color 0.2s, outline 0.2s;
+  user-select: none;
+
+  &:hover {
+    background-color: hsl(var(--muted) / 0.5);
+  }
+
+  &.ProseMirror-selectednode {
+    outline: 2px solid hsl(var(--primary));
+  }
+
+  .tiptap-file-attachment-icon-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 0.25rem;
+    background-color: hsl(var(--muted));
+    color: hsl(var(--muted-foreground));
+    flex-shrink: 0;
+
+    svg {
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+  }
+
+  .tiptap-file-attachment-info {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    min-width: 0;
+
+    .tiptap-file-attachment-filename {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: hsl(var(--foreground));
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.2;
+      margin-bottom: 0.125rem;
+    }
+
+    .tiptap-file-attachment-meta {
+      font-size: 0.75rem;
+      color: hsl(var(--muted-foreground));
+    }
+  }
+
+  .tiptap-file-attachment-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    flex-shrink: 0;
+    color: hsl(var(--muted-foreground));
+
+    .tiptap-file-attachment-download-icon {
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+
+    .tiptap-file-attachment-spinner {
+      width: 1.25rem;
+      height: 1.25rem;
+      animation: spin 1s linear infinite;
+    }
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+}

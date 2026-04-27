@@ -17,13 +17,6 @@ export const MEDIA_ROUTES = {
 export const MEDIA_CONFIG = {
   /** Maximum file size in bytes (10 MB) */
   MAX_FILE_SIZE_BYTES: 10 * 1024 * 1024,
-  ACCEPTED_MIME_TYPES: [
-    'image/jpeg',
-    'image/png',
-    'image/gif',
-    'image/webp',
-    'image/svg+xml',
-  ],
   UPLOAD_FIELD_NAME: 'file',
   STORAGE_PREFIX: 'media',
   DEFAULT_CONTENT_TYPE: 'application/octet-stream',

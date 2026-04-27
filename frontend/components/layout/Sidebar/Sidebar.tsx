@@ -39,6 +39,10 @@ export function Sidebar() {
   const { data: spaceNotesMap, isLoading: notesLoading } = useRemoteNotes(
     spaces.length > 0 ? spaces : undefined,
   );
+
+  // Start background sync queue
+  useSyncQueue();
+
   const { mutate: createNote } = useCreateNote();
   const { createSpace, isLoading: isCreatingSpace } = useCreateSpace();
 
@@ -49,9 +53,6 @@ export function Sidebar() {
 
   // Track which space we are managing settings for
   const [settingsSpace, setSettingsSpace] = useState<Space | null>(null);
-
-  // Start background sync queue
-  useSyncQueue();
 
   const isLoading = spacesLoading || notesLoading;
 
