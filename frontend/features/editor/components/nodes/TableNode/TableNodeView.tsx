@@ -215,16 +215,12 @@ export const TableNodeView = ({
       const next: TableData = {
         ...data,
         headers: data.headers.map((h, i) => (i === colIdx ? "" : h)),
-        rows: data.rows.map((r) =>
-          r.map((c, i) => (i === colIdx ? "" : c)),
-        ),
+        rows: data.rows.map((r) => r.map((c, i) => (i === colIdx ? "" : c))),
       };
       persist(next);
     },
     [data, persist],
   );
-
-
 
   /* ─── Column Resize ───────────────────────────────────────── */
 
@@ -246,7 +242,10 @@ export const TableNodeView = ({
 
       const onMouseMove = (moveEvent: MouseEvent) => {
         const delta = moveEvent.clientX - resizeStartX.current;
-        const newWidth = Math.max(MIN_COL_WIDTH, resizeStartWidth.current + delta);
+        const newWidth = Math.max(
+          MIN_COL_WIDTH,
+          resizeStartWidth.current + delta,
+        );
         const next: TableData = {
           ...data,
           columnWidths: data.columnWidths.map((w, i) =>
@@ -283,7 +282,10 @@ export const TableNodeView = ({
   /* ─── Render ──────────────────────────────────────────────── */
 
   return (
-    <NodeViewWrapper className="w-full my-4 block not-prose" data-type="notion-table">
+    <NodeViewWrapper
+      className="w-full my-4 block not-prose"
+      data-type="notion-table"
+    >
       <div
         ref={tableRef}
         className="relative group/table"
@@ -346,9 +348,12 @@ export const TableNodeView = ({
                           dragCol={dragCol}
                           onDragStart={setDragColSafe}
                           onDragMove={(clientX) => {
-                            const table = tableRef.current?.querySelector("table");
+                            const table =
+                              tableRef.current?.querySelector("table");
                             if (!table) return;
-                            const headerRow = table.querySelector("thead tr:last-child");
+                            const headerRow = table.querySelector(
+                              "thead tr:last-child",
+                            );
                             if (!headerRow) return;
                             const cells = headerRow.querySelectorAll("th");
                             let closest = 0;
@@ -366,7 +371,10 @@ export const TableNodeView = ({
                           }}
                           onDragEnd={(fromIdx) => {
                             const currentDropTarget = dropTargetRef.current;
-                            if (currentDropTarget !== null && fromIdx !== currentDropTarget) {
+                            if (
+                              currentDropTarget !== null &&
+                              fromIdx !== currentDropTarget
+                            ) {
                               const reorder = <T,>(arr: T[]): T[] => {
                                 const result = [...arr];
                                 const [moved] = result.splice(fromIdx, 1);
@@ -414,7 +422,9 @@ export const TableNodeView = ({
                         placeholder="Header"
                       />
                     ) : (
-                      <span className="text-sm font-semibold">{header || "Header"}</span>
+                      <span className="text-sm font-semibold">
+                        {header || "Header"}
+                      </span>
                     )}
 
                     {/* Resize handle */}
@@ -565,7 +575,10 @@ function ColumnGripButton({
         const dx = Math.abs(moveEvent.clientX - startX);
         const dy = Math.abs(moveEvent.clientY - startY);
 
-        if (!isDraggingRef.current && (dx > DRAG_THRESHOLD || dy > DRAG_THRESHOLD)) {
+        if (
+          !isDraggingRef.current &&
+          (dx > DRAG_THRESHOLD || dy > DRAG_THRESHOLD)
+        ) {
           isDraggingRef.current = true;
           onDragStart(colIdx);
         }
@@ -618,7 +631,9 @@ function ColumnGripButton({
       <DropdownMenuContent align="start" className="w-48">
         <DropdownMenuSub>
           <DropdownMenuSubTrigger>
-            <span className="flex items-center gap-2"><PaletteIcon /> Color</span>
+            <span className="flex items-center gap-2">
+              <PaletteIcon /> Color
+            </span>
           </DropdownMenuSubTrigger>
           <DropdownMenuSubContent>
             {COLUMN_COLORS.map((color) => (
@@ -638,28 +653,61 @@ function ColumnGripButton({
           </DropdownMenuSubContent>
         </DropdownMenuSub>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => { insertColumnBefore(colIdx); setMenuCol(-1); }}>
-          <span className="flex items-center gap-2"><ArrowLeftIcon /> Insert left</span>
+        <DropdownMenuItem
+          onClick={() => {
+            insertColumnBefore(colIdx);
+            setMenuCol(-1);
+          }}
+        >
+          <span className="flex items-center gap-2">
+            <ArrowLeftIcon /> Insert left
+          </span>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => { insertColumnAfter(colIdx); setMenuCol(-1); }}>
-          <span className="flex items-center gap-2"><ArrowRightIcon /> Insert right</span>
+        <DropdownMenuItem
+          onClick={() => {
+            insertColumnAfter(colIdx);
+            setMenuCol(-1);
+          }}
+        >
+          <span className="flex items-center gap-2">
+            <ArrowRightIcon /> Insert right
+          </span>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => { insertColumnAfter(colIdx); setMenuCol(-1); }}>
+        <DropdownMenuItem
+          onClick={() => {
+            insertColumnAfter(colIdx);
+            setMenuCol(-1);
+          }}
+        >
           <span className="flex items-center justify-between w-full">
-            <span className="flex items-center gap-2"><DuplicateIcon /> Duplicate</span>
+            <span className="flex items-center gap-2">
+              <DuplicateIcon /> Duplicate
+            </span>
             <kbd className="text-xs text-muted-foreground">⌘D</kbd>
           </span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => { clearColumnContents(colIdx); setMenuCol(-1); }}>
-          <span className="flex items-center gap-2"><ClearIcon /> Clear contents</span>
+        <DropdownMenuItem
+          onClick={() => {
+            clearColumnContents(colIdx);
+            setMenuCol(-1);
+          }}
+        >
+          <span className="flex items-center gap-2">
+            <ClearIcon /> Clear contents
+          </span>
         </DropdownMenuItem>
         {colCount > 1 && (
           <DropdownMenuItem
-            onClick={() => { deleteColumn(colIdx); setMenuCol(-1); }}
+            onClick={() => {
+              deleteColumn(colIdx);
+              setMenuCol(-1);
+            }}
             className="text-destructive focus:text-destructive"
           >
-            <span className="flex items-center gap-2"><TrashIcon /> Delete</span>
+            <span className="flex items-center gap-2">
+              <TrashIcon /> Delete
+            </span>
           </DropdownMenuItem>
         )}
       </DropdownMenuContent>
@@ -671,7 +719,15 @@ function ColumnGripButton({
 
 function PlusIcon() {
   return (
-    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      className="w-3.5 h-3.5"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <line x1="12" y1="5" x2="12" y2="19" />
       <line x1="5" y1="12" x2="19" y2="12" />
     </svg>
@@ -693,48 +749,106 @@ function GripDotsIcon() {
 
 function PaletteIcon() {
   return (
-    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="13.5" cy="6.5" r="2.5" /><circle cx="6.5" cy="13.5" r="2.5" /><circle cx="17.5" cy="13.5" r="2.5" /><path d="M12 21a9 9 0 0 0 0-18" />
+    <svg
+      className="w-4 h-4"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="13.5" cy="6.5" r="2.5" />
+      <circle cx="6.5" cy="13.5" r="2.5" />
+      <circle cx="17.5" cy="13.5" r="2.5" />
+      <path d="M12 21a9 9 0 0 0 0-18" />
     </svg>
   );
 }
 
 function ArrowLeftIcon() {
   return (
-    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="m12 19-7-7 7-7" /><path d="M19 12H5" />
+    <svg
+      className="w-4 h-4"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="m12 19-7-7 7-7" />
+      <path d="M19 12H5" />
     </svg>
   );
 }
 
 function ArrowRightIcon() {
   return (
-    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="m12 5 7 7-7 7" /><path d="M5 12h14" />
+    <svg
+      className="w-4 h-4"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="m12 5 7 7-7 7" />
+      <path d="M5 12h14" />
     </svg>
   );
 }
 
 function DuplicateIcon() {
   return (
-    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect width="14" height="14" x="8" y="8" rx="2" /><path d="M4 16V4a2 2 0 0 1 2-2h12" />
+    <svg
+      className="w-4 h-4"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <rect width="14" height="14" x="8" y="8" rx="2" />
+      <path d="M4 16V4a2 2 0 0 1 2-2h12" />
     </svg>
   );
 }
 
 function ClearIcon() {
   return (
-    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="10" /><path d="m15 9-6 6" /><path d="m9 9 6 6" />
+    <svg
+      className="w-4 h-4"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="12" cy="12" r="10" />
+      <path d="m15 9-6 6" />
+      <path d="m9 9 6 6" />
     </svg>
   );
 }
 
 function TrashIcon() {
   return (
-    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+    <svg
+      className="w-4 h-4"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M3 6h18" />
+      <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+      <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
     </svg>
   );
 }

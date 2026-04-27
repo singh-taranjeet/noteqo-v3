@@ -28,7 +28,9 @@ export const EncryptedFileAttachmentNode = (props: NodeViewProps) => {
     if (!src || isDownloading) return;
 
     if (!spaceId) {
-      logService.warn("No spaceId provided to EncryptedFileAttachmentNode, cannot decrypt.");
+      logService.warn(
+        "No spaceId provided to EncryptedFileAttachmentNode, cannot decrypt.",
+      );
       setError(true);
       return;
     }
@@ -38,7 +40,10 @@ export const EncryptedFileAttachmentNode = (props: NodeViewProps) => {
 
     try {
       // 1. Fetch and decrypt the file
-      const decryptedUrl = await mediaService.getDecryptedMediaUrl(src, spaceId);
+      const decryptedUrl = await mediaService.getDecryptedMediaUrl(
+        src,
+        spaceId,
+      );
 
       // 2. Programmatically click a link to download it
       const a = document.createElement("a");

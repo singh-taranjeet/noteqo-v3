@@ -64,7 +64,11 @@ export const noteApiService = {
     await queryClient.invalidateQueries({ queryKey: noteQueryKeys.lists() });
   },
 
-  updateNote: async (payload: { id: string; ciphertext: string, updatedAt: string }) => {
+  updateNote: async (payload: {
+    id: string;
+    ciphertext: string;
+    updatedAt: string;
+  }) => {
     const response = await queryClient
       .getMutationCache()
       .build(queryClient, {

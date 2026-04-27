@@ -344,7 +344,6 @@ export function selectionWithinConvertibleTypes(
   return false;
 }
 
-
 type ProtocolOptions = {
   /**
    * The protocol scheme to be registered.

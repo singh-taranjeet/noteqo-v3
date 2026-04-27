@@ -6,7 +6,7 @@ interface RouteContext {
 
 /**
  * DELETE /api/media/:mediaId → Proxies to backend DELETE /media/:mediaId
- * 
+ *
  * Deletes an encrypted media blob and its metadata.
  */
 export async function DELETE(request: Request, context: RouteContext) {

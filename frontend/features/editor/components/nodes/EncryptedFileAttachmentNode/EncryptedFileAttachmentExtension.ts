@@ -7,53 +7,58 @@ export interface EncryptedFileAttachmentOptions {
   spaceId: string | null;
 }
 
-export const EncryptedFileAttachmentExtension = Node.create<EncryptedFileAttachmentOptions>({
-  name: "fileAttachment",
+export const EncryptedFileAttachmentExtension =
+  Node.create<EncryptedFileAttachmentOptions>({
+    name: "fileAttachment",
 
-  group: "block",
+    group: "block",
 
-  draggable: true,
+    draggable: true,
 
-  addOptions() {
-    return {
-      HTMLAttributes: {},
-      spaceId: null,
-    };
-  },
+    addOptions() {
+      return {
+        HTMLAttributes: {},
+        spaceId: null,
+      };
+    },
 
-  addAttributes() {
-    return {
-      src: {
-        default: null,
-      },
-      filename: {
-        default: null,
-      },
-      sizeBytes: {
-        default: null,
-      },
-      mimeType: {
-        default: null,
-      },
-    };
-  },
+    addAttributes() {
+      return {
+        src: {
+          default: null,
+        },
+        filename: {
+          default: null,
+        },
+        sizeBytes: {
+          default: null,
+        },
+        mimeType: {
+          default: null,
+        },
+      };
+    },
 
-  parseHTML() {
-    return [
-      {
-        tag: 'div[data-type="file-attachment"]',
-      },
-    ];
-  },
+    parseHTML() {
+      return [
+        {
+          tag: 'div[data-type="file-attachment"]',
+        },
+      ];
+    },
 
-  renderHTML({ HTMLAttributes }) {
-    return [
-      "div",
-      mergeAttributes({ "data-type": "file-attachment" }, this.options.HTMLAttributes, HTMLAttributes),
-    ];
-  },
+    renderHTML({ HTMLAttributes }) {
+      return [
+        "div",
+        mergeAttributes(
+          { "data-type": "file-attachment" },
+          this.options.HTMLAttributes,
+          HTMLAttributes,
+        ),
+      ];
+    },
 
-  addNodeView() {
-    return ReactNodeViewRenderer(EncryptedFileAttachmentNodeComponent);
-  },
-});
+    addNodeView() {
+      return ReactNodeViewRenderer(EncryptedFileAttachmentNodeComponent);
+    },
+  });

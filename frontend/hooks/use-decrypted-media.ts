@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 
 export function useDecryptedMedia(src: string | null) {
   const [decryptedSrc, setDecryptedSrc] = useState<string | null>(null);
-  
+
   // Try to extract the spaceId from the URL pathname.
   // URL pattern: /spaces/[spaceId]/[noteId]
   const pathname = usePathname();
@@ -20,7 +20,11 @@ export function useDecryptedMedia(src: string | null) {
       if (!src) return;
 
       // If it's a base64 data URI or a local object URL, just use it directly
-      if (src.startsWith("data:") || src.startsWith("blob:") || src.startsWith("/")) {
+      if (
+        src.startsWith("data:") ||
+        src.startsWith("blob:") ||
+        src.startsWith("/")
+      ) {
         setDecryptedSrc(src);
         return;
       }

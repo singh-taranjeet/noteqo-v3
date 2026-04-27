@@ -1,14 +1,23 @@
 import React, { useState, useEffect } from "react";
 import { Node as TiptapNode, mergeAttributes } from "@tiptap/core";
 import { ReactNodeViewRenderer, NodeViewWrapper } from "@tiptap/react";
-import { Accordion as ShadcnAccordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
+import {
+  Accordion as ShadcnAccordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from "@/components/ui/accordion";
 import { useDecryptedMedia } from "@/hooks/use-decrypted-media";
 
 export function AudioNodeView({ node }: any) {
   const decryptedSrc = useDecryptedMedia(node.attrs.src);
   return (
     <NodeViewWrapper className="my-4 w-full">
-      <audio controls className="w-full rounded-md max-w-md" src={decryptedSrc || node.attrs.src} />
+      <audio
+        controls
+        className="w-full rounded-md max-w-md"
+        src={decryptedSrc || node.attrs.src}
+      />
     </NodeViewWrapper>
   );
 }
@@ -17,7 +26,11 @@ export function VideoNodeView({ node }: any) {
   const decryptedSrc = useDecryptedMedia(node.attrs.src);
   return (
     <NodeViewWrapper className="my-4 w-full aspect-video">
-      <video controls className="w-full h-full rounded-md shadow-sm" src={decryptedSrc || node.attrs.src} />
+      <video
+        controls
+        className="w-full h-full rounded-md shadow-sm"
+        src={decryptedSrc || node.attrs.src}
+      />
     </NodeViewWrapper>
   );
 }
@@ -31,7 +44,8 @@ export const Iframe = TiptapNode.create({
     return {
       allowFullscreen: true,
       HTMLAttributes: {
-        class: "w-full rounded-md shadow-sm outline-none border-0 aspect-video my-4",
+        class:
+          "w-full rounded-md shadow-sm outline-none border-0 aspect-video my-4",
       },
     };
   },
@@ -105,7 +119,11 @@ export const AudioNode = TiptapNode.create({
   },
 
   renderHTML({ HTMLAttributes }: any) {
-    return ["div", { "data-type": "audio-node" }, mergeAttributes(HTMLAttributes)];
+    return [
+      "div",
+      { "data-type": "audio-node" },
+      mergeAttributes(HTMLAttributes),
+    ];
   },
 
   addNodeView() {
@@ -144,7 +162,11 @@ export const VideoNode = TiptapNode.create({
   },
 
   renderHTML({ HTMLAttributes }: any) {
-    return ["div", { "data-type": "video-node" }, mergeAttributes(HTMLAttributes)];
+    return [
+      "div",
+      { "data-type": "video-node" },
+      mergeAttributes(HTMLAttributes),
+    ];
   },
 
   addNodeView() {
@@ -216,21 +238,21 @@ export const FileNode = TiptapNode.create({
 
 export function FileNodeView({ node, updateAttributes }: any) {
   const { src, filename, filetype, isOpen } = node.attrs;
-  const fType = (filetype || '').toLowerCase();
-  
-  const isTextFile = ['json', 'csv', 'txt'].includes(fType);
-  const isPdf = fType === 'pdf';
-  const isWord = ['doc', 'docx'].includes(fType);
+  const fType = (filetype || "").toLowerCase();
+
+  const isTextFile = ["json", "csv", "txt"].includes(fType);
+  const isPdf = fType === "pdf";
+  const isWord = ["doc", "docx"].includes(fType);
   const isEmbeddable = isTextFile || isPdf || isWord;
-  
+
   const [fileContent, setFileContent] = useState<string | null>(null);
   const decryptedSrc = useDecryptedMedia(src);
 
   useEffect(() => {
     if (isTextFile && decryptedSrc) {
       fetch(decryptedSrc)
-        .then(r => r.text())
-        .then(text => setFileContent(text))
+        .then((r) => r.text())
+        .then((text) => setFileContent(text))
         .catch(() => setFileContent("Failed to load file content."));
     }
   }, [isTextFile, decryptedSrc]);
@@ -241,15 +263,32 @@ export function FileNodeView({ node, updateAttributes }: any) {
         <div className="flex items-center justify-between p-3 border rounded-lg bg-card text-card-foreground shadow-sm hover:border-primary/50 transition-colors">
           <div className="flex items-center gap-3 overflow-hidden">
             <div className="flex-shrink-0 h-10 w-10 flex items-center justify-center bg-muted rounded-md text-primary">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+                <polyline points="14 2 14 8 20 8" />
+              </svg>
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-medium truncate" title={filename}>{filename || "Attachment"}</p>
-              <p className="text-xs text-muted-foreground uppercase">{filetype || "FILE"}</p>
+              <p className="text-sm font-medium truncate" title={filename}>
+                {filename || "Attachment"}
+              </p>
+              <p className="text-xs text-muted-foreground uppercase">
+                {filetype || "FILE"}
+              </p>
             </div>
           </div>
-          <a 
-            href={decryptedSrc || src} 
+          <a
+            href={decryptedSrc || src}
             download={filename}
             target="_blank"
             rel="noopener noreferrer"
@@ -267,30 +306,42 @@ export function FileNodeView({ node, updateAttributes }: any) {
       <ShadcnAccordion
         type="multiple"
         value={isOpen ? ["item-1"] : []}
-        onValueChange={(v: any) => updateAttributes({ isOpen: v.includes("item-1") })}
+        onValueChange={(v: any) =>
+          updateAttributes({ isOpen: v.includes("item-1") })
+        }
         className="w-full border rounded-md bg-card"
       >
         <AccordionItem value="item-1" className="border-0">
           <AccordionTrigger className="px-4 py-3 hover:no-underline hover:bg-muted/50 transition-colors">
             <div className="flex items-center gap-3 text-left">
-              <span className="flex items-center justify-center w-8 h-8 bg-background border rounded-md text-muted-foreground shadow-sm shrink-0 text-xs text-center">📄</span>
+              <span className="flex items-center justify-center w-8 h-8 bg-background border rounded-md text-muted-foreground shadow-sm shrink-0 text-xs text-center">
+                📄
+              </span>
               <div className="flex flex-col items-start min-w-0">
-                <span className="text-sm font-medium text-foreground truncate">{filename}</span>
-                <span className="text-[10px] text-muted-foreground uppercase">{filetype}</span>
+                <span className="text-sm font-medium text-foreground truncate">
+                  {filename}
+                </span>
+                <span className="text-[10px] text-muted-foreground uppercase">
+                  {filetype}
+                </span>
               </div>
             </div>
           </AccordionTrigger>
           <AccordionContent className="p-0 border-t border-border">
             {isPdf ? (
               <div className="w-full aspect-[1/1.4] max-h-[800px] bg-muted/20">
-                <iframe src={decryptedSrc || src} className="w-full h-full border-0" title={filename} />
+                <iframe
+                  src={decryptedSrc || src}
+                  className="w-full h-full border-0"
+                  title={filename}
+                />
               </div>
             ) : isWord ? (
               <div className="w-full aspect-[1/1.4] max-h-[800px] bg-muted/20">
-                <iframe 
-                  src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(decryptedSrc || src)}`} 
-                  className="w-full h-full border-0" 
-                  title={filename} 
+                <iframe
+                  src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(decryptedSrc || src)}`}
+                  className="w-full h-full border-0"
+                  title={filename}
                 />
               </div>
             ) : (

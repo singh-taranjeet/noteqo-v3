@@ -45,7 +45,10 @@ const ResizableImageNodeView = (props: any) => {
 
   const alignment = node.attrs.alignment || "center";
 
-  const widthStyle = typeof node.attrs.width === 'number' ? `${node.attrs.width}px` : node.attrs.width;
+  const widthStyle =
+    typeof node.attrs.width === "number"
+      ? `${node.attrs.width}px`
+      : node.attrs.width;
 
   return (
     <NodeViewWrapper
@@ -55,19 +58,19 @@ const ResizableImageNodeView = (props: any) => {
         alignment === "left"
           ? "justify-start"
           : alignment === "right"
-          ? "justify-end"
-          : "justify-center"
+            ? "justify-end"
+            : "justify-center"
       }`}
     >
-      <div 
-        className={`relative group inline-block rounded-md ${selected ? 'ring-2 ring-primary ring-offset-2' : ''}`}
+      <div
+        className={`relative group inline-block rounded-md ${selected ? "ring-2 ring-primary ring-offset-2" : ""}`}
         style={{ width: widthStyle }}
       >
         <img
           ref={imageRef}
           src={decryptedSrc || node.attrs.src}
           alt={node.attrs.alt}
-          className={`block max-w-full rounded-md object-contain ${resizing ? 'cursor-ew-resize' : 'cursor-default'} ${selected ? 'opacity-95' : ''}`}
+          className={`block max-w-full rounded-md object-contain ${resizing ? "cursor-ew-resize" : "cursor-default"} ${selected ? "opacity-95" : ""}`}
           style={{ width: "100%", height: "auto" }}
         />
 
@@ -116,10 +119,10 @@ const ResizableImageNodeView = (props: any) => {
 
       <Dialog open={isFullscreen} onOpenChange={setIsFullscreen}>
         <DialogContent className="!max-w-none w-screen h-screen m-0 p-0 border-none bg-black shadow-none flex flex-col items-center justify-center [&>button]:text-white z-[100] [&>button]:bg-black/50 [&>button]:p-2 [&>button]:rounded-full [&>button]:right-4 [&>button]:top-4 [&>button]:w-10 [&>button]:h-10">
-          <img 
-            src={decryptedSrc || node.attrs.src} 
-            alt={node.attrs.alt || 'Fullscreen Preview'} 
-            className="w-full h-full object-contain pointer-events-none" 
+          <img
+            src={decryptedSrc || node.attrs.src}
+            alt={node.attrs.alt || "Fullscreen Preview"}
+            className="w-full h-full object-contain pointer-events-none"
           />
         </DialogContent>
       </Dialog>
@@ -148,34 +151,45 @@ export const ResizableImage = Node.create({
       {
         tag: "img[src]",
         getAttrs: (node) => {
-          if (typeof node === 'string') return {};
+          if (typeof node === "string") return {};
           const w = node.getAttribute("data-width") || node.style?.width;
           const a = node.getAttribute("data-alignment");
-          
+
           return {
             width: w && !isNaN(Number(w)) ? Number(w) : w || "100%",
-            alignment: a || "center"
+            alignment: a || "center",
           };
-        }
+        },
       },
     ];
   },
 
   renderHTML({ HTMLAttributes }) {
-    const { width, alignment, "data-width": dw, "data-alignment": da, ...rest } = HTMLAttributes;
-    
+    const {
+      width,
+      alignment,
+      "data-width": dw,
+      "data-alignment": da,
+      ...rest
+    } = HTMLAttributes;
+
     let alignStyles = "display: flex; justify-content: center;";
-    if (alignment === "left") alignStyles = "display: flex; justify-content: flex-start;";
-    if (alignment === "right") alignStyles = "display: flex; justify-content: flex-end;";
+    if (alignment === "left")
+      alignStyles = "display: flex; justify-content: flex-start;";
+    if (alignment === "right")
+      alignStyles = "display: flex; justify-content: flex-end;";
 
     return [
       "div",
       { style: alignStyles, class: "resizable-image-wrapper" },
-      ["img", mergeAttributes(rest, { 
-        style: `width: ${width}${typeof width === 'number' ? 'px' : ''}; height: auto; max-width: 100%;`,
-        "data-width": width,
-        "data-alignment": alignment
-      })],
+      [
+        "img",
+        mergeAttributes(rest, {
+          style: `width: ${width}${typeof width === "number" ? "px" : ""}; height: auto; max-width: 100%;`,
+          "data-width": width,
+          "data-alignment": alignment,
+        }),
+      ],
     ];
   },
 

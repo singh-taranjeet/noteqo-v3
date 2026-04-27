@@ -28,7 +28,12 @@ import { Selection } from "@tiptap/extensions";
 import { ResizableImage } from "@/features/editor/components/nodes/ResizableImageNode/ResizableImageExtension";
 import { ImageUploadNode } from "@/features/editor/components/nodes/ImageUploadNode/ImageUploadNodeExtension";
 import { FileUploadNode } from "@/features/editor/components/nodes/FileUploadNode/FileUploadNodeExtension";
-import { FileNode, AudioNode, VideoNode, Iframe } from "@/features/editor/components/nodes/MediaNodes/MediaNodesExtension";
+import {
+  FileNode,
+  AudioNode,
+  VideoNode,
+  Iframe,
+} from "@/features/editor/components/nodes/MediaNodes/MediaNodesExtension";
 import { HorizontalRule } from "@/features/editor/components/nodes/HorizontalRuleNode/HorizontalRuleNodeExtension";
 import { CodeBlockNode } from "@/features/editor/components/nodes/CodeBlockNode/CodeBlockNodeExtension";
 import { TaskItemNode } from "@/features/editor/components/nodes/TaskItemNode/TaskItemNodeExtension";
@@ -108,7 +113,6 @@ const useLoadNoteContent = ({
           const remoteNote = await noteService.getRemoteNote(noteId);
           console.log("this is remote Note", remoteNote);
 
-
           if (remoteNote) {
             setNote(remoteNote);
             setIsReady(true);
@@ -173,18 +177,26 @@ export function NoteEditor({
 
     for (const file of files) {
       try {
-        const url = await mediaService.uploadMedia(file, noteId, currentNote.spaceId);
+        const url = await mediaService.uploadMedia(
+          file,
+          noteId,
+          currentNote.spaceId,
+        );
         const isImage = file.type.startsWith("image/");
 
         if (isImage) {
           editor.commands.insertContent({
             type: "image",
-            attrs: { src: url, alt: file.name }
+            attrs: { src: url, alt: file.name },
           });
         } else {
           editor.commands.insertContent({
             type: "fileAttachment",
-            attrs: { src: url, filename: file.name, filetype: file.name.split('.').pop()?.toUpperCase() || "FILE" }
+            attrs: {
+              src: url,
+              filename: file.name,
+              filetype: file.name.split(".").pop()?.toUpperCase() || "FILE",
+            },
           });
         }
       } catch (err) {
@@ -206,13 +218,13 @@ export function NoteEditor({
       },
       handlePaste: (view, event, slice) => {
         const items = Array.from(event.clipboardData?.items || []);
-        const hasFiles = items.some(item => item.kind === 'file');
+        const hasFiles = items.some((item) => item.kind === "file");
 
         if (hasFiles) {
           event.preventDefault();
           const files = items
-            .filter(item => item.kind === 'file')
-            .map(item => item.getAsFile())
+            .filter((item) => item.kind === "file")
+            .map((item) => item.getAsFile())
             .filter((file): file is File => file !== null);
 
           if (files.length > 0 && editor) {
@@ -286,7 +298,13 @@ export function NoteEditor({
           if (!noteId || !currentNote?.spaceId) {
             throw new Error("Cannot upload image before note is initialized.");
           }
-          return mediaService.uploadMedia(file, noteId, currentNote.spaceId, onProgress, signal);
+          return mediaService.uploadMedia(
+            file,
+            noteId,
+            currentNote.spaceId,
+            onProgress,
+            signal,
+          );
         },
       }),
       FileUploadNode.configure({
@@ -298,7 +316,13 @@ export function NoteEditor({
           if (!noteId || !currentNote?.spaceId) {
             throw new Error("Cannot upload file before note is initialized.");
           }
-          return mediaService.uploadMedia(file, noteId, currentNote.spaceId, onProgress, signal);
+          return mediaService.uploadMedia(
+            file,
+            noteId,
+            currentNote.spaceId,
+            onProgress,
+            signal,
+          );
         },
       }),
       FileNode,

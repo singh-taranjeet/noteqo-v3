@@ -35,7 +35,7 @@ export async function proxyToBackend({
   const authHeader = request.headers.get("Authorization");
 
   const isFormData = body instanceof FormData;
-  
+
   const headers: Record<string, string> = {
     ...(authHeader ? { Authorization: authHeader } : {}),
   };
@@ -47,7 +47,9 @@ export async function proxyToBackend({
   const fetchInit: RequestInit & { next?: { revalidate: number } } = {
     method: method ?? request.method,
     headers,
-    ...(body ? { body: isFormData ? (body as any) : JSON.stringify(body) } : {}),
+    ...(body
+      ? { body: isFormData ? (body as any) : JSON.stringify(body) }
+      : {}),
     next: { revalidate },
   };
 

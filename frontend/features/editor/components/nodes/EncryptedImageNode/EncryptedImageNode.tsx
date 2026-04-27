@@ -28,7 +28,9 @@ export const EncryptedImageNode = (props: NodeViewProps) => {
 
       // If we don't have a spaceId, we can't decrypt it
       if (!spaceId) {
-        logService.warn("No spaceId provided to EncryptedImageNode, cannot decrypt.");
+        logService.warn(
+          "No spaceId provided to EncryptedImageNode, cannot decrypt.",
+        );
         setError(true);
         return;
       }

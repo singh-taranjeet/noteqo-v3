@@ -242,7 +242,10 @@ export const cryptoService = {
    * Encrypts an ArrayBuffer (e.g. File) using the AES-GCM Space Key.
    * Returns a Blob containing the concatenated IV and Ciphertext.
    */
-  encryptBuffer: async (buffer: ArrayBuffer, base64SpaceKey: string): Promise<Blob> => {
+  encryptBuffer: async (
+    buffer: ArrayBuffer,
+    base64SpaceKey: string,
+  ): Promise<Blob> => {
     const rawSpaceKey = cryptoService.decodeBase64(base64SpaceKey);
     const aesKey = await globalThis.crypto.subtle.importKey(
       CRYPTO_CONFIG.EXPORT_FORMAT.RAW,
@@ -268,7 +271,10 @@ export const cryptoService = {
    * Decrypts a Blob containing IV + Ciphertext using the AES-GCM Space Key.
    * Returns the decrypted ArrayBuffer.
    */
-  decryptBuffer: async (encryptedBlob: Blob, base64SpaceKey: string): Promise<ArrayBuffer> => {
+  decryptBuffer: async (
+    encryptedBlob: Blob,
+    base64SpaceKey: string,
+  ): Promise<ArrayBuffer> => {
     const rawSpaceKey = cryptoService.decodeBase64(base64SpaceKey);
     const aesKey = await globalThis.crypto.subtle.importKey(
       CRYPTO_CONFIG.EXPORT_FORMAT.RAW,
