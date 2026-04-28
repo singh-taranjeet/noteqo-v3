@@ -14,7 +14,7 @@ export class NotesRepository {
     @InjectRepository(NoteVersionEntity)
     private readonly versionOrm: Repository<NoteVersionEntity>,
     private readonly dataSource: DataSource,
-  ) { }
+  ) {}
 
   /**
    * Retrieves a Note by ID.
@@ -93,7 +93,7 @@ export class NotesRepository {
     id: string,
     newCiphertext: Buffer,
     currentVersion: number,
-    updatedAt: Date
+    updatedAt: Date,
   ): Promise<Note> {
     const nextVersion = currentVersion + 1;
 

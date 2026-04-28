@@ -28,7 +28,7 @@ export class SpacesService {
     private readonly spacesRepository: SpacesRepository,
     private readonly notesService: NotesService,
     private readonly usersService: UsersService,
-  ) { }
+  ) {}
 
   // ─── Space CRUD ──────────────────────────────────────────────────────────────
 

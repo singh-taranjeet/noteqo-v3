@@ -32,7 +32,7 @@ import { Note } from '../notes/types/notes.types';
 @Controller(SPACE_ROUTES.BASE)
 @UseGuards(JwtAuthGuard)
 export class SpacesController {
-  constructor(private readonly spacesService: SpacesService) { }
+  constructor(private readonly spacesService: SpacesService) {}
 
   // ─── Spaces CRUD ─────────────────────────────────────────────────────────────
 

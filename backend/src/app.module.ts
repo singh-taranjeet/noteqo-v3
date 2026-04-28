@@ -18,6 +18,7 @@ import { AuthModule } from './auth/auth.module';
 import { ClsModule } from 'nestjs-cls';
 import { SharedModule } from './shared/shared.module';
 import { MediaModule } from './media';
+import { SyncModule } from './sync/sync.module';
 
 @Module({
   imports: [
@@ -54,6 +55,7 @@ import { MediaModule } from './media';
     AuthModule,
     SharedModule,
     MediaModule,
+    SyncModule,
   ],
   controllers: [AppController],
   providers: [AppService],

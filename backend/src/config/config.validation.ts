@@ -14,4 +14,3 @@ export const configValidationSchema = Joi.object({
   JWT_EXPIRES_IN: Joi.string().default('7d'),
   BLOB_READ_WRITE_TOKEN: Joi.string().required(),
 });
-
