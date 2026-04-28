@@ -21,6 +21,7 @@ import { DynamicDialog } from "@/components/ui/DynamicDialog";
 import type { LoginFormData } from "@/features/auth/hooks/useLogin";
 import type { FormFieldConfig, FormValues } from "@/components/ui/DynamicForm";
 import { KeysService } from "@/features/auth/services/keys.service";
+import { logService } from "@/services";
 
 const LOGIN_FIELDS: FormFieldConfig[] = [
   {
@@ -145,7 +146,7 @@ export function LoginForm() {
                 await KeysService.storeMasterKey({ masterKey: key.trim() });
                 redirectNotespage();
               } catch (err) {
-                console.error("Error", err);
+                logService.error("Error", err);
                 setError(AUTH_MESSAGES.INVALID_MASTER_KEY);
                 setShowMasterKeyPrompt(false);
               }

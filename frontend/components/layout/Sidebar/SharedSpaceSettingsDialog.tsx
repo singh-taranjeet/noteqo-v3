@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Delete01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import type { Space } from "@/features/spaces";
+import { logService } from "@/services";
 
 interface SharedSpaceSettingsDialogProps {
   space: Space | null;
@@ -75,7 +76,7 @@ export function SharedSpaceSettingsDialog({
     try {
       await removeMember({ spaceId: space.id, userId });
     } catch (err) {
-      console.error("Failed to remove member", err);
+      logService.error("Failed to remove member", err);
     }
   };
 

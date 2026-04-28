@@ -99,7 +99,7 @@ const useLoadNoteContent = ({
         try {
           const localNote = await noteService.getLocalNote(noteId);
 
-          console.log("This is localNote", localNote);
+          // console.log("This is localNote", localNote);
           if (localNote) {
             setNote(localNote);
             setIsReady(true);
@@ -111,7 +111,7 @@ const useLoadNoteContent = ({
 
           // Fetch decrypted note
           const remoteNote = await noteService.getRemoteNote(noteId);
-          console.log("this is remote Note", remoteNote);
+          // console.log("this is remote Note", remoteNote);
 
           if (remoteNote) {
             setNote(remoteNote);
@@ -341,8 +341,12 @@ export function NoteEditor({
       }
       // check if update is actually made and not just a click
       if (transaction.docChanged) {
-        console.log("DOC has changed");
-        debouncedUpdateNote({ id: noteId, editor });
+        // check if note is pakka pakka changed
+        const oldNote = note?.content;
+        const newNote = editor.getJSON();
+        if (JSON.stringify(oldNote) === JSON.stringify(newNote)) {
+          debouncedUpdateNote({ id: noteId, editor });
+        }
       }
     },
   });

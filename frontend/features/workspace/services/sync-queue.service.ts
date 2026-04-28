@@ -64,7 +64,6 @@ class SyncQueueService {
     entityId: string,
     payload: unknown,
   ): Promise<void> {
-    console.log("Event added for update", type, entityId, payload);
     const existing = await db.syncQueue
       .where("entityId")
       .equals(entityId)
