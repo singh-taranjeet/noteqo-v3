@@ -64,7 +64,7 @@ export const spaceService = {
   /** 
    * Fetch all spaces with notes and decrypt them and store them in the local db
   */
-  async getAllSpaces(): Promise<Space[]> {
+  async getAllSpaces(): Promise<{ spaces: Space[], notes: Note[] }> {
     const remoteSpaces = await spaceApiService.getAll();
 
     const decryptedSpaces = await Promise.all(
@@ -89,7 +89,7 @@ export const spaceService = {
 
     await db.notes.bulkPut(decryptedNotes);
 
-    return validSpaces;
+    return { spaces: validSpaces, notes: decryptedNotes };
   },
 
   /**

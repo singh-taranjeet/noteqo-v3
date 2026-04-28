@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { useAppShell } from "../AppShell";
 import { LAYOUT_CONFIG } from "../layout.constants";
@@ -11,8 +11,8 @@ import { SharedSpaceSettingsDialog } from "./SharedSpaceSettingsDialog";
 import { SidebarNewNoteButton } from "./SidebarNewNoteButton";
 import { useSpaces, useCreateSpace } from "@/features/spaces";
 import {
-  useRemoteNotes,
   useCreateNote,
+  useLocalNotes,
   useSyncQueue,
 } from "@/features/workspace";
 import { MOCK_USER } from "@/features/auth";
@@ -35,10 +35,8 @@ const CREATE_SPACE_FIELDS: FormFieldConfig[] = [
 
 export function Sidebar() {
   const { isSidebarOpen, toggleSidebar } = useAppShell();
-  const { data: spaces = [], isLoading: spacesLoading } = useSpaces();
-  const { data: spaceNotesMap, isLoading: notesLoading } = useRemoteNotes(
-    spaces.length > 0 ? spaces : undefined,
-  );
+  const { data, isLoading: spacesLoading, spaceNotesMap } = useSpaces();
+  const { spaces = [] } = data || {};
 
   // Start background sync queue
   useSyncQueue();
@@ -54,7 +52,7 @@ export function Sidebar() {
   // Track which space we are managing settings for
   const [settingsSpace, setSettingsSpace] = useState<Space | null>(null);
 
-  const isLoading = spacesLoading || notesLoading;
+  const isLoading = spacesLoading;
 
   // Filter spaces by type
   const personalSpaces = spaces.filter((s) => s.type === SPACE_TYPE.PERSONAL);
@@ -62,6 +60,9 @@ export function Sidebar() {
   const sharedSpaces = spaces.filter((s) => s.type === SPACE_TYPE.SHARED);
 
   const [activeTab, setActiveTab] = useState<ActiveTabType>("home");
+
+  // fetch all notes from localdb
+
 
   const defaultPersonalSpace = personalSpaces.find(
     (pesonalSpace) => pesonalSpace.isDefault,
