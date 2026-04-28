@@ -9,7 +9,7 @@ export class SyncService {
   constructor(
     @InjectRepository(SyncEntity)
     private readonly syncRepository: Repository<SyncEntity>,
-  ) {}
+  ) { }
 
   async updateSync() {
     const userId = getCurrentUserId();
@@ -27,6 +27,6 @@ export class SyncService {
 
   getSync() {
     const userId = getCurrentUserId();
-    return this.syncRepository.findOne({ where: { userId } });
+    return this.syncRepository.findOne({ where: { userId }, select: ['updatedAt'] });
   }
 }

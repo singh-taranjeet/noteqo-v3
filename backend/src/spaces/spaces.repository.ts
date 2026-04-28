@@ -12,6 +12,7 @@ import {
 } from './types/spaces.types';
 import { SPACE_ROLE, SPACE_TYPE } from './constants/spaces.constants';
 import { getCurrentUserId } from '../shared/utils/cls.utils';
+import { NoteType } from 'src/notes/types/notes.types';
 
 @Injectable()
 export class SpacesRepository {
@@ -23,7 +24,7 @@ export class SpacesRepository {
     @InjectRepository(SpaceKeySlotEntity)
     private readonly keySlotOrm: Repository<SpaceKeySlotEntity>,
     private readonly dataSource: DataSource,
-  ) {}
+  ) { }
 
   /**
    * Creates a space with the owner as the first member and their key slot.
@@ -97,7 +98,9 @@ export class SpacesRepository {
   /**
    * Returns all spaces the user is a member of.
    */
-  async findAllForUser(userId: string): Promise<Space[]> {
+  async findAllForUser(): Promise<Space[]> {
+    const userId = getCurrentUserId();
+
     const entities = await this.spaceOrm
       .createQueryBuilder('space')
       .innerJoinAndSelect(
@@ -106,11 +109,42 @@ export class SpacesRepository {
         'member.userId = :userId',
         { userId },
       )
+      .innerJoinAndSelect(
+        'space.notes',
+        'note',
+      )
       .leftJoinAndSelect(
         'space.keySlots',
         'keySlot',
         'keySlot.userId = :userId',
         { userId },
+      )
+      .orderBy('space.updatedAt', 'DESC')
+      .getMany();
+
+    return entities.map((e) => this.toDomain(e));
+  }
+
+  async findAllRecentlyUpdatedNotes(lastUpdated: Date) {
+    const currentUserId = getCurrentUserId();
+    const entities = await this.spaceOrm
+      .createQueryBuilder('space')
+      .innerJoinAndSelect(
+        'space.members',
+        'member',
+        'member.userId = :userId',
+        { userId: currentUserId },
+      )
+      .innerJoinAndSelect(
+        'space.notes',
+        'note',
+        'note.updatedAt > :lastUpdated AND note.updatedBy != :userId',
+        { lastUpdated }
+      )
+      .leftJoinAndSelect(
+        'space.keySlots',
+        'keySlot',
+        'keySlot.userId = :userId',
       )
       .orderBy('space.updatedAt', 'DESC')
       .getMany();
@@ -286,6 +320,12 @@ export class SpacesRepository {
         userId: ks.userId,
         encryptedSpaceKey: ks.encryptedSpaceKey.toString('base64'),
       })),
+      notes: entity.notes.map(note => {
+        return {
+          ...note,
+          ciphertext: note.ciphertext.toString('utf8')
+        }
+      })
     };
   }
 }

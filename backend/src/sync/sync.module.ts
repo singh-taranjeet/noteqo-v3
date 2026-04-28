@@ -8,5 +8,6 @@ import { SyncEntity } from './entities/sync.entity';
   imports: [TypeOrmModule.forFeature([SyncEntity])],
   controllers: [SyncController],
   providers: [SyncService],
+  exports: [SyncService]
 })
-export class SyncModule {}
+export class SyncModule { }

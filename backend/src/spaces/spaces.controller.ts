@@ -32,7 +32,7 @@ import { Note } from '../notes/types/notes.types';
 @Controller(SPACE_ROUTES.BASE)
 @UseGuards(JwtAuthGuard)
 export class SpacesController {
-  constructor(private readonly spacesService: SpacesService) {}
+  constructor(private readonly spacesService: SpacesService) { }
 
   // ─── Spaces CRUD ─────────────────────────────────────────────────────────────
 
@@ -44,10 +44,9 @@ export class SpacesController {
   }
 
   @Get()
-  async findAll(
-    @Req() req: { user: { id: string } },
-  ): Promise<SpaceResponseDto[]> {
-    const spaces = await this.spacesService.findAll(req.user.id);
+  async findAll(): Promise<SpaceResponseDto[]> {
+    const spaces = await this.spacesService.findAll();
+    console.log("Spaces", spaces);
     return spaces.map((s) => this.mapSpaceToResponse(s));
   }
 
@@ -77,6 +76,13 @@ export class SpacesController {
     @Req() req: { user: { id: string } },
   ): Promise<void> {
     await this.spacesService.remove(spaceId, req.user.id);
+  }
+
+
+  // Get spaces with all notes, which were updated after the user last sycned
+  @Get(SPACE_ROUTES.ALL_RECENTLY_UPDATED_NOTES)
+  async getRecentlyUpdatedNotes() {
+    return this.spacesService.getRecentlyUpdatedNotes();
   }
 
   // ─── Members ─────────────────────────────────────────────────────────────────
@@ -201,6 +207,7 @@ export class SpacesController {
         userId: ks.userId,
         encryptedSpaceKey: ks.encryptedSpaceKey,
       })),
+      notes: space.notes
     };
   }
 

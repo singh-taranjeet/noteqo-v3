@@ -8,6 +8,7 @@ import {
   SPACES_MESSAGES,
 } from "../constants/spaces.constants";
 import type { Space, SpaceType, RemoteSpace } from "../types/spaces.types";
+import { Note, noteService } from "@/features/workspace";
 
 export const spaceService = {
   /**
@@ -60,9 +61,9 @@ export const spaceService = {
     return space;
   },
 
-  /**
-   * Fetches all spaces from API, decrypts names, caches locally.
-   */
+  /** 
+   * Fetch all spaces with notes and decrypt them and store them in the local db
+  */
   async getAllSpaces(): Promise<Space[]> {
     const remoteSpaces = await spaceApiService.getAll();
 
@@ -74,6 +75,19 @@ export const spaceService = {
 
     // Cache all spaces locally
     await db.spaces.bulkPut(validSpaces);
+
+    // decrypt all the notes as well
+    const decryptedNotes: Note[] = [];
+    const allRemoteNotes = remoteSpaces.flatMap((rs) => rs.notes || []);
+    for (const remoteNote of allRemoteNotes) {
+      const decryptedNote = await noteService.decryptNote(remoteNote);
+      console.log("Decrypted Note", decryptedNote);
+      if (decryptedNote) {
+        decryptedNotes.push(decryptedNote);
+      }
+    }
+
+    await db.notes.bulkPut(decryptedNotes);
 
     return validSpaces;
   },

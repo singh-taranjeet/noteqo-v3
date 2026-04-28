@@ -19,6 +19,7 @@ import {
   SpaceMemberNotFoundException,
 } from '../shared/exceptions/space.exception';
 import { UserNotFoundException } from '../shared/exceptions/user.exception';
+import { SyncService } from 'src/sync/sync.service';
 
 @Injectable()
 export class SpacesService {
@@ -26,9 +27,9 @@ export class SpacesService {
 
   constructor(
     private readonly spacesRepository: SpacesRepository,
-    private readonly notesService: NotesService,
+    private readonly syncService: SyncService,
     private readonly usersService: UsersService,
-  ) {}
+  ) { }
 
   // ─── Space CRUD ──────────────────────────────────────────────────────────────
 
@@ -43,8 +44,8 @@ export class SpacesService {
     );
   }
 
-  async findAll(userId: string): Promise<Space[]> {
-    return this.spacesRepository.findAllForUser(userId);
+  async findAll(): Promise<Space[]> {
+    return this.spacesRepository.findAllForUser();
   }
 
   async findOne(id: string, userId: string): Promise<Space> {
@@ -86,6 +87,12 @@ export class SpacesService {
 
     this.logger.log(`Soft-deleting space ${id}`);
     await this.spacesRepository.delete(id);
+  }
+
+  async getRecentlyUpdatedNotes() {
+    const lastUpdated = (await this.syncService.getSync()).updatedAt;
+    return this.spacesRepository.findAllRecentlyUpdatedNotes(lastUpdated);
+
   }
 
   // ─── Members ─────────────────────────────────────────────────────────────────

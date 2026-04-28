@@ -65,6 +65,7 @@ export const spaceApiService = {
           SPACES_API_ROUTES.SPACES,
           { auth: true },
         );
+
         return res.data;
       },
       staleTime: SYNC_CONFIG.CACHE_STALE_TIME_MS,

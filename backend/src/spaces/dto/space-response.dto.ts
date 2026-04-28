@@ -1,3 +1,4 @@
+import { Note } from '../../notes';
 import type { SpaceType, SpaceRole } from '../types/spaces.types';
 
 export class SpaceKeySlotResponseDto {
@@ -24,6 +25,7 @@ export class SpaceResponseDto {
   updatedAt?: Date;
   members?: SpaceMemberResponseDto[];
   keySlots?: SpaceKeySlotResponseDto[];
+  notes: Note[];
 }
 
 export class SpaceNotesResponseDto {

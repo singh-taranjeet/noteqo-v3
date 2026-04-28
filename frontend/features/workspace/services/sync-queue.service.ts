@@ -154,7 +154,6 @@ class SyncQueueService {
       }
     } finally {
       this.isProcessing = false;
-      mergeLocalRemoteService.merge();
     }
   }
 
