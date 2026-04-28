@@ -46,7 +46,6 @@ export class SpacesController {
   @Get()
   async findAll(): Promise<SpaceResponseDto[]> {
     const spaces = await this.spacesService.findAll();
-    console.log("Spaces", spaces);
     return spaces.map((s) => this.mapSpaceToResponse(s));
   }
 

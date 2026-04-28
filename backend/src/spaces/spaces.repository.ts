@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { SpaceEntity } from './entities/space.entity';
@@ -16,6 +16,7 @@ import { NoteType } from 'src/notes/types/notes.types';
 
 @Injectable()
 export class SpacesRepository {
+  private readonly logger = new Logger(SpacesRepository.name);
   constructor(
     @InjectRepository(SpaceEntity)
     private readonly spaceOrm: Repository<SpaceEntity>,
@@ -88,6 +89,7 @@ export class SpacesRepository {
 
       return (await this.findById(savedSpace.id)) as Space;
     } catch (err) {
+      this.logger.error("Create space failed", err);
       await queryRunner.rollbackTransaction();
       throw err;
     } finally {
@@ -99,17 +101,18 @@ export class SpacesRepository {
    * Returns all spaces the user is a member of.
    */
   async findAllForUser(): Promise<Space[]> {
-    const userId = getCurrentUserId();
+    const userId = getCurrentUserId(); // Add 'await' if this is an async function
 
     const entities = await this.spaceOrm
       .createQueryBuilder('space')
+      // 1. INNER JOIN is correct here: Only get spaces where the user is actually a member
       .innerJoinAndSelect(
         'space.members',
         'member',
         'member.userId = :userId',
         { userId },
       )
-      .innerJoinAndSelect(
+      .leftJoinAndSelect(
         'space.notes',
         'note',
       )
@@ -117,7 +120,6 @@ export class SpacesRepository {
         'space.keySlots',
         'keySlot',
         'keySlot.userId = :userId',
-        { userId },
       )
       .orderBy('space.updatedAt', 'DESC')
       .getMany();
@@ -320,7 +322,7 @@ export class SpacesRepository {
         userId: ks.userId,
         encryptedSpaceKey: ks.encryptedSpaceKey.toString('base64'),
       })),
-      notes: entity.notes.map(note => {
+      notes: entity?.notes?.map(note => {
         return {
           ...note,
           ciphertext: note.ciphertext.toString('utf8')
