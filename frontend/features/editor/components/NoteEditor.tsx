@@ -341,6 +341,7 @@ export function NoteEditor({
       }
       // check if update is actually made and not just a click
       if (transaction.docChanged) {
+        console.log("DOC has changed");
         debouncedUpdateNote({ id: noteId, editor });
       }
     },

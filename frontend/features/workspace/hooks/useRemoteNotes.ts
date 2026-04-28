@@ -1,28 +1,25 @@
-import { useState, useCallback, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { spaceApiService } from "@/features/spaces";
 import type { Note } from "../types/workspace.types";
 import type { Space } from "@/features/spaces";
 import { logService } from "@/services/log.service";
 import { db } from "@/features/storage";
-import { mergeLocalRemoteService } from "../services/merge-local-remote.service";
+
 import { noteService } from "../services/note.service";
+
+export const REMOTE_NOTES_QUERY_KEY = "remote-notes";
 
 export interface SpaceNotesMap {
   [spaceId: string]: Note[];
 }
 
 export function useRemoteNotes(spaces: Space[] | undefined) {
-  const [data, setData] = useState<SpaceNotesMap>({});
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState<Error | null>(null);
+  const query = useQuery({
+    queryKey: [REMOTE_NOTES_QUERY_KEY, spaces?.map((s) => s.id)],
+    enabled: !!spaces && spaces.length > 0,
+    queryFn: async () => {
+      if (!spaces || spaces.length === 0) return {};
 
-  const fetchNotes = useCallback(async () => {
-    if (!spaces || spaces.length === 0) return;
-
-    setIsLoading(true);
-    setError(null);
-
-    try {
       const notesMap: SpaceNotesMap = {};
 
       for (const space of spaces) {
@@ -56,18 +53,13 @@ export function useRemoteNotes(spaces: Space[] | undefined) {
       // const allNotes = Object.values(notesMap).flat();
       // await mergeLocalRemoteService.merge(allNotes);
 
-      setData(notesMap);
-    } catch (err) {
-      logService.error("Failed to fetch remote notes", err);
-      setError(err instanceof Error ? err : new Error(String(err)));
-    } finally {
-      setIsLoading(false);
-    }
-  }, [spaces]);
+      return notesMap;
+    },
+  });
 
-  useEffect(() => {
-    void fetchNotes();
-  }, [fetchNotes]);
-
-  return { data, isLoading, error };
+  return {
+    data: query.data || {},
+    isLoading: query.isLoading,
+    error: query.error,
+  };
 }

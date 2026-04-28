@@ -1,7 +1,6 @@
 "use client";
-import { logService } from "@/services/log.service";
+
 import { CRYPTO_CONFIG } from "../constants/crypto.constants";
-import { storageService, STORAGE_KEYS } from "@/features/storage";
 
 /**
  * Utility functions for generating and managing E2E encryption keys.

@@ -5,6 +5,7 @@ import { logService } from "@/services/log.service";
 
 export const mergeLocalRemoteService = {
   merge: async (remoteNotes?: Note[]) => {
+    console.log("Starting merging local and remote notes", remoteNotes);
     try {
       // Step 1. Fetch the list of notes in our db
       const localNotes = await noteService.getAllLocalNotes();
@@ -20,12 +21,14 @@ export const mergeLocalRemoteService = {
         const localNote = localNotesMap.get(remoteNote.id);
 
         if (!localNote) {
+          console.log("******** 1. Found notes to be updated");
           notesToUpdate.push(remoteNote);
         } else {
           const localUpdatedAt = new Date(localNote.updatedAt).getTime();
           const remoteUpdatedAt = new Date(remoteNote.updatedAt).getTime();
 
           if (remoteUpdatedAt > localUpdatedAt) {
+            console.log("******** 2. Found notes to be updated");
             notesToUpdate.push(remoteNote);
           }
         }
