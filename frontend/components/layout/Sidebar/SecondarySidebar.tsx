@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useAppShell } from "../AppShell";
 import { Button } from "@/components/ui/button";
@@ -10,12 +10,11 @@ import { Cancel01Icon, Search01Icon } from "@hugeicons/core-free-icons";
 import { useRecentNotes, type Note } from "@/features/workspace";
 import { useSpaces } from "@/features/spaces";
 import { SPACE_TYPE } from "@/features/spaces";
-import Link from "next/link";
-import { ROUTES } from "@/constants/routes";
+import { SidebarNoteItem } from "./SidebarNoteItem";
 import {
   SidebarMenu,
   SidebarMenuItem,
-  SidebarMenuButton,
+  useSidebar,
 } from "@/components/ui/sidebar";
 
 const SECONDARY_SIDEBAR_WIDTH = 260;
@@ -30,8 +29,16 @@ export function SecondarySidebar() {
     isLoading: spacesLoading,
   } = useSpaces();
   const [searchQuery, setSearchQuery] = useState("");
+  const { open, openMobile, isMobile } = useSidebar();
 
   const isOpen = secondarySidebarType !== null;
+
+  useEffect(() => {
+    const isSidebarOpen = isMobile ? openMobile : open;
+    if (!isSidebarOpen && isOpen) {
+      closeSecondarySidebar();
+    }
+  }, [isMobile, openMobile, open, isOpen, closeSecondarySidebar]);
 
   const title = useMemo(() => {
     switch (secondarySidebarType) {
@@ -86,7 +93,7 @@ export function SecondarySidebar() {
   return (
     <aside
       className={cn(
-        "flex flex-col h-svh bg-sidebar/60 backdrop-blur-xl border-r border-sidebar-border shrink-0 overflow-hidden",
+        "flex flex-col h-svh bg-white dark:bg-sidebar border-r border-sidebar-border shrink-0 overflow-hidden",
         "transition-all ease-in-out max-md:fixed max-md:inset-y-0 max-md:left-0 max-md:z-[60] max-md:shadow-2xl",
         !isOpen && "border-r-0",
       )}
@@ -142,18 +149,11 @@ export function SecondarySidebar() {
             <SidebarMenu className="px-2">
               {items.map((note) => (
                 <SidebarMenuItem key={note.id}>
-                  <SidebarMenuButton asChild size="sm">
-                    <Link href={ROUTES.NOTE(note.id)}>
-                      <span
-                        className="shrink-0 text-base"
-                        role="img"
-                        aria-hidden="true"
-                      >
-                        {note.emoji}
-                      </span>
-                      <span>{note.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
+                  <SidebarNoteItem
+                    noteId={note.id}
+                    emoji={note.emoji}
+                    title={note.title}
+                  />
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>

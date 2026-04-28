@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { ArrowRight01Icon } from "@hugeicons/core-free-icons";
+import { SidebarNoteItem } from "./SidebarNoteItem";
 import {
   SidebarGroup,
   SidebarGroupLabel,
@@ -10,11 +11,8 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-  SidebarMenuSub,
-  SidebarMenuSubItem,
-  SidebarMenuSubButton,
+  SidebarMenuSkeleton,
 } from "@/components/ui/sidebar";
-import { Button } from "@/components/ui/button";
 import {
   Collapsible,
   CollapsibleContent,
@@ -22,8 +20,6 @@ import {
 } from "@/components/ui/collapsible";
 import { useAppShell } from "../AppShell";
 import { useRecentNotes } from "@/features/workspace";
-import Link from "next/link";
-import { ROUTES } from "@/constants/routes";
 
 export function RecentSection() {
   const { notes, isLoading } = useRecentNotes();
@@ -33,7 +29,11 @@ export function RecentSection() {
   const recentNotes = notes.slice(0, 10);
 
   return (
-    <Collapsible open={isOpen} onOpenChange={setIsOpen} className="group/collapsible">
+    <Collapsible
+      open={isOpen}
+      onOpenChange={setIsOpen}
+      className="group/collapsible"
+    >
       <SidebarGroup>
         <SidebarGroupLabel asChild>
           <CollapsibleTrigger className="cursor-pointer">
@@ -49,9 +49,17 @@ export function RecentSection() {
         <CollapsibleContent>
           <SidebarGroupContent>
             {isLoading && (
-              <div className="px-3 py-2 text-xs text-muted-foreground animate-pulse">
-                Loading recent...
-              </div>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuSkeleton showIcon />
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuSkeleton showIcon />
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuSkeleton showIcon />
+                </SidebarMenuItem>
+              </SidebarMenu>
             )}
             {!isLoading && recentNotes.length === 0 && (
               <div className="px-3 py-1.5 text-xs text-muted-foreground">
@@ -62,18 +70,11 @@ export function RecentSection() {
               <SidebarMenu>
                 {recentNotes.map((note) => (
                   <SidebarMenuItem key={note.id}>
-                    <SidebarMenuButton asChild size="sm">
-                      <Link href={ROUTES.NOTE(note.id)}>
-                        <span
-                          className="shrink-0 text-base"
-                          role="img"
-                          aria-hidden="true"
-                        >
-                          {note.emoji}
-                        </span>
-                        <span>{note.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
+                    <SidebarNoteItem
+                      noteId={note.id}
+                      emoji={note.emoji}
+                      title={note.title}
+                    />
                   </SidebarMenuItem>
                 ))}
                 {notes.length > 10 && (

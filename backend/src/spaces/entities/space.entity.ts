@@ -1,6 +1,10 @@
 import { Entity, Column, OneToMany } from 'typeorm';
 import { AppBaseEntity } from '../../shared/entities/base.entity';
-import { SPACE_TABLE, SPACE_COLUMN, SPACE_TYPE } from '../constants/spaces.constants';
+import {
+  SPACE_TABLE,
+  SPACE_COLUMN,
+  SPACE_TYPE,
+} from '../constants/spaces.constants';
 import { SpaceMemberEntity } from './space-member.entity';
 import { SpaceKeySlotEntity } from './space-key-slot.entity';
 import { NoteEntity } from '../../notes/entities/note.entity';

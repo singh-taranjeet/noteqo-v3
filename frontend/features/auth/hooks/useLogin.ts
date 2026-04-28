@@ -31,6 +31,11 @@ export const useLogin = () => {
         masterKey: typeof masterKey === "string" ? masterKey : undefined,
       });
 
+      // 3. Store user profile
+      const { storageService, STORAGE_KEYS } =
+        await import("@/features/storage");
+      await storageService.put(STORAGE_KEYS.USER_PROFILE, user);
+
       const isMasterKeyRequired = typeof masterKey !== "string";
 
       return { isMasterKeyRequired };

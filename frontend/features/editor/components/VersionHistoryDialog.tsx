@@ -242,11 +242,12 @@ function VersionListItem({
   const dateLabel = formatVersionDate(version.updatedAt || version.createdAt);
 
   return (
-    <button
+    <Button
       type="button"
+      variant="ghost"
       onClick={onSelect}
       className={cn(
-        "w-full text-left px-2 transition-colors cursor-pointer",
+        "w-full text-left px-2 h-auto rounded-sm",
         "hover:bg-accent/50",
         isSelected && "bg-accent",
       )}
@@ -265,7 +266,7 @@ function VersionListItem({
           <ItemDescription>{AUTHOR_FALLBACK}</ItemDescription>
         </ItemContent>
       </Item>
-    </button>
+    </Button>
   );
 }
 

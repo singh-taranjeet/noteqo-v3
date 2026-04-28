@@ -16,6 +16,7 @@ import {
 } from "@/features/auth/constants/auth.constants";
 import { ROUTES } from "@/constants/routes";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { DynamicDialog } from "@/components/ui/DynamicDialog";
 
 import type { LoginFormData } from "@/features/auth/hooks/useLogin";
@@ -108,12 +109,12 @@ export function LoginForm() {
           footer={
             <>
               Don&apos;t have an account?{" "}
-              <a
+              <Link
                 href={ROUTES.REGISTER}
                 className="ml-1 text-primary hover:underline underline-offset-4"
               >
                 Sign up
-              </a>
+              </Link>
             </>
           }
         />

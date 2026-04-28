@@ -10,6 +10,7 @@ export interface Note {
   content: unknown;
   syncStatus: SyncStatus;
   spaceId: string;
+  parentId?: string;
   type: NoteType;
   isFavorite?: boolean;
   createdAt: string;
@@ -32,6 +33,7 @@ export interface RemoteNote {
   spaceId: string;
   type: string;
   isFavorite?: boolean;
+  parentId?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -55,6 +57,7 @@ export interface DecryptedNoteVersion {
   emoji: string;
   coverImage: string;
   content: unknown;
+  parentId?: string;
   createdAt: string;
   updatedAt: string;
   createdBy?: string;

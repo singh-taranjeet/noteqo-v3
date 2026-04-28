@@ -19,6 +19,7 @@ import {
   SidebarMenuSub,
   SidebarMenuSubItem,
   SidebarMenuSubButton,
+  SidebarMenuSkeleton,
 } from "@/components/ui/sidebar";
 import {
   Tooltip,
@@ -34,8 +35,7 @@ import { useAppShell } from "../AppShell";
 import { SPACE_TYPE } from "@/features/spaces";
 import type { Space } from "@/features/spaces";
 import type { Note } from "@/features/workspace";
-import Link from "next/link";
-import { ROUTES } from "@/constants/routes";
+import { SidebarNoteItem } from "./SidebarNoteItem";
 
 interface SidebarSpaceCategoryProps {
   label: string;
@@ -68,7 +68,11 @@ export function SidebarSpaceCategory({
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
 
   return (
-    <Collapsible open={isCategoryOpen} onOpenChange={setIsCategoryOpen} className="group/collapsible">
+    <Collapsible
+      open={isCategoryOpen}
+      onOpenChange={setIsCategoryOpen}
+      className="group/collapsible"
+    >
       <SidebarGroup>
         <SidebarGroupLabel asChild>
           <CollapsibleTrigger className="cursor-pointer">
@@ -98,9 +102,14 @@ export function SidebarSpaceCategory({
         <CollapsibleContent>
           <SidebarGroupContent>
             {isLoading && (
-              <div className="px-3 py-2 text-xs text-muted-foreground animate-pulse">
-                Loading spaces...
-              </div>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuSkeleton showIcon />
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuSkeleton showIcon />
+                </SidebarMenuItem>
+              </SidebarMenu>
             )}
             {!isLoading && spaces.length === 0 && (
               <div className="px-3 py-1.5 text-xs text-muted-foreground">
@@ -120,9 +129,15 @@ export function SidebarSpaceCategory({
                       totalNoteCount={notes.length}
                       onCreateNote={() => onCreateNote(space.id)}
                       onSettingsClick={
-                        onSettingsClick ? () => onSettingsClick(space) : undefined
+                        onSettingsClick
+                          ? () => onSettingsClick(space)
+                          : undefined
                       }
-                      onShowMore={() => openSecondarySidebar(secondarySidebarType as "shared" | "private")}
+                      onShowMore={() =>
+                        openSecondarySidebar(
+                          secondarySidebarType as "shared" | "private",
+                        )
+                      }
                     />
                   );
                 })}
@@ -203,18 +218,11 @@ function SpaceGroupItem({
               <>
                 {notes.map((note) => (
                   <SidebarMenuSubItem key={note.id}>
-                    <SidebarMenuSubButton asChild size="sm">
-                      <Link href={ROUTES.NOTE(note.id)}>
-                        <span
-                          className="shrink-0 text-base"
-                          role="img"
-                          aria-hidden="true"
-                        >
-                          {note.emoji}
-                        </span>
-                        <span>{note.title}</span>
-                      </Link>
-                    </SidebarMenuSubButton>
+                    <SidebarNoteItem
+                      noteId={note.id}
+                      emoji={note.emoji}
+                      title={note.title}
+                    />
                   </SidebarMenuSubItem>
                 ))}
                 {totalNoteCount > 10 && (

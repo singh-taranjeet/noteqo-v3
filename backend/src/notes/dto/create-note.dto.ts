@@ -23,6 +23,10 @@ export class CreateNoteDto {
   @IsNotEmpty()
   spaceId: string;
 
+  @IsOptional()
+  @IsUUID()
+  parentId?: string;
+
   @IsIn(Object.values(NOTE_TYPE))
   @IsNotEmpty()
   type: NoteType; // 'private' | 'shared'

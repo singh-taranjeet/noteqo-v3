@@ -8,7 +8,13 @@ export function useToggleFavoriteNote() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ noteId, isFavorite }: { noteId: string; isFavorite: boolean }) => {
+    mutationFn: async ({
+      noteId,
+      isFavorite,
+    }: {
+      noteId: string;
+      isFavorite: boolean;
+    }) => {
       await noteService.updateNote(noteId, { isFavorite });
     },
     onSuccess: () => {

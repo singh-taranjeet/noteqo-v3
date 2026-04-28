@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { mediaService } from "@/features/media";
 import { logService } from "@/services/log.service";
 import { cn } from "@/lib/utils";
+import { resolveSpaceId } from "@/features/editor/utils/resolveSpaceId";
 
 const REVOKE_URL_DELAY_MS = 10_000;
 
@@ -20,14 +21,10 @@ export const FileNodeView: React.FC<NodeViewProps> = (props) => {
 
   const [isDecrypting, setIsDecrypting] = useState(false);
 
-  // Retrieve spaceId from attributes (new behavior) or fallback to extension configuration (old behavior)
-  let spaceId = node.attrs.spaceId;
-  if (!spaceId) {
-    const fileUploaderExt = editor.extensionManager.extensions.find(
-      (e) => e.name === "fileUploader",
-    );
-    spaceId = fileUploaderExt?.options.getSpaceId?.();
-  }
+  const spaceId = resolveSpaceId(
+    editor,
+    node.attrs.spaceId as string | undefined,
+  );
 
   const formatBytes = (bytes: number) => {
     if (bytes === 0) return "0 Bytes";

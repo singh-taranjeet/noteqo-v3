@@ -14,7 +14,7 @@ export const AUTH_CONFIG = {
 } as const;
 
 export const MOCK_USER = {
-  NAME: "Taranjeet Singh",
+  NAME: "",
   AVATAR: "😎",
 } as const;
 

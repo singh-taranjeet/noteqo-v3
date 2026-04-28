@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { ROUTES } from "@/constants/routes";
 import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import type {
@@ -50,6 +52,7 @@ export function SearchSheet({
   const [selectedPageIds, setSelectedPageIds] = useState<string[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const router = useRouter();
 
   function handleOpenChange(nextOpen: boolean): void {
     if (nextOpen) {
@@ -137,6 +140,12 @@ export function SearchSheet({
     );
   }
 
+  function handleSelect(id: string): void {
+    router.push(ROUTES.NOTE(id));
+    setSelectedId(id);
+    onOpenChange(false);
+  }
+
   return (
     <Sheet open={open} onOpenChange={handleOpenChange}>
       <SheetContent
@@ -164,7 +173,7 @@ export function SearchSheet({
             <SearchResultList
               sections={sections}
               selectedId={selectedIdForView}
-              onSelect={setSelectedId}
+              onSelect={handleSelect}
               onHover={setHoveredId}
               hasAnyNotes={items.length > 0}
             />

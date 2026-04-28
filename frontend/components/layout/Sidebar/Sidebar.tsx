@@ -7,8 +7,6 @@ import {
   SidebarFooter,
   SidebarHeader,
   SidebarGroup,
-  SidebarGroupLabel,
-  SidebarGroupAction,
   SidebarGroupContent,
   SidebarMenu,
   SidebarMenuItem,
@@ -22,7 +20,7 @@ import { RecentSection } from "./RecentSection";
 import { SharedSpaceSettingsDialog } from "./SharedSpaceSettingsDialog";
 import { useSpaces, useCreateSpace } from "@/features/spaces";
 import { useCreateNote, useSyncQueue } from "@/features/workspace";
-import { MOCK_USER } from "@/features/auth";
+import { MOCK_USER, useUserProfile } from "@/features/auth";
 import { SPACE_TYPE } from "@/features/spaces";
 import type { Space, SpaceType } from "@/features/spaces";
 import { DynamicDialog } from "@/components/ui/DynamicDialog";
@@ -72,6 +70,9 @@ export function AppSidebar() {
     (personalSpace) => personalSpace.isDefault,
   );
 
+  const { data: userProfile, isLoading: isUserProfileLoading } =
+    useUserProfile();
+
   const handleCreateNote = (spaceId: string) => {
     createNote({ spaceId });
   };
@@ -87,18 +88,22 @@ export function AppSidebar() {
     <Sidebar collapsible="offcanvas">
       <SidebarHeader>
         <SidebarUserProfile
-          username={MOCK_USER.NAME}
-          avatarEmoji={MOCK_USER.AVATAR}
+          username={userProfile?.name || MOCK_USER.NAME}
+          avatarEmoji={
+            userProfile?.name
+              ? userProfile.name.charAt(0).toUpperCase()
+              : MOCK_USER.AVATAR
+          }
+          isLoading={isUserProfileLoading}
         />
-      </SidebarHeader>
-
-      <SidebarContent>
         <SidebarGroup className="py-0">
           <SidebarGroupContent>
             <SidebarNavTabs activeTab={activeTab} setActiveTab={setActiveTab} />
           </SidebarGroupContent>
         </SidebarGroup>
+      </SidebarHeader>
 
+      <SidebarContent>
         {/* Recent Section */}
         <RecentSection />
 
@@ -139,14 +144,14 @@ export function AppSidebar() {
                   handleCreateNote(defaultPersonalSpace.id);
                 }
               }}
-              className="justify-center"
+              className="justify-center bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90 hover:text-sidebar-primary-foreground"
             >
               <HugeiconsIcon
                 icon={PencilEdit01Icon}
                 size={16}
                 strokeWidth={1.5}
               />
-              <span>New</span>
+              <span>Quick Create</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

@@ -25,13 +25,17 @@ export const MentionExtension = BaseMention.extend<CustomMentionOptions>({
         ...this.parent?.().suggestion,
         char: "@",
         items: async ({ query, editor }: { query: string; editor: Editor }) => {
-          const extension = editor.extensionManager.extensions.find((e) => e.name === "mention");
+          const extension = editor.extensionManager.extensions.find(
+            (e) => e.name === "mention",
+          );
           const spaceId = extension?.options.getSpaceId?.() as string | null;
           if (!spaceId) return [];
           const notes = await noteService.getLocalNotesForSpace(spaceId);
           return notes
             .filter((note) =>
-              (note.title || "Untitled").toLowerCase().includes(query.toLowerCase()),
+              (note.title || "Untitled")
+                .toLowerCase()
+                .includes(query.toLowerCase()),
             )
             .slice(0, 20);
         },
@@ -42,7 +46,7 @@ export const MentionExtension = BaseMention.extend<CustomMentionOptions>({
         }: {
           editor: Editor;
           range: Range;
-          props: Record<string, any>;
+          props: Record<string, unknown>;
         }) => {
           // Increase range.to by one when the next node is of type "text"
           // and starts with a space character
@@ -73,7 +77,12 @@ export const MentionExtension = BaseMention.extend<CustomMentionOptions>({
           let popup: Instance[];
 
           return {
-            onStart: (props: Record<string, unknown> & { editor: Editor; clientRect: GetReferenceClientRect }) => {
+            onStart: (
+              props: Record<string, unknown> & {
+                editor: Editor;
+                clientRect: GetReferenceClientRect;
+              },
+            ) => {
               component = new ReactRenderer(MentionList, {
                 props: {
                   ...props,
@@ -96,7 +105,11 @@ export const MentionExtension = BaseMention.extend<CustomMentionOptions>({
               });
             },
 
-            onUpdate(props: Record<string, unknown> & { clientRect: GetReferenceClientRect }) {
+            onUpdate(
+              props: Record<string, unknown> & {
+                clientRect: GetReferenceClientRect;
+              },
+            ) {
               component.updateProps({
                 ...props,
                 closeMenu: () => popup[0]?.hide(),

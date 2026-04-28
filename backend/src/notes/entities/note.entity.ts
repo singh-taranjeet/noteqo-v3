@@ -1,6 +1,17 @@
-import { Entity, Column, Index, OneToMany, ManyToOne, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  Index,
+  OneToMany,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { AppBaseEntity } from '../../shared/entities/base.entity';
-import { NOTE_TABLE, NOTE_COLUMN, NOTE_TYPE } from '../constants/notes.constants';
+import {
+  NOTE_TABLE,
+  NOTE_COLUMN,
+  NOTE_TYPE,
+} from '../constants/notes.constants';
 import { NoteVersionEntity } from './note-version.entity';
 import { SpaceEntity } from '../../spaces/entities/space.entity';
 import { NoteType } from '../types/notes.types';
@@ -29,6 +40,17 @@ export class NoteEntity extends AppBaseEntity {
     default: NOTE_TYPE.PRIVATE,
   })
   type: NoteType;
+
+  @Column({ name: 'parent_id', type: 'uuid', nullable: true })
+  @Index()
+  parentId: string | null;
+
+  @ManyToOne(() => NoteEntity, (note) => note.children, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'parent_id' })
+  parent: NoteEntity;
+
+  @OneToMany(() => NoteEntity, (note) => note.parent)
+  children: NoteEntity[];
 
   @Column({
     name: NOTE_COLUMN.IS_FAVORITE,
