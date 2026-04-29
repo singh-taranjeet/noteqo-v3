@@ -6,7 +6,6 @@ import type {
   SyncEvent,
 } from "@/features/workspace/types/workspace.types";
 import type { Space } from "@/features/spaces/types/spaces.types";
-import type { Media } from "@/features/media/types/media.types";
 
 /** Shape of a key-value entry in the keys table (migrated from raw IndexedDB). */
 interface KeyEntry {
@@ -23,7 +22,6 @@ class NoteqoDB extends Dexie {
   notes!: Table<Note, string>;
   syncQueue!: Table<SyncEvent, string>;
   spaces!: Table<Space, string>;
-  media!: Table<Media, string>;
 
   constructor() {
     super(STORAGE_CONFIG.DB_NAME);
@@ -33,7 +31,6 @@ class NoteqoDB extends Dexie {
       notes: "id, spaceId, syncStatus, updatedAt",
       syncQueue: "id, entityId, createdAt",
       spaces: "id, type",
-      media: "id, noteId, spaceId, syncStatus",
     });
   }
 }

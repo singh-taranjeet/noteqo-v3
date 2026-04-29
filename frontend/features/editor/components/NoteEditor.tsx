@@ -10,7 +10,6 @@ import {
   type FocusEvent,
   useRef,
 } from "react";
-import debounce from "lodash/debounce";
 
 // --- Tiptap Core Extensions ---
 import { StarterKit } from "@tiptap/starter-kit";
@@ -25,15 +24,7 @@ import { Superscript } from "@tiptap/extension-superscript";
 import { Selection } from "@tiptap/extensions";
 
 // --- Tiptap Node Custom Views ---
-import { ResizableImage } from "@/features/editor/components/nodes/ResizableImageNode/ResizableImageExtension";
-import { ImageUploadNode } from "@/features/editor/components/nodes/ImageUploadNode/ImageUploadNodeExtension";
-import { FileUploadNode } from "@/features/editor/components/nodes/FileUploadNode/FileUploadNodeExtension";
-import {
-  FileNode,
-  AudioNode,
-  VideoNode,
-  Iframe,
-} from "@/features/editor/components/nodes/MediaNodes/MediaNodesExtension";
+
 import { HorizontalRule } from "@/features/editor/components/nodes/HorizontalRuleNode/HorizontalRuleNodeExtension";
 import { CodeBlockNode } from "@/features/editor/components/nodes/CodeBlockNode/CodeBlockNodeExtension";
 import { TaskItemNode } from "@/features/editor/components/nodes/TaskItemNode/TaskItemNodeExtension";
@@ -59,9 +50,7 @@ import { TableNodeExtension } from "@/features/editor/components/nodes/TableNode
 // --- Tiptap UI Hooks & Components ---
 
 // --- Lib ---
-import { MAX_FILE_SIZE } from "@/features/editor/utils/tiptapUtils";
 import { EDITOR_CONFIG } from "@/features/editor/constants/editor.constants";
-import { mediaService } from "@/features/media/services/media.service";
 import { NOTE_DEFAULTS } from "@/features/workspace/constants/workspace.constants";
 import { noteService } from "@/features/workspace/services/note.service";
 import type { Note } from "@/features/workspace/types/workspace.types";
@@ -99,7 +88,6 @@ const useLoadNoteContent = ({
         try {
           const localNote = await noteService.getLocalNote(noteId);
 
-          // console.log("This is localNote", localNote);
           if (localNote) {
             setNote(localNote);
             setIsReady(true);
@@ -111,7 +99,6 @@ const useLoadNoteContent = ({
 
           // Fetch decrypted note
           const remoteNote = await noteService.getRemoteNote(noteId);
-          // console.log("this is remote Note", remoteNote);
 
           if (remoteNote) {
             setNote(remoteNote);
@@ -163,178 +150,87 @@ export function NoteEditor({
   }, [note]);
 
   const content = note?.content || DEFAULT_CONTENT;
+  const spaceId = note?.spaceId ?? null;
 
-  const handlePasteFiles = async (editor: Editor, files: File[]) => {
-    const currentNote = noteRef.current;
-    if (!noteId || !currentNote?.spaceId) return;
-
-    for (const file of files) {
-      try {
-        const url = await mediaService.uploadMedia(
-          file,
-          noteId,
-          currentNote.spaceId,
-        );
-        const isImage = file.type.startsWith("image/");
-
-        if (isImage) {
-          editor.commands.insertContent({
-            type: "image",
-            attrs: { src: url, alt: file.name },
-          });
-        } else {
-          editor.commands.insertContent({
-            type: "fileAttachment",
-            attrs: {
-              src: url,
-              filename: file.name,
-              filetype: file.name.split(".").pop()?.toUpperCase() || "FILE",
+  const editor = useEditor(
+    {
+      immediatelyRender: false,
+      editable: !isReadOnly,
+      editorProps: {
+        attributes: {
+          autocomplete: "off",
+          autocorrect: "off",
+          autocapitalize: "off",
+          "aria-label": "Main content area, start typing to enter text.",
+          class: "flex-1 focus:outline-none min-h-full",
+        },
+      },
+      extensions: [
+        StarterKit.configure({
+          horizontalRule: false,
+          codeBlock: false,
+          heading: false,
+          paragraph: {
+            HTMLAttributes: {
+              class: "leading-7 [&:not(:first-child)]:mt-6 outline-none",
             },
-          });
+          },
+          blockquote: {
+            HTMLAttributes: {
+              class:
+                "mt-6 border-l-2 border-l-border pl-6 italic text-muted-foreground outline-none",
+            },
+          },
+          bulletList: {
+            HTMLAttributes: {
+              class: "my-6 ml-6 list-disc [&>li]:mt-2 outline-none",
+            },
+          },
+          orderedList: {
+            HTMLAttributes: {
+              class: "my-6 ml-6 list-decimal [&>li]:mt-2 outline-none",
+            },
+          },
+          link: {
+            openOnClick: false,
+            enableClickSelection: true,
+          },
+        }),
+        HorizontalRule,
+        CodeBlockNode,
+        HeadingNode,
+        CardNodeExtension,
+        AccordionNodeExtension,
+        TextAlign.configure({ types: ["heading", "paragraph"] }),
+        TaskList.configure({
+          HTMLAttributes: {
+            class: "my-6 ml-6 list-none [&>li]:mt-2 outline-none",
+          },
+        }),
+        TaskItemNode.configure({ nested: true }),
+        Highlight.configure({ multicolor: true }),
+        TextStyle,
+        Color,
+        Typography,
+        Superscript,
+        Subscript,
+        Selection,
+        SlashCommandExtension,
+        AiExtension,
+        ColumnsExtension,
+        ColumnExtension,
+        TableNodeExtension,
+      ],
+      content,
+      onUpdate: ({ editor }) => {
+        if (isReadOnly || !noteId) {
+          return;
         }
-      } catch (err) {
-        logService.error("Failed to paste file", err);
-      }
-    }
-  };
-
-  const editor = useEditor({
-    immediatelyRender: false,
-    editable: !isReadOnly,
-    editorProps: {
-      attributes: {
-        autocomplete: "off",
-        autocorrect: "off",
-        autocapitalize: "off",
-        "aria-label": "Main content area, start typing to enter text.",
-        class: "flex-1 focus:outline-none min-h-full",
-      },
-      handlePaste: (view, event) => {
-        const items = Array.from(event.clipboardData?.items || []);
-        const hasFiles = items.some((item) => item.kind === "file");
-
-        if (hasFiles) {
-          event.preventDefault();
-          const files = items
-            .filter((item) => item.kind === "file")
-            .map((item) => item.getAsFile())
-            .filter((file): file is File => file !== null);
-
-          if (files.length > 0 && editor) {
-            void handlePasteFiles(editor, files);
-          }
-          return true;
-        }
-        return false;
+        queueNoteUpdate({ id: noteId, editor });
       },
     },
-    extensions: [
-      StarterKit.configure({
-        horizontalRule: false,
-        codeBlock: false,
-        heading: false,
-        paragraph: {
-          HTMLAttributes: {
-            class: "leading-7 [&:not(:first-child)]:mt-6 outline-none",
-          },
-        },
-        blockquote: {
-          HTMLAttributes: {
-            class:
-              "mt-6 border-l-2 border-l-border pl-6 italic text-muted-foreground outline-none",
-          },
-        },
-        bulletList: {
-          HTMLAttributes: {
-            class: "my-6 ml-6 list-disc [&>li]:mt-2 outline-none",
-          },
-        },
-        orderedList: {
-          HTMLAttributes: {
-            class: "my-6 ml-6 list-decimal [&>li]:mt-2 outline-none",
-          },
-        },
-        link: {
-          openOnClick: false,
-          enableClickSelection: true,
-        },
-      }),
-      HorizontalRule,
-      CodeBlockNode,
-      HeadingNode,
-      CardNodeExtension,
-      AccordionNodeExtension,
-      TextAlign.configure({ types: ["heading", "paragraph"] }),
-      TaskList.configure({
-        HTMLAttributes: {
-          class: "my-6 ml-6 list-none [&>li]:mt-2 outline-none",
-        },
-      }),
-      TaskItemNode.configure({ nested: true }),
-      Highlight.configure({ multicolor: true }),
-      TextStyle,
-      Color,
-      ResizableImage,
-      AudioNode,
-      VideoNode,
-      Iframe,
-      Typography,
-      Superscript,
-      Subscript,
-      Selection,
-      // eslint-disable-next-line react-hooks/refs
-      ImageUploadNode.configure({
-        accept: "image/*",
-        maxSize: MAX_FILE_SIZE,
-        limit: 3,
-        upload: async (file, onProgress, signal) => {
-          const currentNote = noteRef.current;
-          if (!noteId || !currentNote?.spaceId) {
-            throw new Error("Cannot upload image before note is initialized.");
-          }
-          return mediaService.uploadMedia(
-            file,
-            noteId,
-            currentNote.spaceId,
-            onProgress,
-            signal,
-          );
-        },
-      }),
-      // eslint-disable-next-line react-hooks/refs
-      FileUploadNode.configure({
-        accept: "*/*",
-        maxSize: MAX_FILE_SIZE,
-        limit: 3,
-        upload: async (file, onProgress, signal) => {
-          const currentNote = noteRef.current;
-          if (!noteId || !currentNote?.spaceId) {
-            throw new Error("Cannot upload file before note is initialized.");
-          }
-          return mediaService.uploadMedia(
-            file,
-            noteId,
-            currentNote.spaceId,
-            onProgress,
-            signal,
-          );
-        },
-      }),
-      FileNode,
-      SlashCommandExtension,
-      AiExtension,
-      ColumnsExtension,
-      ColumnExtension,
-      TableNodeExtension,
-    ],
-    content,
-    onUpdate: ({ editor }) => {
-      if (isReadOnly || !noteId) {
-        return;
-      }
-      queueNoteUpdate({ id: noteId, editor });
-    },
-  });
+    [spaceId],
+  );
 
   useEffect(() => {
     if (editor && isReady && content) {

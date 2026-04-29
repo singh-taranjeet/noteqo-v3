@@ -10,8 +10,6 @@ import { ListTodoIcon } from "@/features/editor/components/icons/ListTodoIcon";
 import { BlockquoteIcon } from "@/features/editor/components/icons/BlockquoteIcon";
 import { CodeBlockIcon } from "@/features/editor/components/icons/CodeBlockIcon";
 import { Code2Icon } from "@/features/editor/components/icons/Code2Icon";
-import { ImagePlusIcon } from "@/features/editor/components/icons/ImagePlusIcon";
-import { FileIcon } from "@/features/editor/components/icons/FileIcon";
 import { ColumnsIcon } from "@/features/editor/components/icons/ColumnsIcon";
 import { CardIcon } from "@/features/editor/components/icons/CardIcon";
 import { AccordionIcon } from "@/features/editor/components/icons/AccordionIcon";
@@ -119,30 +117,7 @@ export const SLASH_COMMANDS: SuggestionItem[] = [
       editor.chain().focus().deleteRange(range).setHorizontalRule().run();
     },
   },
-  {
-    title: "Image",
-    icon: ImagePlusIcon,
-    command: ({ editor, range }) => {
-      editor
-        .chain()
-        .focus()
-        .deleteRange(range)
-        .insertContent({ type: "imageUpload" })
-        .run();
-    },
-  },
-  {
-    title: "File",
-    icon: FileIcon,
-    command: ({ editor, range }) => {
-      editor
-        .chain()
-        .focus()
-        .deleteRange(range)
-        .insertContent({ type: "fileUpload" })
-        .run();
-    },
-  },
+
   {
     title: "2 Columns",
     icon: ColumnsIcon,
