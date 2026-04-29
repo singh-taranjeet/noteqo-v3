@@ -3,12 +3,14 @@ import { storageService, STORAGE_KEYS, db } from "@/features/storage";
 import { logService } from "@/services/log.service";
 import { spaceApiService } from "./space-api.service";
 import {
+  LOCAL_STORAGE_ALL_SPACES_INITIALLY_FETCHED,
   SPACE_DEFAULTS,
   SPACE_TYPE,
   SPACES_MESSAGES,
 } from "../constants/spaces.constants";
 import type { Space, SpaceType, RemoteSpace } from "../types/spaces.types";
-import { Note, noteService } from "@/features/workspace";
+import type { Note } from "@/features/workspace";
+import { noteService } from "@/features/workspace";
 
 export const spaceService = {
   /**
@@ -61,35 +63,47 @@ export const spaceService = {
     return space;
   },
 
-  /** 
-   * Fetch all spaces with notes and decrypt them and store them in the local db
-  */
-  async getAllSpaces(): Promise<{ spaces: Space[], notes: Note[] }> {
-    const remoteSpaces = await spaceApiService.getAll();
+  /**
+   * Fetch spaces with notes and decrypt them and store them in the local db
+   * If the local db is empty, fetch all spaces, else fetch only recently updated spaces
+   */
+  async getSpaces(): Promise<{ spaces: Space[]; notes: Note[] }> {
+    const fetchOnlyRecentlyUpdated = !!localStorage.getItem(
+      LOCAL_STORAGE_ALL_SPACES_INITIALLY_FETCHED,
+    );
 
+    const remoteSpaces = fetchOnlyRecentlyUpdated
+      ? await spaceApiService.getRecentlyUpdated()
+      : await spaceApiService.getAll();
+
+    // Decrypt all the spaces
     const decryptedSpaces = await Promise.all(
       remoteSpaces.map((rs) => spaceService.decryptRemoteSpace(rs)),
     );
 
     const validSpaces = decryptedSpaces.filter((s): s is Space => s !== null);
 
-    // Cache all spaces locally
+    // Store all spaces in local db
     await db.spaces.bulkPut(validSpaces);
 
-    // decrypt all the notes as well
+    // Decrypt all the notes
     const decryptedNotes: Note[] = [];
     const allRemoteNotes = remoteSpaces.flatMap((rs) => rs.notes || []);
     for (const remoteNote of allRemoteNotes) {
       const decryptedNote = await noteService.decryptNote(remoteNote);
-      console.log("Decrypted Note", decryptedNote);
       if (decryptedNote) {
         decryptedNotes.push(decryptedNote);
       }
     }
 
+    // Store all notesin local db
     await db.notes.bulkPut(decryptedNotes);
 
-    return { spaces: validSpaces, notes: decryptedNotes };
+    const notes = await noteService.getAllLocalNotes();
+    const spaces = await this.getLocalSpaces();
+    localStorage.setItem(LOCAL_STORAGE_ALL_SPACES_INITIALLY_FETCHED, "done");
+
+    return { spaces, notes };
   },
 
   /**

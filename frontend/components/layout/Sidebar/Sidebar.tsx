@@ -63,7 +63,6 @@ export function Sidebar() {
 
   // fetch all notes from localdb
 
-
   const defaultPersonalSpace = personalSpaces.find(
     (pesonalSpace) => pesonalSpace.isDefault,
   );

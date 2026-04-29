@@ -45,7 +45,9 @@ export class SpacesService {
   }
 
   async findAll(): Promise<Space[]> {
-    return this.spacesRepository.findAllForUser();
+    const data = await this.spacesRepository.findAllForUser();
+    await this.syncService.updateSync();
+    return data;
   }
 
   async findOne(id: string, userId: string): Promise<Space> {
@@ -90,9 +92,14 @@ export class SpacesService {
   }
 
   async getRecentlyUpdatedNotes() {
-    const lastUpdated = (await this.syncService.getSync()).updatedAt;
-    return this.spacesRepository.findAllRecentlyUpdatedNotes(lastUpdated);
+    const lastUpdated = (await this.syncService.getSync())?.updatedAt;
 
+    if (!lastUpdated) {
+      return this.findAll();
+    }
+    const data = await this.spacesRepository.findAllRecentlyUpdatedNotes(lastUpdated);
+    await this.syncService.updateSync();
+    return data;
   }
 
   // ─── Members ─────────────────────────────────────────────────────────────────

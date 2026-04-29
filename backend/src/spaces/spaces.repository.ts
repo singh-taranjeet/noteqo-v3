@@ -128,6 +128,7 @@ export class SpacesRepository {
   }
 
   async findAllRecentlyUpdatedNotes(lastUpdated: Date) {
+
     const currentUserId = getCurrentUserId();
     const entities = await this.spaceOrm
       .createQueryBuilder('space')

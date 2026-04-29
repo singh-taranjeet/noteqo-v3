@@ -17,9 +17,11 @@ export function useCreateSpace() {
     }): Promise<Space | null> => {
       return await spaceService.createSpace(name, type);
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       // Invalidate spaces query to automatically refresh the list
       void queryClient.invalidateQueries({ queryKey: SPACES_QUERY_KEY });
+      // refetch the SPACES_QUERY_KEY query as well
+      await queryClient.refetchQueries({ queryKey: SPACES_QUERY_KEY });
     },
     onError: (err) => {
       logService.error("Failed to create space", err);

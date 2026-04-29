@@ -2,7 +2,6 @@ import { db } from "@/features/storage";
 import { cryptoService } from "@/features/crypto";
 import type { SyncEvent, SyncEventType, Note } from "../types/workspace.types";
 import { SYNC_CONFIG } from "../constants/workspace.constants";
-import { mergeLocalRemoteService } from "./merge-local-remote.service";
 import { noteApiService } from "./note-api.service";
 import { spaceService } from "@/features/spaces/services/space.service";
 

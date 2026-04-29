@@ -8,12 +8,14 @@ export function useSpaces() {
   const query = useQuery({
     queryKey: SPACES_QUERY_KEY,
     queryFn: async () => {
-      return spaceService.getAllSpaces();
+      return spaceService.getSpaces();
     },
-    refetchInterval: 60 * 1000
+    refetchInterval: 5 * 60 * 1000,
   });
 
-  const notes = query.data?.notes || []
+  const notes = useMemo(() => {
+    return query.data?.notes || [];
+  }, [query.data?.notes]);
 
   const spaceNotesMap = useMemo(() => {
     return notes.reduce(
@@ -27,10 +29,13 @@ export function useSpaces() {
   }, [notes]);
 
   return {
-    data: query.data,
+    data: {
+      notes: query.data?.notes,
+      spaces: query.data?.spaces,
+    },
     isLoading: query.isLoading,
     error: query.error,
-    refetch: query.refetch,
-    spaceNotesMap
+    refetchSpacesQuery: query.refetch,
+    spaceNotesMap,
   };
 }

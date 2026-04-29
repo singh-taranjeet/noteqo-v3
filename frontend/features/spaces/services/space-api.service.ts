@@ -1,6 +1,9 @@
 import { QueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/services/api";
-import { SPACES_API_ROUTES } from "../constants/spaces.constants";
+import {
+  SPACES_API_ROUTES,
+  SYNC_API_ROUTES,
+} from "../constants/spaces.constants";
 import { SYNC_CONFIG } from "../../workspace/constants/workspace.constants";
 import type {
   RemoteSpace,
@@ -50,6 +53,7 @@ export const spaceQueryKeys = {
     [...spaceQueryKeys.detail(spaceId), "notes"] as const,
   members: (spaceId: string) =>
     [...spaceQueryKeys.detail(spaceId), "members"] as const,
+  allRecentlyUpdated: ["allRecentlyUpdated"] as const,
 };
 
 export const spaceApiService = {
@@ -68,7 +72,19 @@ export const spaceApiService = {
 
         return res.data;
       },
-      staleTime: SYNC_CONFIG.CACHE_STALE_TIME_MS,
+    });
+  },
+
+  getRecentlyUpdated: async (): Promise<RemoteSpace[]> => {
+    return queryClient.fetchQuery({
+      queryKey: spaceQueryKeys.allRecentlyUpdated,
+      queryFn: async () => {
+        const res = await apiClient.get<{ data: RemoteSpace[] }>(
+          SPACES_API_ROUTES.ALL_RECENTLY_UPDATED_NOTES,
+          { auth: true },
+        );
+        return res.data;
+      },
     });
   },
 

@@ -335,19 +335,11 @@ export function NoteEditor({
       TableNodeExtension,
     ],
     content,
-    onTransaction: ({ editor, transaction }) => {
+    onUpdate: ({ editor }) => {
       if (isReadOnly || !noteId) {
         return;
       }
-      // check if update is actually made and not just a click
-      if (transaction.docChanged) {
-        // check if note is pakka pakka changed
-        const oldNote = note?.content;
-        const newNote = editor.getJSON();
-        if (JSON.stringify(oldNote) === JSON.stringify(newNote)) {
-          debouncedUpdateNote({ id: noteId, editor });
-        }
-      }
+      debouncedUpdateNote({ id: noteId, editor });
     },
   });
 
