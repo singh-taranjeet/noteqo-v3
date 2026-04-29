@@ -1,8 +1,13 @@
+"use client";
+
+import { useMemo, useState } from "react";
+import { useParams } from "next/navigation";
+import { format } from "date-fns";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
-  Share01Icon,
   FavouriteIcon,
   MoreHorizontalIcon,
+  Clock04Icon,
 } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,27 +16,72 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { useLocalNotes } from "@/features/workspace/hooks/useLocalNotes";
+import { MOCK_USER } from "@/features/auth";
+import { VersionHistoryDialog } from "@/features/editor";
 
 export function HeaderActions() {
+  const params = useParams();
+  const noteId = params?.note_id as string | undefined;
+
+  const [isVersionHistoryOpen, setIsVersionHistoryOpen] = useState(false);
+
+  const { data: notes } = useLocalNotes();
+
+  const currentNote = useMemo(() => {
+    if (!notes || !noteId) return null;
+    return notes.find((n) => n.id === noteId);
+  }, [notes, noteId]);
+
+  const formattedDate = useMemo(() => {
+    if (!currentNote?.updatedAt) return "";
+    return format(new Date(currentNote.updatedAt), "MMM d");
+  }, [currentNote?.updatedAt]);
+
+  const userInitials = useMemo(() => {
+    return MOCK_USER.NAME.split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .substring(0, 2);
+  }, []);
+
   return (
     <div className="flex items-center gap-1 shrink-0">
       {/* Last edited timestamp */}
-      <span className="hidden sm:inline text-xs text-muted-foreground mr-2 whitespace-nowrap">
-        Edited Apr 11
-      </span>
+      {formattedDate && (
+        <span className="hidden sm:inline text-xs text-muted-foreground mr-2 whitespace-nowrap">
+          Edited {formattedDate}
+        </span>
+      )}
 
       {/* User avatar */}
-      <Avatar className="h-6 w-6 text-xs">
-        <AvatarFallback className="bg-primary/10 text-foreground text-xs font-medium">
-          TS
-        </AvatarFallback>
-      </Avatar>
+      {currentNote && (
+        <Avatar className="h-6 w-6 text-xs">
+          <AvatarFallback className="bg-primary/10 text-foreground text-xs font-medium">
+            {userInitials}
+          </AvatarFallback>
+        </Avatar>
+      )}
 
-      {/* Share button */}
-      <Button variant="ghost" size="sm" className="h-7 gap-1 text-xs px-2">
-        <HugeiconsIcon icon={Share01Icon} size={14} strokeWidth={1.5} />
-        <span className="hidden sm:inline">Share</span>
-      </Button>
+      {/* Version history */}
+      {noteId && currentNote && (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7"
+              aria-label="Version history"
+              onClick={() => setIsVersionHistoryOpen(true)}
+              id="version-history-button"
+            >
+              <HugeiconsIcon icon={Clock04Icon} size={16} strokeWidth={1.5} />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">Version history</TooltipContent>
+        </Tooltip>
+      )}
 
       {/* Favorite toggle */}
       <Tooltip>
@@ -66,6 +116,16 @@ export function HeaderActions() {
         </TooltipTrigger>
         <TooltipContent side="bottom">More options</TooltipContent>
       </Tooltip>
+
+      {/* Version history dialog */}
+      {noteId && currentNote?.spaceId && (
+        <VersionHistoryDialog
+          noteId={noteId}
+          spaceId={currentNote.spaceId}
+          isOpen={isVersionHistoryOpen}
+          onClose={() => setIsVersionHistoryOpen(false)}
+        />
+      )}
     </div>
   );
 }

@@ -25,6 +25,7 @@ export const NOTE_VERSION_COLUMN = {
 export const NOTE_ROUTES = {
   BASE: 'notes',
   BY_ID: ':noteId',
+  VERSIONS: ':noteId/versions',
 } as const;
 
 export const NOTE_ERROR_MESSAGES = {
