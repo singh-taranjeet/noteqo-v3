@@ -91,8 +91,19 @@ export const spaceService = {
     const allRemoteNotes = remoteSpaces.flatMap((rs) => rs.notes || []);
     for (const remoteNote of allRemoteNotes) {
       const decryptedNote = await noteService.decryptNote(remoteNote);
+      const localNote = await db.notes.get(remoteNote.id);
+      const localTime = localNote?.updatedAt ? new Date(localNote.updatedAt).getTime() : 0;
+      const remoteTime = decryptedNote?.updatedAt ? new Date(decryptedNote.updatedAt).getTime() : 0;
+
+      const latestContent = remoteTime >= localTime ? decryptedNote?.content : localNote?.content;
+
       if (decryptedNote) {
-        decryptedNotes.push(decryptedNote);
+        decryptedNotes.push({
+          ...decryptedNote,
+          content: latestContent,
+          // If local is newer, keep its pending status if applicable
+          syncStatus: localTime > remoteTime ? (localNote?.syncStatus || "synced") : "synced",
+        });
       }
     }
 

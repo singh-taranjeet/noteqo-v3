@@ -140,15 +140,14 @@ export function NoteEditor({
   className,
   contentWrapperClassName,
 }: Readonly<NoteEditorProps>) {
-  const debouncedUpdateNote = useMemo(
-    () =>
-      debounce((props: { editor: Editor; id: string }) => {
-        const { editor, id } = props;
-        const json = editor.getJSON();
-        if (id) {
-          void noteService.updateNote(id, { content: json });
-        }
-      }, EDITOR_CONFIG.AUTOSAVE_DEBOUNCE_MS),
+  const queueNoteUpdate = useMemo(
+    () => (props: { editor: Editor; id: string }) => {
+      const { editor, id } = props;
+      const json = editor.getJSON();
+      if (id) {
+        void noteService.updateNote(id, { content: json });
+      }
+    },
     [],
   );
 
@@ -162,12 +161,6 @@ export function NoteEditor({
   useEffect(() => {
     noteRef.current = note;
   }, [note]);
-
-  useEffect(() => {
-    return () => {
-      debouncedUpdateNote.cancel();
-    };
-  }, [debouncedUpdateNote]);
 
   const content = note?.content || DEFAULT_CONTENT;
 
@@ -339,7 +332,7 @@ export function NoteEditor({
       if (isReadOnly || !noteId) {
         return;
       }
-      debouncedUpdateNote({ id: noteId, editor });
+      queueNoteUpdate({ id: noteId, editor });
     },
   });
 

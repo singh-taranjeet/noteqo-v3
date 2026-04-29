@@ -11,8 +11,7 @@ export async function GET(request: Request) {
   return proxyToBackend({
     backendPath: "/spaces",
     request,
-    cacheControl: `private, max-age=${PROXY_CACHE_CONFIG.SPACES_LIST_MAX_AGE_S}, stale-while-revalidate=${PROXY_CACHE_CONFIG.STALE_WHILE_REVALIDATE_S}`,
-    revalidate: PROXY_CACHE_CONFIG.SPACES_LIST_MAX_AGE_S,
+    cacheControl: "no-store",
   });
 }
 

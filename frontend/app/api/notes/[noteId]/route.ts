@@ -17,8 +17,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
   return proxyToBackend({
     backendPath: `/notes/${noteId}`,
     request,
-    cacheControl: `private, max-age=${PROXY_CACHE_CONFIG.NOTE_DETAIL_MAX_AGE_S}, stale-while-revalidate=${PROXY_CACHE_CONFIG.STALE_WHILE_REVALIDATE_S}`,
-    revalidate: PROXY_CACHE_CONFIG.NOTE_DETAIL_MAX_AGE_S,
+    cacheControl: "no-store",
   });
 }
 
