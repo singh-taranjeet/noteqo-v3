@@ -11,6 +11,8 @@ import { mediaService } from "@/features/media";
 import { logService } from "@/services/log.service";
 import { cn } from "@/lib/utils";
 
+const REVOKE_URL_DELAY_MS = 10_000;
+
 export const FileNodeView: React.FC<NodeViewProps> = (props) => {
   const { node, editor } = props;
   const { url, fileName, mimeType, sizeBytes, uploading } = node.attrs;
@@ -37,7 +39,7 @@ export const FileNodeView: React.FC<NodeViewProps> = (props) => {
   const handleAction = async (action: "download" | "open") => {
     if (!url || !spaceId) {
       logService.error(
-        `[browser] Missing URL or Space ID for decryption. url=${String(url)}, spaceId=${String(spaceId)}`
+        `[browser] Missing URL or Space ID for decryption. url=${String(url)}, spaceId=${String(spaceId)}`,
       );
       return;
     }
@@ -66,7 +68,7 @@ export const FileNodeView: React.FC<NodeViewProps> = (props) => {
       // Cleanup object URL after a short delay
       setTimeout(() => {
         URL.revokeObjectURL(objectUrl);
-      }, 10000);
+      }, REVOKE_URL_DELAY_MS);
     } catch (err) {
       logService.error("Failed to decrypt and open file", err);
     } finally {

@@ -87,9 +87,24 @@ export const FileUploaderExtension = Extension.create<FileUploaderOptions>({
             node.attrs.fileName === file.name
           ) {
             editor.commands.command(({ tr }) => {
-              // Aggressively extract URL and ID to bypass any HMR caching issues
-              const finalUrl = response.url || (response as any).data?.url || (response as any).data?.data?.url;
-              const finalId = response.id || (response as any).data?.id || (response as any).data?.data?.id;
+              // Aggressively extract URL and ID to bypass any HMR caching issues without using any
+              const rawResp = response as unknown as Record<string, unknown>;
+              const respData = rawResp.data as
+                | Record<string, unknown>
+                | undefined;
+              const respDataData = respData?.data as
+                | Record<string, unknown>
+                | undefined;
+
+              const finalUrl =
+                (rawResp.url as string | undefined) ||
+                (respData?.url as string | undefined) ||
+                (respDataData?.url as string | undefined);
+
+              const finalId =
+                (rawResp.id as string | undefined) ||
+                (respData?.id as string | undefined) ||
+                (respDataData?.id as string | undefined);
 
               tr.setNodeMarkup(pos, undefined, {
                 ...node.attrs,

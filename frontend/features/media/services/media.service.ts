@@ -36,20 +36,23 @@ export const mediaService = {
     formData.append("mimeType", file.type || "application/octet-stream");
     formData.append("sizeBytes", file.size.toString());
 
-    const response = await apiClient.postForm<any>(
+    const response = await apiClient.postForm<Record<string, unknown>>(
       "/media",
       formData,
       { auth: true },
     );
-    
-    // Robustly handle if response is wrapped by ResponseTransformInterceptor or returned directly
-    const data = response?.data ? response.data : response;
 
-    if (!data || !data.url) {
-      throw new Error("Invalid response format from server. Media URL is missing: " + JSON.stringify(response));
+    // Robustly handle if response is wrapped by ResponseTransformInterceptor or returned directly
+    const data = (response?.data as Record<string, unknown>) || response;
+
+    if (!data || typeof data.url !== "string") {
+      throw new Error(
+        "Invalid response format from server. Media URL is missing: " +
+          JSON.stringify(response),
+      );
     }
 
-    return data as MediaResponseDto;
+    return data as unknown as MediaResponseDto;
   },
 
   /**
