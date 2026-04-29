@@ -1,9 +1,6 @@
 import { QueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/services/api";
-import {
-  SPACES_API_ROUTES,
-  SYNC_API_ROUTES,
-} from "../constants/spaces.constants";
+import { SPACES_API_ROUTES } from "../constants/spaces.constants";
 import { SYNC_CONFIG } from "../../workspace/constants/workspace.constants";
 import type {
   RemoteSpace,

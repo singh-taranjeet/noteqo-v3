@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { useAppShell } from "../AppShell";
 import { LAYOUT_CONFIG } from "../layout.constants";
@@ -10,11 +10,7 @@ import { SidebarSpaceCategory } from "./SidebarSpaceCategory";
 import { SharedSpaceSettingsDialog } from "./SharedSpaceSettingsDialog";
 import { SidebarNewNoteButton } from "./SidebarNewNoteButton";
 import { useSpaces, useCreateSpace } from "@/features/spaces";
-import {
-  useCreateNote,
-  useLocalNotes,
-  useSyncQueue,
-} from "@/features/workspace";
+import { useCreateNote, useSyncQueue } from "@/features/workspace";
 import { MOCK_USER } from "@/features/auth";
 import { SPACE_TYPE } from "@/features/spaces";
 import type { Space, SpaceType } from "@/features/spaces";
