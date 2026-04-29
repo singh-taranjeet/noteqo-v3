@@ -1,5 +1,6 @@
 import { MEDIA_API_ROUTES } from "../constants/media.constants";
 import { storageService, STORAGE_KEYS } from "@/features/storage";
+import { API_BASE_URL } from "@/constants/config";
 
 export interface UploadMediaRequest {
   id: string;
@@ -38,16 +39,13 @@ export const mediaApiService = {
     // Use standard fetch but grab the token from storageService
     const token = await storageService.get<string>(STORAGE_KEYS.JWT_KEY);
 
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}${MEDIA_API_ROUTES.UPLOAD}`,
-      {
-        method: "POST",
-        headers: {
-          ...(token && { Authorization: `Bearer ${token}` }),
-        },
-        body: formData,
+    const response = await fetch(`${API_BASE_URL}${MEDIA_API_ROUTES.UPLOAD}`, {
+      method: "POST",
+      headers: {
+        ...(token && { Authorization: `Bearer ${token}` }),
       },
-    );
+      body: formData,
+    });
 
     if (!response.ok) {
       throw new Error(`Upload failed with status ${response.status}`);
@@ -59,7 +57,7 @@ export const mediaApiService = {
   async delete(mediaId: string): Promise<void> {
     const token = await storageService.get<string>(STORAGE_KEYS.JWT_KEY);
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}${MEDIA_API_ROUTES.DELETE(mediaId)}`,
+      `${API_BASE_URL}${MEDIA_API_ROUTES.DELETE(mediaId)}`,
       {
         method: "DELETE",
         headers: {
