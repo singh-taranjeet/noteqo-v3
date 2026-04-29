@@ -89,6 +89,14 @@ export const EditorBubbleMenu: React.FC<EditorBubbleMenuProps> = ({
         const { selection } = state;
         const { empty } = selection;
 
+        // Do not show bubble menu for file attachments or images
+        if (
+          editor.isActive("fileAttachment") ||
+          editor.isActive("encryptedImage")
+        ) {
+          return false;
+        }
+
         // Prevent BubbleMenu from disappearing when interacting with Shadcn sub-menus
         if (
           isTurnIntoOpen ||

@@ -1,7 +1,6 @@
 "use client";
-import { logService } from "@/services/log.service";
+
 import { CRYPTO_CONFIG } from "../constants/crypto.constants";
-import { storageService, STORAGE_KEYS } from "@/features/storage";
 
 /**
  * Utility functions for generating and managing E2E encryption keys.
@@ -53,6 +52,63 @@ export const cryptoService = {
   },
 
   /**
+   * AES-GCM encrypt a plaintext string using raw key bytes.
+   * Returns a base64 string in the format "iv:ciphertext".
+   */
+  encryptString: async (
+    plaintext: string,
+    keyBytes: Uint8Array,
+  ): Promise<string> => {
+    const aesKey = await globalThis.crypto.subtle.importKey(
+      CRYPTO_CONFIG.EXPORT_FORMAT.RAW,
+      keyBytes as BufferSource,
+      { name: CRYPTO_CONFIG.ALGORITHMS.AES },
+      false,
+      ["encrypt"],
+    );
+
+    const iv = globalThis.crypto.getRandomValues(
+      new Uint8Array(CRYPTO_CONFIG.IV_BYTES_LENGTH),
+    );
+    const encrypted = await globalThis.crypto.subtle.encrypt(
+      { name: CRYPTO_CONFIG.ALGORITHMS.AES, iv },
+      aesKey,
+      new TextEncoder().encode(plaintext),
+    );
+
+    return `${cryptoService.encodeBase64(iv.buffer)}:${cryptoService.encodeBase64(encrypted)}`;
+  },
+
+  /**
+   * AES-GCM decrypt a "iv:ciphertext" base64 string using raw key bytes.
+   * Returns the decrypted plaintext string.
+   */
+  decryptString: async (
+    ciphertext: string,
+    keyBytes: Uint8Array,
+  ): Promise<string> => {
+    const [iv64, cipher64] = ciphertext.split(":");
+    const iv = new Uint8Array(cryptoService.decodeBase64(iv64));
+    const cipherBuffer = cryptoService.decodeBase64(cipher64);
+
+    const aesKey = await globalThis.crypto.subtle.importKey(
+      CRYPTO_CONFIG.EXPORT_FORMAT.RAW,
+      keyBytes as BufferSource,
+      { name: CRYPTO_CONFIG.ALGORITHMS.AES },
+      false,
+      ["decrypt"],
+    );
+
+    const decryptedBuffer = await globalThis.crypto.subtle.decrypt(
+      { name: CRYPTO_CONFIG.ALGORITHMS.AES, iv },
+      aesKey,
+      cipherBuffer,
+    );
+
+    return new TextDecoder().decode(decryptedBuffer);
+  },
+
+  /**
    * Generates an RSA-OAEP Key Pair.
    * Exports the public and private keys in JWK format.
    */
@@ -94,38 +150,10 @@ export const cryptoService = {
     privateKeyPayload: string,
     base64MasterKey: string,
   ): Promise<string> => {
-    // 1. Import Master Key
-    const rawKey = cryptoService.decodeBase64(base64MasterKey);
-    const cryptoKey = await globalThis.crypto.subtle.importKey(
-      CRYPTO_CONFIG.EXPORT_FORMAT.RAW,
-      rawKey,
-      { name: CRYPTO_CONFIG.ALGORITHMS.AES },
-      false,
-      ["encrypt"],
+    const keyBytes = new Uint8Array(
+      cryptoService.decodeBase64(base64MasterKey),
     );
-
-    // 2. Prepare payload
-    const encoder = new TextEncoder();
-    const data = encoder.encode(privateKeyPayload);
-
-    // 3. Encrypt
-    const iv = globalThis.crypto.getRandomValues(
-      new Uint8Array(CRYPTO_CONFIG.IV_BYTES_LENGTH),
-    );
-    const encryptedContent = await globalThis.crypto.subtle.encrypt(
-      {
-        name: CRYPTO_CONFIG.ALGORITHMS.AES,
-        iv: iv,
-      },
-      cryptoKey,
-      data,
-    );
-
-    // 4. Combine IV and Ciphertext as base64 strings separated by a colon
-    const encodedIv = cryptoService.encodeBase64(iv.buffer);
-    const encodedCiphertext = cryptoService.encodeBase64(encryptedContent);
-
-    return `${encodedIv}:${encodedCiphertext}`;
+    return cryptoService.encryptString(privateKeyPayload, keyBytes);
   },
 
   /**
@@ -135,106 +163,66 @@ export const cryptoService = {
     encryptedPrivateKeyPayload: string,
     base64MasterKey: string,
   ): Promise<string> => {
-    const [privIv64, privCipher64] = encryptedPrivateKeyPayload.split(":");
-    const privIv = cryptoService.decodeBase64(privIv64);
-    const privCipher = cryptoService.decodeBase64(privCipher64);
-
-    const rawMasterKey = cryptoService.decodeBase64(base64MasterKey);
-    const masterCryptoKey = await globalThis.crypto.subtle.importKey(
-      CRYPTO_CONFIG.EXPORT_FORMAT.RAW,
-      rawMasterKey,
-      { name: CRYPTO_CONFIG.ALGORITHMS.AES },
-      false,
-      ["decrypt"],
+    const keyBytes = new Uint8Array(
+      cryptoService.decodeBase64(base64MasterKey),
     );
-
-    const decryptedPrivKeyBuffer = await globalThis.crypto.subtle.decrypt(
-      {
-        name: CRYPTO_CONFIG.ALGORITHMS.AES,
-        iv: new Uint8Array(privIv),
-      },
-      masterCryptoKey,
-      privCipher,
-    );
-
-    return new TextDecoder().decode(decryptedPrivKeyBuffer);
+    return cryptoService.decryptString(encryptedPrivateKeyPayload, keyBytes);
   },
 
   /**
-   * Decrypts the note payload executing the full Web Crypto cascade.
+   * Encrypts an ArrayBuffer (e.g. File) using the AES-GCM Space Key.
+   * Returns a Blob containing the concatenated IV and Ciphertext.
    */
-  decryptDocument: async (
-    ciphertextPayload: string,
-    encryptedDocKeyBase64: string,
-  ): Promise<{ payload: unknown; noteKeyBase64: string } | undefined> => {
-    // 1. Get raw Master Key & encrypted Private Key from Storage
-    const base64MasterKey = await storageService.get<string>(
-      STORAGE_KEYS.MASTER_KEY,
-    );
-
-    const privateKey = await storageService.get(STORAGE_KEYS.PRIVATE_KEY);
-
-    if (!base64MasterKey || !privateKey) {
-      logService.warn(
-        "Missing local keys correctly established to decrypt private key.",
-      );
-      return;
-    }
-
-    // 2. Import User's Private RSA Key
-    const rsaPrivateKey = await globalThis.crypto.subtle.importKey(
-      "jwk",
-      JSON.parse(privateKey as string) as JsonWebKey,
-      {
-        name: CRYPTO_CONFIG.ALGORITHMS.RSA,
-        hash: CRYPTO_CONFIG.ALGORITHMS.HASH,
-      },
+  encryptBuffer: async (
+    buffer: ArrayBuffer,
+    base64SpaceKey: string,
+  ): Promise<Blob> => {
+    const rawSpaceKey = cryptoService.decodeBase64(base64SpaceKey);
+    const aesKey = await globalThis.crypto.subtle.importKey(
+      CRYPTO_CONFIG.EXPORT_FORMAT.RAW,
+      rawSpaceKey,
+      { name: CRYPTO_CONFIG.ALGORITHMS.AES },
       false,
-      ["decrypt"],
+      ["encrypt"],
     );
 
-    // 4. Decrypt Doc Key using RSA
-    const encryptedDocKeyBuffer = cryptoService.decodeBase64(
-      encryptedDocKeyBase64,
+    const iv = globalThis.crypto.getRandomValues(
+      new Uint8Array(CRYPTO_CONFIG.IV_BYTES_LENGTH),
     );
-    const decryptedDocKeyBuffer = await globalThis.crypto.subtle.decrypt(
-      { name: CRYPTO_CONFIG.ALGORITHMS.RSA },
-      rsaPrivateKey,
-      encryptedDocKeyBuffer,
+    const ciphertext = await globalThis.crypto.subtle.encrypt(
+      { name: CRYPTO_CONFIG.ALGORITHMS.AES, iv },
+      aesKey,
+      buffer,
     );
 
-    // 5. Import AES Doc Key
-    const aesDocKey = await globalThis.crypto.subtle.importKey(
-      "raw",
-      decryptedDocKeyBuffer,
+    return new Blob([iv, ciphertext], { type: "application/octet-stream" });
+  },
+
+  /**
+   * Decrypts a Blob containing IV + Ciphertext using the AES-GCM Space Key.
+   * Returns the decrypted ArrayBuffer.
+   */
+  decryptBuffer: async (
+    encryptedBlob: Blob,
+    base64SpaceKey: string,
+  ): Promise<ArrayBuffer> => {
+    const rawSpaceKey = cryptoService.decodeBase64(base64SpaceKey);
+    const aesKey = await globalThis.crypto.subtle.importKey(
+      CRYPTO_CONFIG.EXPORT_FORMAT.RAW,
+      rawSpaceKey,
       { name: CRYPTO_CONFIG.ALGORITHMS.AES },
       false,
       ["decrypt"],
     );
 
-    // 6. Decrypt Document Ciphertext
-    if (!ciphertextPayload || !ciphertextPayload.includes(":")) {
-      throw new Error("Invalid ciphertext payload format");
-    }
+    const buffer = await encryptedBlob.arrayBuffer();
+    const iv = buffer.slice(0, CRYPTO_CONFIG.IV_BYTES_LENGTH);
+    const ciphertext = buffer.slice(CRYPTO_CONFIG.IV_BYTES_LENGTH);
 
-    const [docIv64, docCipher64] = ciphertextPayload.split(":");
-    const docIv = cryptoService.decodeBase64(docIv64);
-    const docCipher = cryptoService.decodeBase64(docCipher64);
-
-    const decryptedDocBuffer = await globalThis.crypto.subtle.decrypt(
-      {
-        name: CRYPTO_CONFIG.ALGORITHMS.AES,
-        iv: new Uint8Array(docIv),
-      },
-      aesDocKey,
-      docCipher,
+    return await globalThis.crypto.subtle.decrypt(
+      { name: CRYPTO_CONFIG.ALGORITHMS.AES, iv: new Uint8Array(iv) },
+      aesKey,
+      ciphertext,
     );
-
-    const documentJsonStr = new TextDecoder().decode(decryptedDocBuffer);
-
-    return {
-      payload: JSON.parse(documentJsonStr),
-      noteKeyBase64: cryptoService.encodeBase64(decryptedDocKeyBuffer),
-    };
   },
 };

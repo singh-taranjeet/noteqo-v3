@@ -6,7 +6,6 @@ export * from "./constants/spaces.constants";
 
 // Hooks
 export { useSpaces } from "./hooks/useSpaces";
-export { useSpaceNotes } from "./hooks/useSpaceNotes";
 export { useCreateSpace } from "./hooks/useCreateSpace";
 export {
   useSpaceMembers,

@@ -19,6 +19,8 @@ export class NotesService {
       Buffer.from(dto.ciphertext, 'utf8'),
       dto.spaceId,
       dto.type,
+      dto.createdAt,
+      dto.updatedAt,
     );
   }
 
@@ -46,6 +48,7 @@ export class NotesService {
       id,
       Buffer.from(dto.ciphertext, 'utf8'),
       note.version,
+      dto.updatedAt,
     );
   }
 

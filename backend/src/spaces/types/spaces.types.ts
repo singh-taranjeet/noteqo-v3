@@ -1,3 +1,4 @@
+import { Note } from '../../notes';
 import { SPACE_TYPE, SPACE_ROLE } from '../constants/spaces.constants';
 
 // ─── Union Types (derived from const objects per NestJS rules §16) ───────────
@@ -19,6 +20,7 @@ export interface Space {
   updatedAt?: Date;
   members?: SpaceMember[];
   keySlots?: SpaceKeySlot[];
+  notes: Note[];
 }
 
 export interface SpaceMember {

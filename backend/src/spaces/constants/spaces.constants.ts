@@ -57,6 +57,7 @@ export const SPACE_ROUTES = {
   MEMBER_BY_ID: ':spaceId/members/:userId',
   NOTES: ':spaceId/notes',
   NOTE_BY_ID: ':spaceId/notes/:noteId',
+  ALL_RECENTLY_UPDATED_NOTES: 'recently/updated-notes',
 } as const;
 
 // ─── Error Messages ──────────────────────────────────────────────────────────

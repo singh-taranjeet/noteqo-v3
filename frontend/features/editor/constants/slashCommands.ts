@@ -10,10 +10,11 @@ import { ListTodoIcon } from "@/features/editor/components/icons/ListTodoIcon";
 import { BlockquoteIcon } from "@/features/editor/components/icons/BlockquoteIcon";
 import { CodeBlockIcon } from "@/features/editor/components/icons/CodeBlockIcon";
 import { Code2Icon } from "@/features/editor/components/icons/Code2Icon";
-import { ImagePlusIcon } from "@/features/editor/components/icons/ImagePlusIcon";
 import { ColumnsIcon } from "@/features/editor/components/icons/ColumnsIcon";
 import { CardIcon } from "@/features/editor/components/icons/CardIcon";
 import { AccordionIcon } from "@/features/editor/components/icons/AccordionIcon";
+import { TableIcon } from "@/features/editor/components/icons/TableIcon";
+import { PaperclipIcon, ImageIcon } from "lucide-react";
 import type { AiActionType } from "@/features/ai/types/ai.types";
 
 export interface SuggestionItem {
@@ -117,18 +118,7 @@ export const SLASH_COMMANDS: SuggestionItem[] = [
       editor.chain().focus().deleteRange(range).setHorizontalRule().run();
     },
   },
-  {
-    title: "Image",
-    icon: ImagePlusIcon,
-    command: ({ editor, range }) => {
-      editor
-        .chain()
-        .focus()
-        .deleteRange(range)
-        .insertContent({ type: "imageUpload" })
-        .run();
-    },
-  },
+
   {
     title: "2 Columns",
     icon: ColumnsIcon,
@@ -173,6 +163,37 @@ export const SLASH_COMMANDS: SuggestionItem[] = [
           content: [{ type: "paragraph" }],
         })
         .run();
+    },
+  },
+  {
+    title: "Table",
+    icon: TableIcon,
+    command: ({ editor, range }) => {
+      editor
+        .chain()
+        .focus()
+        .deleteRange(range)
+        .insertContent({
+          type: "notionTable",
+          content: [{ type: "paragraph" }],
+        })
+        .run();
+    },
+  },
+  {
+    title: "File Attachment",
+    icon: PaperclipIcon as React.FC<React.SVGProps<SVGSVGElement>>,
+    command: ({ editor, range }) => {
+      editor.chain().focus().deleteRange(range).run();
+      editor.commands.promptFileUpload();
+    },
+  },
+  {
+    title: "Image",
+    icon: ImageIcon as React.FC<React.SVGProps<SVGSVGElement>>,
+    command: ({ editor, range }) => {
+      editor.chain().focus().deleteRange(range).run();
+      editor.commands.promptFileUpload("image/*");
     },
   },
 ];

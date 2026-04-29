@@ -16,6 +16,13 @@ export const SPACES_API_ROUTES = {
   MEMBERS: (spaceId: string) => `/spaces/${spaceId}/members`,
   MEMBER: (spaceId: string, userId: string) =>
     `/spaces/${spaceId}/members/${userId}`,
+
+  ALL_RECENTLY_UPDATED_NOTES: "/spaces/recently/updated-notes",
+  syck: "sync",
+} as const;
+
+export const SYNC_API_ROUTES = {
+  SYNC: "sync",
 } as const;
 
 export const SPACES_QUERY_KEY = ["spaces"] as const;
@@ -31,3 +38,6 @@ export const NOTE_FALLBACKS = {
   EMOJI: "📄",
   COVER_IMAGE: "",
 } as const;
+
+export const LOCAL_STORAGE_ALL_SPACES_INITIALLY_FETCHED =
+  "LOCAL_STORAGE_ALL_SPACES_INITIALLY_FETCHED";
