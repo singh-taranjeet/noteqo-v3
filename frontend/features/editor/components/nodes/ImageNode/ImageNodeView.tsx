@@ -88,25 +88,36 @@ export const ImageNodeView: React.FC<NodeViewProps> = (props) => {
   // Basic drag to resize implementation
   const imgRef = useRef<HTMLImageElement>(null);
   const [isResizing, setIsResizing] = useState(false);
+  const [resizeState, setResizeState] = useState({ startX: 0, startWidth: 0 });
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     setIsResizing(true);
+    if (imgRef.current && imgRef.current.parentElement) {
+      setResizeState({
+        startX: e.clientX,
+        startWidth: imgRef.current.parentElement.getBoundingClientRect().width,
+      });
+    }
   }, []);
 
   useEffect(() => {
     if (!isResizing) return;
 
     const handleMouseMove = (e: MouseEvent) => {
-      if (!imgRef.current) return;
-      const rect =
-        imgRef.current.parentElement?.parentElement?.getBoundingClientRect();
-      if (!rect) return;
+      const deltaX = e.clientX - resizeState.startX;
+      let newWidth = resizeState.startWidth;
 
-      const newWidth = Math.max(
-        100,
-        Math.min(e.clientX - rect.left, rect.width),
-      );
+      if (align === "center") {
+        newWidth = resizeState.startWidth + deltaX * 2;
+      } else if (align === "right") {
+        // Handle is on the left, pulling left (negative deltaX) increases width
+        newWidth = resizeState.startWidth - deltaX;
+      } else {
+        newWidth = resizeState.startWidth + deltaX;
+      }
+
+      newWidth = Math.max(100, newWidth);
       updateAttributes({ width: `${newWidth}px` });
     };
 
@@ -120,7 +131,7 @@ export const ImageNodeView: React.FC<NodeViewProps> = (props) => {
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mouseup", handleMouseUp);
     };
-  }, [isResizing, updateAttributes]);
+  }, [isResizing, align, resizeState, updateAttributes]);
 
   return (
     <NodeViewWrapper
@@ -169,7 +180,10 @@ export const ImageNodeView: React.FC<NodeViewProps> = (props) => {
             {/* Resize handle */}
             {selected && align !== "full" && (
               <div
-                className="absolute right-0 top-0 bottom-0 w-3 cursor-col-resize hover:bg-primary/50 transition-colors z-10 flex items-center justify-center group-hover:bg-primary/20"
+                className={cn(
+                  "absolute top-0 bottom-0 w-3 cursor-col-resize hover:bg-primary/50 transition-colors z-10 flex items-center justify-center group-hover:bg-primary/20",
+                  align === "right" ? "left-0" : "right-0",
+                )}
                 onMouseDown={handleMouseDown}
               >
                 <div className="h-8 w-1 bg-primary/50 rounded-full" />
