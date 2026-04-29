@@ -12,7 +12,7 @@ import {
 } from './types/spaces.types';
 import { SPACE_ROLE, SPACE_TYPE } from './constants/spaces.constants';
 import { getCurrentUserId } from '../shared/utils/cls.utils';
-import { NoteType } from 'src/notes/types/notes.types';
+import { Brackets } from 'typeorm';
 
 @Injectable()
 export class SpacesRepository {
@@ -128,27 +128,42 @@ export class SpacesRepository {
   }
 
   async findAllRecentlyUpdatedNotes(lastUpdated: Date) {
-
     const currentUserId = getCurrentUserId();
+
     const entities = await this.spaceOrm
       .createQueryBuilder('space')
-      .innerJoinAndSelect(
+      // 1. ACCESS CONTROL: Inner join to ensure the user belongs to the space, 
+      // but don't select it here so it doesn't mess with our payload.
+      .innerJoin(
         'space.members',
-        'member',
-        'member.userId = :userId',
-        { userId: currentUserId },
+        'accessMember',
+        'accessMember.userId = :userId',
+        { userId: currentUserId }
       )
-      .innerJoinAndSelect(
+      // 2. FETCH MEMBERS: Left join to grab the members of the space
+      .leftJoinAndSelect(
+        'space.members',
+        'member'
+      )
+      // 3. FETCH NOTES: Left join to grab ONLY notes that were recently updated
+      .leftJoinAndSelect(
         'space.notes',
         'note',
-        'note.updatedAt > :lastUpdated AND note.updatedBy != :userId',
-        { lastUpdated }
+        'note.updatedAt > :lastUpdated AND note.updatedBy != :userId'
       )
+      // 4. FETCH KEYSLOTS
       .leftJoinAndSelect(
         'space.keySlots',
         'keySlot',
-        'keySlot.userId = :userId',
+        'keySlot.userId = :userId'
       )
+      // 5. FILTERING: Only return the Space if the Space itself, a Note, or a Member was updated
+      .where(new Brackets(qb => {
+        qb.where('space.updatedAt > :lastUpdated')
+          .orWhere('note.id IS NOT NULL') // True if our left join condition on notes found a match
+          .orWhere('member.updatedAt > :lastUpdated');
+      }))
+      .setParameters({ lastUpdated, userId: currentUserId })
       .orderBy('space.updatedAt', 'DESC')
       .getMany();
 

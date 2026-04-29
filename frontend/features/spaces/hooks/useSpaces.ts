@@ -10,7 +10,7 @@ export function useSpaces() {
     queryFn: async () => {
       return spaceService.getSpaces();
     },
-    refetchInterval: 5 * 60 * 1000,
+    refetchInterval: 1 * 60 * 1000,
   });
 
   const notes = useMemo(() => {
