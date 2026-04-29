@@ -55,7 +55,10 @@ import { TableNodeExtension } from "@/features/editor/components/nodes/TableNode
 // --- Tiptap UI Hooks & Components ---
 
 // --- Lib ---
-import { EDITOR_CONFIG } from "@/features/editor/constants/editor.constants";
+import {
+  EDITOR_CONFIG,
+  VERSION_RESTORED_EVENT,
+} from "@/features/editor/constants/editor.constants";
 import { NOTE_DEFAULTS } from "@/features/workspace/constants/workspace.constants";
 import { noteService } from "@/features/workspace/services/note.service";
 import type { Note } from "@/features/workspace/types/workspace.types";
@@ -117,6 +120,14 @@ const useLoadNoteContent = ({
     }
     loadContent();
   }, [isReadOnly, initialNote, noteId]);
+
+  // Sync when the caller provides a different initialNote (e.g. version history preview)
+  useEffect(() => {
+    if (initialNote) {
+      setNote(initialNote);
+      setIsReady(true);
+    }
+  }, [initialNote]);
 
   return {
     note,
@@ -251,6 +262,46 @@ export function NoteEditor({
       }, EDITOR_CONFIG.EVENT_LOOP_DEFER_MS);
     }
   }, [editor, isReady, content]);
+
+  // Listen for version-restore events to update editor content instantly
+  useEffect(() => {
+    if (!editor || isReadOnly) return;
+
+    const handleVersionRestored = (e: Event) => {
+      const detail = (e as CustomEvent).detail as {
+        noteId: string;
+        title?: string;
+        emoji?: string;
+        coverImage?: string;
+        content?: unknown;
+      };
+
+      if (detail.noteId !== noteId) return;
+
+      // Update the Tiptap editor content
+      if (detail.content) {
+        editor.commands.setContent(detail.content);
+      }
+
+      // Update the note metadata (title, emoji, cover)
+      setNote((prev) =>
+        prev
+          ? {
+              ...prev,
+              title: detail.title ?? prev.title,
+              emoji: detail.emoji ?? prev.emoji,
+              coverImage: detail.coverImage ?? prev.coverImage,
+              content: detail.content ?? prev.content,
+            }
+          : prev,
+      );
+    };
+
+    window.addEventListener(VERSION_RESTORED_EVENT, handleVersionRestored);
+    return () => {
+      window.removeEventListener(VERSION_RESTORED_EVENT, handleVersionRestored);
+    };
+  }, [editor, isReadOnly, noteId, setNote]);
 
   if (!isReady) {
     return <NoteEditorSkeleton />;

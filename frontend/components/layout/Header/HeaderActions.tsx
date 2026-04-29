@@ -1,12 +1,13 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import { format } from "date-fns";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   FavouriteIcon,
   MoreHorizontalIcon,
+  Clock04Icon,
 } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,10 +18,13 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useLocalNotes } from "@/features/workspace/hooks/useLocalNotes";
 import { MOCK_USER } from "@/features/auth";
+import { VersionHistoryDialog } from "@/features/editor";
 
 export function HeaderActions() {
   const params = useParams();
   const noteId = params?.note_id as string | undefined;
+
+  const [isVersionHistoryOpen, setIsVersionHistoryOpen] = useState(false);
 
   const { data: notes } = useLocalNotes();
 
@@ -60,6 +64,25 @@ export function HeaderActions() {
         </Avatar>
       )}
 
+      {/* Version history */}
+      {noteId && currentNote && (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7"
+              aria-label="Version history"
+              onClick={() => setIsVersionHistoryOpen(true)}
+              id="version-history-button"
+            >
+              <HugeiconsIcon icon={Clock04Icon} size={16} strokeWidth={1.5} />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">Version history</TooltipContent>
+        </Tooltip>
+      )}
+
       {/* Favorite toggle */}
       <Tooltip>
         <TooltipTrigger asChild>
@@ -93,6 +116,16 @@ export function HeaderActions() {
         </TooltipTrigger>
         <TooltipContent side="bottom">More options</TooltipContent>
       </Tooltip>
+
+      {/* Version history dialog */}
+      {noteId && currentNote?.spaceId && (
+        <VersionHistoryDialog
+          noteId={noteId}
+          spaceId={currentNote.spaceId}
+          isOpen={isVersionHistoryOpen}
+          onClose={() => setIsVersionHistoryOpen(false)}
+        />
+      )}
     </div>
   );
 }

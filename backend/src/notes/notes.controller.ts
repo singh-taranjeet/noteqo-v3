@@ -15,8 +15,9 @@ import { NotesService } from './notes.service';
 import { CreateNoteDto } from './dto/create-note.dto';
 import { UpdateNoteDto } from './dto/update-note.dto';
 import { NoteResponseDto } from './dto/note-response.dto';
+import { NoteVersionResponseDto } from './dto/note-version-response.dto';
 import { NOTE_ROUTES } from './constants/notes.constants';
-import { Note } from './types/notes.types';
+import { Note, NoteVersion } from './types/notes.types';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller(NOTE_ROUTES.BASE)
@@ -54,6 +55,14 @@ export class NotesController {
     await this.notesService.remove(id);
   }
 
+  @Get(NOTE_ROUTES.VERSIONS)
+  async getVersions(
+    @Param('noteId', ParseUUIDPipe) noteId: string,
+  ): Promise<NoteVersionResponseDto[]> {
+    const versions = await this.notesService.getVersions(noteId);
+    return versions.map((v) => this.mapVersionToResponse(v));
+  }
+
   private mapToResponse(note: Note): NoteResponseDto {
     return {
       id: note.id,
@@ -66,6 +75,19 @@ export class NotesController {
       deletedBy: note.deletedBy,
       createdAt: note.createdAt,
       updatedAt: note.updatedAt,
+    };
+  }
+
+  private mapVersionToResponse(version: NoteVersion): NoteVersionResponseDto {
+    return {
+      id: version.id,
+      noteId: version.noteId,
+      version: version.version,
+      ciphertext: version.ciphertext,
+      createdAt: version.createdAt,
+      updatedAt: version.updatedAt,
+      createdBy: version.createdBy,
+      updatedBy: version.updatedBy,
     };
   }
 }

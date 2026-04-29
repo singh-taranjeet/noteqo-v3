@@ -33,3 +33,28 @@ export interface RemoteNote {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface RemoteNoteVersion {
+  id: string;
+  noteId: string;
+  version: number;
+  ciphertext: string;
+  createdAt: string;
+  updatedAt: string;
+  createdBy?: string;
+  updatedBy?: string;
+}
+
+export interface DecryptedNoteVersion {
+  id: string;
+  noteId: string;
+  version: number;
+  title: string;
+  emoji: string;
+  coverImage: string;
+  content: unknown;
+  createdAt: string;
+  updatedAt: string;
+  createdBy?: string;
+  updatedBy?: string;
+}
