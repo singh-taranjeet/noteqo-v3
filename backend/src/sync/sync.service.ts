@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SyncEntity } from './entities/sync.entity';
 import { Repository } from 'typeorm';
-import { getCurrentUserId } from 'src/shared/utils/cls.utils';
+import { getCurrentUserId } from '../shared/utils/cls.utils';
 
 @Injectable()
 export class SyncService {
