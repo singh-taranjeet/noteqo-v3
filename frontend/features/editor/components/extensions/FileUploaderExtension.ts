@@ -17,7 +17,7 @@ export interface FileUploaderOptions {
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
     fileUploader: {
-      promptFileUpload: () => ReturnType;
+      promptFileUpload: (accept?: string) => ReturnType;
     };
   }
 }
@@ -56,12 +56,15 @@ export const FileUploaderExtension = Extension.create<FileUploaderOptions>({
         return;
       }
 
-      // 1. Insert a placeholder file attachment node with `uploading: true`
+      const isImage = file.type.startsWith("image/");
+      const nodeType = isImage ? "encryptedImage" : "fileAttachment";
+
+      // 1. Insert a placeholder attachment node with `uploading: true`
       editor
         .chain()
         .focus()
         .insertContentAt(pos, {
-          type: "fileAttachment",
+          type: nodeType,
           attrs: {
             fileName: file.name,
             mimeType: file.type,
@@ -82,7 +85,7 @@ export const FileUploaderExtension = Extension.create<FileUploaderOptions>({
         // 2. Find the node and update its attributes with the real URL
         editor.view.state.doc.descendants((node, pos) => {
           if (
-            node.type.name === "fileAttachment" &&
+            node.type.name === nodeType &&
             node.attrs.uploading === true &&
             node.attrs.fileName === file.name
           ) {
@@ -122,7 +125,7 @@ export const FileUploaderExtension = Extension.create<FileUploaderOptions>({
         logService.error("Failed to upload file", error);
         editor.view.state.doc.descendants((node, pos) => {
           if (
-            node.type.name === "fileAttachment" &&
+            node.type.name === nodeType &&
             node.attrs.uploading === true &&
             node.attrs.fileName === file.name
           ) {
@@ -188,10 +191,13 @@ export const FileUploaderExtension = Extension.create<FileUploaderOptions>({
   addCommands() {
     return {
       promptFileUpload:
-        () =>
+        (accept?: string) =>
         ({ editor }) => {
           const input = document.createElement("input");
           input.type = "file";
+          if (accept) {
+            input.accept = accept;
+          }
           input.onchange = (e) => {
             const file = (e.target as HTMLInputElement).files?.[0];
             if (file) {

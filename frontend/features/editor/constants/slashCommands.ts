@@ -14,7 +14,7 @@ import { ColumnsIcon } from "@/features/editor/components/icons/ColumnsIcon";
 import { CardIcon } from "@/features/editor/components/icons/CardIcon";
 import { AccordionIcon } from "@/features/editor/components/icons/AccordionIcon";
 import { TableIcon } from "@/features/editor/components/icons/TableIcon";
-import { PaperclipIcon } from "lucide-react";
+import { PaperclipIcon, ImageIcon } from "lucide-react";
 import type { AiActionType } from "@/features/ai/types/ai.types";
 
 export interface SuggestionItem {
@@ -186,6 +186,14 @@ export const SLASH_COMMANDS: SuggestionItem[] = [
     command: ({ editor, range }) => {
       editor.chain().focus().deleteRange(range).run();
       editor.commands.promptFileUpload();
+    },
+  },
+  {
+    title: "Image",
+    icon: ImageIcon as React.FC<React.SVGProps<SVGSVGElement>>,
+    command: ({ editor, range }) => {
+      editor.chain().focus().deleteRange(range).run();
+      editor.commands.promptFileUpload("image/*");
     },
   },
 ];

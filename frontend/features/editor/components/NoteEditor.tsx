@@ -44,9 +44,10 @@ import { ColumnExtension } from "@/features/editor/components/nodes/ColumnsNode/
 import { CardNodeExtension } from "@/features/editor/components/nodes/CardNode/CardNodeExtension";
 import { AccordionNodeExtension } from "@/features/editor/components/nodes/AccordionNode/AccordionNodeExtension";
 
-// --- Tiptap File ---
+// --- Tiptap File & Media ---
 import { FileNodeExtension } from "@/features/editor/components/nodes/FileNode/FileNodeExtension";
 import { FileUploaderExtension } from "@/features/editor/components/extensions/FileUploaderExtension";
+import { ImageNodeExtension } from "@/features/editor/components/nodes/ImageNode/ImageNodeExtension";
 
 // --- Tiptap Table ---
 import { TableNodeExtension } from "@/features/editor/components/nodes/TableNode/TableNodeExtension";
@@ -225,6 +226,7 @@ export function NoteEditor({
         ColumnExtension,
         TableNodeExtension,
         FileNodeExtension,
+        ImageNodeExtension,
         FileUploaderExtension.configure({
           getSpaceId: () => spaceId,
           getNoteId: () => noteId,
