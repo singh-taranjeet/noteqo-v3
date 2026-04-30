@@ -17,6 +17,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useLogout } from "@/features/auth";
+import { useAppShell } from "../AppShell";
 
 interface SidebarUserProfileProps {
   username: string;
@@ -30,6 +31,7 @@ export function SidebarUserProfile({
   onCloseSidebar,
 }: SidebarUserProfileProps) {
   const { logout } = useLogout();
+  const { isSidebarOpen } = useAppShell();
 
   return (
     <div className="flex items-center justify-between px-3 py-2 group">
@@ -72,16 +74,24 @@ export function SidebarUserProfile({
               size="icon"
               onClick={onCloseSidebar}
               className="h-6 w-6 shrink-0"
-              aria-label="Close sidebar"
+              aria-label={isSidebarOpen ? "Close sidebar" : "Lock sidebar open"}
             >
               <HugeiconsIcon
                 icon={ArrowLeft02Icon}
                 size={16}
                 strokeWidth={1.5}
+                className={isSidebarOpen ? "" : "rotate-180"}
               />
             </Button>
           </TooltipTrigger>
-          <TooltipContent side="right">Close sidebar</TooltipContent>
+          <TooltipContent side="right">
+            <span className="flex items-center gap-2">
+              {isSidebarOpen ? "Close sidebar" : "Lock sidebar open"}
+              <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
+                <span className="text-xs">⌘</span>\
+              </kbd>
+            </span>
+          </TooltipContent>
         </Tooltip>
       )}
     </div>

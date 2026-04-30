@@ -14,6 +14,8 @@ export type SecondarySidebarType = "recent" | "shared" | "private" | null;
 interface AppShellContextValue {
   isSidebarOpen: boolean;
   toggleSidebar: () => void;
+  isSidebarHovered: boolean;
+  setIsSidebarHovered: (hovered: boolean) => void;
   secondarySidebarType: SecondarySidebarType;
   openSecondarySidebar: (type: SecondarySidebarType) => void;
   closeSecondarySidebar: () => void;
@@ -35,6 +37,7 @@ interface AppShellProps {
 
 export function AppShell({ children }: AppShellProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarHovered, setIsSidebarHovered] = useState(false);
   const [secondarySidebarType, setSecondarySidebarType] =
     useState<SecondarySidebarType>(null);
 
@@ -49,6 +52,19 @@ export function AppShell({ children }: AppShellProps) {
     setIsSidebarOpen((prev) => !prev);
   }, []);
 
+  // Keyboard shortcut (Cmd+\ or Ctrl+\) to toggle sidebar
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "\\") {
+        e.preventDefault();
+        toggleSidebar();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [toggleSidebar]);
+
   const openSecondarySidebar = useCallback((type: SecondarySidebarType) => {
     setSecondarySidebarType(type);
   }, []);
@@ -62,6 +78,8 @@ export function AppShell({ children }: AppShellProps) {
       value={{
         isSidebarOpen,
         toggleSidebar,
+        isSidebarHovered,
+        setIsSidebarHovered,
         secondarySidebarType,
         openSecondarySidebar,
         closeSecondarySidebar,

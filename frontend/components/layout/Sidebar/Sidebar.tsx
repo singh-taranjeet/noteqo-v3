@@ -33,7 +33,7 @@ const CREATE_SPACE_FIELDS: FormFieldConfig[] = [
 import { useIsMobile } from "@/hooks/useIsMobile";
 
 export function Sidebar() {
-  const { isSidebarOpen, toggleSidebar } = useAppShell();
+  const { isSidebarOpen, isSidebarHovered, toggleSidebar } = useAppShell();
   const { data, isLoading: spacesLoading, spaceNotesMap } = useSpaces();
   const { spaces = [] } = data || {};
   const isMobile = useIsMobile();
@@ -82,11 +82,11 @@ export function Sidebar() {
     <aside
       className={cn(
         "flex flex-col h-full bg-sidebar border-r border-sidebar-border shrink-0 overflow-hidden",
-        "transition-all ease-in-out",
+        "transition-all ease-out",
         !isSidebarOpen && isMobile && "border-r-0",
       )}
       style={{
-        width: isSidebarOpen
+        width: isSidebarOpen || isSidebarHovered
           ? `${LAYOUT_CONFIG.SIDEBAR_WIDTH}px`
           : isMobile
             ? "0px"

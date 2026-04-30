@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 import { format } from "date-fns";
 import { toast } from "sonner";
@@ -9,6 +9,9 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useVersionHistory } from "../hooks/useVersionHistory";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { ArrowLeft02Icon } from "@hugeicons/core-free-icons";
+import { useIsMobile } from "@/hooks/useIsMobile";
 import { NoteEditor } from "./NoteEditor";
 import type { DecryptedNoteVersion, Note } from "@/features/workspace";
 
@@ -43,6 +46,9 @@ export function VersionHistoryDialog({
     isRestoring,
   } = useVersionHistory({ noteId, spaceId, isOpen });
 
+  const isMobile = useIsMobile();
+  const [mobileView, setMobileView] = useState<"list" | "preview">("list");
+
   const handleRestore = async () => {
     try {
       await restoreVersion();
@@ -75,76 +81,118 @@ export function VersionHistoryDialog({
   }, [selectedVersion, spaceId]);
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <Dialog open={isOpen} onOpenChange={(open) => {
+      if (!open) {
+        onClose();
+        setTimeout(() => setMobileView("list"), 200);
+      }
+    }}>
       <DialogContent
-        className="sm:max-w-[92vw] sm:h-[88vh] p-0 gap-0 overflow-hidden flex flex-col"
-        showCloseButton
+        className="sm:max-w-[92vw] sm:h-[88vh] w-full h-[100dvh] max-w-none rounded-none sm:rounded-4xl p-0 gap-0 overflow-hidden flex flex-col"
+        showCloseButton={!isMobile}
       >
         {/* Visually hidden title for accessibility */}
         <DialogTitle className="sr-only">Version history</DialogTitle>
 
         <div className="flex flex-1 min-h-0">
           {/* ── Left pane: Preview ── */}
-          <div className="flex-1 min-w-0 overflow-hidden border-r border-border bg-background">
-            {isLoading ? (
-              <VersionPreviewSkeleton />
-            ) : selectedVersion && previewNote ? (
-              <NoteEditor
-                key={selectedVersion.id}
-                noteId={selectedVersion.noteId}
-                note={previewNote}
-                isReadOnly
-                className="h-full"
-                contentWrapperClassName="mb-24"
-              />
-            ) : (
-              <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
-                {error ? error : "No versions available"}
-              </div>
-            )}
-          </div>
-
-          {/* ── Right pane: Version list ── */}
-          <div className="w-[280px] shrink-0 flex flex-col min-h-0 bg-background">
-            {/* Header */}
-            <div className="px-4 py-3 border-b border-border shrink-0">
-              <h2 className="text-sm font-semibold text-foreground">
-                Version history
-              </h2>
-            </div>
-
-            {/* Version list */}
-            <div className="flex-1 overflow-y-auto min-h-0">
-              <div className="py-1">
+          {(!isMobile || mobileView === "preview") && (
+            <div className="flex-1 min-w-0 overflow-hidden sm:border-r border-border bg-background flex flex-col">
+              {isMobile && selectedVersion && (
+                <div className="px-4 py-3 border-b border-border shrink-0 flex items-center justify-between bg-background">
+                  <Button variant="ghost" size="sm" onClick={() => setMobileView("list")} className="-ml-2 text-muted-foreground">
+                    <HugeiconsIcon icon={ArrowLeft02Icon} size={16} className="mr-1" />
+                    Back
+                  </Button>
+                  <div className="text-sm font-semibold truncate px-2">
+                    {formatVersionDate(selectedVersion.updatedAt || selectedVersion.createdAt)}
+                  </div>
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={handleRestore}
+                    disabled={isRestoring}
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white -mr-2"
+                  >
+                    Restore
+                  </Button>
+                </div>
+              )}
+              <div className="flex-1 min-h-0 relative">
                 {isLoading ? (
-                  <VersionListSkeleton />
+                  <VersionPreviewSkeleton />
+                ) : selectedVersion && previewNote ? (
+                  <NoteEditor
+                    key={selectedVersion.id}
+                    noteId={selectedVersion.noteId}
+                    note={previewNote}
+                    isReadOnly
+                    className="h-full"
+                    contentWrapperClassName="mb-24"
+                  />
                 ) : (
-                  versions.map((version) => (
-                    <VersionListItem
-                      key={version.id}
-                      version={version}
-                      isSelected={selectedVersion?.id === version.id}
-                      onSelect={() => selectVersion(version)}
-                    />
-                  ))
+                  <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
+                    {error ? error : "No versions available"}
+                  </div>
                 )}
               </div>
             </div>
+          )}
 
-            {/* Footer with Restore button */}
-            <div className="px-4 py-3 border-t border-border shrink-0 flex items-center justify-end gap-2">
-              <Button
-                variant="default"
-                size="sm"
-                onClick={handleRestore}
-                disabled={!selectedVersion || isRestoring}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white"
-                id="version-restore-button"
-              >
-                {isRestoring ? "Restoring…" : "Restore"}
-              </Button>
+          {/* ── Right pane: Version list ── */}
+          {(!isMobile || mobileView === "list") && (
+            <div className="sm:w-[280px] w-full shrink-0 flex flex-col min-h-0 bg-background">
+              {/* Header */}
+              <div className="px-4 py-3 border-b border-border shrink-0 flex items-center justify-between">
+                {isMobile && <div className="w-10" />}
+                <h2 className="text-sm font-semibold text-foreground flex-1 text-center sm:text-left">
+                  {isMobile ? "History" : "Version history"}
+                </h2>
+                {isMobile && (
+                  <Button variant="ghost" size="sm" onClick={onClose} className="-mr-2 text-primary font-semibold">
+                    Done
+                  </Button>
+                )}
+              </div>
+
+              {/* Version list */}
+              <div className="flex-1 overflow-y-auto min-h-0">
+                <div className="py-1">
+                  {isLoading ? (
+                    <VersionListSkeleton />
+                  ) : (
+                    versions.map((version) => (
+                      <VersionListItem
+                        key={version.id}
+                        version={version}
+                        isSelected={selectedVersion?.id === version.id}
+                        onSelect={() => {
+                          selectVersion(version);
+                          if (isMobile) setMobileView("preview");
+                        }}
+                      />
+                    ))
+                  )}
+                </div>
+              </div>
+
+              {/* Footer with Restore button (Desktop only) */}
+              {!isMobile && (
+                <div className="px-4 py-3 border-t border-border shrink-0 flex items-center justify-end gap-2">
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={handleRestore}
+                    disabled={!selectedVersion || isRestoring}
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                    id="version-restore-button"
+                  >
+                    {isRestoring ? "Restoring…" : "Restore"}
+                  </Button>
+                </div>
+              )}
             </div>
-          </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>
