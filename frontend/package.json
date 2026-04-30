@@ -5,7 +5,7 @@
   "scripts": {
     "kill:old:dev": "kill -9 $(lsof -t -i:3000)",
     "dev": "next dev",
-    "build": "next build && serwist build",
+    "build": "next build --webpack && serwist build",
     "start:prod": "next start",
     "start": "npm run build && npm run start:prod",
     "lint": "eslint",
