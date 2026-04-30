@@ -32,6 +32,7 @@ import { HeadingNode } from "@/features/editor/components/nodes/HeadingNode/Head
 
 // --- Tiptap Features ---
 import { SlashCommandExtension } from "@/features/editor/components/extensions/SlashCommand/SlashCommandExtension";
+import { MentionExtension } from "@/features/editor/components/extensions/MentionExtension/MentionExtension";
 
 // --- AI Extension ---
 import { AiExtension } from "@/features/ai";
@@ -237,6 +238,9 @@ export function NoteEditor({
         Subscript,
         Selection,
         SlashCommandExtension,
+        MentionExtension.configure({
+          getSpaceId: () => spaceId,
+        }),
         AiExtension,
         ColumnsExtension,
         ColumnExtension,

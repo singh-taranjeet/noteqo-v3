@@ -86,11 +86,12 @@ export function Sidebar() {
         !isSidebarOpen && isMobile && "border-r-0",
       )}
       style={{
-        width: isSidebarOpen || isSidebarHovered
-          ? `${LAYOUT_CONFIG.SIDEBAR_WIDTH}px`
-          : isMobile
-            ? "0px"
-            : `${LAYOUT_CONFIG.SIDEBAR_COLLAPSED_WIDTH}px`,
+        width:
+          isSidebarOpen || isSidebarHovered
+            ? `${LAYOUT_CONFIG.SIDEBAR_WIDTH}px`
+            : isMobile
+              ? "0px"
+              : `${LAYOUT_CONFIG.SIDEBAR_COLLAPSED_WIDTH}px`,
         transitionDuration: `${LAYOUT_CONFIG.TRANSITION_DURATION}ms`,
       }}
       aria-label="Sidebar navigation"

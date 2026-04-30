@@ -5,7 +5,8 @@ import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/useIsMobile";
 
 export function SidebarContainer({ children }: { children: React.ReactNode }) {
-  const { isSidebarOpen, isSidebarHovered, setIsSidebarHovered } = useAppShell();
+  const { isSidebarOpen, isSidebarHovered, setIsSidebarHovered } =
+    useAppShell();
   const isMobile = useIsMobile();
 
   return (
@@ -24,7 +25,7 @@ export function SidebarContainer({ children }: { children: React.ReactNode }) {
           "flex h-full shrink-0 z-40 transition-all duration-150 ease-out",
           isSidebarOpen || isMobile
             ? "md:relative absolute shadow-none"
-            : "md:absolute absolute shadow-2xl"
+            : "md:absolute absolute shadow-2xl",
         )}
         onMouseLeave={() => {
           if (!isSidebarOpen) {

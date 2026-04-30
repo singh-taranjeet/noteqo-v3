@@ -81,12 +81,15 @@ export function VersionHistoryDialog({
   }, [selectedVersion, spaceId]);
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => {
-      if (!open) {
-        onClose();
-        setTimeout(() => setMobileView("list"), 200);
-      }
-    }}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) {
+          onClose();
+          setTimeout(() => setMobileView("list"), 200);
+        }
+      }}
+    >
       <DialogContent
         className="sm:max-w-[92vw] sm:h-[88vh] w-full h-[100dvh] max-w-none rounded-none sm:rounded-4xl p-0 gap-0 overflow-hidden flex flex-col"
         showCloseButton={!isMobile}
@@ -100,12 +103,23 @@ export function VersionHistoryDialog({
             <div className="flex-1 min-w-0 overflow-hidden sm:border-r border-border bg-background flex flex-col">
               {isMobile && selectedVersion && (
                 <div className="px-4 py-3 border-b border-border shrink-0 flex items-center justify-between bg-background">
-                  <Button variant="ghost" size="sm" onClick={() => setMobileView("list")} className="-ml-2 text-muted-foreground">
-                    <HugeiconsIcon icon={ArrowLeft02Icon} size={16} className="mr-1" />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setMobileView("list")}
+                    className="-ml-2 text-muted-foreground"
+                  >
+                    <HugeiconsIcon
+                      icon={ArrowLeft02Icon}
+                      size={16}
+                      className="mr-1"
+                    />
                     Back
                   </Button>
                   <div className="text-sm font-semibold truncate px-2">
-                    {formatVersionDate(selectedVersion.updatedAt || selectedVersion.createdAt)}
+                    {formatVersionDate(
+                      selectedVersion.updatedAt || selectedVersion.createdAt,
+                    )}
                   </div>
                   <Button
                     variant="default"
@@ -149,7 +163,12 @@ export function VersionHistoryDialog({
                   {isMobile ? "History" : "Version history"}
                 </h2>
                 {isMobile && (
-                  <Button variant="ghost" size="sm" onClick={onClose} className="-mr-2 text-primary font-semibold">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={onClose}
+                    className="-mr-2 text-primary font-semibold"
+                  >
                     Done
                   </Button>
                 )}
