@@ -7,6 +7,8 @@ import type {
 } from "@/features/workspace/types/workspace.types";
 import type { Space } from "@/features/spaces/types/spaces.types";
 
+import type { DecryptedMedia } from "@/features/media/types/media.types";
+
 /** Shape of a key-value entry in the keys table (migrated from raw IndexedDB). */
 interface KeyEntry {
   key: string;
@@ -37,6 +39,7 @@ class NoteqoDB extends Dexie {
   syncQueue!: Table<SyncEvent, string>;
   spaces!: Table<Space, string>;
   mediaBlobs!: Table<MediaBlobEntry, string>;
+  media!: Table<DecryptedMedia, string>;
 
   constructor() {
     super(STORAGE_CONFIG.DB_NAME);
@@ -47,6 +50,7 @@ class NoteqoDB extends Dexie {
       syncQueue: "id, entityId, createdAt",
       spaces: "id, type",
       mediaBlobs: "url",
+      media: "id, spaceId, createdAt",
     });
   }
 }

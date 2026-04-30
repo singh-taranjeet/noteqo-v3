@@ -7,11 +7,58 @@ import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { BlockDragHandle } from "@/features/editor/components/editor-ui/BlockDragHandle";
 import { EditorBubbleMenu } from "@/features/editor/components/editor-ui/EditorBubbleMenu";
-import { NOTE_DEFAULTS } from "@/features/workspace/constants/workspace.constants";
+
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { MediaPicker } from "@/features/media/components/MediaPicker";
+import { EncryptedImage } from "@/features/media/components/EncryptedImage";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { Image01Icon, SmileIcon } from "@hugeicons/core-free-icons";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
+
+interface MediaPopoverProps {
+  type: "cover" | "emoji";
+  spaceId: string;
+  noteId: string;
+  onSelect: (value: string) => void;
+  children: React.ReactNode;
+  align?: "center" | "start" | "end";
+}
+
+function MediaPopover({
+  type,
+  spaceId,
+  noteId,
+  onSelect,
+  children,
+  align = "start",
+}: MediaPopoverProps) {
+  const [open, setOpen] = useState(false);
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>{children}</PopoverTrigger>
+      <PopoverContent align={align} className="w-auto p-0">
+        <MediaPicker
+          type={type}
+          spaceId={spaceId}
+          noteId={noteId}
+          onSelect={(url) => {
+            onSelect(url);
+            setOpen(false);
+          }}
+        />
+      </PopoverContent>
+    </Popover>
+  );
+}
 
 interface NoteEditorSurfaceProps {
   editor: Editor;
-  title: string;
+  title?: string;
   emoji: string;
   coverImage: string;
   isReadOnly: boolean;
@@ -19,11 +66,15 @@ interface NoteEditorSurfaceProps {
   onTitleBlur?: (event: FocusEvent<HTMLInputElement>) => void;
   className?: string;
   contentWrapperClassName?: string;
+  spaceId?: string;
+  noteId?: string;
+  onUpdateCoverImage?: (url: string) => void;
+  onUpdateEmoji?: (value: string) => void;
 }
 
 export function NoteEditorSurface({
   editor,
-  title,
+  title = "",
   emoji,
   coverImage,
   isReadOnly,
@@ -31,6 +82,10 @@ export function NoteEditorSurface({
   onTitleBlur,
   className,
   contentWrapperClassName,
+  spaceId,
+  noteId,
+  onUpdateCoverImage,
+  onUpdateEmoji,
 }: Readonly<NoteEditorSurfaceProps>) {
   return (
     <div
@@ -41,12 +96,32 @@ export function NoteEditorSurface({
     >
       {coverImage ? (
         <div className="group/cover relative h-[25vh] shrink-0 sm:h-[30vh]">
-          {/* eslint-disable-next-line @next/next/no-img-element*/}
-          <img
+          <EncryptedImage
             src={coverImage}
             alt="Cover"
+            spaceId={spaceId}
             className="h-full w-full object-cover"
           />
+          {!isReadOnly && spaceId && noteId && onUpdateCoverImage && (
+            <div className="absolute right-4 bottom-4 opacity-0 transition-opacity group-hover/cover:opacity-100">
+              <MediaPopover
+                type="cover"
+                spaceId={spaceId}
+                noteId={noteId}
+                align="end"
+                onSelect={onUpdateCoverImage}
+              >
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  className="bg-background/80 backdrop-blur-sm"
+                >
+                  <HugeiconsIcon icon={Image01Icon} className="mr-2 h-4 w-4" />
+                  Change Cover
+                </Button>
+              </MediaPopover>
+            </div>
+          )}
         </div>
       ) : null}
 
@@ -56,27 +131,100 @@ export function NoteEditorSurface({
           contentWrapperClassName,
         )}
       >
-        <div className="mt-8 mb-6">
-          {emoji ? (
-            <div className="relative z-10 mb-4 -mt-14 w-fit text-[72px] leading-none">
-              {emoji}
-            </div>
-          ) : null}
+        <div className="mt-8 mb-6 relative group/header">
+          {!isReadOnly &&
+            spaceId &&
+            noteId &&
+            !coverImage &&
+            onUpdateCoverImage && (
+              <div className="absolute -top-6 left-0 opacity-0 transition-opacity group-hover/header:opacity-100">
+                <MediaPopover
+                  type="cover"
+                  spaceId={spaceId}
+                  noteId={noteId}
+                  onSelect={onUpdateCoverImage}
+                >
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    <HugeiconsIcon
+                      icon={Image01Icon}
+                      className="mr-2 h-4 w-4"
+                    />
+                    Add Cover
+                  </Button>
+                </MediaPopover>
+              </div>
+            )}
 
-          {isReadOnly ? (
-            <h1 className="w-full bg-transparent text-4xl font-bold text-foreground sm:text-5xl">
-              {title || NOTE_DEFAULTS.TITLE}
-            </h1>
+          {emoji ? (
+            <div className="relative z-10 mb-4 -mt-14 w-fit group/emoji">
+              {emoji.length > 2 && emoji.startsWith("http") ? (
+                <EncryptedImage
+                  src={emoji}
+                  alt="Icon"
+                  spaceId={spaceId}
+                  className="h-[72px] w-[72px] object-cover rounded-md"
+                />
+              ) : (
+                <div className="text-[72px] leading-none">{emoji}</div>
+              )}
+
+              {!isReadOnly && spaceId && noteId && onUpdateEmoji && (
+                <div className="absolute -right-8 bottom-0 opacity-0 transition-opacity group-hover/emoji:opacity-100">
+                  <MediaPopover
+                    type="emoji"
+                    spaceId={spaceId}
+                    noteId={noteId}
+                    onSelect={onUpdateEmoji}
+                  >
+                    <Button
+                      variant="secondary"
+                      size="icon"
+                      className="h-6 w-6 rounded-full bg-background/80 shadow-sm backdrop-blur-sm"
+                    >
+                      <HugeiconsIcon icon={SmileIcon} className="h-3 w-3" />
+                    </Button>
+                  </MediaPopover>
+                </div>
+              )}
+            </div>
           ) : (
-            <Input
-              type="text"
-              className="w-full border-none bg-transparent text-4xl font-bold text-foreground shadow-none outline-none placeholder:text-muted-foreground focus-visible:ring-0 sm:text-5xl"
-              value={title || NOTE_DEFAULTS.TITLE}
-              onChange={onTitleChange}
-              onBlur={onTitleBlur}
-              placeholder={NOTE_DEFAULTS.TITLE}
-            />
+            !isReadOnly &&
+            spaceId &&
+            noteId &&
+            onUpdateEmoji && (
+              <div className="absolute -top-6 left-28 opacity-0 transition-opacity group-hover/header:opacity-100">
+                <MediaPopover
+                  type="emoji"
+                  spaceId={spaceId}
+                  noteId={noteId}
+                  onSelect={onUpdateEmoji}
+                >
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    <HugeiconsIcon icon={SmileIcon} className="mr-2 h-4 w-4" />
+                    Add Icon
+                  </Button>
+                </MediaPopover>
+              </div>
+            )
           )}
+
+          <Input
+            type="text"
+            className={`w-full !rounded-none !px-0 border-none bg-transparent !text-4xl font-bold text-foreground shadow-none outline-none placeholder:text-muted-foreground focus-visible:ring-0 !sm:text-5xl ${isReadOnly ? "!pointer-events-none" : ""}`}
+            value={title}
+            onChange={onTitleChange}
+            onBlur={onTitleBlur}
+            placeholder={"Note title"}
+            readOnly={isReadOnly}
+          />
         </div>
 
         <EditorContext.Provider value={{ editor }}>

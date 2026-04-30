@@ -48,7 +48,7 @@ export const NOTE_COVER_POOL = [
 ] as const;
 
 export const SYNC_CONFIG = {
-  INTERVAL_MS: 5000,
+  INTERVAL_MS: 10000,
   MAX_RETRY_COUNT: 5,
   BASE_BACKOFF_MS: 3000,
   CACHE_STALE_TIME_MS: 10 * 1000,

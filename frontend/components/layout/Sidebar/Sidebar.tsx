@@ -41,11 +41,11 @@ const CREATE_SPACE_FIELDS: FormFieldConfig[] = [
 ];
 
 export function AppSidebar() {
-  const { data, isLoading: spacesLoading, spaceNotesMap } = useSpaces();
-  const { spaces = [] } = data || {};
-
   // Start background sync queue
   useSyncQueue();
+
+  const { data, isLoading: spacesLoading, spaceNoteTreesMap } = useSpaces();
+  const { spaces = [] } = data || {};
 
   const { mutate: createNote } = useCreateNote();
   const { createSpace, isLoading: isCreatingSpace } = useCreateSpace();
@@ -110,11 +110,10 @@ export function AppSidebar() {
         {/* Shared Spaces Section */}
         <SidebarSpaceCategory
           label="Shared"
-          type={SPACE_TYPE.SHARED}
           spaces={sharedSpaces}
           isLoading={isLoading}
           emptyMessage="No shared spaces"
-          spaceNotesMap={spaceNotesMap}
+          spaceNoteTreesMap={spaceNoteTreesMap}
           onAddSpaceClick={() => setCreateSpaceType(SPACE_TYPE.SHARED)}
           addSpaceTooltip="Create shared space"
           onCreateNote={handleCreateNote}
@@ -124,11 +123,10 @@ export function AppSidebar() {
         {/* Private Spaces Section */}
         <SidebarSpaceCategory
           label="Private"
-          type={SPACE_TYPE.PERSONAL}
           spaces={personalSpaces}
           isLoading={isLoading}
           emptyMessage="No spaces yet"
-          spaceNotesMap={spaceNotesMap}
+          spaceNoteTreesMap={spaceNoteTreesMap}
           onAddSpaceClick={() => setCreateSpaceType(SPACE_TYPE.PERSONAL)}
           addSpaceTooltip="Create private space"
           onCreateNote={handleCreateNote}

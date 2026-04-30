@@ -6,6 +6,7 @@ export const MEDIA_TABLE = {
     MIME_TYPE: 'mime_type',
     SIZE_BYTES: 'size_bytes',
     URL: 'url',
+    META: 'meta',
   },
 } as const;
 

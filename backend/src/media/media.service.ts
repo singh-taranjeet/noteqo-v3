@@ -6,6 +6,7 @@ import {
 import { MediaRepository } from './media.repository';
 import { Media } from './types/media.types';
 import { UploadMediaDto } from './dto/upload-media.dto';
+import { UpdateMediaDto } from './dto/update-media.dto';
 import { MEDIA_CONFIG } from './constants/media.constants';
 import { VercelBlobStorageService } from './vercel-blob-storage.service';
 
@@ -55,6 +56,15 @@ export class MediaService {
           throw new UnauthorizedException('Invalid authentication token');
         }
 
+        // Use environment variable if available, otherwise construct a generic fallback for local dev
+        // Note: In local dev, the webhook won't actually be reachable by Vercel, so we use
+        // a frontend register fallback, but Vercel Blob requires this to be a valid URL to not throw.
+        const callbackUrl =
+          process.env.VERCEL_BLOB_CALLBACK_URL ||
+          (request.headers.host && !request.headers.host.includes('localhost')
+            ? `https://${request.headers.host}/api/v1/media/upload`
+            : 'http://localhost:3000/api/v1/media/upload');
+
         return {
           maximumSizeInBytes: MEDIA_CONFIG.MAX_FILE_SIZE_BYTES,
           tokenPayload: JSON.stringify({
@@ -64,6 +74,7 @@ export class MediaService {
             mimeType,
             sizeBytes,
           }),
+          callbackUrl,
         };
       },
       onUploadCompleted: async ({ blob, tokenPayload }) => {
@@ -103,6 +114,32 @@ export class MediaService {
     // Delete from Vercel Blob first, then from Postgres
     await this.blobStorage.delete(media.url);
     await this.mediaRepository.deleteById(mediaId);
+  }
+
+  async findBySpaceId(spaceId: string): Promise<Media[]> {
+    return this.mediaRepository.findBySpaceId(spaceId);
+  }
+
+  /**
+   * Registers a media record if it doesn't already exist.
+   * Idempotent — safe to call even if the webhook already created the record.
+   */
+  async registerMedia(dto: UploadMediaDto, url: string): Promise<Media> {
+    const existing = await this.mediaRepository.findById(dto.id);
+    if (existing) return existing;
+    return this.mediaRepository.create(dto, url);
+  }
+
+  async findBySpaceIds(spaceIds: string[]): Promise<Media[]> {
+    return this.mediaRepository.findBySpaceIds(spaceIds);
+  }
+
+  async findByUserId(userId: string): Promise<Media[]> {
+    return this.mediaRepository.findByUserId(userId);
+  }
+
+  async update(id: string, dto: UpdateMediaDto): Promise<Media> {
+    return this.mediaRepository.update(id, dto.meta);
   }
 
   /**
