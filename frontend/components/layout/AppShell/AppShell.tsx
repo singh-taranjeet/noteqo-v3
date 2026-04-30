@@ -1,6 +1,12 @@
 "use client";
 
-import { createContext, useContext, useState, useCallback, useEffect } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useEffect,
+} from "react";
 import type { ReactNode } from "react";
 
 export type SecondarySidebarType = "recent" | "shared" | "private" | null;
@@ -34,8 +40,8 @@ export function AppShell({ children }: AppShellProps) {
 
   // Auto-collapse sidebar on mobile devices during initial load
   useEffect(() => {
-    if (window.innerWidth < 768) {
-      setIsSidebarOpen(false);
+    if (typeof window !== "undefined" && window.innerWidth < 768) {
+      setTimeout(() => setIsSidebarOpen(false), 0);
     }
   }, []);
 

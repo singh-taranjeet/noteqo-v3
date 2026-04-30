@@ -83,7 +83,7 @@ export function Sidebar() {
       className={cn(
         "flex flex-col h-full bg-sidebar border-r border-sidebar-border shrink-0 overflow-hidden",
         "transition-all ease-in-out",
-        !isSidebarOpen && isMobile && "border-r-0"
+        !isSidebarOpen && isMobile && "border-r-0",
       )}
       style={{
         width: isSidebarOpen
