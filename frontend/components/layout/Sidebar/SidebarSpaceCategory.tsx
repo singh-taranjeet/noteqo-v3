@@ -10,11 +10,14 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useAppShell } from "../AppShell";
+import { SPACE_TYPE } from "@/features/spaces";
 import type { Space } from "@/features/spaces";
 import type { Note } from "@/features/workspace";
 
 interface SidebarSpaceCategoryProps {
   label: string;
+  type: string;
   spaces: Space[];
   isLoading: boolean;
   emptyMessage: string;
@@ -27,6 +30,7 @@ interface SidebarSpaceCategoryProps {
 
 export function SidebarSpaceCategory({
   label,
+  type,
   spaces,
   isLoading,
   emptyMessage,
@@ -36,6 +40,10 @@ export function SidebarSpaceCategory({
   onCreateNote,
   onSettingsClick,
 }: Readonly<SidebarSpaceCategoryProps>) {
+  const { openSecondarySidebar } = useAppShell();
+  const secondarySidebarType =
+    type === SPACE_TYPE.SHARED ? "shared" : "private";
+
   return (
     <SidebarSection
       label={label}
@@ -81,6 +89,7 @@ export function SidebarSpaceCategory({
       {!isLoading &&
         spaces.map((space) => {
           const notes = spaceNotesMap?.[space.id] ?? [];
+          const displayNotes = notes.slice(0, 10);
           return (
             <SidebarSpaceGroup
               key={space.id}
@@ -95,14 +104,31 @@ export function SidebarSpaceCategory({
                   No notes
                 </div>
               ) : (
-                notes.map((note) => (
-                  <SidebarPageItem
-                    key={note.id}
-                    id={note.id}
-                    emoji={note.emoji}
-                    title={note.title}
-                  />
-                ))
+                <div className="flex flex-col gap-0.5">
+                  {displayNotes.map((note) => (
+                    <div key={note.id} className="pl-3 pr-2">
+                      <SidebarPageItem
+                        id={note.id}
+                        emoji={note.emoji}
+                        title={note.title}
+                      />
+                    </div>
+                  ))}
+                  {notes.length > 10 && (
+                    <div className="pl-3 pr-2 mt-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="w-full justify-start h-7 text-xs font-normal text-muted-foreground hover:text-foreground"
+                        onClick={() =>
+                          openSecondarySidebar(secondarySidebarType)
+                        }
+                      >
+                        More
+                      </Button>
+                    </div>
+                  )}
+                </div>
               )}
             </SidebarSpaceGroup>
           );

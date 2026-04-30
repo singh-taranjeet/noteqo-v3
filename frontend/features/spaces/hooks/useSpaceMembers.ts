@@ -27,8 +27,14 @@ export function useAddSpaceMember() {
       email: string;
       role: string;
     }) => {
-      // 1. Fetch the user's public key by email
-      const { publicKey } = await userApiService.getPublicKeyByEmail(email);
+      // 1. Fetch the user's public key by email using React Query to cache it permanently
+      const { publicKey } = await queryClient.fetchQuery({
+        queryKey: ["users", "publicKey", email],
+        queryFn: () => userApiService.getPublicKeyByEmail(email),
+        staleTime: Infinity,
+        gcTime: Infinity,
+      });
+
       if (!publicKey) {
         throw new Error("User does not exist or has no public key");
       }

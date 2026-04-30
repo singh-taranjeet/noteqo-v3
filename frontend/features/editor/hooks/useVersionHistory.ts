@@ -50,8 +50,7 @@ export function useVersionHistory({
       setError(null);
 
       try {
-        const remoteVersions =
-          await versionHistoryService.getVersions(noteId);
+        const remoteVersions = await versionHistoryService.getVersions(noteId);
 
         const decrypted: DecryptedNoteVersion[] = [];
 

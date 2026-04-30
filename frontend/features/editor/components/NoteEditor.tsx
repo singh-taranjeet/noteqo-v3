@@ -48,6 +48,7 @@ import { AccordionNodeExtension } from "@/features/editor/components/nodes/Accor
 import { FileNodeExtension } from "@/features/editor/components/nodes/FileNode/FileNodeExtension";
 import { FileUploaderExtension } from "@/features/editor/components/extensions/FileUploaderExtension";
 import { ImageNodeExtension } from "@/features/editor/components/nodes/ImageNode/ImageNodeExtension";
+import { VideoNodeExtension } from "@/features/editor/components/nodes/VideoNode/VideoNodeExtension";
 
 // --- Tiptap Table ---
 import { TableNodeExtension } from "@/features/editor/components/nodes/TableNode/TableNodeExtension";
@@ -121,13 +122,17 @@ const useLoadNoteContent = ({
     loadContent();
   }, [isReadOnly, initialNote, noteId]);
 
-  // Sync when the caller provides a different initialNote (e.g. version history preview)
-  useEffect(() => {
+  const [prevInitialNote, setPrevInitialNote] = useState<Note | undefined>(
+    initialNote,
+  );
+
+  if (initialNote !== prevInitialNote) {
+    setPrevInitialNote(initialNote);
     if (initialNote) {
       setNote(initialNote);
       setIsReady(true);
     }
-  }, [initialNote]);
+  }
 
   return {
     note,
@@ -238,6 +243,7 @@ export function NoteEditor({
         TableNodeExtension,
         FileNodeExtension,
         ImageNodeExtension,
+        VideoNodeExtension,
         FileUploaderExtension.configure({
           getSpaceId: () => spaceId,
           getNoteId: () => noteId,

@@ -1,30 +1,83 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { MediaRepository } from './media.repository';
 import { Media } from './types/media.types';
 import { UploadMediaDto } from './dto/upload-media.dto';
 import { MEDIA_CONFIG } from './constants/media.constants';
 import { VercelBlobStorageService } from './vercel-blob-storage.service';
 
+import { handleUpload } from '@vercel/blob/client';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
+import { CONFIG_KEYS } from '../config';
+
 @Injectable()
 export class MediaService {
   constructor(
     private readonly mediaRepository: MediaRepository,
     private readonly blobStorage: VercelBlobStorageService,
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
   ) {}
 
   /**
-   * Uploads an encrypted media blob to Vercel Blob and records metadata.
-   * @param dto - Upload metadata (id, noteId, spaceId, mimeType, sizeBytes)
-   * @param encryptedBlob - The pre-encrypted file bytes from the client
+   * Handle the Vercel Blob client upload flow.
+   * - Validates the JWT embedded in the clientPayload during onBeforeGenerateToken.
+   * - Saves the resulting metadata and URL to the DB during onUploadCompleted.
    */
-  async upload(dto: UploadMediaDto, encryptedBlob: Buffer): Promise<Media> {
-    const storageKey = `${MEDIA_CONFIG.STORAGE_PREFIX}/${dto.spaceId}/${dto.id}`;
+  async handleVercelBlobUpload(request: any, body: any): Promise<any> {
+    const blobConfig = this.configService.get(CONFIG_KEYS.VERCEL_BLOB);
+    
+    return handleUpload({
+      body,
+      request,
+      token: blobConfig.token,
+      onBeforeGenerateToken: async (pathname, clientPayload) => {
+        let payloadObj: any;
+        try {
+          payloadObj = JSON.parse(clientPayload || '{}');
+        } catch {
+          throw new UnauthorizedException('Invalid client payload');
+        }
 
-    // 1. Upload encrypted blob to Vercel Blob
-    const url = await this.blobStorage.upload(storageKey, encryptedBlob);
+        const { token, spaceId, noteId, mimeType, sizeBytes, id } = payloadObj;
 
-    // 2. Save metadata in Postgres via repository
-    return this.mediaRepository.create(dto, url);
+        if (!token) {
+          throw new UnauthorizedException('Missing authentication token');
+        }
+
+        try {
+          this.jwtService.verify(token);
+        } catch (e) {
+          throw new UnauthorizedException('Invalid authentication token');
+        }
+
+        return {
+          maximumSizeInBytes: MEDIA_CONFIG.MAX_FILE_SIZE_BYTES,
+          tokenPayload: JSON.stringify({
+            id,
+            spaceId,
+            noteId,
+            mimeType,
+            sizeBytes,
+          }),
+        };
+      },
+      onUploadCompleted: async ({ blob, tokenPayload }) => {
+        if (!tokenPayload) return;
+        
+        try {
+          const payloadObj = JSON.parse(tokenPayload);
+          const { id, spaceId, noteId, mimeType, sizeBytes } = payloadObj;
+          
+          await this.mediaRepository.create(
+            { id, spaceId, noteId, mimeType, sizeBytes: parseInt(sizeBytes, 10) },
+            blob.url,
+          );
+        } catch (err) {
+          console.error('Failed to process upload completed webhook', err);
+        }
+      },
+    });
   }
 
   /**

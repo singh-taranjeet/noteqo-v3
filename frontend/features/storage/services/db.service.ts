@@ -13,6 +13,20 @@ interface KeyEntry {
   value: unknown;
 }
 
+/** Shape of a cached decrypted media blob entry. */
+export interface MediaBlobEntry {
+  /** Vercel Blob URL — primary key */
+  url: string;
+  /** Decrypted blob data */
+  blob: Blob;
+  /** MIME type for reconstructing the Blob */
+  mimeType: string;
+  /** Original file size in bytes */
+  sizeBytes: number;
+  /** Last access timestamp (epoch ms) for future LRU eviction */
+  accessedAt: number;
+}
+
 /**
  * Single Dexie database for the entire Noteqo app.
  * Replaces the raw IndexedDB wrapper — all tables in one DB.
@@ -22,6 +36,7 @@ class NoteqoDB extends Dexie {
   notes!: Table<Note, string>;
   syncQueue!: Table<SyncEvent, string>;
   spaces!: Table<Space, string>;
+  mediaBlobs!: Table<MediaBlobEntry, string>;
 
   constructor() {
     super(STORAGE_CONFIG.DB_NAME);
@@ -31,6 +46,7 @@ class NoteqoDB extends Dexie {
       notes: "id, spaceId, syncStatus, updatedAt",
       syncQueue: "id, entityId, createdAt",
       spaces: "id, type",
+      mediaBlobs: "url",
     });
   }
 }
@@ -60,5 +76,6 @@ export const storageService = {
   },
 };
 
-/** Expose the raw Dexie instance for direct table access (documents, syncQueue). */
+/** Expose the raw Dexie instance for direct table access (documents, syncQueue, mediaBlobs). */
 export { db };
+
