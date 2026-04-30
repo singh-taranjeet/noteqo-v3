@@ -57,7 +57,12 @@ export const FileUploaderExtension = Extension.create<FileUploaderOptions>({
       }
 
       const isImage = file.type.startsWith("image/");
-      const nodeType = isImage ? "encryptedImage" : "fileAttachment";
+      const isVideo = file.type.startsWith("video/");
+      const nodeType = isImage
+        ? "encryptedImage"
+        : isVideo
+          ? "encryptedVideo"
+          : "fileAttachment";
 
       // 1. Insert a placeholder attachment node with `uploading: true`
       editor

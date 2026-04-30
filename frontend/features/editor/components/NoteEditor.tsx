@@ -48,6 +48,7 @@ import { AccordionNodeExtension } from "@/features/editor/components/nodes/Accor
 import { FileNodeExtension } from "@/features/editor/components/nodes/FileNode/FileNodeExtension";
 import { FileUploaderExtension } from "@/features/editor/components/extensions/FileUploaderExtension";
 import { ImageNodeExtension } from "@/features/editor/components/nodes/ImageNode/ImageNodeExtension";
+import { VideoNodeExtension } from "@/features/editor/components/nodes/VideoNode/VideoNodeExtension";
 
 // --- Tiptap Table ---
 import { TableNodeExtension } from "@/features/editor/components/nodes/TableNode/TableNodeExtension";
@@ -242,6 +243,7 @@ export function NoteEditor({
         TableNodeExtension,
         FileNodeExtension,
         ImageNodeExtension,
+        VideoNodeExtension,
         FileUploaderExtension.configure({
           getSpaceId: () => spaceId,
           getNoteId: () => noteId,
