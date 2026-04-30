@@ -8,6 +8,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   ArrowDown01Icon,
@@ -117,38 +118,40 @@ export const TurnIntoDropdown: React.FC<TurnIntoDropdownProps> = ({
       <PopoverContent
         align="start"
         sideOffset={8}
-        className="w-56 p-1 z-50 shadow-md bg-popover rounded-md"
+        className="w-56 p-0 z-50 shadow-md bg-popover rounded-md overflow-hidden"
         onOpenAutoFocus={(e: Event) => e.preventDefault()}
         onCloseAutoFocus={(e: Event) => e.preventDefault()}
       >
-        <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground mb-1">
-          Turn Into
-        </div>
-        {TURN_INTO_OPTIONS.map((option) => {
-          const isActive = option.isActive(editor);
-          return (
-            <Button
-              key={option.name}
-              type="button"
-              variant="ghost"
-              onClick={() => {
-                option.command(editor);
-                onOpenChange(false);
-              }}
-              className={`w-full justify-between font-normal cursor-pointer rounded-xl px-3 py-2 h-auto text-sm outline-hidden transition-colors hover:bg-accent hover:text-accent-foreground ${
-                isActive
-                  ? "bg-accent/50 text-accent-foreground font-medium"
-                  : "text-foreground"
-              }`}
-            >
-              <div className="flex items-center gap-2.5">
-                <HugeiconsIcon icon={option.icon} className="text-muted-foreground shrink-0" size={16} />
-                <span>{option.name}</span>
-              </div>
-              {isActive && <HugeiconsIcon icon={Tick02Icon} className="shrink-0" size={16} />}
-            </Button>
-          );
-        })}
+        <ScrollArea className="h-[280px] w-full p-1">
+          <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground mb-1">
+            Turn Into
+          </div>
+          {TURN_INTO_OPTIONS.map((option) => {
+            const isActive = option.isActive(editor);
+            return (
+              <Button
+                key={option.name}
+                type="button"
+                variant="ghost"
+                onClick={() => {
+                  option.command(editor);
+                  onOpenChange(false);
+                }}
+                className={`w-full justify-between font-normal cursor-pointer rounded-xl px-3 py-2 h-auto text-sm outline-hidden transition-colors hover:bg-accent hover:text-accent-foreground ${
+                  isActive
+                    ? "bg-accent/50 text-accent-foreground font-medium"
+                    : "text-foreground"
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <HugeiconsIcon icon={option.icon} className="text-muted-foreground shrink-0" size={16} />
+                  <span>{option.name}</span>
+                </div>
+                {isActive && <HugeiconsIcon icon={Tick02Icon} className="shrink-0" size={16} />}
+              </Button>
+            );
+          })}
+        </ScrollArea>
       </PopoverContent>
     </Popover>
   );
