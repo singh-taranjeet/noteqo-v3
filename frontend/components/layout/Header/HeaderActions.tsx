@@ -10,7 +10,7 @@ import {
   Clock04Icon,
   Copy01Icon,
 } from "@hugeicons/core-free-icons";
-import { Loader2 } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -139,7 +139,7 @@ export function HeaderActions() {
               onClick={() => duplicateMutation.mutate({ noteId })}
             >
               {isDuplicating ? (
-                <Loader2 className="size-4 animate-spin" />
+                <Spinner className="size-4" />
               ) : (
                 <HugeiconsIcon icon={Copy01Icon} size={16} strokeWidth={1.5} />
               )}

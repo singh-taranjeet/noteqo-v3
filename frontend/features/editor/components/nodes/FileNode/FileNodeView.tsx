@@ -1,11 +1,12 @@
 import { NodeViewWrapper, type NodeViewProps } from "@tiptap/react";
 import React, { useState } from "react";
+import { HugeiconsIcon } from "@hugeicons/react";
 import {
-  DownloadIcon,
-  FileIcon,
-  ExternalLinkIcon,
-  Loader2,
-} from "lucide-react";
+  Download01Icon,
+  File01Icon,
+  LinkSquare02Icon,
+} from "@hugeicons/core-free-icons";
+import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
 import { mediaService } from "@/features/media";
 import { logService } from "@/services/log.service";
@@ -88,9 +89,9 @@ export const FileNodeView: React.FC<NodeViewProps> = (props) => {
         <div className="flex items-center gap-3 overflow-hidden">
           <div className="p-2 rounded-lg bg-primary/10 text-primary">
             {uploading ? (
-              <Loader2 className="w-6 h-6 animate-spin" />
+              <Spinner className="w-6 h-6" />
             ) : (
-              <FileIcon className="w-6 h-6" />
+              <HugeiconsIcon icon={File01Icon} size={24} />
             )}
           </div>
           <div className="flex flex-col min-w-0">
@@ -117,7 +118,7 @@ export const FileNodeView: React.FC<NodeViewProps> = (props) => {
               disabled={isDecrypting}
               title="Open in new tab"
             >
-              <ExternalLinkIcon className="h-4 w-4" />
+              <HugeiconsIcon icon={LinkSquare02Icon} size={16} />
             </Button>
             <Button
               variant="ghost"
@@ -128,9 +129,9 @@ export const FileNodeView: React.FC<NodeViewProps> = (props) => {
               title="Download file"
             >
               {isDecrypting ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <Spinner className="h-4 w-4" />
               ) : (
-                <DownloadIcon className="h-4 w-4" />
+                <HugeiconsIcon icon={Download01Icon} size={16} />
               )}
             </Button>
           </div>

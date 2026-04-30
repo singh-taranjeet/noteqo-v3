@@ -8,6 +8,12 @@ import { cn } from "@/lib/utils";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Item,
+  ItemContent,
+  ItemTitle,
+  ItemDescription,
+} from "@/components/ui/item";
 import { useVersionHistory } from "../hooks/useVersionHistory";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { ArrowLeft02Icon } from "@hugeicons/core-free-icons";
@@ -240,22 +246,25 @@ function VersionListItem({
       type="button"
       onClick={onSelect}
       className={cn(
-        "w-full text-left px-4 py-2.5 transition-colors cursor-pointer",
+        "w-full text-left px-2 transition-colors cursor-pointer",
         "hover:bg-accent/50",
         isSelected && "bg-accent",
       )}
       aria-pressed={isSelected}
       id={`version-item-${version.version}`}
     >
-      <p
-        className={cn(
-          "text-sm font-medium leading-tight",
-          isSelected ? "text-foreground" : "text-foreground/80",
-        )}
-      >
-        {dateLabel}
-      </p>
-      <p className="text-xs text-muted-foreground mt-0.5">{AUTHOR_FALLBACK}</p>
+      <Item size="xs" className="border-transparent">
+        <ItemContent>
+          <ItemTitle
+            className={cn(
+              isSelected ? "text-foreground" : "text-foreground/80",
+            )}
+          >
+            {dateLabel}
+          </ItemTitle>
+          <ItemDescription>{AUTHOR_FALLBACK}</ItemDescription>
+        </ItemContent>
+      </Item>
     </button>
   );
 }

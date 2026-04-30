@@ -3,11 +3,14 @@
 import React from "react";
 import type { Editor } from "@tiptap/react";
 import { BubbleMenu } from "@tiptap/react/menus";
-import { BoldIcon } from "@/features/editor/components/icons/BoldIcon";
-import { ItalicIcon } from "@/features/editor/components/icons/ItalicIcon";
-import { StrikeIcon } from "@/features/editor/components/icons/StrikeIcon";
-import { UnderlineIcon } from "@/features/editor/components/icons/UnderlineIcon";
-import { Code2Icon } from "@/features/editor/components/icons/Code2Icon";
+import { HugeiconsIcon } from "@hugeicons/react";
+import {
+  TextBoldIcon,
+  TextItalicIcon,
+  TextStrikethroughIcon,
+  TextUnderlineIcon,
+  CodeIcon,
+} from "@hugeicons/core-free-icons";
 import {
   Tooltip,
   TooltipContent,
@@ -29,27 +32,27 @@ const MENU_ITEMS = [
   {
     name: "bold",
     tooltip: "Bold (⌘B)",
-    icon: BoldIcon,
+    icon: TextBoldIcon,
   },
   {
     name: "italic",
     tooltip: "Italic (⌘I)",
-    icon: ItalicIcon,
+    icon: TextItalicIcon,
   },
   {
     name: "underline",
     tooltip: "Underline (⌘U)",
-    icon: UnderlineIcon,
+    icon: TextUnderlineIcon,
   },
   {
     name: "strike",
     tooltip: "Strikethrough (⌘⇧X)",
-    icon: StrikeIcon,
+    icon: TextStrikethroughIcon,
   },
   {
     name: "code",
     tooltip: "Code (⌘E)",
-    icon: Code2Icon,
+    icon: CodeIcon,
   },
 ] as const;
 
@@ -132,7 +135,7 @@ export const EditorBubbleMenu: React.FC<EditorBubbleMenuProps> = ({
                   aria-label={item.tooltip}
                   className="rounded-sm p-1.5 h-auto min-w-0"
                 >
-                  <item.icon className="w-4 h-4" />
+                  <HugeiconsIcon icon={item.icon} size={16} />
                 </Toggle>
               </TooltipTrigger>
               <TooltipContent side="top" className="text-xs">

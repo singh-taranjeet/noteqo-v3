@@ -3,9 +3,13 @@
 import React from "react";
 import type { Editor } from "@tiptap/react";
 import { Button } from "@/components/ui/button";
-import { EditorPopover } from "@/features/editor/components/editor-ui/EditorPopover";
-import { ChevronDownIcon } from "@/features/editor/components/icons/ChevronDownIcon";
-import { TextColorIcon } from "@/features/editor/components/icons/TextColorIcon";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { ArrowDown01Icon, TextColorIcon } from "@hugeicons/core-free-icons";
 import {
   TEXT_COLORS,
   HIGHLIGHT_COLORS,
@@ -43,68 +47,71 @@ export const ColorPickerPopover: React.FC<ColorPickerPopoverProps> = ({
   };
 
   return (
-    <EditorPopover
-      isOpen={isOpen}
-      onOpenChange={onOpenChange}
-      align="start"
-      contentClassName="w-64 p-3 overflow-y-auto max-h-80 shadow-lg z-50"
-      trigger={
+    <Popover modal={false} open={isOpen} onOpenChange={onOpenChange}>
+      <PopoverTrigger asChild>
         <Button
           variant="ghost"
           size="sm"
           className="h-7 px-2 text-muted-foreground hover:bg-muted/50 rounded-sm gap-1"
           onMouseDown={(e) => e.preventDefault()}
         >
-          <TextColorIcon className="w-4 h-4" />
-          <ChevronDownIcon className="w-3 h-3 opacity-50" />
+          <HugeiconsIcon icon={TextColorIcon} className="w-4 h-4" />
+          <HugeiconsIcon icon={ArrowDown01Icon} className="w-3 h-3 opacity-50" />
         </Button>
-      }
-    >
-      <div className="mb-4">
-        <div className="text-xs font-semibold text-muted-foreground mb-2">
-          Text Color
+      </PopoverTrigger>
+      <PopoverContent
+        align="start"
+        sideOffset={8}
+        className="w-64 p-3 overflow-y-auto max-h-80 shadow-lg z-50 bg-popover rounded-md"
+        onOpenAutoFocus={(e: Event) => e.preventDefault()}
+        onCloseAutoFocus={(e: Event) => e.preventDefault()}
+      >
+        <div className="mb-4">
+          <div className="text-xs font-semibold text-muted-foreground mb-2">
+            Text Color
+          </div>
+          <div className="grid grid-cols-5 gap-2">
+            {TEXT_COLORS.map((swatch) => (
+              <Button
+                key={`text-${swatch.name}`}
+                variant="outline"
+                onClick={() => setTextColor(swatch.color)}
+                title={swatch.name}
+                className={`w-8 h-8 p-0 rounded-full flex items-center justify-center transition-transform hover:scale-110 ${
+                  currentColor === swatch.color
+                    ? "ring-2 ring-foreground/40 ring-offset-2"
+                    : ""
+                }`}
+                style={{ color: swatch.color || "inherit" }}
+              >
+                <span className="font-serif font-medium text-sm">A</span>
+              </Button>
+            ))}
+          </div>
         </div>
-        <div className="grid grid-cols-5 gap-2">
-          {TEXT_COLORS.map((swatch) => (
-            <Button
-              key={`text-${swatch.name}`}
-              variant="outline"
-              onClick={() => setTextColor(swatch.color)}
-              title={swatch.name}
-              className={`w-8 h-8 p-0 rounded-full flex items-center justify-center transition-transform hover:scale-110 ${
-                currentColor === swatch.color
-                  ? "ring-2 ring-primary ring-offset-1 border-primary"
-                  : ""
-              }`}
-              style={{ color: swatch.color || "inherit" }}
-            >
-              <span className="font-serif font-medium text-sm">A</span>
-            </Button>
-          ))}
-        </div>
-      </div>
 
-      <div>
-        <div className="text-xs font-semibold text-muted-foreground mb-2">
-          Highlight Color
+        <div>
+          <div className="text-xs font-semibold text-muted-foreground mb-2">
+            Highlight Color
+          </div>
+          <div className="grid grid-cols-5 gap-2">
+            {HIGHLIGHT_COLORS.map((swatch) => (
+              <Button
+                key={`bg-${swatch.name}`}
+                variant="outline"
+                onClick={() => setHighlightColor(swatch.color)}
+                title={swatch.name}
+                className={`w-8 h-8 p-0 rounded-full transition-transform hover:scale-110 ${
+                  currentHighlight === swatch.color
+                    ? "ring-2 ring-foreground/40 ring-offset-2"
+                    : ""
+                }`}
+                style={{ backgroundColor: swatch.color || "transparent" }}
+              />
+            ))}
+          </div>
         </div>
-        <div className="grid grid-cols-5 gap-2">
-          {HIGHLIGHT_COLORS.map((swatch) => (
-            <Button
-              key={`bg-${swatch.name}`}
-              variant="outline"
-              onClick={() => setHighlightColor(swatch.color)}
-              title={swatch.name}
-              className={`w-8 h-8 p-0 rounded-full transition-transform hover:scale-110 ${
-                currentHighlight === swatch.color
-                  ? "ring-2 ring-primary ring-offset-1 border-primary"
-                  : ""
-              }`}
-              style={{ backgroundColor: swatch.color || "transparent" }}
-            />
-          ))}
-        </div>
-      </div>
-    </EditorPopover>
+      </PopoverContent>
+    </Popover>
   );
 };

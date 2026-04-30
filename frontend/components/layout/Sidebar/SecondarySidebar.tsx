@@ -86,7 +86,7 @@ export function SecondarySidebar() {
   return (
     <aside
       className={cn(
-        "flex flex-col h-full bg-sidebar border-r border-sidebar-border shrink-0 overflow-hidden",
+        "flex flex-col h-svh bg-sidebar/60 backdrop-blur-xl border-r border-sidebar-border shrink-0 overflow-hidden",
         "transition-all ease-in-out",
         !isOpen && "border-r-0",
       )}
@@ -98,7 +98,7 @@ export function SecondarySidebar() {
       aria-hidden={!isOpen}
     >
       <div
-        className="flex flex-col h-full overflow-hidden w-full"
+        className="flex flex-col h-svh overflow-hidden w-full"
         style={{ minWidth: `${SECONDARY_SIDEBAR_WIDTH}px` }}
       >
         <div className="flex items-center justify-between p-3 h-[52px] border-b border-sidebar-border shrink-0">
