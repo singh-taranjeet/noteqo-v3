@@ -36,7 +36,7 @@ export function SidebarUserProfile({
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button
-            className="flex items-center gap-2 min-w-0 rounded-lg px-1.5 py-1 -ml-1.5 hover:bg-sidebar-accent transition-colors outline-none"
+            className="flex cursor-pointer items-center gap-2 min-w-0 rounded-lg px-1.5 py-1 -ml-1.5 hover:bg-sidebar-accent transition-colors outline-none"
             id="sidebar-user-profile-trigger"
           >
             <span
@@ -71,7 +71,7 @@ export function SidebarUserProfile({
               variant="ghost"
               size="icon"
               onClick={onCloseSidebar}
-              className="h-6 w-6 opacity-0 group-hover:opacity-100 shrink-0"
+              className="h-6 w-6 shrink-0"
               aria-label="Close sidebar"
             >
               <HugeiconsIcon
