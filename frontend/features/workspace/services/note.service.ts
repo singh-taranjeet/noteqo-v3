@@ -37,6 +37,7 @@ export const noteService = {
       syncStatus: "pending",
       spaceId,
       type: noteType,
+      isFavorite: false,
       createdAt: now,
       updatedAt: now,
     };
@@ -176,6 +177,7 @@ export const noteService = {
         syncStatus: "pending",
         spaceId: note.spaceId,
         type: note.type as "private" | "shared",
+        isFavorite: note.isFavorite ?? false,
         createdAt: note.createdAt,
         updatedAt: note.updatedAt,
       };

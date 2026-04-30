@@ -70,6 +70,7 @@ export class NotesController {
       version: note.version,
       spaceId: note.spaceId,
       type: note.type,
+      isFavorite: note.isFavorite,
       createdBy: note.createdBy,
       updatedBy: note.updatedBy,
       deletedBy: note.deletedBy,

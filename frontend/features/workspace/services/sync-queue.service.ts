@@ -170,6 +170,7 @@ class SyncQueueService {
           ciphertext,
           spaceId: note.spaceId,
           type: note.type,
+          isFavorite: note.isFavorite,
           createdAt: note.createdAt,
           updatedAt: this.getUpdatedAt(),
         });
@@ -182,6 +183,7 @@ class SyncQueueService {
         await noteApiService.updateNote({
           id: event.entityId,
           ciphertext,
+          isFavorite: note.isFavorite,
           updatedAt: this.getUpdatedAt(),
         });
         break;
