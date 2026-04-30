@@ -206,8 +206,13 @@ export const FileUploaderExtension = Extension.create<FileUploaderOptions>({
               interface FileUploaderStorage {
                 handleUpload: (file: File, pos: number) => void;
               }
-              const storage = editor.storage as unknown as Record<string, unknown>;
-              const fileUploaderStorage = storage.fileUploader as FileUploaderStorage | undefined;
+              const storage = editor.storage as unknown as Record<
+                string,
+                unknown
+              >;
+              const fileUploaderStorage = storage.fileUploader as
+                | FileUploaderStorage
+                | undefined;
               fileUploaderStorage?.handleUpload(file, pos);
             }
           };

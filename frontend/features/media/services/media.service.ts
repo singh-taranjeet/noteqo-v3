@@ -3,20 +3,19 @@ import { spaceService } from "@/features/spaces/services/space.service";
 import { apiClient } from "@/services/api";
 import { MEDIA_CONFIG, MEDIA_MESSAGES } from "../constants/media.constants";
 import type { MediaResponseDto } from "../types/media.types";
+import { upload } from "@vercel/blob/client";
+import { storageService, STORAGE_KEYS } from "@/features/storage";
+import { API_BASE_URL } from "@/constants/config";
 
 export const mediaService = {
   /**
-   * Encrypts and uploads a file to the backend.
+   * Encrypts and uploads a file directly to Vercel Blob using a secure token.
    */
   async uploadMedia(
     file: File,
     spaceId: string,
     noteId: string,
   ): Promise<MediaResponseDto> {
-    if (file.size > MEDIA_CONFIG.MAX_FILE_SIZE_BYTES) {
-      throw new Error(MEDIA_MESSAGES.FILE_TOO_LARGE);
-    }
-
     const spaceKeyBase64 = await spaceService.getCachedSpaceKey(spaceId);
     if (!spaceKeyBase64) {
       throw new Error("Space key not found for encryption");
@@ -28,31 +27,36 @@ export const mediaService = {
       spaceKeyBase64,
     );
 
-    const formData = new FormData();
-    formData.append(MEDIA_CONFIG.UPLOAD_FIELD_NAME, encryptedBlob);
-    formData.append("id", globalThis.crypto.randomUUID());
-    formData.append("noteId", noteId);
-    formData.append("spaceId", spaceId);
-    formData.append("mimeType", file.type || "application/octet-stream");
-    formData.append("sizeBytes", file.size.toString());
+    const id = globalThis.crypto.randomUUID();
+    const mimeType = file.type || "application/octet-stream";
+    const sizeBytes = file.size.toString();
+    const token = await storageService.get<string>(STORAGE_KEYS.JWT_KEY);
 
-    const response = await apiClient.postForm<Record<string, unknown>>(
-      "/media",
-      formData,
-      { auth: true },
-    );
+    // Vercel Blob client requires a File or Blob.
+    const encryptedFile = new File([encryptedBlob], id, { type: mimeType });
 
-    // Robustly handle if response is wrapped by ResponseTransformInterceptor or returned directly
-    const data = (response?.data as Record<string, unknown>) || response;
+    const blob = await upload(id, encryptedFile, {
+      access: "public",
+      handleUploadUrl: `${API_BASE_URL}/media/upload`,
+      clientPayload: JSON.stringify({
+        token,
+        id,
+        noteId,
+        spaceId,
+        mimeType,
+        sizeBytes,
+      }),
+    });
 
-    if (!data || typeof data.url !== "string") {
-      throw new Error(
-        "Invalid response format from server. Media URL is missing: " +
-          JSON.stringify(response),
-      );
-    }
-
-    return data as unknown as MediaResponseDto;
+    return {
+      id,
+      noteId,
+      spaceId,
+      mimeType,
+      sizeBytes: parseInt(sizeBytes, 10),
+      url: blob.url,
+      createdAt: new Date().toISOString(),
+    };
   },
 
   /**

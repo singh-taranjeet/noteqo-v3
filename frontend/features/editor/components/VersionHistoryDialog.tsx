@@ -5,11 +5,7 @@ import { useMemo } from "react";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useVersionHistory } from "../hooks/useVersionHistory";
@@ -192,9 +188,7 @@ function VersionListItem({
       >
         {dateLabel}
       </p>
-      <p className="text-xs text-muted-foreground mt-0.5">
-        {AUTHOR_FALLBACK}
-      </p>
+      <p className="text-xs text-muted-foreground mt-0.5">{AUTHOR_FALLBACK}</p>
     </button>
   );
 }

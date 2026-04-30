@@ -31,9 +31,7 @@ export const versionHistoryService = {
   ): Promise<DecryptedNoteVersion | null> {
     try {
       if (!version.ciphertext?.includes(":")) {
-        logService.warn(
-          `Invalid ciphertext format for version ${version.id}`,
-        );
+        logService.warn(`Invalid ciphertext format for version ${version.id}`);
         return null;
       }
 
