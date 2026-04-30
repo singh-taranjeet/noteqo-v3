@@ -8,15 +8,24 @@ import {
   FavouriteIcon,
   MoreHorizontalIcon,
   Clock04Icon,
+  Copy01Icon,
 } from "@hugeicons/core-free-icons";
+import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useLocalNotes } from "@/features/workspace/hooks/useLocalNotes";
+import { useDuplicateNote } from "@/features/workspace/hooks/useDuplicateNote";
 import { MOCK_USER } from "@/features/auth";
 import { VersionHistoryDialog } from "@/features/editor";
 
@@ -24,9 +33,11 @@ export function HeaderActions() {
   const params = useParams();
   const noteId = params?.note_id as string | undefined;
 
-  const [isVersionHistoryOpen, setIsVersionHistoryOpen] = useState(false);
-
   const { data: notes } = useLocalNotes();
+  const duplicateMutation = useDuplicateNote();
+  const isDuplicating = duplicateMutation.isPending;
+
+  const [isVersionHistoryOpen, setIsVersionHistoryOpen] = useState(false);
 
   const currentNote = useMemo(() => {
     if (!notes || !noteId) return null;
@@ -98,24 +109,45 @@ export function HeaderActions() {
         <TooltipContent side="bottom">Add to favorites</TooltipContent>
       </Tooltip>
 
-      {/* More options */}
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-7 w-7"
-            aria-label="More options"
-          >
-            <HugeiconsIcon
-              icon={MoreHorizontalIcon}
-              size={16}
-              strokeWidth={1.5}
-            />
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent side="bottom">More options</TooltipContent>
-      </Tooltip>
+      {/* More options dropdown */}
+      <DropdownMenu>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7"
+                aria-label="More options"
+                id="more-options-button"
+              >
+                <HugeiconsIcon
+                  icon={MoreHorizontalIcon}
+                  size={16}
+                  strokeWidth={1.5}
+                />
+              </Button>
+            </DropdownMenuTrigger>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">More options</TooltipContent>
+        </Tooltip>
+        <DropdownMenuContent align="end">
+          {noteId && currentNote && (
+            <DropdownMenuItem
+              id="duplicate-page-button"
+              disabled={isDuplicating}
+              onClick={() => duplicateMutation.mutate({ noteId })}
+            >
+              {isDuplicating ? (
+                <Spinner className="size-4" />
+              ) : (
+                <HugeiconsIcon icon={Copy01Icon} size={16} strokeWidth={1.5} />
+              )}
+              Duplicate page
+            </DropdownMenuItem>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
 
       {/* Version history dialog */}
       {noteId && currentNote?.spaceId && (

@@ -1,54 +1,97 @@
 "use client";
 
-import { SidebarSection } from "./SidebarSection";
-import { SidebarPageItem } from "./SidebarPageItem";
+import { useState } from "react";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { ArrowRight01Icon } from "@hugeicons/core-free-icons";
+import {
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarGroupContent,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
+  SidebarMenuSubButton,
+} from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import { useRecentNotes } from "@/features/workspace";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { useAppShell } from "../AppShell";
+import { useRecentNotes } from "@/features/workspace";
+import Link from "next/link";
+import { ROUTES } from "@/constants/routes";
 
 export function RecentSection() {
   const { notes, isLoading } = useRecentNotes();
   const { openSecondarySidebar } = useAppShell();
+  const [isOpen, setIsOpen] = useState(true);
 
   const recentNotes = notes.slice(0, 10);
 
   return (
-    <SidebarSection label="Recent" defaultOpen>
-      {isLoading && (
-        <div className="px-4 py-2 text-xs text-muted-foreground animate-pulse">
-          Loading recent...
-        </div>
-      )}
-      {!isLoading && recentNotes.length === 0 && (
-        <div className="px-5 py-1.5 text-xs text-muted-foreground">
-          No recent notes
-        </div>
-      )}
-      {!isLoading && recentNotes.length > 0 && (
-        <div className="flex flex-col gap-0.5">
-          {recentNotes.map((note) => (
-            <div key={note.id} className="pl-3 pr-2">
-              <SidebarPageItem
-                id={note.id}
-                emoji={note.emoji}
-                title={note.title}
-              />
-            </div>
-          ))}
-          {notes.length > 10 && (
-            <div className="pl-3 pr-2 mt-1">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="w-full justify-start h-7 text-xs font-normal text-muted-foreground hover:text-foreground"
-                onClick={() => openSecondarySidebar("recent")}
-              >
-                More
-              </Button>
-            </div>
-          )}
-        </div>
-      )}
-    </SidebarSection>
+    <Collapsible open={isOpen} onOpenChange={setIsOpen} className="group/collapsible">
+      <SidebarGroup>
+        <SidebarGroupLabel asChild>
+          <CollapsibleTrigger className="cursor-pointer">
+            <HugeiconsIcon
+              icon={ArrowRight01Icon}
+              size={12}
+              strokeWidth={2}
+              className="transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90"
+            />
+            Recent
+          </CollapsibleTrigger>
+        </SidebarGroupLabel>
+        <CollapsibleContent>
+          <SidebarGroupContent>
+            {isLoading && (
+              <div className="px-3 py-2 text-xs text-muted-foreground animate-pulse">
+                Loading recent...
+              </div>
+            )}
+            {!isLoading && recentNotes.length === 0 && (
+              <div className="px-3 py-1.5 text-xs text-muted-foreground">
+                No recent notes
+              </div>
+            )}
+            {!isLoading && recentNotes.length > 0 && (
+              <SidebarMenu>
+                {recentNotes.map((note) => (
+                  <SidebarMenuItem key={note.id}>
+                    <SidebarMenuButton asChild size="sm">
+                      <Link href={ROUTES.NOTE(note.id)}>
+                        <span
+                          className="shrink-0 text-base"
+                          role="img"
+                          aria-hidden="true"
+                        >
+                          {note.emoji}
+                        </span>
+                        <span>{note.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+                {notes.length > 10 && (
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      size="sm"
+                      className="text-muted-foreground"
+                      onClick={() => openSecondarySidebar("recent")}
+                    >
+                      More
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )}
+              </SidebarMenu>
+            )}
+          </SidebarGroupContent>
+        </CollapsibleContent>
+      </SidebarGroup>
+    </Collapsible>
   );
 }

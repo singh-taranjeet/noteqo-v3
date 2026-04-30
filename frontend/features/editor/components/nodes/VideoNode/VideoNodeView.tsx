@@ -1,14 +1,16 @@
 import { NodeViewWrapper, type NodeViewProps } from "@tiptap/react";
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import { HugeiconsIcon } from "@hugeicons/react";
 import {
-  AlignLeftIcon,
-  AlignCenterIcon,
-  AlignRightIcon,
-  MaximizeIcon,
-  Loader2,
-  VideoIcon,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
+  TextAlignLeftIcon,
+  TextAlignCenterIcon,
+  TextAlignRightIcon,
+  ExpandIcon,
+  CameraVideoIcon,
+} from "@hugeicons/core-free-icons";
+import { Spinner } from "@/components/ui/spinner";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Separator } from "@/components/ui/separator";
 import { mediaService } from "@/features/media";
 import { logService } from "@/services/log.service";
 import { cn } from "@/lib/utils";
@@ -156,7 +158,7 @@ export const VideoNodeView: React.FC<NodeViewProps> = (props) => {
       >
         {uploading || isDecrypting ? (
           <div className="flex flex-col items-center justify-center p-12 bg-muted/30 rounded-lg min-h-[200px] w-full border border-dashed">
-            <Loader2 className="w-8 h-8 animate-spin text-muted-foreground mb-4" />
+            <Spinner className="w-8 h-8 text-muted-foreground mb-4" />
             <span className="text-sm text-muted-foreground">
               {uploading
                 ? "Encrypting and uploading video..."
@@ -198,50 +200,35 @@ export const VideoNodeView: React.FC<NodeViewProps> = (props) => {
 
             {/* Toolbar - only visible when selected */}
             {selected && (
-              <div className="absolute top-2 right-2 flex items-center gap-1 bg-background/80 backdrop-blur-sm border rounded-md shadow-sm p-1 z-20">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className={cn("h-7 w-7", align === "left" && "bg-muted")}
-                  onClick={() => setAlign("left")}
-                  title="Align Left"
+              <div className="absolute top-2 right-2 bg-background/80 backdrop-blur-sm border rounded-md shadow-sm p-1 z-20">
+                <ToggleGroup
+                  type="single"
+                  value={(align as string) || "center"}
+                  onValueChange={(value) => {
+                    if (value) setAlign(value as "left" | "center" | "right" | "full");
+                  }}
+                  className="gap-1"
                 >
-                  <AlignLeftIcon className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className={cn("h-7 w-7", align === "center" && "bg-muted")}
-                  onClick={() => setAlign("center")}
-                  title="Align Center"
-                >
-                  <AlignCenterIcon className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className={cn("h-7 w-7", align === "right" && "bg-muted")}
-                  onClick={() => setAlign("right")}
-                  title="Align Right"
-                >
-                  <AlignRightIcon className="h-4 w-4" />
-                </Button>
-                <div className="w-px h-4 bg-border mx-1" />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className={cn("h-7 w-7", align === "full" && "bg-muted")}
-                  onClick={() => setAlign("full")}
-                  title="Full Width"
-                >
-                  <MaximizeIcon className="h-4 w-4" />
-                </Button>
+                  <ToggleGroupItem value="left" aria-label="Align Left" className="h-7 w-7 p-0">
+                    <HugeiconsIcon icon={TextAlignLeftIcon} size={16} />
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="center" aria-label="Align Center" className="h-7 w-7 p-0">
+                    <HugeiconsIcon icon={TextAlignCenterIcon} size={16} />
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="right" aria-label="Align Right" className="h-7 w-7 p-0">
+                    <HugeiconsIcon icon={TextAlignRightIcon} size={16} />
+                  </ToggleGroupItem>
+                  <Separator orientation="vertical" className="h-4 mx-0.5" />
+                  <ToggleGroupItem value="full" aria-label="Full Width" className="h-7 w-7 p-0">
+                    <HugeiconsIcon icon={ExpandIcon} size={16} />
+                  </ToggleGroupItem>
+                </ToggleGroup>
               </div>
             )}
           </>
         ) : (
           <div className="flex flex-col items-center justify-center p-12 bg-destructive/10 rounded-lg min-h-[200px] w-full text-destructive border border-destructive/20">
-            <VideoIcon className="w-8 h-8 mb-2 opacity-50" />
+            <HugeiconsIcon icon={CameraVideoIcon} className="mb-2 opacity-50" size={32} />
             <span className="text-sm">Failed to load video</span>
           </div>
         )}

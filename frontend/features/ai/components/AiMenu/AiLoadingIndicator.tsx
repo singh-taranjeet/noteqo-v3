@@ -1,5 +1,7 @@
 "use client";
 
+import { Spinner } from "@/components/ui/spinner";
+
 interface AiLoadingIndicatorProps {
   streamingPreview?: string;
 }
@@ -10,20 +12,7 @@ export function AiLoadingIndicator({
   return (
     <div className="flex flex-col gap-2 p-1">
       <div className="flex items-center gap-2">
-        <div className="flex gap-1">
-          <span
-            className="inline-block h-1.5 w-1.5 rounded-full bg-primary animate-bounce"
-            style={{ animationDelay: "0ms" }}
-          />
-          <span
-            className="inline-block h-1.5 w-1.5 rounded-full bg-primary animate-bounce"
-            style={{ animationDelay: "150ms" }}
-          />
-          <span
-            className="inline-block h-1.5 w-1.5 rounded-full bg-primary animate-bounce"
-            style={{ animationDelay: "300ms" }}
-          />
-        </div>
+        <Spinner className="size-4 text-primary" />
         <span className="text-xs text-muted-foreground">Generating…</span>
       </div>
 

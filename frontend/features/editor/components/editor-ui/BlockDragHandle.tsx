@@ -2,8 +2,8 @@
 import React from "react";
 import type { Editor } from "@tiptap/react";
 import { DragHandle } from "@tiptap/extension-drag-handle-react";
-import { PlusIcon } from "@/features/editor/components/icons/PlusIcon";
-import { GripIcon } from "@/features/editor/components/icons/GripIcon";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { PlusSignIcon, DragDropIcon } from "@hugeicons/core-free-icons";
 import {
   Tooltip,
   TooltipContent,
@@ -44,7 +44,7 @@ export const BlockDragHandle: React.FC<BlockDragHandleProps> = ({ editor }) => {
                 className="h-6 w-6 rounded-sm text-muted-foreground"
                 aria-label="Add block"
               >
-                <PlusIcon className="w-4 h-4" />
+                <HugeiconsIcon icon={PlusSignIcon} size={16} />
               </Button>
             </TooltipTrigger>
             <TooltipContent side="top" className="text-xs">
@@ -59,7 +59,7 @@ export const BlockDragHandle: React.FC<BlockDragHandleProps> = ({ editor }) => {
                 className="hover:bg-muted p-1 rounded-sm cursor-grab active:cursor-grabbing flex items-center justify-center transition-colors"
                 aria-label="Drag to move block"
               >
-                <GripIcon className="w-4 h-4" />
+                <HugeiconsIcon icon={DragDropIcon} size={16} />
               </div>
             </TooltipTrigger>
             <TooltipContent side="top" className="text-xs">

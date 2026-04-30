@@ -2,7 +2,11 @@
 
 import React from "react";
 import type { Editor } from "@tiptap/react";
-import { EditorPopover } from "@/features/editor/components/editor-ui/EditorPopover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Toggle } from "@/components/ui/toggle";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -12,13 +16,16 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-import { MoreVerticalIcon } from "@/features/editor/components/icons/MoreVerticalIcon";
-import { SuperscriptIcon } from "@/features/editor/components/icons/SuperscriptIcon";
-import { SubscriptIcon } from "@/features/editor/components/icons/SubscriptIcon";
-import { AlignLeftIcon } from "@/features/editor/components/icons/AlignLeftIcon";
-import { AlignCenterIcon } from "@/features/editor/components/icons/AlignCenterIcon";
-import { AlignRightIcon } from "@/features/editor/components/icons/AlignRightIcon";
-import { AlignJustifyIcon } from "@/features/editor/components/icons/AlignJustifyIcon";
+import { HugeiconsIcon } from "@hugeicons/react";
+import {
+  MoreVerticalIcon,
+  TextSuperscriptIcon,
+  TextSubscriptIcon,
+  TextAlignLeftIcon,
+  TextAlignCenterIcon,
+  TextAlignRightIcon,
+  TextAlignJustifyLeftIcon,
+} from "@hugeicons/core-free-icons";
 
 interface MoreOptionsPopoverProps {
   editor: Editor;
@@ -31,7 +38,7 @@ const MORE_OPTIONS_GROUPS = [
     {
       name: "superscript",
       tooltip: "Superscript",
-      icon: SuperscriptIcon,
+      icon: TextSuperscriptIcon,
       command: (editor: Editor) =>
         editor.chain().focus().toggleSuperscript().run(),
       isActive: (editor: Editor) => editor.isActive("superscript"),
@@ -39,7 +46,7 @@ const MORE_OPTIONS_GROUPS = [
     {
       name: "subscript",
       tooltip: "Subscript",
-      icon: SubscriptIcon,
+      icon: TextSubscriptIcon,
       command: (editor: Editor) =>
         editor.chain().focus().toggleSubscript().run(),
       isActive: (editor: Editor) => editor.isActive("subscript"),
@@ -49,7 +56,7 @@ const MORE_OPTIONS_GROUPS = [
     {
       name: "align-left",
       tooltip: "Align Left",
-      icon: AlignLeftIcon,
+      icon: TextAlignLeftIcon,
       command: (editor: Editor) =>
         editor.chain().focus().setTextAlign("left").run(),
       isActive: (editor: Editor) => editor.isActive({ textAlign: "left" }),
@@ -57,7 +64,7 @@ const MORE_OPTIONS_GROUPS = [
     {
       name: "align-center",
       tooltip: "Align Center",
-      icon: AlignCenterIcon,
+      icon: TextAlignCenterIcon,
       command: (editor: Editor) =>
         editor.chain().focus().setTextAlign("center").run(),
       isActive: (editor: Editor) => editor.isActive({ textAlign: "center" }),
@@ -65,7 +72,7 @@ const MORE_OPTIONS_GROUPS = [
     {
       name: "align-right",
       tooltip: "Align Right",
-      icon: AlignRightIcon,
+      icon: TextAlignRightIcon,
       command: (editor: Editor) =>
         editor.chain().focus().setTextAlign("right").run(),
       isActive: (editor: Editor) => editor.isActive({ textAlign: "right" }),
@@ -73,7 +80,7 @@ const MORE_OPTIONS_GROUPS = [
     {
       name: "align-justify",
       tooltip: "Justify",
-      icon: AlignJustifyIcon,
+      icon: TextAlignJustifyLeftIcon,
       command: (editor: Editor) =>
         editor.chain().focus().setTextAlign("justify").run(),
       isActive: (editor: Editor) => editor.isActive({ textAlign: "justify" }),
@@ -87,57 +94,68 @@ export const MoreOptionsPopover: React.FC<MoreOptionsPopoverProps> = ({
   onOpenChange,
 }) => {
   return (
-    <EditorPopover
-      isOpen={isOpen}
-      onOpenChange={onOpenChange}
-      align="center"
-      contentClassName="w-auto p-1 flex flex-row items-center gap-1 z-50"
-      tooltipText="More options"
-      trigger={
-        <Toggle
-          type="button"
-          size="sm"
-          pressed={isOpen}
-          aria-label="More options"
-          className="rounded-sm p-1.5 h-auto min-w-0 data-[state=on]:bg-muted"
-        >
-          <MoreVerticalIcon className="w-4 h-4" />
-        </Toggle>
-      }
-    >
+    <Popover modal={false} open={isOpen} onOpenChange={onOpenChange}>
       <TooltipProvider delayDuration={200}>
-        {MORE_OPTIONS_GROUPS.map((group, groupIndex) => (
-          <React.Fragment key={groupIndex}>
-            {groupIndex > 0 && (
-              <Separator orientation="vertical" className="h-5 mx-1" />
-            )}
-            {group.map((option) => {
-              const active = option.isActive(editor);
-              return (
-                <Tooltip key={option.name}>
-                  <TooltipTrigger asChild>
-                    <Toggle
-                      type="button"
-                      size="sm"
-                      pressed={active}
-                      onPressedChange={() => {
-                        option.command(editor);
-                      }}
-                      aria-label={option.tooltip}
-                      className="rounded-sm p-1.5 h-auto min-w-0"
-                    >
-                      <option.icon className="w-4 h-4" />
-                    </Toggle>
-                  </TooltipTrigger>
-                  <TooltipContent side="top" className="text-xs">
-                    {option.tooltip}
-                  </TooltipContent>
-                </Tooltip>
-              );
-            })}
-          </React.Fragment>
-        ))}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <PopoverTrigger asChild>
+              <Toggle
+                type="button"
+                size="sm"
+                pressed={isOpen}
+                aria-label="More options"
+                className="rounded-sm p-1.5 h-auto min-w-0 data-[state=on]:bg-muted"
+              >
+                <HugeiconsIcon icon={MoreVerticalIcon} size={16} />
+              </Toggle>
+            </PopoverTrigger>
+          </TooltipTrigger>
+          <TooltipContent side="top" className="text-xs">
+            More options
+          </TooltipContent>
+        </Tooltip>
       </TooltipProvider>
-    </EditorPopover>
+      <PopoverContent
+        align="center"
+        sideOffset={8}
+        className="w-auto p-1 flex flex-row items-center gap-1 z-50 shadow-md bg-popover rounded-md"
+        onOpenAutoFocus={(e: Event) => e.preventDefault()}
+        onCloseAutoFocus={(e: Event) => e.preventDefault()}
+      >
+        <TooltipProvider delayDuration={200}>
+          {MORE_OPTIONS_GROUPS.map((group, groupIndex) => (
+            <React.Fragment key={groupIndex}>
+              {groupIndex > 0 && (
+                <Separator orientation="vertical" className="h-5 mx-1" />
+              )}
+              {group.map((option) => {
+                const active = option.isActive(editor);
+                return (
+                  <Tooltip key={option.name}>
+                    <TooltipTrigger asChild>
+                      <Toggle
+                        type="button"
+                        size="sm"
+                        pressed={active}
+                        onPressedChange={() => {
+                          option.command(editor);
+                        }}
+                        aria-label={option.tooltip}
+                        className="rounded-sm p-1.5 h-auto min-w-0"
+                      >
+                        <HugeiconsIcon icon={option.icon} size={16} />
+                      </Toggle>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="text-xs">
+                      {option.tooltip}
+                    </TooltipContent>
+                  </Tooltip>
+                );
+              })}
+            </React.Fragment>
+          ))}
+        </TooltipProvider>
+      </PopoverContent>
+    </Popover>
   );
 };
