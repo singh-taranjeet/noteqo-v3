@@ -1,7 +1,6 @@
 import { cryptoService } from "@/features/crypto";
 import { spaceService } from "@/features/spaces/services/space.service";
 import { apiClient } from "@/services/api";
-import { MEDIA_CONFIG, MEDIA_MESSAGES } from "../constants/media.constants";
 import type { MediaResponseDto } from "../types/media.types";
 import { upload } from "@vercel/blob/client";
 import { storageService, STORAGE_KEYS } from "@/features/storage";

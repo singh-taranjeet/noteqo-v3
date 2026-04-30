@@ -177,7 +177,7 @@ function VersionListItem({
         "hover:bg-accent/50",
         isSelected && "bg-accent",
       )}
-      aria-selected={isSelected}
+      aria-pressed={isSelected}
       id={`version-item-${version.version}`}
     >
       <p

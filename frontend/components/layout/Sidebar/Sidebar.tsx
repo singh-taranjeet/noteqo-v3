@@ -7,6 +7,7 @@ import { LAYOUT_CONFIG } from "../layout.constants";
 import { SidebarUserProfile } from "./SidebarUserProfile";
 import { SidebarNavTabs } from "./SidebarNavTabs";
 import { SidebarSpaceCategory } from "./SidebarSpaceCategory";
+import { RecentSection } from "./RecentSection";
 import { SharedSpaceSettingsDialog } from "./SharedSpaceSettingsDialog";
 import { SidebarNewNoteButton } from "./SidebarNewNoteButton";
 import { useSpaces, useCreateSpace } from "@/features/spaces";
@@ -102,9 +103,13 @@ export function Sidebar() {
           />
           <SidebarNavTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
+          {/* Recent Section */}
+          <RecentSection />
+
           {/* Shared Spaces Section */}
           <SidebarSpaceCategory
             label="Shared"
+            type={SPACE_TYPE.SHARED}
             spaces={sharedSpaces}
             isLoading={isLoading}
             emptyMessage="No shared spaces"
@@ -118,6 +123,7 @@ export function Sidebar() {
           {/* Private Spaces Section */}
           <SidebarSpaceCategory
             label="Private"
+            type={SPACE_TYPE.PERSONAL}
             spaces={personalSpaces}
             isLoading={isLoading}
             emptyMessage="No spaces yet"

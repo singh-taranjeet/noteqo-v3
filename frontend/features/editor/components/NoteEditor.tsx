@@ -121,13 +121,17 @@ const useLoadNoteContent = ({
     loadContent();
   }, [isReadOnly, initialNote, noteId]);
 
-  // Sync when the caller provides a different initialNote (e.g. version history preview)
-  useEffect(() => {
+  const [prevInitialNote, setPrevInitialNote] = useState<Note | undefined>(
+    initialNote,
+  );
+
+  if (initialNote !== prevInitialNote) {
+    setPrevInitialNote(initialNote);
     if (initialNote) {
       setNote(initialNote);
       setIsReady(true);
     }
-  }, [initialNote]);
+  }
 
   return {
     note,

@@ -36,7 +36,7 @@ export function HeaderActions() {
   const formattedDate = useMemo(() => {
     if (!currentNote?.updatedAt) return "";
     return format(new Date(currentNote.updatedAt), "MMM d");
-  }, [currentNote?.updatedAt]);
+  }, [currentNote]);
 
   const userInitials = useMemo(() => {
     return MOCK_USER.NAME.split(" ")
