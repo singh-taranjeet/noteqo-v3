@@ -1,5 +1,5 @@
 # Next.js Architecture Blueprint
-### Standards, Rules & Patterns for Scalable Applications (2025)
+### Standards, Rules & Patterns for Scalable Applications (2026)
 
 ---
 
@@ -16,15 +16,17 @@
 9. [State Management](#state-management)
 10. [Form Handling & Validation](#form-handling--validation)
 11. [Error Handling](#error-handling)
-12. [Performance & Optimization](#performance--optimization)
-13. [Responsive & Mobile-First Design](#responsive--mobile-first-design)
-14. [Accessibility](#accessibility)
-15. [Naming Conventions](#naming-conventions)
-16. [Import Rules](#import-rules)
-17. [Utilities](#utilities)
-18. [Code Quality & Linting](#code-quality--linting)
-19. [Testing](#testing)
-20. [Quick Reference Card](#quick-reference-card)
+12. [PWA & Service Worker](#pwa--service-worker)
+13. [E2E Encryption Architecture](#e2e-encryption-architecture)
+14. [Performance & Optimization](#performance--optimization)
+15. [Responsive & Mobile-First Design](#responsive--mobile-first-design)
+16. [Accessibility](#accessibility)
+17. [Naming Conventions](#naming-conventions)
+18. [Import Rules](#import-rules)
+19. [Utilities](#utilities)
+20. [Code Quality & Linting](#code-quality--linting)
+21. [Testing](#testing)
+22. [Quick Reference Card](#quick-reference-card)
 
 ---
 
@@ -47,117 +49,107 @@ my-app/
 ├── public/                         # Static assets (images, fonts, favicons)
 │   └── images/
 │
-├── src/
-│   ├── app/                        # Next.js App Router (routes only)
-│   │   ├── (auth)/                 # Route group — no URL segment
-│   │   │   ├── login/
-│   │   │   │   └── page.tsx
-│   │   │   └── register/
-│   │   │       └── page.tsx
-│   │   ├── (marketing)/
-│   │   │   └── about/
-│   │   │       └── page.tsx
-│   │   ├── dashboard/
-│   │   │   ├── layout.tsx
-│   │   │   ├── page.tsx
-│   │   │   ├── loading.tsx
-│   │   │   ├── error.tsx
-│   │   │   └── settings/
-│   │   │       └── page.tsx
-│   │   ├── api/                    # Route handlers
-│   │   │   └── users/
-│   │   │       └── route.ts
-│   │   ├── globals.css
-│   │   ├── layout.tsx              # Root layout
-│   │   └── not-found.tsx
-│   │
-│   ├── components/                 # Shared, reusable components
-│   │   ├── ui/                     # Layer 1: Primitive/design-system (Button, Input, Modal)
-│   │   │   ├── Button/
-│   │   │   │   ├── index.tsx
-│   │   │   │   ├── Button.tsx
-│   │   │   │   └── Button.test.tsx
-│   │   │   └── index.ts            # Barrel export
-│   │   └── layout/                 # Layer 2: Structural (Header, Sidebar, Footer)
-│   │       ├── Header/
-│   │       ├── Footer/
-│   │       ├── Sidebar/
-│   │       └── index.ts
-│   │
-│   ├── features/                   # Layer 3: Domain-specific feature modules
-│   │   ├── auth/
-│   │   │   ├── components/
-│   │   │   │   ├── LoginForm/
-│   │   │   │   │   ├── index.tsx
-│   │   │   │   │   └── LoginForm.tsx
-│   │   │   │   └── AuthGuard.tsx
-│   │   │   ├── hooks/
-│   │   │   │   └── useAuth.ts
-│   │   │   ├── services/
-│   │   │   │   └── auth.service.ts
-│   │   │   ├── types/
-│   │   │   │   └── auth.types.ts
-│   │   │   ├── constants/
-│   │   │   │   └── auth.constants.ts
-│   │   │   └── index.ts            # Public API of this feature
-│   │   ├── dashboard/
-│   │   │   ├── components/
-│   │   │   ├── hooks/
-│   │   │   ├── services/
-│   │   │   ├── types/
-│   │   │   └── index.ts
-│   │   └── users/
-│   │       ├── components/
-│   │       ├── hooks/
-│   │       ├── services/
-│   │       ├── types/
-│   │       └── index.ts
-│   │
-│   ├── hooks/                      # Global, reusable hooks only
-│   │   ├── useDebounce.ts
-│   │   ├── useLocalStorage.ts
-│   │   ├── useMediaQuery.ts
+├── app/                            # Next.js App Router (routes only)
+│   ├── (auth)/                     # Route group — no URL segment
+│   │   ├── login/
+│   │   │   └── page.tsx
+│   │   └── register/
+│   │       └── page.tsx
+│   ├── (workspace)/                # Authenticated workspace routes
+│   │   ├── layout.tsx
+│   │   └── notes/
+│   │       └── [id]/
+│   │           └── page.tsx
+│   ├── ~offline/                   # PWA offline fallback page
+│   │   └── page.tsx
+│   ├── globals.css
+│   ├── layout.tsx                  # Root layout
+│   ├── sw.ts                       # Service worker entry (Serwist)
+│   ├── serwist.ts                  # Serwist provider
+│   └── not-found.tsx
+│
+├── components/                     # Shared, reusable components
+│   ├── ui/                         # Layer 1: Primitives (shadcn/ui)
+│   │   ├── button.tsx              # Flat files for shadcn components
+│   │   ├── input.tsx
+│   │   ├── dialog.tsx
+│   │   └── DynamicForm/            # Folder pattern for custom multi-file components
+│   │       ├── index.tsx
+│   │       └── DynamicForm.tsx
+│   ├── layout/                     # Layer 2: Structural (Header, Sidebar, Footer)
+│   │   ├── Header/
+│   │   ├── Sidebar/
+│   │   ├── AppShell/
 │   │   └── index.ts
-│   │
-│   ├── lib/                        # Third-party library configs & wrappers
-│   │   ├── axios.ts
-│   │   ├── prisma.ts
-│   │   ├── auth.ts
-│   │   ├── env.ts                  # Validated environment variables
-│   │   └── stripe.ts
-│   │
-│   ├── services/                   # Global API service layer
-│   │   ├── api.ts
-│   │   └── index.ts
-│   │
-│   ├── store/                      # Global state (Zustand)
-│   │   ├── useAppStore.ts
-│   │   └── slices/
-│   │       ├── uiSlice.ts
-│   │       └── userSlice.ts
-│   │
-│   ├── types/                      # Global shared types
-│   │   ├── api.types.ts
-│   │   ├── common.types.ts
-│   │   └── index.ts
-│   │
-│   ├── constants/                  # Global constants
-│   │   ├── routes.ts
-│   │   ├── config.ts
-│   │   └── index.ts
-│   │
-│   └── utils/                      # Pure utility functions
-│       ├── date.utils.ts
-│       ├── string.utils.ts
-│       ├── number.utils.ts
+│   └── Providers/                  # Global context/provider wrappers
+│       ├── Providers.tsx           # QueryClientProvider, ThemeProvider, etc.
 │       └── index.ts
+│
+├── features/                       # Layer 3: Domain-specific feature modules
+│   ├── auth/
+│   │   ├── components/
+│   │   │   ├── LoginForm.tsx
+│   │   │   └── AuthGuard.tsx
+│   │   ├── hooks/
+│   │   │   └── useLogin.ts
+│   │   ├── services/
+│   │   │   └── auth.service.ts
+│   │   ├── types/
+│   │   │   └── auth.types.ts
+│   │   ├── constants/
+│   │   │   └── auth.constants.ts
+│   │   └── index.ts                # Public API of this feature
+│   ├── workspace/
+│   │   ├── components/
+│   │   ├── hooks/
+│   │   ├── services/
+│   │   ├── types/
+│   │   └── index.ts
+│   ├── editor/
+│   │   ├── DynamicNoteEditor.tsx    # Dynamic import wrapper (feature root)
+│   │   ├── components/
+│   │   │   ├── extensions/         # Library extensions (e.g. Tiptap)
+│   │   │   └── nodes/              # Custom node views
+│   │   ├── hooks/
+│   │   ├── utils/                  # Feature-specific pure utilities
+│   │   ├── constants/
+│   │   └── index.ts
+│   └── crypto/                     # E2E encryption services
+│       ├── services/
+│       ├── constants/
+│       └── index.ts
+│
+├── hooks/                          # Global, reusable hooks only
+│   ├── useIsMobile.ts
+│   └── index.ts
+│
+├── lib/                            # Third-party library configs & wrappers
+│   └── utils.ts                    # cn() helper (clsx + tailwind-merge)
+│
+├── services/                       # Global API service layer
+│   ├── api.ts                      # Fetch-based API client
+│   └── index.ts
+│
+├── types/                          # Global shared types
+│   ├── common.types.ts
+│   └── index.ts
+│
+├── constants/                      # Global constants
+│   ├── routes.ts
+│   ├── config.ts
+│   └── index.ts
+│
+├── styles/                         # SCSS design tokens & animations
+│   ├── _variables.scss
+│   └── _keyframe-animations.scss
 │
 ├── .env.local
 ├── .env.example
-├── .eslintrc.json
+├── eslint.config.mjs               # ESLint flat config
 ├── .prettierrc
 ├── next.config.ts
-├── tailwind.config.ts
+├── components.json                  # shadcn/ui config
+├── serwist.config.js                # PWA build config
 ├── tsconfig.json
 └── package.json
 ```
@@ -182,7 +174,7 @@ my-app/
 
 5. **Colocate `_components/` inside a route** only when those components are 100% route-specific and will never be reused.
 
-6. **API routes** go in `app/api/`. Use `route.ts` with typed `Request` and `Response`. Never import from `app/api/` in client components.
+6. **No API proxy routes.** The frontend communicates directly with the NestJS backend. Do not create `app/api/` route handlers.
 
 ---
 
@@ -197,31 +189,54 @@ my-app/
 | Uses browser APIs (`window`, `document`) | `'use client'` |
 | Wraps a 3rd-party component that uses hooks | `'use client'` |
 
-### The Three-Layer Model
+### The Four-Layer Model
 
 | Layer | Location | Purpose |
 |---|---|---|
-| Primitives | `components/ui/` | Button, Input, Badge, Modal — no business logic, pure props |
-| Structural | `components/layout/` | Header, Sidebar, PageWrapper — reusable structure, no domain data |
-| Feature | `features/[x]/components/` | UserCard, InvoiceTable — knows the domain, composed from Layers 1 & 2 |
+| Primitives | `components/ui/` | Button, Input, Badge, Modal — no business logic, pure props (shadcn/ui) |
+| Structural | `components/layout/` | Header, Sidebar, AppShell — reusable structure, no domain data |
+| Providers | `components/Providers/` | Global context wrappers (QueryClient, Theme, Toaster) |
+| Feature | `features/[x]/components/` | NoteEditor, SpaceSettings — knows the domain, composed from Layers 1 & 2 |
 
 **Dependency flows downward only:** `ui/` must never import from `features/`.
+
+### shadcn/ui Primitives
+
+All primitive UI components use **shadcn/ui** (managed via `components.json`).
+
+- Add components via `npx shadcn add <component>`
+- shadcn components use **flat file naming** (lowercase): `button.tsx`, `dialog.tsx`, `input.tsx`
+- Use the **folder pattern** only for custom multi-file components:
+  ```
+  DynamicForm/
+  ├── index.tsx          ← re-exports DynamicForm
+  ├── DynamicForm.tsx    ← implementation
+  └── DynamicForm.test.tsx
+  ```
+
+### Dynamic Import Wrappers
+
+Heavy client components (e.g. the Tiptap editor) should use `next/dynamic` for code splitting. Place the dynamic wrapper at the **feature root** as the public export, keeping the actual component inside `components/`:
+
+```tsx
+// features/editor/DynamicNoteEditor.tsx (feature root)
+'use client';
+import dynamic from 'next/dynamic';
+import { NoteEditorSkeleton } from './components/NoteEditorSkeleton';
+
+export const NoteEditor = dynamic(
+  () => import('./components/NoteEditor').then((mod) => mod.NoteEditor),
+  { ssr: false, loading: () => <NoteEditorSkeleton /> },
+);
+```
 
 ### Rules
 
 1. **One component per file.** No exceptions for non-trivial components.
 
-2. **Component folders** for anything beyond a single file:
-   ```
-   Button/
-   ├── index.tsx          ← re-exports Button
-   ├── Button.tsx         ← implementation
-   └── Button.test.tsx
-   ```
+2. **`index.ts` barrel files** at folder level to avoid messy import paths.
 
-3. **`index.ts` barrel files** at folder level to avoid messy import paths.
-
-4. **Props interface must be named `[ComponentName]Props`** and defined above the component:
+3. **Props interface must be named `[ComponentName]Props`** and defined above the component:
    ```tsx
    interface ButtonProps {
      label: string;
@@ -235,13 +250,13 @@ my-app/
    }
    ```
 
-5. **Use named exports, not default exports** (except Next.js special files: `page.tsx`, `layout.tsx`, etc.).
+4. **Use named exports, not default exports** (except Next.js special files: `page.tsx`, `layout.tsx`, etc.).
 
-6. **Push `'use client'` as deep as possible.** Extract interactive parts into small client components. Keep parents as server components.
+5. **Push `'use client'` as deep as possible.** Extract interactive parts into small client components. Keep parents as server components.
 
-7. **Never fetch data inside client components.** Data fetching belongs in server components or TanStack Query / SWR hooks.
+6. **Never fetch data inside client components.** Data fetching belongs in server components or TanStack Query hooks.
 
-8. **Use `children` for composition over deeply nested props:**
+7. **Use `children` for composition over deeply nested props:**
    ```tsx
    // ❌ Avoid: <Card title="Users" subtitle="..." icon={<UsersIcon />} footerText="Total: 12" />
    // ✅ Prefer composable slots:
@@ -251,15 +266,17 @@ my-app/
    </Card>
    ```
 
-9. **Prefer composition over configuration.** A component with 10+ boolean props should be split into composable sub-components.
+8. **Prefer composition over configuration.** A component with 10+ boolean props should be split into composable sub-components.
 
-10. **Before building a new component, check `components/ui/` first.** Never rebuild existing primitives in a feature.
+9. **Before building a new component, check `components/ui/` first.** Never rebuild existing primitives in a feature.
 
-11. **Create `EmptyState` and `ErrorState` components** for consistent list/table fallbacks instead of ad-hoc inline markup.
+10. **Create `EmptyState` and `ErrorState` components** for consistent list/table fallbacks instead of ad-hoc inline markup.
 
-12. **Every data-fetching view must have a loading skeleton** — use meaningful `Suspense` fallbacks, not generic spinners.
+11. **Every data-fetching view must have a loading skeleton** — use meaningful `Suspense` fallbacks, not generic spinners.
 
-13. **Forward refs for primitive UI components** that wrap native elements (`Button`, `Input`, etc.) to support parent ref access.
+12. **Forward refs for primitive UI components** that wrap native elements (`Button`, `Input`, etc.) to support parent ref access.
+
+13. **Encrypted/blob-based images** that are decrypted client-side may use native `<img>` when `next/image` optimisation is not applicable.
 
 ---
 
@@ -271,7 +288,7 @@ my-app/
 |---|---|
 | Used by one component only | Same file as the component |
 | Used by multiple components within one feature | `features/[feature]/hooks/` |
-| Used across multiple features | `src/hooks/` (global) |
+| Used across multiple features | `hooks/` (global) |
 
 ### Rules
 
@@ -281,7 +298,7 @@ my-app/
 4. **Always return a typed object or tuple.**
 5. **Avoid side effects at the top level** — use `useEffect`.
 6. **Hooks wrapping API calls must return `{ data, isLoading, error }`** — consistent shape.
-7. **Prefer TanStack Query / SWR** for server-state hooks instead of manual `useEffect` + `fetch`.
+7. **Prefer TanStack Query** for server-state hooks instead of manual `useEffect` + `fetch`.
 
 ---
 
@@ -291,10 +308,10 @@ my-app/
 
 | Type Scope | Location |
 |---|---|
-| Global, shared types | `src/types/` |
-| Feature-specific types | `src/features/[feature]/types/` |
+| Global, shared types | `types/` |
+| Feature-specific types | `features/[feature]/types/` |
 | Component-only types | Inside the component file (as `interface XProps`) |
-| API response/request types | `src/types/api.types.ts` or feature `types/` |
+| API response/request types | `types/api.types.ts` or feature `types/` |
 
 ### Rules
 
@@ -316,11 +333,11 @@ my-app/
 
 | Constant Scope | Location |
 |---|---|
-| API base URL, feature flags | `.env` → validated in `lib/env.ts` |
-| Global app config (timeouts, pagination) | `src/constants/config.ts` |
-| Route paths | `src/constants/routes.ts` |
-| Error/success messages | `src/constants/messages.ts` |
-| Feature-specific values | `src/features/[feature]/constants/` |
+| API base URL, feature flags | `.env` → `constants/config.ts` |
+| Global app config (timeouts, pagination) | `constants/config.ts` |
+| Route paths | `constants/routes.ts` |
+| Error/success messages | `constants/messages.ts` |
+| Feature-specific values | `features/[feature]/constants/` |
 | Component-local magic values | Top of the component file |
 
 ### Rules
@@ -364,18 +381,10 @@ my-app/
    router.push(ROUTES.DASHBOARD_SETTINGS);
    ```
 
-5. **Validate environment variables at startup** in `lib/env.ts`:
+5. **Environment variables** are read in `constants/config.ts` with sensible defaults:
    ```ts
-   function requireEnv(key: string): string {
-     const value = process.env[key];
-     if (!value) throw new Error(`Missing required env var: ${key}`);
-     return value;
-   }
-
-   export const ENV = {
-     API_URL: requireEnv('NEXT_PUBLIC_API_URL'),
-     APP_NAME: process.env.NEXT_PUBLIC_APP_NAME ?? 'MyApp',
-   } as const;
+   export const API_BASE_URL =
+     process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5555';
    ```
 
 6. **Never expose secrets in `NEXT_PUBLIC_` env vars** — only public configuration.
@@ -387,49 +396,71 @@ my-app/
 ### Structure
 
 ```ts
-// services/api.ts — base client
-import axios from 'axios';
+// services/api.ts — fetch-based API client
+import { API_BASE_URL } from '@/constants/config';
+import { storageService, STORAGE_KEYS } from '@/features/storage';
 
-export const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
-  headers: { 'Content-Type': 'application/json' },
-});
+export interface ApiRequestInit extends RequestInit {
+  auth?: boolean;
+}
+
+export const apiClient = {
+  get: async <T>(url: string, init?: ApiRequestInit): Promise<T> =>
+    request<T>(url, { ...init, method: 'GET' }),
+  post: async <T>(url: string, body?: unknown, init?: ApiRequestInit): Promise<T> =>
+    request<T>(url, { ...init, method: 'POST', body: JSON.stringify(body) }),
+  patch: async <T>(url: string, body?: unknown, init?: ApiRequestInit): Promise<T> =>
+    request<T>(url, { ...init, method: 'PATCH', body: JSON.stringify(body) }),
+  delete: async <T>(url: string, init?: ApiRequestInit): Promise<T> =>
+    request<T>(url, { ...init, method: 'DELETE' }),
+  postForm: async <T>(url: string, formData: FormData, init?: ApiRequestInit): Promise<T> =>
+    requestForm<T>(url, formData, { ...init, method: 'POST' }),
+};
 ```
 
 ```ts
-// features/users/services/user.service.ts
+// features/workspace/services/note.service.ts
 import { apiClient } from '@/services/api';
-import type { User, CreateUserPayload } from '../types/user.types';
-import type { ApiResponse, PaginatedResponse } from '@/types/api.types';
+import type { Note } from '../types/workspace.types';
 
-export const userService = {
-  getAll: (page = 1) =>
-    apiClient.get<PaginatedResponse<User>>('/users', { params: { page } }),
+export const noteService = {
+  getAll: () =>
+    apiClient.get<{ data: Note[] }>('/notes', { auth: true }),
   getById: (id: string) =>
-    apiClient.get<ApiResponse<User>>(`/users/${id}`),
-  create: (payload: CreateUserPayload) =>
-    apiClient.post<ApiResponse<User>>('/users', payload),
-  update: (id: string, payload: Partial<CreateUserPayload>) =>
-    apiClient.patch<ApiResponse<User>>(`/users/${id}`, payload),
+    apiClient.get<{ data: Note }>(`/notes/${id}`, { auth: true }),
+  create: (payload: Partial<Note>) =>
+    apiClient.post<{ data: Note }>('/notes', payload, { auth: true }),
+  update: (id: string, payload: Partial<Note>) =>
+    apiClient.patch<{ data: Note }>(`/notes/${id}`, payload, { auth: true }),
   delete: (id: string) =>
-    apiClient.delete<ApiResponse<void>>(`/users/${id}`),
+    apiClient.delete<void>(`/notes/${id}`, { auth: true }),
 };
 ```
+
+### Feature Subdirectories
+
+Feature modules may include the following subdirectories as needed:
+
+| Subdirectory | Purpose |
+|---|---|
+| `components/` | Feature-specific UI components |
+| `hooks/` | Feature-specific React hooks |
+| `services/` | API calls and business logic |
+| `types/` | TypeScript types and interfaces |
+| `constants/` | Feature-specific constants |
+| `utils/` | Feature-specific pure utility functions |
+| `extensions/` | Library extensions (e.g. Tiptap editor extensions) |
+| `actions/` | Next.js Server Actions (`'use server'`) |
 
 ### Rules
 
 1. **Services are plain objects with typed methods** — no classes unless required by a library.
-2. **One service file per domain entity** (e.g., `user.service.ts`, `order.service.ts`).
-3. **Services never contain UI logic or React imports.**
-4. **Always type both request payloads and response shapes.**
-5. **Server Actions** (`'use server'`) go in `features/[feature]/actions/`:
-   ```ts
-   'use server';
-   export async function loginAction(formData: FormData) {
-     const email = formData.get('email') as string;
-     // ... server-side logic
-   }
-   ```
+2. **One service file per domain entity** (e.g., `note.service.ts`, `space.service.ts`).
+3. **Service file naming uses camelCase**: `auth.service.ts`, `versionHistory.service.ts`.
+4. **Services never contain UI logic or React imports.**
+5. **Always type both request payloads and response shapes.**
+6. **Pass `{ auth: true }` to authenticated API calls** — the `apiClient` handles token injection.
+7. **Server Actions** (`'use server'`) go in `features/[feature]/actions/`.
 
 ---
 
@@ -442,20 +473,47 @@ Is the state needed in only one component?
   └── Yes → useState / useReducer (local)
 
 Is it server/remote data (API responses)?
-  └── Yes → TanStack Query or SWR
+  └── Yes → TanStack Query (see below)
 
 Is it shared across multiple components?
   └── Is it URL-representable (filters, pagination)?
         └── Yes → URL search params (useSearchParams)
-        └── No → Zustand store or React Context
+        └── No → React Context
 ```
 
-### Zustand Rules
+### TanStack Query Patterns
 
-1. **One store file per concern** — don't combine unrelated slices.
-2. **Store actions live inside the store** — not in components.
-3. **Derive computed values with selectors** — don't store computed state.
-4. **Don't put server data in Zustand** — that's TanStack Query's job.
+TanStack Query (`@tanstack/react-query`) is the **primary data-fetching and server-state layer**. Do not use Zustand or other global stores for server data.
+
+1. **Query hooks live in `features/[feature]/hooks/`** and wrap service calls:
+   ```ts
+   // features/workspace/hooks/useLocalNotes.ts
+   import { useQuery } from '@tanstack/react-query';
+   import { noteService } from '../services/note.service';
+
+   export function useLocalNotes() {
+     return useQuery({
+       queryKey: ['notes'],
+       queryFn: () => noteService.getAll(),
+     });
+   }
+   ```
+
+2. **Query keys are feature-scoped arrays**: `['notes']`, `['spaces', spaceId]`, `['versions', noteId]`.
+3. **Mutations invalidate related queries** to keep the cache fresh.
+4. **Never store TanStack Query data in separate state** — consume `data` directly from the hook.
+5. **Wrap the app in `QueryClientProvider`** via `components/Providers/Providers.tsx`.
+
+### Barrel Exports
+
+Feature `index.ts` files must use **explicit named re-exports** for a clear public API:
+
+```ts
+// features/workspace/index.ts
+export { useLocalNotes } from './hooks/useLocalNotes';
+export { noteService } from './services/note.service';
+export type { Note, NoteType } from './types/workspace.types';
+```
 
 ---
 
@@ -525,6 +583,46 @@ Is it shared across multiple components?
 
 ---
 
+## PWA & Service Worker
+
+The application is a **Progressive Web App** using `@serwist/next` for offline support and caching.
+
+### File Locations
+
+| File | Purpose |
+|---|---|
+| `app/sw.ts` | Service worker entry point |
+| `app/serwist.ts` | Serwist React provider |
+| `serwist.config.js` | Build-time config for `serwist build` |
+| `app/~offline/page.tsx` | Offline fallback page |
+| `features/pwa/` | PWA-specific actions and components |
+
+### Rules
+
+1. **Service worker is disabled in development** — enabled only in production builds.
+2. **PWA feature module** follows the same feature-first structure as other features.
+3. **Build command** includes `serwist build` after `next build`.
+
+---
+
+## E2E Encryption Architecture
+
+The app uses **end-to-end encryption** for all user content. Cryptographic operations are centralised in dedicated feature modules.
+
+| Module | Purpose |
+|---|---|
+| `features/crypto/` | AES-GCM encryption/decryption services and constants |
+| `features/storage/` | IndexedDB (Dexie) for secure local key storage |
+
+### Rules
+
+1. **All note content and file attachments are encrypted client-side** before being sent to the backend.
+2. **Encryption keys never leave the client** — the backend stores only opaque ciphertext.
+3. **Shared crypto utilities** (e.g., `encryptContent`, `decryptContent`) live in `features/crypto/services/`.
+4. **Key derivation and storage** use Web Crypto API and IndexedDB via `features/storage/`.
+
+---
+
 ## Performance & Optimization
 
 1. **Prefer Server Components for data fetching** — zero client JS cost.
@@ -537,7 +635,7 @@ Is it shared across multiple components?
    });
    ```
 
-3. **Always use `next/image`** — never raw `<img>` tags. Configure `sizes` for responsive loading:
+3. **Prefer `next/image`** over raw `<img>` tags when possible. Configure `sizes` for responsive loading:
    ```tsx
    <Image
      src="/hero.jpg"
@@ -548,6 +646,7 @@ Is it shared across multiple components?
      priority
    />
    ```
+   **Exception:** Encrypted/blob-based images decrypted client-side into object URLs may use native `<img>` when `next/image` optimisation is not applicable.
 
 4. **Use `next/font`** to load fonts — eliminates layout shift and self-hosts automatically.
 
@@ -565,6 +664,14 @@ Is it shared across multiple components?
 ## Responsive & Mobile-First Design
 
 > **Rule: Design for the smallest screen first, then progressively enhance.**
+
+### Styling: Tailwind CSS v4 + SCSS
+
+The project uses **Tailwind CSS v4** (CSS-first config via `@tailwindcss/postcss` — no `tailwind.config.ts`) alongside **SCSS** for design tokens and animations.
+
+- Tailwind classes are the primary styling mechanism
+- SCSS files in `styles/` define shared variables (`_variables.scss`) and keyframe animations (`_keyframe-animations.scss`)
+- Use `cn()` from `lib/utils.ts` (clsx + tailwind-merge) for conditional class composition
 
 ### Tailwind Breakpoint Reference
 
@@ -644,7 +751,7 @@ Is it shared across multiple components?
 
 2. **Relative imports are fine** for files in the same folder or one level up.
 
-3. **Import order** (enforce with ESLint `import/order`):
+3. **Import order**:
    ```ts
    // 1. React & Next.js
    import { useState } from 'react';
@@ -696,11 +803,11 @@ utils/
 | Tool | Purpose |
 |---|---|
 | TypeScript (`strict: true`) | Type safety |
-| ESLint | Code quality enforcement |
+| ESLint (flat config `eslint.config.mjs`) | Code quality enforcement |
 | Prettier | Consistent formatting |
-| `eslint-plugin-import` | Import order & boundaries |
-| `eslint-plugin-react-hooks` | Hooks rules |
-| Husky + lint-staged | Enforce on commit |
+| `eslint-config-next` | Next.js specific rules |
+| `eslint-plugin-prettier` | Prettier integration |
+| `@typescript-eslint` | TypeScript-aware linting |
 
 ### Rules
 
@@ -743,15 +850,16 @@ A compact cheatsheet of the most commonly violated rules:
 | `'use client'` at the leaf | Push client directives as deep as possible |
 | No `any` | Use `unknown` + narrowing |
 | No magic values | Extract to constants or env vars |
-| No `<img>` | Always `next/image` |
-| No `useEffect` + `fetch` | Use TanStack Query or SWR |
+| Prefer `next/image` | Use native `<img>` only for encrypted/blob content |
+| No `useEffect` + `fetch` | Use TanStack Query |
 | No catch-all files | Split `utils.ts` → `date.utils.ts`, `string.utils.ts`, etc. |
 | Import from `index.ts` | Never reach into a feature's internal files |
 | Semantic HTML | `<button>` not `<div onClick>` |
 | Max 4 params | Use an options object for more |
 | Max 4 nesting levels | Flatten or reconsider boundaries |
 | Mobile-first CSS | Write base styles for mobile, use `md:`/`lg:` to scale up |
+| camelCase service files | `note.service.ts`, not `note-service.ts` |
 
 ---
 
-*Last updated: April 2025 | Next.js 15, React 19, TypeScript 5*
+*Last updated: April 2026 | Next.js 16, React 19, TypeScript 5*
