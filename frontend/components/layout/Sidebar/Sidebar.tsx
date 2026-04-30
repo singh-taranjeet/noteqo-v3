@@ -30,10 +30,13 @@ const CREATE_SPACE_FIELDS: FormFieldConfig[] = [
   },
 ];
 
+import { useIsMobile } from "@/hooks/useIsMobile";
+
 export function Sidebar() {
   const { isSidebarOpen, toggleSidebar } = useAppShell();
   const { data, isLoading: spacesLoading, spaceNotesMap } = useSpaces();
   const { spaces = [] } = data || {};
+  const isMobile = useIsMobile();
 
   // Start background sync queue
   useSyncQueue();
@@ -80,11 +83,14 @@ export function Sidebar() {
       className={cn(
         "flex flex-col h-full bg-sidebar border-r border-sidebar-border shrink-0 overflow-hidden",
         "transition-all ease-in-out",
+        !isSidebarOpen && isMobile && "border-r-0"
       )}
       style={{
         width: isSidebarOpen
           ? `${LAYOUT_CONFIG.SIDEBAR_WIDTH}px`
-          : `${LAYOUT_CONFIG.SIDEBAR_COLLAPSED_WIDTH}px`,
+          : isMobile
+            ? "0px"
+            : `${LAYOUT_CONFIG.SIDEBAR_COLLAPSED_WIDTH}px`,
         transitionDuration: `${LAYOUT_CONFIG.TRANSITION_DURATION}ms`,
       }}
       aria-label="Sidebar navigation"

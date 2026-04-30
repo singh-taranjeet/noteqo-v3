@@ -10,7 +10,7 @@ export default function WorkspaceLayout({
   return (
     <AuthGuard>
       <AppShell>
-        <div className="flex h-full shrink-0">
+        <div className="md:relative absolute z-40 flex h-full shrink-0 shadow-2xl md:shadow-none">
           <Sidebar />
           <SecondarySidebar />
         </div>
