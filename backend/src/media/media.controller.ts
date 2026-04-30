@@ -28,7 +28,8 @@ export class MediaController {
     @Req() request: any,
     @Body() body: any,
   ): Promise<any> {
-    return this.mediaService.handleVercelBlobUpload(request, body);
+    const result = await this.mediaService.handleVercelBlobUpload(request, body);
+    return { success: true, ...result };
   }
 
   /**

@@ -36,6 +36,7 @@ export const mediaService = {
 
     const blob = await upload(id, encryptedFile, {
       access: "public",
+      multipart: true,
       handleUploadUrl: `${API_BASE_URL}/media/upload`,
       clientPayload: JSON.stringify({
         token,

@@ -52,7 +52,6 @@ export class MediaService {
         }
 
         return {
-          allowedContentTypes: ['*/*'], // Accept all encrypted files
           maximumSizeInBytes: MEDIA_CONFIG.MAX_FILE_SIZE_BYTES,
           tokenPayload: JSON.stringify({
             id,
