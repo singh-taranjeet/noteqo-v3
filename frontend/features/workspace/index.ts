@@ -3,6 +3,7 @@ export { useLocalNotes } from "./hooks/useLocalNotes";
 export { useSidebarSearchNotes } from "./hooks/useSidebarSearchNotes";
 export { useRecentNotes } from "./hooks/useRecentNotes";
 export { useCreateNote } from "./hooks/useCreateNote";
+export { useDuplicateNote } from "./hooks/useDuplicateNote";
 export { useSyncQueue } from "./hooks/useSyncQueue";
 export { noteService } from "./services/note.service";
 export { versionHistoryService } from "./services/version-history.service";
