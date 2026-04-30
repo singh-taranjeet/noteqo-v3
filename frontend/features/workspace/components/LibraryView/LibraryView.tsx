@@ -10,6 +10,7 @@ import { useRecentNotes } from "@/features/workspace/hooks/useRecentNotes";
 import { SpaceAccordion } from "./SpaceAccordion";
 import { NoteList } from "./NoteList";
 import { CreateNoteDialog } from "./CreateNoteDialog";
+import { Spinner } from "@/components/ui/spinner";
 
 type TabType = "private" | "shared" | "recent" | "favorite";
 
@@ -70,18 +71,16 @@ export function LibraryView() {
         onValueChange={(val) => setActiveTab(val as TabType)} 
         className="flex-1 flex flex-col"
       >
-        <div className="mb-6 w-full overflow-x-auto pb-2">
-          <TabsList>
-            <TabsTrigger value="private">Private</TabsTrigger>
-            <TabsTrigger value="shared">Shared</TabsTrigger>
-            <TabsTrigger value="recent">Recent</TabsTrigger>
-            <TabsTrigger value="favorite">Favorite</TabsTrigger>
-          </TabsList>
-        </div>
+        <TabsList className="mb-6">
+          <TabsTrigger value="private">Private</TabsTrigger>
+          <TabsTrigger value="shared">Shared</TabsTrigger>
+          <TabsTrigger value="recent">Recent</TabsTrigger>
+          <TabsTrigger value="favorite">Favorite</TabsTrigger>
+        </TabsList>
 
         {isLoading ? (
           <div className="flex flex-col items-center justify-center flex-1">
-            <p className="text-sm text-muted-foreground animate-pulse">Loading library...</p>
+            <Spinner className="size-6 text-muted-foreground" />
           </div>
         ) : (
           <div className="flex-1 overflow-y-auto pb-12">
@@ -101,14 +100,14 @@ export function LibraryView() {
               />
             </TabsContent>
             
-            <TabsContent value="recent" className="m-0 focus-visible:outline-none bg-card border rounded-xl p-2 shadow-sm">
+            <TabsContent value="recent" className="m-0 focus-visible:outline-none">
               <NoteList 
                 notes={recentNotes} 
                 emptyMessage="You haven't viewed or edited any notes recently."
               />
             </TabsContent>
             
-            <TabsContent value="favorite" className="m-0 focus-visible:outline-none bg-card border rounded-xl p-2 shadow-sm">
+            <TabsContent value="favorite" className="m-0 focus-visible:outline-none">
               <NoteList 
                 notes={favoriteNotes} 
                 emptyMessage="You don't have any favorite notes yet."

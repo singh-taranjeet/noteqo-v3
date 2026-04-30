@@ -1,10 +1,17 @@
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Clock04Icon } from "@hugeicons/core-free-icons";
+import { Clock04Icon, NotebookIcon } from "@hugeicons/core-free-icons";
 import { ROUTES } from "@/constants/routes";
 import { cn } from "@/lib/utils";
 import type { Note } from "@/features/workspace/types/workspace.types";
+import {
+  Empty,
+  EmptyTitle,
+  EmptyDescription,
+  EmptyContent,
+  EmptyMedia,
+} from "@/components/ui/empty";
 
 interface NoteListProps {
   notes: Note[];
@@ -14,9 +21,15 @@ interface NoteListProps {
 export function NoteList({ notes, emptyMessage = "No notes found." }: NoteListProps) {
   if (!notes.length) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
-        <p className="text-sm text-muted-foreground">{emptyMessage}</p>
-      </div>
+      <Empty>
+        <EmptyContent>
+          <EmptyMedia>
+            <HugeiconsIcon icon={NotebookIcon} size={24} />
+          </EmptyMedia>
+          <EmptyTitle>No notes found</EmptyTitle>
+          <EmptyDescription>{emptyMessage}</EmptyDescription>
+        </EmptyContent>
+      </Empty>
     );
   }
 

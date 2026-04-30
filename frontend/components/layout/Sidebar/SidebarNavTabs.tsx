@@ -10,6 +10,8 @@ import {
 } from "@/components/ui/sidebar";
 import type { ActiveTabType } from "../types";
 import { SearchSheet } from "./Search";
+import { useRouter } from "next/navigation";
+import { ROUTES } from "@/constants/routes";
 
 interface SidebarNavTabsProps {
   activeTab?: ActiveTabType;
@@ -21,6 +23,7 @@ export function SidebarNavTabs({
   setActiveTab,
 }: Readonly<SidebarNavTabsProps>) {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const router = useRouter();
 
   return (
     <>
@@ -28,7 +31,10 @@ export function SidebarNavTabs({
         <SidebarMenuItem>
           <SidebarMenuButton
             isActive={activeTab === "home"}
-            onClick={() => setActiveTab("home")}
+            onClick={() => {
+              setActiveTab("home");
+              router.push(ROUTES.NOTES);
+            }}
             tooltip="Home"
           >
             <HugeiconsIcon icon={Home01Icon} size={18} strokeWidth={1.5} />

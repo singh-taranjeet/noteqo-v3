@@ -7,6 +7,15 @@ import {
 import { NoteList } from "./NoteList";
 import type { Space } from "@/features/spaces/types/spaces.types";
 import type { Note } from "@/features/workspace/types/workspace.types";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { NotebookIcon } from "@hugeicons/core-free-icons";
+import {
+  Empty,
+  EmptyTitle,
+  EmptyDescription,
+  EmptyContent,
+  EmptyMedia,
+} from "@/components/ui/empty";
 
 interface SpaceAccordionProps {
   spaces: Space[];
@@ -21,9 +30,15 @@ export function SpaceAccordion({
 }: SpaceAccordionProps) {
   if (!spaces.length) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
-        <p className="text-sm text-muted-foreground">{emptyMessage}</p>
-      </div>
+      <Empty>
+        <EmptyContent>
+          <EmptyMedia>
+            <HugeiconsIcon icon={NotebookIcon} size={24} />
+          </EmptyMedia>
+          <EmptyTitle>No spaces found</EmptyTitle>
+          <EmptyDescription>{emptyMessage}</EmptyDescription>
+        </EmptyContent>
+      </Empty>
     );
   }
 
@@ -31,7 +46,7 @@ export function SpaceAccordion({
   const defaultValue = spaces.map((s) => s.id);
 
   return (
-    <Accordion type="multiple" defaultValue={defaultValue} className="w-full space-y-4">
+    <Accordion type="multiple" defaultValue={defaultValue} className="w-full">
       {spaces.map((space) => {
         const notes = spaceNotesMap[space.id] || [];
         
@@ -39,7 +54,6 @@ export function SpaceAccordion({
           <AccordionItem
             key={space.id}
             value={space.id}
-            className="border bg-card text-card-foreground rounded-xl px-4 shadow-sm"
           >
             <AccordionTrigger className="hover:no-underline py-4">
               <div className="flex items-center gap-2">
