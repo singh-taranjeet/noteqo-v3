@@ -1,6 +1,0 @@
-NODE_ENV=production
-PORT=5555
-DATABASE_URL="postgresql://neondb_owner:npg_JqSfC7DcVPH9@ep-steep-hat-amr40icf-pooler.c-5.us-east-1.aws.neon.tech/neondb?channel_binding=require&sslmode=require"
-JWT_SECRET=production_secret_change_me
-JWT_EXPIRES_IN=7d
-BLOB_READ_WRITE_TOKEN=vercel_blob_rw_EazbFEim2vLMtiT7_BshmLOakSi5waYABKvmXgFgPm6tDn9
