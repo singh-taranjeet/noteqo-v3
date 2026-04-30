@@ -166,6 +166,7 @@ export class NotesRepository {
       deletedBy: entity.deletedBy,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
+      isFavorite: entity.isFavorite,
     };
   }
 

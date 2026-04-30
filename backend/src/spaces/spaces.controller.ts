@@ -222,6 +222,7 @@ export class SpacesController {
       deletedBy: note.deletedBy,
       createdAt: note.createdAt,
       updatedAt: note.updatedAt,
+      isFavorite: note.isFavorite,
     };
   }
 }
