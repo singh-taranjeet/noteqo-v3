@@ -11,6 +11,7 @@ export const NOTE_COLUMN = {
   VERSION: 'version',
   SPACE_ID: 'space_id',
   TYPE: 'type',
+  IS_FAVORITE: 'is_favorite',
 } as const;
 
 export const NOTE_VERSION_TABLE = { NAME: 'note_versions' } as const;

@@ -30,6 +30,13 @@ export class NoteEntity extends AppBaseEntity {
   })
   type: NoteType;
 
+  @Column({
+    name: NOTE_COLUMN.IS_FAVORITE,
+    type: 'boolean',
+    default: false,
+  })
+  isFavorite: boolean;
+
   @OneToMany(() => NoteVersionEntity, (version) => version.note, {
     cascade: true,
   })

@@ -8,6 +8,7 @@ export interface Note {
   version: number;
   spaceId: string;
   type: NoteType;
+  isFavorite: boolean;
   createdBy: string;
   updatedBy?: string;
   deletedBy?: string;

@@ -4,6 +4,8 @@ import {
   IsUUID,
   IsIn,
   IsDateString,
+  IsBoolean,
+  IsOptional,
 } from 'class-validator';
 import { NOTE_TYPE } from '../constants/notes.constants';
 import type { NoteType } from '../types/notes.types';
@@ -24,6 +26,10 @@ export class CreateNoteDto {
   @IsIn(Object.values(NOTE_TYPE))
   @IsNotEmpty()
   type: NoteType; // 'private' | 'shared'
+
+  @IsBoolean()
+  @IsOptional()
+  isFavorite?: boolean;
 
   @IsString()
   @IsNotEmpty()

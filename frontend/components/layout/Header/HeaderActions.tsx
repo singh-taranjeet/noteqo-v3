@@ -26,6 +26,7 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useLocalNotes } from "@/features/workspace/hooks/useLocalNotes";
 import { useDuplicateNote } from "@/features/workspace/hooks/useDuplicateNote";
+import { useToggleFavoriteNote } from "@/features/workspace/hooks/useToggleFavoriteNote";
 import { MOCK_USER } from "@/features/auth";
 import { VersionHistoryDialog } from "@/features/editor";
 
@@ -36,6 +37,8 @@ export function HeaderActions() {
   const { data: notes } = useLocalNotes();
   const duplicateMutation = useDuplicateNote();
   const isDuplicating = duplicateMutation.isPending;
+
+  const toggleFavoriteMutation = useToggleFavoriteNote();
 
   const [isVersionHistoryOpen, setIsVersionHistoryOpen] = useState(false);
 
@@ -95,19 +98,25 @@ export function HeaderActions() {
       )}
 
       {/* Favorite toggle */}
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-7 w-7"
-            aria-label="Add to favorites"
-          >
-            <HugeiconsIcon icon={FavouriteIcon} size={16} strokeWidth={1.5} />
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent side="bottom">Add to favorites</TooltipContent>
-      </Tooltip>
+      {noteId && currentNote && (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className={`h-7 w-7 ${currentNote.isFavorite ? "text-yellow-500 hover:text-yellow-600" : ""}`}
+              aria-label={currentNote.isFavorite ? "Remove from favorites" : "Add to favorites"}
+              onClick={() => toggleFavoriteMutation.mutate({ noteId, isFavorite: !currentNote.isFavorite })}
+              disabled={toggleFavoriteMutation.isPending}
+            >
+              <HugeiconsIcon icon={FavouriteIcon} size={16} strokeWidth={1.5} />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">
+            {currentNote.isFavorite ? "Remove from favorites" : "Add to favorites"}
+          </TooltipContent>
+        </Tooltip>
+      )}
 
       {/* More options dropdown */}
       <DropdownMenu>

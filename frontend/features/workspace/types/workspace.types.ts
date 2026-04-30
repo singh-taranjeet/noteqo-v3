@@ -11,6 +11,7 @@ export interface Note {
   syncStatus: SyncStatus;
   spaceId: string;
   type: NoteType;
+  isFavorite?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -30,6 +31,7 @@ export interface RemoteNote {
   version: number;
   spaceId: string;
   type: string;
+  isFavorite?: boolean;
   createdAt: string;
   updatedAt: string;
 }
