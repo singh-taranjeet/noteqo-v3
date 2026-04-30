@@ -1,19 +1,41 @@
-import { SidebarSection } from "./SidebarSection";
-import { SidebarSpaceGroup } from "./SidebarSpaceGroup";
-import { SidebarPageItem } from "./SidebarPageItem";
-import { Button } from "@/components/ui/button";
+"use client";
+
+import { useState } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Add01Icon } from "@hugeicons/core-free-icons";
+import {
+  ArrowRight01Icon,
+  Add01Icon,
+  MoreHorizontalIcon,
+} from "@hugeicons/core-free-icons";
+import {
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarGroupAction,
+  SidebarGroupContent,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+  SidebarMenuAction,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
+  SidebarMenuSubButton,
+} from "@/components/ui/sidebar";
 import {
   Tooltip,
   TooltipContent,
-  TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { useAppShell } from "../AppShell";
 import { SPACE_TYPE } from "@/features/spaces";
 import type { Space } from "@/features/spaces";
 import type { Note } from "@/features/workspace";
+import Link from "next/link";
+import { ROUTES } from "@/constants/routes";
 
 interface SidebarSpaceCategoryProps {
   label: string;
@@ -43,96 +65,174 @@ export function SidebarSpaceCategory({
   const { openSecondarySidebar } = useAppShell();
   const secondarySidebarType =
     type === SPACE_TYPE.SHARED ? "shared" : "private";
+  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
 
   return (
-    <SidebarSection
-      label={label}
-      action={
-        <TooltipProvider>
-          <div className="flex items-center">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6 mr-1"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onAddSpaceClick();
-                  }}
-                  aria-label={addSpaceTooltip}
-                >
-                  <HugeiconsIcon
-                    icon={Add01Icon}
-                    size={14}
-                    strokeWidth={2}
-                    className="text-muted-foreground"
-                  />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>{addSpaceTooltip}</TooltipContent>
-            </Tooltip>
-          </div>
-        </TooltipProvider>
-      }
-    >
-      {isLoading && (
-        <div className="px-4 py-2 text-xs text-muted-foreground animate-pulse">
-          Loading spaces...
-        </div>
-      )}
-      {!isLoading && spaces.length === 0 && (
-        <div className="px-5 py-1.5 text-xs text-muted-foreground">
-          {emptyMessage}
-        </div>
-      )}
-      {!isLoading &&
-        spaces.map((space) => {
-          const notes = spaceNotesMap?.[space.id] ?? [];
-          const displayNotes = notes.slice(0, 10);
-          return (
-            <SidebarSpaceGroup
-              key={space.id}
-              name={space.name}
-              onCreateNote={() => onCreateNote(space.id)}
-              onSettingsClick={
-                onSettingsClick ? () => onSettingsClick(space) : undefined
-              }
+    <Collapsible open={isCategoryOpen} onOpenChange={setIsCategoryOpen} className="group/collapsible">
+      <SidebarGroup>
+        <SidebarGroupLabel asChild>
+          <CollapsibleTrigger className="cursor-pointer">
+            <HugeiconsIcon
+              icon={ArrowRight01Icon}
+              size={12}
+              strokeWidth={2}
+              className="transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90"
+            />
+            {label}
+          </CollapsibleTrigger>
+        </SidebarGroupLabel>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <SidebarGroupAction
+              onClick={(e) => {
+                e.stopPropagation();
+                onAddSpaceClick();
+              }}
+              aria-label={addSpaceTooltip}
             >
-              {notes.length === 0 ? (
-                <div className="px-5 py-1 text-xs text-muted-foreground italic pl-9">
-                  No notes
-                </div>
-              ) : (
-                <div className="flex flex-col gap-0.5">
-                  {displayNotes.map((note) => (
-                    <div key={note.id} className="pl-3 pr-2">
-                      <SidebarPageItem
-                        id={note.id}
-                        emoji={note.emoji}
-                        title={note.title}
-                      />
-                    </div>
-                  ))}
-                  {notes.length > 10 && (
-                    <div className="pl-3 pr-2 mt-1">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="w-full justify-start h-7 text-xs font-normal text-muted-foreground hover:text-foreground"
-                        onClick={() =>
-                          openSecondarySidebar(secondarySidebarType)
-                        }
-                      >
-                        More
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              )}
-            </SidebarSpaceGroup>
-          );
-        })}
-    </SidebarSection>
+              <HugeiconsIcon icon={Add01Icon} size={14} strokeWidth={2} />
+            </SidebarGroupAction>
+          </TooltipTrigger>
+          <TooltipContent>{addSpaceTooltip}</TooltipContent>
+        </Tooltip>
+        <CollapsibleContent>
+          <SidebarGroupContent>
+            {isLoading && (
+              <div className="px-3 py-2 text-xs text-muted-foreground animate-pulse">
+                Loading spaces...
+              </div>
+            )}
+            {!isLoading && spaces.length === 0 && (
+              <div className="px-3 py-1.5 text-xs text-muted-foreground">
+                {emptyMessage}
+              </div>
+            )}
+            {!isLoading && (
+              <SidebarMenu>
+                {spaces.map((space) => {
+                  const notes = spaceNotesMap?.[space.id] ?? [];
+                  const displayNotes = notes.slice(0, 10);
+                  return (
+                    <SpaceGroupItem
+                      key={space.id}
+                      space={space}
+                      notes={displayNotes}
+                      totalNoteCount={notes.length}
+                      onCreateNote={() => onCreateNote(space.id)}
+                      onSettingsClick={
+                        onSettingsClick ? () => onSettingsClick(space) : undefined
+                      }
+                      onShowMore={() => openSecondarySidebar(secondarySidebarType as "shared" | "private")}
+                    />
+                  );
+                })}
+              </SidebarMenu>
+            )}
+          </SidebarGroupContent>
+        </CollapsibleContent>
+      </SidebarGroup>
+    </Collapsible>
+  );
+}
+
+interface SpaceGroupItemProps {
+  space: Space;
+  notes: Note[];
+  totalNoteCount: number;
+  onCreateNote: () => void;
+  onSettingsClick?: () => void;
+  onShowMore: () => void;
+}
+
+function SpaceGroupItem({
+  space,
+  notes,
+  totalNoteCount,
+  onCreateNote,
+  onSettingsClick,
+  onShowMore,
+}: SpaceGroupItemProps) {
+  const [isOpen, setIsOpen] = useState(true);
+
+  return (
+    <Collapsible open={isOpen} onOpenChange={setIsOpen} asChild>
+      <SidebarMenuItem>
+        <CollapsibleTrigger asChild>
+          <SidebarMenuButton size="sm">
+            <HugeiconsIcon
+              icon={ArrowRight01Icon}
+              size={10}
+              strokeWidth={2}
+              className="transition-transform duration-200 data-[state=open]:rotate-90"
+              data-state={isOpen ? "open" : "closed"}
+            />
+            <span>📁 {space.name}</span>
+          </SidebarMenuButton>
+        </CollapsibleTrigger>
+
+        {onSettingsClick && (
+          <SidebarMenuAction
+            showOnHover
+            onClick={onSettingsClick}
+            aria-label={`Settings for ${space.name}`}
+            className="right-7"
+          >
+            <HugeiconsIcon
+              icon={MoreHorizontalIcon}
+              size={14}
+              strokeWidth={2}
+            />
+          </SidebarMenuAction>
+        )}
+
+        <SidebarMenuAction
+          showOnHover
+          onClick={onCreateNote}
+          aria-label={`Create note in ${space.name}`}
+        >
+          <HugeiconsIcon icon={Add01Icon} size={14} strokeWidth={2} />
+        </SidebarMenuAction>
+
+        <CollapsibleContent>
+          <SidebarMenuSub>
+            {notes.length === 0 ? (
+              <div className="px-2 py-1 text-xs text-muted-foreground italic">
+                No notes
+              </div>
+            ) : (
+              <>
+                {notes.map((note) => (
+                  <SidebarMenuSubItem key={note.id}>
+                    <SidebarMenuSubButton asChild size="sm">
+                      <Link href={ROUTES.NOTE(note.id)}>
+                        <span
+                          className="shrink-0 text-base"
+                          role="img"
+                          aria-hidden="true"
+                        >
+                          {note.emoji}
+                        </span>
+                        <span>{note.title}</span>
+                      </Link>
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                ))}
+                {totalNoteCount > 10 && (
+                  <SidebarMenuSubItem>
+                    <SidebarMenuSubButton
+                      size="sm"
+                      className="text-muted-foreground"
+                      onClick={onShowMore}
+                    >
+                      More
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                )}
+              </>
+            )}
+          </SidebarMenuSub>
+        </CollapsibleContent>
+      </SidebarMenuItem>
+    </Collapsible>
   );
 }

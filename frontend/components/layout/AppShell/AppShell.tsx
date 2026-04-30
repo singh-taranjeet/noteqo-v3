@@ -1,21 +1,11 @@
 "use client";
 
-import {
-  createContext,
-  useContext,
-  useState,
-  useCallback,
-  useEffect,
-} from "react";
+import { createContext, useContext, useState, useCallback } from "react";
 import type { ReactNode } from "react";
 
 export type SecondarySidebarType = "recent" | "shared" | "private" | null;
 
 interface AppShellContextValue {
-  isSidebarOpen: boolean;
-  toggleSidebar: () => void;
-  isSidebarHovered: boolean;
-  setIsSidebarHovered: (hovered: boolean) => void;
   secondarySidebarType: SecondarySidebarType;
   openSecondarySidebar: (type: SecondarySidebarType) => void;
   closeSecondarySidebar: () => void;
@@ -36,34 +26,8 @@ interface AppShellProps {
 }
 
 export function AppShell({ children }: AppShellProps) {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [isSidebarHovered, setIsSidebarHovered] = useState(false);
   const [secondarySidebarType, setSecondarySidebarType] =
     useState<SecondarySidebarType>(null);
-
-  // Auto-collapse sidebar on mobile devices during initial load
-  useEffect(() => {
-    if (typeof window !== "undefined" && window.innerWidth < 768) {
-      setTimeout(() => setIsSidebarOpen(false), 0);
-    }
-  }, []);
-
-  const toggleSidebar = useCallback(() => {
-    setIsSidebarOpen((prev) => !prev);
-  }, []);
-
-  // Keyboard shortcut (Cmd+\ or Ctrl+\) to toggle sidebar
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "\\") {
-        e.preventDefault();
-        toggleSidebar();
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [toggleSidebar]);
 
   const openSecondarySidebar = useCallback((type: SecondarySidebarType) => {
     setSecondarySidebarType(type);
@@ -76,18 +40,12 @@ export function AppShell({ children }: AppShellProps) {
   return (
     <AppShellContext.Provider
       value={{
-        isSidebarOpen,
-        toggleSidebar,
-        isSidebarHovered,
-        setIsSidebarHovered,
         secondarySidebarType,
         openSecondarySidebar,
         closeSecondarySidebar,
       }}
     >
-      <div className="flex h-screen overflow-hidden bg-background">
-        {children}
-      </div>
+      {children}
     </AppShellContext.Provider>
   );
 }

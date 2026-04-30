@@ -3,15 +3,23 @@
 import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useAppShell } from "../AppShell";
-import { LAYOUT_CONFIG } from "../layout.constants";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Cancel01Icon, Search01Icon } from "@hugeicons/core-free-icons";
-import { SidebarPageItem } from "./SidebarPageItem";
 import { useRecentNotes, type Note } from "@/features/workspace";
 import { useSpaces } from "@/features/spaces";
 import { SPACE_TYPE } from "@/features/spaces";
+import Link from "next/link";
+import { ROUTES } from "@/constants/routes";
+import {
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+} from "@/components/ui/sidebar";
+
+const SECONDARY_SIDEBAR_WIDTH = 260;
+const TRANSITION_DURATION = 200;
 
 export function SecondarySidebar() {
   const { secondarySidebarType, closeSecondarySidebar } = useAppShell();
@@ -83,15 +91,15 @@ export function SecondarySidebar() {
         !isOpen && "border-r-0",
       )}
       style={{
-        width: isOpen ? `${LAYOUT_CONFIG.SIDEBAR_WIDTH}px` : "0px",
+        width: isOpen ? `${SECONDARY_SIDEBAR_WIDTH}px` : "0px",
         opacity: isOpen ? 1 : 0,
-        transitionDuration: `${LAYOUT_CONFIG.TRANSITION_DURATION}ms`,
+        transitionDuration: `${TRANSITION_DURATION}ms`,
       }}
       aria-hidden={!isOpen}
     >
       <div
         className="flex flex-col h-full overflow-hidden w-full"
-        style={{ minWidth: `${LAYOUT_CONFIG.SIDEBAR_WIDTH}px` }}
+        style={{ minWidth: `${SECONDARY_SIDEBAR_WIDTH}px` }}
       >
         <div className="flex items-center justify-between p-3 h-[52px] border-b border-sidebar-border shrink-0">
           <h2 className="text-sm font-semibold text-foreground">{title}</h2>
@@ -131,16 +139,24 @@ export function SecondarySidebar() {
               No notes found.
             </div>
           ) : (
-            <div className="flex flex-col gap-0.5 px-2">
+            <SidebarMenu className="px-2">
               {items.map((note) => (
-                <SidebarPageItem
-                  key={note.id}
-                  id={note.id}
-                  emoji={note.emoji}
-                  title={note.title}
-                />
+                <SidebarMenuItem key={note.id}>
+                  <SidebarMenuButton asChild size="sm">
+                    <Link href={ROUTES.NOTE(note.id)}>
+                      <span
+                        className="shrink-0 text-base"
+                        role="img"
+                        aria-hidden="true"
+                      >
+                        {note.emoji}
+                      </span>
+                      <span>{note.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
               ))}
-            </div>
+            </SidebarMenu>
           )}
         </div>
       </div>

@@ -1,15 +1,25 @@
 "use client";
 
 import { useState } from "react";
-import { cn } from "@/lib/utils";
-import { useAppShell } from "../AppShell";
-import { LAYOUT_CONFIG } from "../layout.constants";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarGroupAction,
+  SidebarGroupContent,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+  SidebarRail,
+} from "@/components/ui/sidebar";
 import { SidebarUserProfile } from "./SidebarUserProfile";
 import { SidebarNavTabs } from "./SidebarNavTabs";
 import { SidebarSpaceCategory } from "./SidebarSpaceCategory";
 import { RecentSection } from "./RecentSection";
 import { SharedSpaceSettingsDialog } from "./SharedSpaceSettingsDialog";
-import { SidebarNewNoteButton } from "./SidebarNewNoteButton";
 import { useSpaces, useCreateSpace } from "@/features/spaces";
 import { useCreateNote, useSyncQueue } from "@/features/workspace";
 import { MOCK_USER } from "@/features/auth";
@@ -19,6 +29,8 @@ import { DynamicDialog } from "@/components/ui/DynamicDialog";
 import { DynamicForm } from "@/components/ui/DynamicForm";
 import type { FormFieldConfig, FormValues } from "@/components/ui/DynamicForm";
 import type { ActiveTabType } from "../types";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { PencilEdit01Icon } from "@hugeicons/core-free-icons";
 
 const CREATE_SPACE_FIELDS: FormFieldConfig[] = [
   {
@@ -30,13 +42,9 @@ const CREATE_SPACE_FIELDS: FormFieldConfig[] = [
   },
 ];
 
-import { useIsMobile } from "@/hooks/useIsMobile";
-
-export function Sidebar() {
-  const { isSidebarOpen, isSidebarHovered, toggleSidebar } = useAppShell();
+export function AppSidebar() {
   const { data, isLoading: spacesLoading, spaceNotesMap } = useSpaces();
   const { spaces = [] } = data || {};
-  const isMobile = useIsMobile();
 
   // Start background sync queue
   useSyncQueue();
@@ -56,15 +64,12 @@ export function Sidebar() {
 
   // Filter spaces by type
   const personalSpaces = spaces.filter((s) => s.type === SPACE_TYPE.PERSONAL);
-
   const sharedSpaces = spaces.filter((s) => s.type === SPACE_TYPE.SHARED);
 
   const [activeTab, setActiveTab] = useState<ActiveTabType>("home");
 
-  // fetch all notes from localdb
-
   const defaultPersonalSpace = personalSpaces.find(
-    (pesonalSpace) => pesonalSpace.isDefault,
+    (personalSpace) => personalSpace.isDefault,
   );
 
   const handleCreateNote = (spaceId: string) => {
@@ -79,78 +84,75 @@ export function Sidebar() {
   };
 
   return (
-    <aside
-      className={cn(
-        "flex flex-col h-full bg-sidebar border-r border-sidebar-border shrink-0 overflow-hidden",
-        "transition-all ease-out",
-        !isSidebarOpen && isMobile && "border-r-0",
-      )}
-      style={{
-        width:
-          isSidebarOpen || isSidebarHovered
-            ? `${LAYOUT_CONFIG.SIDEBAR_WIDTH}px`
-            : isMobile
-              ? "0px"
-              : `${LAYOUT_CONFIG.SIDEBAR_COLLAPSED_WIDTH}px`,
-        transitionDuration: `${LAYOUT_CONFIG.TRANSITION_DURATION}ms`,
-      }}
-      aria-label="Sidebar navigation"
-    >
-      {/* Prevent content from shrinking during collapse */}
-      <div
-        className="flex flex-col h-full overflow-hidden"
-        style={{ minWidth: `${LAYOUT_CONFIG.SIDEBAR_WIDTH}px` }}
-      >
-        {/* Scrollable content */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden">
-          <SidebarUserProfile
-            username={MOCK_USER.NAME}
-            avatarEmoji={MOCK_USER.AVATAR}
-            onCloseSidebar={toggleSidebar}
-          />
-          <SidebarNavTabs activeTab={activeTab} setActiveTab={setActiveTab} />
-
-          {/* Recent Section */}
-          <RecentSection />
-
-          {/* Shared Spaces Section */}
-          <SidebarSpaceCategory
-            label="Shared"
-            type={SPACE_TYPE.SHARED}
-            spaces={sharedSpaces}
-            isLoading={isLoading}
-            emptyMessage="No shared spaces"
-            spaceNotesMap={spaceNotesMap}
-            onAddSpaceClick={() => setCreateSpaceType(SPACE_TYPE.SHARED)}
-            addSpaceTooltip="Create shared space"
-            onCreateNote={handleCreateNote}
-            onSettingsClick={(space) => setSettingsSpace(space)}
-          />
-
-          {/* Private Spaces Section */}
-          <SidebarSpaceCategory
-            label="Private"
-            type={SPACE_TYPE.PERSONAL}
-            spaces={personalSpaces}
-            isLoading={isLoading}
-            emptyMessage="No spaces yet"
-            spaceNotesMap={spaceNotesMap}
-            onAddSpaceClick={() => setCreateSpaceType(SPACE_TYPE.PERSONAL)}
-            addSpaceTooltip="Create private space"
-            onCreateNote={handleCreateNote}
-          />
-        </div>
-
-        {/* Sticky bottom */}
-        <SidebarNewNoteButton
-          onCreateNote={() => {
-            // Create in the first personal space by default
-            if (defaultPersonalSpace) {
-              handleCreateNote(defaultPersonalSpace.id);
-            }
-          }}
+    <Sidebar collapsible="offcanvas">
+      <SidebarHeader>
+        <SidebarUserProfile
+          username={MOCK_USER.NAME}
+          avatarEmoji={MOCK_USER.AVATAR}
         />
-      </div>
+      </SidebarHeader>
+
+      <SidebarContent>
+        <SidebarGroup className="py-0">
+          <SidebarGroupContent>
+            <SidebarNavTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Recent Section */}
+        <RecentSection />
+
+        {/* Shared Spaces Section */}
+        <SidebarSpaceCategory
+          label="Shared"
+          type={SPACE_TYPE.SHARED}
+          spaces={sharedSpaces}
+          isLoading={isLoading}
+          emptyMessage="No shared spaces"
+          spaceNotesMap={spaceNotesMap}
+          onAddSpaceClick={() => setCreateSpaceType(SPACE_TYPE.SHARED)}
+          addSpaceTooltip="Create shared space"
+          onCreateNote={handleCreateNote}
+          onSettingsClick={(space) => setSettingsSpace(space)}
+        />
+
+        {/* Private Spaces Section */}
+        <SidebarSpaceCategory
+          label="Private"
+          type={SPACE_TYPE.PERSONAL}
+          spaces={personalSpaces}
+          isLoading={isLoading}
+          emptyMessage="No spaces yet"
+          spaceNotesMap={spaceNotesMap}
+          onAddSpaceClick={() => setCreateSpaceType(SPACE_TYPE.PERSONAL)}
+          addSpaceTooltip="Create private space"
+          onCreateNote={handleCreateNote}
+        />
+      </SidebarContent>
+
+      <SidebarFooter>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              onClick={() => {
+                if (defaultPersonalSpace) {
+                  handleCreateNote(defaultPersonalSpace.id);
+                }
+              }}
+              className="justify-center"
+            >
+              <HugeiconsIcon
+                icon={PencilEdit01Icon}
+                size={16}
+                strokeWidth={1.5}
+              />
+              <span>New</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
+
+      <SidebarRail />
 
       <DynamicDialog
         title={`Create ${createSpaceType === SPACE_TYPE.SHARED ? "Shared" : "Private"} Space`}
@@ -182,6 +184,6 @@ export function Sidebar() {
           if (!isOpen) setSettingsSpace(null);
         }}
       />
-    </aside>
+    </Sidebar>
   );
 }

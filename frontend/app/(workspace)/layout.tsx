@@ -1,8 +1,7 @@
-import { AppShell, Sidebar, Header } from "@/components/layout";
+import { AppShell, AppSidebar, Header } from "@/components/layout";
 import { SecondarySidebar } from "@/components/layout/Sidebar";
 import { AuthGuard } from "@/features/auth";
-
-import { SidebarContainer } from "@/components/layout/Sidebar/SidebarContainer";
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 
 export default function WorkspaceLayout({
   children,
@@ -12,14 +11,14 @@ export default function WorkspaceLayout({
   return (
     <AuthGuard>
       <AppShell>
-        <SidebarContainer>
-          <Sidebar />
+        <SidebarProvider>
+          <AppSidebar />
           <SecondarySidebar />
-        </SidebarContainer>
-        <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
-          <Header />
-          <main className="flex-1 overflow-auto">{children}</main>
-        </div>
+          <SidebarInset>
+            <Header />
+            <main className="flex-1 overflow-auto">{children}</main>
+          </SidebarInset>
+        </SidebarProvider>
       </AppShell>
     </AuthGuard>
   );
