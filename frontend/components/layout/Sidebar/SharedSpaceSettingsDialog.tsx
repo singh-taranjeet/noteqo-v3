@@ -1,4 +1,5 @@
 "use client";
+import { Trash2 } from "lucide-react";
 
 import { useState } from "react";
 import { DynamicDialog } from "@/components/ui/DynamicDialog";
@@ -18,8 +19,6 @@ import {
   ItemTitle,
   ItemDescription,
 } from "@/components/ui/item";
-import { Delete01Icon } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
 import type { Space } from "@/features/spaces";
 import { logService } from "@/services";
 
@@ -130,7 +129,7 @@ export function SharedSpaceSettingsDialog({
                     className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10"
                     onClick={() => handleRemove(member.userId)}
                   >
-                    <HugeiconsIcon icon={Delete01Icon} size={14} />
+                    <Trash2 size={14} />
                   </Button>
                 </Item>
               ))}

@@ -1,5 +1,10 @@
 export type SyncStatus = "pending" | "synced" | "failed";
-export type SyncEventType = "CREATE" | "UPDATE" | "DELETE";
+export type SyncEventType =
+  | "CREATE"
+  | "UPDATE"
+  | "DELETE"
+  | "RESTORE"
+  | "PERMANENT_DELETE";
 export type NoteType = "private" | "shared";
 
 export interface Note {
@@ -15,6 +20,7 @@ export interface Note {
   isFavorite?: boolean;
   createdAt: string;
   updatedAt: string;
+  deletedAt?: string;
 }
 
 export interface NoteTreeNode extends Note {
@@ -40,6 +46,7 @@ export interface RemoteNote {
   parentId?: string | null;
   createdAt: string;
   updatedAt: string;
+  deletedAt?: string | null;
 }
 
 export interface RemoteNoteVersion {

@@ -705,6 +705,15 @@ The project uses **Tailwind CSS v4** (CSS-first config via `@tailwindcss/postcss
 
 7. **Test at:** 375px (iPhone SE), 390px (iPhone 14), 768px (iPad), 1280px (desktop).
 
+### Design Tokens & UI Consistency
+
+> **Rule: Never use arbitrary pixel values in Tailwind classes.**
+
+1. **Typography:** Use Tailwind's default typographic scale (`text-xs`, `text-sm`, `text-base`, `text-lg`, etc.). Do not use arbitrary values like `text-[14px]` or `text-[10px]`.
+2. **Spacing & Sizing:** Use the standard Tailwind spacing scale (`p-4`, `m-2`, `gap-5`). Avoid arbitrary pixel sizing such as `w-[320px]`, `h-[72px]`, or `left-[31px]`. Translate dimensions into Tailwind units (e.g., `w-80` for 320px, `size-18` for 72px).
+3. **Icons:** Keep icon sizes standardized (`size-4` for 16px, `size-5` for 20px, `size-6` for 24px).
+4. **Consistency:** Ensure elements of the same semantic importance share the same design tokens across different components (e.g., standard dialog `max-w-md` instead of `max-w-[425px]`).
+
 ---
 
 ## Accessibility

@@ -1,6 +1,6 @@
 "use client";
 
-// Since QueryClientProvider relies on useContext under the hood, we have to put 'use client' on top
+// Since QueryClientProvider relies on useContext under the hood, we have to put  on top
 import {
   environmentManager,
   QueryClient,
@@ -21,7 +21,7 @@ function makeQueryClient() {
 
 let browserQueryClient: QueryClient | undefined = undefined;
 
-function getQueryClient() {
+export function getQueryClient() {
   if (environmentManager.isServer()) {
     // Server: always make a new query client
     return makeQueryClient();

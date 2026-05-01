@@ -1,6 +1,6 @@
+import { Video } from "lucide-react";
 import { NodeViewWrapper, type NodeViewProps } from "@tiptap/react";
 import React, { useRef } from "react";
-import { CameraVideoIcon } from "@hugeicons/core-free-icons";
 import { cn } from "@/lib/utils";
 import { resolveSpaceId } from "@/features/editor/utils/resolveSpaceId";
 import { useDecryptMedia } from "@/features/editor/hooks/useDecryptMedia";
@@ -83,7 +83,7 @@ export const VideoNodeView: React.FC<NodeViewProps> = (props) => {
             <video
               ref={videoRef}
               src={objectUrl}
-              controls
+              controls={editor.isEditable}
               playsInline
               preload="metadata"
               controlsList="nodownload"
@@ -99,7 +99,7 @@ export const VideoNodeView: React.FC<NodeViewProps> = (props) => {
             </video>
 
             {/* Resize handle */}
-            {selected && align !== "full" && (
+            {selected && align !== "full" && editor.isEditable && (
               <div
                 className={cn(
                   "absolute top-0 bottom-0 w-3 cursor-col-resize hover:bg-primary/50 transition-colors z-10 flex items-center justify-center group-hover:bg-primary/20",
@@ -112,18 +112,16 @@ export const VideoNodeView: React.FC<NodeViewProps> = (props) => {
             )}
 
             {/* Toolbar - only visible when selected */}
-            {selected && (
+            {selected && editor.isEditable && (
               <MediaAlignmentToolbar
                 align={(align as string) || "center"}
                 onAlignChange={setAlign}
+                onDelete={props.deleteNode}
               />
             )}
           </>
         ) : (
-          <MediaErrorPlaceholder
-            icon={CameraVideoIcon}
-            message="Failed to load video"
-          />
+          <MediaErrorPlaceholder icon={Video} message="Failed to load video" />
         )}
       </div>
     </NodeViewWrapper>

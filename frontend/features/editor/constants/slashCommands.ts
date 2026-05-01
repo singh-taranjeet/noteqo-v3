@@ -1,31 +1,31 @@
-import type { Editor, Range } from "@tiptap/core";
-import type { IconSvgElement } from "@hugeicons/react";
-
 import {
-  Heading01Icon,
-  Heading02Icon,
-  Heading03Icon,
-  TextAlignLeftIcon,
-  ListViewIcon,
-  LeftToRightListNumberIcon,
-  Task01Icon,
-  QuoteUpIcon,
-  CodeCircleIcon,
-  CodeIcon,
-  DashboardSquare01Icon,
-  Note01Icon,
-  ArrowDown01Icon,
-  Table01Icon,
-  AttachmentIcon,
-  ImageAdd01Icon,
-  CameraVideoIcon,
-  FileAddIcon,
-} from "@hugeicons/core-free-icons";
+  AlignLeft,
+  CheckSquare,
+  ChevronDown,
+  Code,
+  Code2,
+  File,
+  FilePlus,
+  Heading1,
+  Heading2,
+  Heading3,
+  ImagePlus,
+  LayoutDashboard,
+  List,
+  ListOrdered,
+  Paperclip,
+  Quote,
+  Table,
+  Video,
+} from "lucide-react";
+import type { Editor, Range } from "@tiptap/core";
+import type { LucideIcon } from "lucide-react";
+
 import type { AiActionType } from "@/features/ai/types/ai.types";
 
 export interface SuggestionItem {
   title: string;
-  icon?: IconSvgElement;
+  icon?: LucideIcon;
   shortcut?: string;
   command: (props: { editor: Editor; range: Range }) => void;
 }
@@ -33,7 +33,7 @@ export interface SuggestionItem {
 export const SLASH_COMMANDS: SuggestionItem[] = [
   {
     title: "Heading 1",
-    icon: Heading01Icon,
+    icon: Heading1,
     shortcut: "#",
     command: ({ editor, range }) => {
       editor
@@ -46,7 +46,7 @@ export const SLASH_COMMANDS: SuggestionItem[] = [
   },
   {
     title: "Heading 2",
-    icon: Heading02Icon,
+    icon: Heading2,
     shortcut: "##",
     command: ({ editor, range }) => {
       editor
@@ -59,7 +59,7 @@ export const SLASH_COMMANDS: SuggestionItem[] = [
   },
   {
     title: "Heading 3",
-    icon: Heading03Icon,
+    icon: Heading3,
     shortcut: "###",
     command: ({ editor, range }) => {
       editor
@@ -72,14 +72,14 @@ export const SLASH_COMMANDS: SuggestionItem[] = [
   },
   {
     title: "Paragraph",
-    icon: TextAlignLeftIcon,
+    icon: AlignLeft,
     command: ({ editor, range }) => {
       editor.chain().focus().deleteRange(range).setNode("paragraph").run();
     },
   },
   {
     title: "Bullet List",
-    icon: ListViewIcon,
+    icon: List,
     shortcut: "-",
     command: ({ editor, range }) => {
       editor.chain().focus().deleteRange(range).toggleBulletList().run();
@@ -87,7 +87,7 @@ export const SLASH_COMMANDS: SuggestionItem[] = [
   },
   {
     title: "Numbered List",
-    icon: LeftToRightListNumberIcon,
+    icon: ListOrdered,
     shortcut: "1.",
     command: ({ editor, range }) => {
       editor.chain().focus().deleteRange(range).toggleOrderedList().run();
@@ -95,14 +95,14 @@ export const SLASH_COMMANDS: SuggestionItem[] = [
   },
   {
     title: "To-do List",
-    icon: Task01Icon,
+    icon: CheckSquare,
     command: ({ editor, range }) => {
       editor.chain().focus().deleteRange(range).toggleTaskList().run();
     },
   },
   {
     title: "Blockquote",
-    icon: QuoteUpIcon,
+    icon: Quote,
     shortcut: ">",
     command: ({ editor, range }) => {
       editor.chain().focus().deleteRange(range).setBlockquote().run();
@@ -110,7 +110,7 @@ export const SLASH_COMMANDS: SuggestionItem[] = [
   },
   {
     title: "Code Block",
-    icon: CodeCircleIcon,
+    icon: Code2,
     shortcut: "```",
     command: ({ editor, range }) => {
       editor.chain().focus().deleteRange(range).setCodeBlock().run();
@@ -118,7 +118,7 @@ export const SLASH_COMMANDS: SuggestionItem[] = [
   },
   {
     title: "Divider",
-    icon: CodeIcon,
+    icon: Code,
     shortcut: "---",
     command: ({ editor, range }) => {
       editor.chain().focus().deleteRange(range).setHorizontalRule().run();
@@ -127,7 +127,7 @@ export const SLASH_COMMANDS: SuggestionItem[] = [
 
   {
     title: "2 Columns",
-    icon: DashboardSquare01Icon,
+    icon: LayoutDashboard,
     shortcut: "/2cols",
     command: ({ editor, range }) => {
       editor.chain().focus().deleteRange(range).setColumns(2).run();
@@ -135,7 +135,7 @@ export const SLASH_COMMANDS: SuggestionItem[] = [
   },
   {
     title: "3 Columns",
-    icon: DashboardSquare01Icon,
+    icon: LayoutDashboard,
     shortcut: "/3cols",
     command: ({ editor, range }) => {
       editor.chain().focus().deleteRange(range).setColumns(3).run();
@@ -143,7 +143,7 @@ export const SLASH_COMMANDS: SuggestionItem[] = [
   },
   {
     title: "Card",
-    icon: Note01Icon,
+    icon: File,
     command: ({ editor, range }) => {
       editor
         .chain()
@@ -159,7 +159,7 @@ export const SLASH_COMMANDS: SuggestionItem[] = [
 
   {
     title: "Accordion",
-    icon: ArrowDown01Icon,
+    icon: ChevronDown,
     command: ({ editor, range }) => {
       editor
         .chain()
@@ -174,7 +174,7 @@ export const SLASH_COMMANDS: SuggestionItem[] = [
   },
   {
     title: "Table",
-    icon: Table01Icon,
+    icon: Table,
     command: ({ editor, range }) => {
       editor
         .chain()
@@ -189,7 +189,7 @@ export const SLASH_COMMANDS: SuggestionItem[] = [
   },
   {
     title: "File Attachment",
-    icon: AttachmentIcon,
+    icon: Paperclip,
     command: ({ editor, range }) => {
       editor.chain().focus().deleteRange(range).run();
       editor.commands.promptFileUpload();
@@ -197,7 +197,7 @@ export const SLASH_COMMANDS: SuggestionItem[] = [
   },
   {
     title: "Image",
-    icon: ImageAdd01Icon,
+    icon: ImagePlus,
     command: ({ editor, range }) => {
       editor.chain().focus().deleteRange(range).run();
       editor.commands.promptFileUpload("image/*");
@@ -205,7 +205,7 @@ export const SLASH_COMMANDS: SuggestionItem[] = [
   },
   {
     title: "Video",
-    icon: CameraVideoIcon,
+    icon: Video,
     command: ({ editor, range }) => {
       editor.chain().focus().deleteRange(range).run();
       editor.commands.promptFileUpload("video/*");
@@ -213,7 +213,7 @@ export const SLASH_COMMANDS: SuggestionItem[] = [
   },
   {
     title: "Child Note",
-    icon: FileAddIcon,
+    icon: FilePlus,
     command: ({ editor, range }) => {
       editor.chain().focus().deleteRange(range).run();
       const event = new CustomEvent("noteqo:create-child-note", {

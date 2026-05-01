@@ -14,13 +14,17 @@ export function useSpaces() {
     refetchInterval: 1 * 60 * 1000,
   });
 
-  const notes = useMemo(() => {
-    return query.data?.notes || [];
+  const activeNotes = useMemo(() => {
+    return (query.data?.notes || []).filter((n) => !n.deletedAt);
+  }, [query.data?.notes]);
+
+  const trashedNotes = useMemo(() => {
+    return (query.data?.notes || []).filter((n) => !!n.deletedAt);
   }, [query.data?.notes]);
 
   const spaceNotesMap = useMemo(() => {
     // Sort notes by updatedAt desc globally
-    const sortedNotes = [...notes].sort(
+    const sortedNotes = [...activeNotes].sort(
       (a, b) =>
         new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
     );
@@ -31,9 +35,9 @@ export function useSpaces() {
         acc[note.spaceId].push(note);
         return acc;
       },
-      {} as Record<string, typeof notes>,
+      {} as Record<string, typeof activeNotes>,
     );
-  }, [notes]);
+  }, [activeNotes]);
 
   const spaceNoteTreesMap = useMemo(() => {
     const trees: Record<string, NoteTreeNode[]> = {};
@@ -72,5 +76,6 @@ export function useSpaces() {
     refetchSpacesQuery: query.refetch,
     spaceNotesMap,
     spaceNoteTreesMap,
+    trashedNotes,
   };
 }

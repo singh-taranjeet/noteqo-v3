@@ -1,11 +1,6 @@
+import { Download, FileText, Link, Trash2 } from "lucide-react";
 import { NodeViewWrapper, type NodeViewProps } from "@tiptap/react";
 import React, { useState } from "react";
-import { HugeiconsIcon } from "@hugeicons/react";
-import {
-  Download01Icon,
-  File01Icon,
-  LinkSquare02Icon,
-} from "@hugeicons/core-free-icons";
 import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
 import { mediaService } from "@/features/media";
@@ -88,11 +83,11 @@ export const FileNodeView: React.FC<NodeViewProps> = (props) => {
             {uploading ? (
               <Spinner className="w-6 h-6" />
             ) : (
-              <HugeiconsIcon icon={File01Icon} size={24} />
+              <FileText size={24} />
             )}
           </div>
           <div className="flex flex-col min-w-0">
-            <span className="text-sm font-medium truncate max-w-[200px] sm:max-w-[300px]">
+            <span className="text-sm font-medium truncate max-w-48 sm:max-w-72">
               {fileName || "Unknown File"}
             </span>
             <span className="text-xs text-muted-foreground">
@@ -110,12 +105,21 @@ export const FileNodeView: React.FC<NodeViewProps> = (props) => {
             <Button
               variant="ghost"
               size="icon"
+              className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+              onClick={() => props.deleteNode()}
+              title="Remove from note"
+            >
+              <Trash2 size={16} />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
               className="h-8 w-8"
               onClick={() => handleAction("open")}
               disabled={isDecrypting}
               title="Open in new tab"
             >
-              <HugeiconsIcon icon={LinkSquare02Icon} size={16} />
+              <Link size={16} />
             </Button>
             <Button
               variant="ghost"
@@ -128,7 +132,7 @@ export const FileNodeView: React.FC<NodeViewProps> = (props) => {
               {isDecrypting ? (
                 <Spinner className="h-4 w-4" />
               ) : (
-                <HugeiconsIcon icon={Download01Icon} size={16} />
+                <Download size={16} />
               )}
             </Button>
           </div>

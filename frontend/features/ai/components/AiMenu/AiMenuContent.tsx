@@ -1,4 +1,11 @@
 "use client";
+import {
+  AlignLeft,
+  ChevronDown,
+  CircleCheck,
+  File,
+  Layout,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -7,21 +14,13 @@ import { AiLoadingIndicator } from "./AiLoadingIndicator";
 import { AiActionButton } from "./AiActionButton";
 import type { AiActionType } from "@/features/ai/types/ai.types";
 import { AI_ACTION_LABELS } from "@/features/ai/constants/ai.constants";
-import { HugeiconsIcon } from "@hugeicons/react";
-import {
-  TextAlignLeftIcon,
-  CheckmarkCircle01Icon,
-  NoteIcon,
-  ArrowDown01Icon,
-  LayoutIcon,
-} from "@hugeicons/core-free-icons";
 
 const ACTION_ICONS: Record<AiActionType, React.ReactNode> = {
-  reformat: <HugeiconsIcon icon={TextAlignLeftIcon} size={14} />,
-  spellcheck: <HugeiconsIcon icon={CheckmarkCircle01Icon} size={14} />,
-  summarize: <HugeiconsIcon icon={NoteIcon} size={14} />,
-  restructure_accordion: <HugeiconsIcon icon={ArrowDown01Icon} size={14} />,
-  restructure_card: <HugeiconsIcon icon={LayoutIcon} size={14} />,
+  reformat: <AlignLeft size={14} />,
+  spellcheck: <CircleCheck size={14} />,
+  summarize: <File size={14} />,
+  restructure_accordion: <ChevronDown size={14} />,
+  restructure_card: <Layout size={14} />,
 };
 
 const PRIMARY_ACTIONS: AiActionType[] = ["reformat", "spellcheck", "summarize"];
@@ -89,7 +88,7 @@ export function AiMenuContent({
   // Normal action list
   return (
     <div className="flex flex-col gap-0.5">
-      <p className="px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+      <p className="px-2 py-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
         Edit
       </p>
       {PRIMARY_ACTIONS.map((actionType) => {
@@ -108,7 +107,7 @@ export function AiMenuContent({
 
       <Separator className="my-1" />
 
-      <p className="px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+      <p className="px-2 py-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
         Restructure
       </p>
       {RESTRUCTURE_ACTIONS.map((actionType) => {

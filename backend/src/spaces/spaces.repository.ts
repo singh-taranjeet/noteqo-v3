@@ -118,6 +118,8 @@ export class SpacesRepository {
         'keySlot',
         'keySlot.userId = :userId',
       )
+      .withDeleted()
+      .where('space.deletedAt IS NULL')
       .orderBy('space.updatedAt', 'DESC')
       .getMany();
 
@@ -159,6 +161,8 @@ export class SpacesRepository {
             .orWhere('member.updatedAt > :lastUpdated');
         }),
       )
+      .andWhere('space.deletedAt IS NULL')
+      .withDeleted()
       .setParameters({ lastUpdated, userId: currentUserId })
       .orderBy('space.updatedAt', 'DESC')
       .getMany();
@@ -338,6 +342,7 @@ export class SpacesRepository {
         return {
           ...note,
           ciphertext: note.ciphertext.toString('utf8'),
+          deletedAt: note.deletedAt,
         };
       }),
     };

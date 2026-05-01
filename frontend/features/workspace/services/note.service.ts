@@ -34,7 +34,7 @@ export const noteService = {
 
     const note: Note = {
       id: crypto.randomUUID(),
-      title: title ?? NOTE_DEFAULTS.TITLE,
+      title: (title ?? NOTE_DEFAULTS.TITLE).slice(0, 50),
       emoji: getRandomItem(NOTE_EMOJI_POOL),
       coverImage: getRandomItem(NOTE_COVER_POOL),
       content: null,
@@ -103,6 +103,7 @@ export const noteService = {
   ): Promise<void> {
     const patched = {
       ...updates,
+      title: updates?.title?.slice(0, 50) || "",
       updatedAt: new Date().toISOString(),
       syncStatus: "pending" as const,
     };
@@ -125,10 +126,17 @@ export const noteService = {
     }
 
     const now = new Date().toISOString();
+    let newTitle = `${existingNote.title}`;
+    if (newTitle.length > 40) {
+      newTitle = `${newTitle.slice(0, 40)} (Copy)`;
+    } else {
+      newTitle = `${existingNote.title} (Copy)`;
+    }
+
     const duplicate: Note = {
       ...existingNote,
       id: crypto.randomUUID(),
-      title: `${existingNote.title} (Copy)`,
+      title: newTitle,
       syncStatus: "pending",
       createdAt: now,
       updatedAt: now,
@@ -140,12 +148,72 @@ export const noteService = {
     return duplicate;
   },
 
+  async getDescendantIdsLocally(id: string): Promise<string[]> {
+    const allNotes = await db.notes.toArray();
+    const descendants: string[] = [id];
+
+    const queue = [id];
+    while (queue.length > 0) {
+      const currentId = queue.shift()!;
+      const children = allNotes
+        .filter((n) => n.parentId === currentId)
+        .map((n) => n.id);
+      descendants.push(...children);
+      queue.push(...children);
+    }
+
+    return descendants;
+  },
+
   /**
-   * Marks a note as deleted locally and enqueues a DELETE sync event.
+   * Marks a note and its descendants as deleted locally and enqueues a DELETE sync event for the parent.
    */
   async deleteNote(id: string): Promise<void> {
-    await db.notes.delete(id);
+    const descendantIds = await this.getDescendantIdsLocally(id);
+    const now = new Date().toISOString();
+
+    for (const descendantId of descendantIds) {
+      await db.notes.update(descendantId, {
+        deletedAt: now,
+        syncStatus: "pending",
+      });
+    }
+
+    // Only enqueue DELETE for the parent; backend will cascade
     await syncQueueService.enqueue("DELETE", id, { id });
+  },
+
+  /**
+   * Restores a soft-deleted note and its descendants locally and enqueues a RESTORE sync event.
+   */
+  async restoreNote(id: string): Promise<void> {
+    const descendantIds = await this.getDescendantIdsLocally(id);
+
+    for (const descendantId of descendantIds) {
+      // Use Dexie's modify to unset deletedAt if it exists
+      const note = await db.notes.get(descendantId);
+      if (note) {
+        delete note.deletedAt;
+        note.syncStatus = "pending";
+        await db.notes.put(note);
+      }
+    }
+
+    // Only enqueue RESTORE for the parent; backend will cascade
+    await syncQueueService.enqueue("RESTORE", id, { id });
+  },
+
+  /**
+   * Permanently deletes a note and its descendants locally and enqueues a PERMANENT_DELETE sync event.
+   */
+  async permanentDeleteNote(id: string): Promise<void> {
+    const descendantIds = await this.getDescendantIdsLocally(id);
+
+    for (const descendantId of descendantIds) {
+      await db.notes.delete(descendantId);
+    }
+
+    await syncQueueService.enqueue("PERMANENT_DELETE", id, { id });
   },
 
   /**
@@ -187,6 +255,7 @@ export const noteService = {
         isFavorite: note.isFavorite ?? false,
         createdAt: note.createdAt,
         updatedAt: note.updatedAt,
+        deletedAt: note.deletedAt ?? undefined,
       };
     } catch (e) {
       logService.error("Failed to decrypt note " + JSON.stringify(e));

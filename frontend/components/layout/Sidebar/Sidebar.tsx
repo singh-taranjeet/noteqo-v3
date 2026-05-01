@@ -1,4 +1,5 @@
 "use client";
+import { BookOpen, Image as ImageIcon, PenLine, Trash2 } from "lucide-react";
 
 import { useState } from "react";
 import {
@@ -13,6 +14,7 @@ import {
   SidebarMenuButton,
   SidebarRail,
 } from "@/components/ui/sidebar";
+import { useAllMediaList } from "@/features/media";
 import { SidebarUserProfile } from "./SidebarUserProfile";
 import { SidebarNavTabs } from "./SidebarNavTabs";
 import { SidebarSpaceCategory } from "./SidebarSpaceCategory";
@@ -27,8 +29,7 @@ import { DynamicDialog } from "@/components/ui/DynamicDialog";
 import { DynamicForm } from "@/components/ui/DynamicForm";
 import type { FormFieldConfig, FormValues } from "@/components/ui/DynamicForm";
 import type { ActiveTabType } from "../types";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { PencilEdit01Icon } from "@hugeicons/core-free-icons";
+import Link from "next/link";
 
 const CREATE_SPACE_FIELDS: FormFieldConfig[] = [
   {
@@ -46,6 +47,9 @@ export function AppSidebar() {
 
   const { data, isLoading: spacesLoading, spaceNoteTreesMap } = useSpaces();
   const { spaces = [] } = data || {};
+
+  // Prefetch media for all spaces so it's instantly available when opening the media picker
+  useAllMediaList(spaces.map((s) => s.id));
 
   const { mutate: createNote } = useCreateNote();
   const { createSpace, isLoading: isCreatingSpace } = useCreateSpace();
@@ -85,7 +89,7 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar collapsible="offcanvas">
+    <Sidebar variant="inset" collapsible="offcanvas">
       <SidebarHeader>
         <SidebarUserProfile
           username={userProfile?.name || MOCK_USER.NAME}
@@ -131,6 +135,36 @@ export function AppSidebar() {
           addSpaceTooltip="Create private space"
           onCreateNote={handleCreateNote}
         />
+
+        {/* Utilities Section */}
+        <SidebarGroup className="mt-auto pt-4">
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild>
+                <Link href="/library">
+                  <BookOpen size={16} strokeWidth={1.5} />
+                  <span>Library</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild>
+                <Link href="/assets">
+                  <ImageIcon size={16} strokeWidth={1.5} />
+                  <span>Assets</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild>
+                <Link href="/trash">
+                  <Trash2 size={16} strokeWidth={1.5} />
+                  <span>Trash</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroup>
       </SidebarContent>
 
       <SidebarFooter>
@@ -144,12 +178,8 @@ export function AppSidebar() {
               }}
               className="justify-center bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90 hover:text-sidebar-primary-foreground"
             >
-              <HugeiconsIcon
-                icon={PencilEdit01Icon}
-                size={16}
-                strokeWidth={1.5}
-              />
-              <span>Quick Create</span>
+              <PenLine size={16} strokeWidth={1.5} />
+              <span className="text-sm font-medium">Quick Create</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

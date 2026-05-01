@@ -34,6 +34,8 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     "public",
     "features/pwa",
+    "robots.ts",
+    "sitemap.ts",
   ]),
 ]);
 

@@ -195,6 +195,16 @@ class SyncQueueService {
         await noteApiService.deleteNote(event.entityId);
         break;
       }
+
+      case "RESTORE": {
+        await noteApiService.restoreNote(event.entityId);
+        break;
+      }
+
+      case "PERMANENT_DELETE": {
+        await noteApiService.permanentDeleteNote(event.entityId);
+        break;
+      }
     }
   }
 
@@ -209,7 +219,7 @@ class SyncQueueService {
     const spaceKeyBytes = await spaceService.getSpaceKeyBytes(note.spaceId);
 
     const payloadToEncrypt = {
-      title: note.title,
+      title: note.title?.slice(0, 50) || "",
       emoji: note.emoji,
       coverImage: note.coverImage,
       content: note.content,

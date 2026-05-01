@@ -27,6 +27,8 @@ export const NOTE_ROUTES = {
   BASE: 'notes',
   BY_ID: ':noteId',
   VERSIONS: ':noteId/versions',
+  RESTORE: ':noteId/restore',
+  PERMANENT: ':noteId/permanent-delete',
 } as const;
 
 export const NOTE_ERROR_MESSAGES = {

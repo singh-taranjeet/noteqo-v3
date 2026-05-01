@@ -1,7 +1,6 @@
+import { Book, Clock } from "lucide-react";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { Clock04Icon, NotebookIcon } from "@hugeicons/core-free-icons";
 import { ROUTES } from "@/constants/routes";
 import { cn } from "@/lib/utils";
 import type { Note } from "@/features/workspace/types/workspace.types";
@@ -27,7 +26,7 @@ export function NoteList({
       <Empty>
         <EmptyContent>
           <EmptyMedia>
-            <HugeiconsIcon icon={NotebookIcon} size={24} />
+            <Book size={24} />
           </EmptyMedia>
           <EmptyTitle>No notes found</EmptyTitle>
           <EmptyDescription>{emptyMessage}</EmptyDescription>
@@ -56,7 +55,7 @@ export function NoteList({
             </span>
           </div>
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
-            <HugeiconsIcon icon={Clock04Icon} size={12} />
+            <Clock size={12} />
             <span>
               {formatDistanceToNow(new Date(note.updatedAt), {
                 addSuffix: true,

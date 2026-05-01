@@ -2,6 +2,7 @@ import { Extension } from "@tiptap/core";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { mediaService } from "@/features/media";
 import { logService } from "@/services/log.service";
+import { getQueryClient } from "@/components/Providers/Providers";
 
 export interface FileUploaderOptions {
   /**
@@ -86,6 +87,11 @@ export const FileUploaderExtension = Extension.create<FileUploaderOptions>({
 
       try {
         const response = await mediaService.uploadMedia(file, spaceId, noteId);
+
+        // Invalidate the media list so the new file shows up in the assets tab
+        const queryClient = getQueryClient();
+        queryClient.invalidateQueries({ queryKey: ["media", spaceId] });
+        queryClient.invalidateQueries({ queryKey: ["media", "all"] });
 
         // 2. Find the node and update its attributes with the real URL
         editor.view.state.doc.descendants((node, pos) => {
@@ -198,30 +204,11 @@ export const FileUploaderExtension = Extension.create<FileUploaderOptions>({
       promptFileUpload:
         (accept?: string) =>
         ({ editor }) => {
-          const input = document.createElement("input");
-          input.type = "file";
-          if (accept) {
-            input.accept = accept;
-          }
-          input.onchange = (e) => {
-            const file = (e.target as HTMLInputElement).files?.[0];
-            if (file) {
-              const pos = editor.state.selection.from;
-              // We dispatch a custom event to trigger the paste handler, or just invoke handleUpload directly.
-              interface FileUploaderStorage {
-                handleUpload: (file: File, pos: number) => void;
-              }
-              const storage = editor.storage as unknown as Record<
-                string,
-                unknown
-              >;
-              const fileUploaderStorage = storage.fileUploader as
-                | FileUploaderStorage
-                | undefined;
-              fileUploaderStorage?.handleUpload(file, pos);
-            }
-          };
-          input.click();
+          const event = new CustomEvent("noteqo:prompt-media-picker", {
+            bubbles: true,
+            detail: { accept },
+          });
+          editor.view.dom.dispatchEvent(event);
           return true;
         },
     };

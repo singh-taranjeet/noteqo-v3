@@ -1,8 +1,7 @@
 "use client";
+import { Loader2 } from "lucide-react";
 
 import { useDecryptMedia } from "@/features/media/hooks/useDecryptMedia";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { Loading02Icon } from "@hugeicons/core-free-icons";
 import { cn } from "@/lib/utils";
 
 const VERCEL_BLOB_PATTERN = ".public.blob.vercel-storage.com";
@@ -50,10 +49,7 @@ export function EncryptedImage({
       <div
         className={cn("flex items-center justify-center bg-muted", className)}
       >
-        <HugeiconsIcon
-          icon={Loading02Icon}
-          className="h-6 w-6 animate-spin text-muted-foreground"
-        />
+        <Loader2 className="animate-spin h-6 w-6 animate-spin text-muted-foreground" />
       </div>
     );
   }

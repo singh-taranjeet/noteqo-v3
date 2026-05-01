@@ -1,4 +1,5 @@
 "use client";
+import { Image as ImageIcon, Loader2, Pencil } from "lucide-react";
 
 import {
   useUpdateMedia,
@@ -6,18 +7,12 @@ import {
 } from "@/features/media/hooks/useMedia";
 import { useSpaces } from "@/features/spaces";
 import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { HugeiconsIcon } from "@hugeicons/react";
-import {
-  Loading02Icon,
-  Image01Icon,
-  PencilEdit02Icon,
-} from "@hugeicons/core-free-icons";
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 import { EncryptedImage } from "@/features/media/components/EncryptedImage";
+import { EncryptedVideo } from "@/features/media/components/EncryptedVideo";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -52,9 +47,9 @@ function MediaEditPopover({
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 absolute top-2 right-2 bg-background/50 hover:bg-background/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity"
+          className="h-8 w-8 absolute top-2 right-2 bg-black/20 hover:bg-black/40 text-white backdrop-blur-md border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity z-10"
         >
-          <HugeiconsIcon icon={PencilEdit02Icon} className="h-4 w-4" />
+          <Pencil className="h-4 w-4" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-80">
@@ -106,17 +101,11 @@ export function AssetsView() {
 
         {isLoading ? (
           <div className="flex h-64 items-center justify-center">
-            <HugeiconsIcon
-              icon={Loading02Icon}
-              className="h-8 w-8 animate-spin text-muted-foreground"
-            />
+            <Loader2 className="animate-spin h-8 w-8 animate-spin text-muted-foreground" />
           </div>
         ) : !mediaList?.length ? (
           <div className="flex flex-col items-center justify-center space-y-4 rounded-lg border border-dashed py-24 text-center">
-            <HugeiconsIcon
-              icon={Image01Icon}
-              className="h-12 w-12 text-muted-foreground"
-            />
+            <ImageIcon className="h-12 w-12 text-muted-foreground" />
             <div className="space-y-1">
               <h3 className="font-medium text-lg">No assets yet</h3>
               <p className="text-muted-foreground">
@@ -127,42 +116,100 @@ export function AssetsView() {
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {mediaList.map((media) => (
-              <Card key={media.id} className="overflow-hidden group relative">
-                <div className="aspect-square relative bg-muted">
-                  <EncryptedImage
-                    src={media.url}
-                    alt={media.title || "Asset"}
-                    spaceId={media.spaceId}
-                    className="h-full w-full object-cover"
-                  />
-                  <MediaEditPopover
-                    media={media}
-                    onSave={(data) =>
-                      updateMedia({
-                        mediaId: media.id,
-                        spaceId: media.spaceId,
-                        data,
-                      })
-                    }
-                  />
-                </div>
-                <CardHeader className="p-4">
-                  <CardTitle className="text-base truncate">
-                    {media.title || "Unnamed Asset"}
-                  </CardTitle>
-                  {media.description && (
-                    <CardDescription className="line-clamp-2 text-xs mb-1">
-                      {media.description}
-                    </CardDescription>
-                  )}
-                  <div className="flex items-center justify-between mt-2 text-xs text-muted-foreground">
-                    <span>
-                      {new Date(media.createdAt).toLocaleDateString()}
-                    </span>
-                    <span>{(media.sizeBytes / 1024).toFixed(1)} KB</span>
+              <HoverCard key={media.id} openDelay={300} closeDelay={100}>
+                <HoverCardTrigger asChild>
+                  <div className="group relative aspect-video cursor-pointer overflow-hidden rounded-xl border bg-muted/30 transition-all hover:scale-[1.02] hover:shadow-md hover:ring-2 hover:ring-primary/50">
+                    {media.mimeType?.startsWith("video/") ? (
+                      <EncryptedVideo
+                        src={media.url}
+                        className="h-full w-full object-contain"
+                        preload="metadata"
+                        spaceId={media.spaceId}
+                        mimeType={media.mimeType}
+                      />
+                    ) : (
+                      <EncryptedImage
+                        src={media.url}
+                        alt={media.title || ""}
+                        spaceId={media.spaceId}
+                        className="h-full w-full object-contain"
+                      />
+                    )}
+
+                    {/* Top shadow gradient and information overlay */}
+                    <div className="absolute inset-x-0 top-0 h-24 bg-linear-to-b from-black/80 via-black/40 to-transparent pointer-events-none opacity-80 group-hover:opacity-100 transition-opacity" />
+                    <div className="absolute top-3 left-3 right-12 flex flex-col pointer-events-none">
+                      <p className="truncate text-sm font-medium text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+                        {media.title ||
+                          media.url.split("/").pop()?.split("?")[0] ||
+                          "Unnamed Asset"}
+                      </p>
+                      <div className="flex items-center gap-1.5 mt-0.5">
+                        {media.mimeType && (
+                          <span className="truncate text-[10px] font-semibold tracking-wider text-white/90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] uppercase">
+                            {media.mimeType.split("/")[1] || "FILE"}
+                          </span>
+                        )}
+                        <span className="text-[10px] text-white/60 drop-shadow-md">
+                          •
+                        </span>
+                        <span className="truncate text-[10px] font-medium text-white/80 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+                          {(media.sizeBytes / 1024).toFixed(1)} KB
+                        </span>
+                        <span className="text-[10px] text-white/60 drop-shadow-md">
+                          •
+                        </span>
+                        <span className="truncate text-[10px] font-medium text-white/80 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+                          {new Date(media.createdAt).toLocaleDateString()}
+                        </span>
+                      </div>
+                      {media.description && (
+                        <p className="line-clamp-2 text-[11px] text-white/70 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] mt-1.5 leading-snug">
+                          {media.description}
+                        </p>
+                      )}
+                    </div>
+
+                    <MediaEditPopover
+                      media={media}
+                      onSave={(data) =>
+                        updateMedia({
+                          mediaId: media.id,
+                          spaceId: media.spaceId,
+                          data,
+                        })
+                      }
+                    />
                   </div>
-                </CardHeader>
-              </Card>
+                </HoverCardTrigger>
+                <HoverCardContent
+                  side="right"
+                  align="center"
+                  sideOffset={15}
+                  className="w-[500px] p-0 overflow-hidden bg-black border-white/10 shadow-2xl flex items-center justify-center"
+                >
+                  {media.mimeType?.startsWith("video/") ? (
+                    <EncryptedVideo
+                      src={media.url}
+                      className="w-full max-h-[70vh] object-contain"
+                      controls
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      spaceId={media.spaceId}
+                      mimeType={media.mimeType}
+                    />
+                  ) : (
+                    <EncryptedImage
+                      src={media.url}
+                      alt={media.title || ""}
+                      spaceId={media.spaceId}
+                      className="w-full max-h-[70vh] object-contain"
+                    />
+                  )}
+                </HoverCardContent>
+              </HoverCard>
             ))}
           </div>
         )}
