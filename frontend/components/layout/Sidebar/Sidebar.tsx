@@ -104,7 +104,6 @@ export function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent>
-
         {/* Recent Section */}
         <RecentSection />
 

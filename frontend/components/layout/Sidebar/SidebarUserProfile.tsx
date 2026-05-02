@@ -41,7 +41,10 @@ export function SidebarUserProfile({
     return (
       <SidebarMenu>
         <SidebarMenuItem>
-          <SidebarMenuSkeleton showIcon className="h-12 w-full px-4 rounded-lg" />
+          <SidebarMenuSkeleton
+            showIcon
+            className="h-12 w-full px-4 rounded-lg"
+          />
         </SidebarMenuItem>
       </SidebarMenu>
     );
