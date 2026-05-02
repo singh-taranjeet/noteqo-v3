@@ -64,7 +64,7 @@ export function SearchFilterBar({
         {SEARCH_LABELS.FILTER_TITLE_ONLY}
       </Button>
 
-      <Button
+      {/* <Button
         variant="ghost"
         size="sm"
         className="h-7 gap-1.5 text-xs font-medium text-muted-foreground"
@@ -73,7 +73,7 @@ export function SearchFilterBar({
       >
         <HugeiconsIcon icon={UserIcon} size={14} strokeWidth={1.5} />
         {SEARCH_LABELS.FILTER_CREATED_BY}
-      </Button>
+      </Button> */}
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -114,14 +114,14 @@ export function SearchFilterBar({
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <Button
+      {/* <Button
         variant="ghost"
         size="sm"
         className="h-7 gap-1 text-xs font-medium text-muted-foreground"
       >
         <HugeiconsIcon icon={FilterIcon} size={14} strokeWidth={1.5} />
         {SEARCH_LABELS.FILTER_ADD}
-      </Button>
+      </Button> */}
     </div>
   );
 }
