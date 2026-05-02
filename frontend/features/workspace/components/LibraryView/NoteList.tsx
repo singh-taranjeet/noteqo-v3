@@ -44,7 +44,7 @@ export function NoteList({
           href={ROUTES.NOTE(note.id)}
           className={cn(
             "group flex items-center justify-between p-3 rounded-xl border border-transparent",
-            "hover:bg-accent/50 hover:border-border transition-all duration-200",
+            "hover:bg-accent/50 hover:border-border transition-all duration-200 !no-underline hover:!no-underline",
           )}
         >
           <div className="flex items-center gap-3">
