@@ -10,12 +10,10 @@ import { Cancel01Icon, Search01Icon } from "@hugeicons/core-free-icons";
 import { useRecentNotes, type Note } from "@/features/workspace";
 import { useSpaces } from "@/features/spaces";
 import { SPACE_TYPE } from "@/features/spaces";
-import { ROUTES } from "@/constants/routes";
 import { SidebarNoteItem } from "./SidebarNoteItem";
 import {
   SidebarMenu,
   SidebarMenuItem,
-  SidebarMenuButton,
   useSidebar,
 } from "@/components/ui/sidebar";
 

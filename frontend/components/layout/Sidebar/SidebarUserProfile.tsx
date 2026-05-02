@@ -38,7 +38,6 @@ export function SidebarUserProfile({
   isLoading,
 }: SidebarUserProfileProps) {
   const { logout } = useLogout();
-  const { isMobile } = useSidebar();
   const [isOpen, setIsOpen] = useState(false);
   const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
 

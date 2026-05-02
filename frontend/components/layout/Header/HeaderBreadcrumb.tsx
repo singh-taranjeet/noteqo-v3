@@ -8,7 +8,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import React, { useState } from "react";
+import React from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSpaces } from "@/features/spaces";
 import Link from "next/link";
@@ -43,8 +43,6 @@ export function HeaderBreadcrumb({ items }: HeaderBreadcrumbProps) {
 
   const { data, spaceNotesMap } = useSpaces();
   const { spaces = [] } = data || {};
-
-
 
   // If items are passed explicitly, use them (for fallback/static routes)
   if (items && items.length > 0) {
@@ -83,12 +81,14 @@ export function HeaderBreadcrumb({ items }: HeaderBreadcrumbProps) {
         activeSpace = space;
         activeNote = note;
         allSpaceNotes = notes;
-        
+
         let current: Note | undefined = note;
         while (current) {
           notePath.unshift(current);
           const nextParentId: string | undefined = current.parentId;
-          current = nextParentId ? notes.find((n) => n.id === nextParentId) : undefined;
+          current = nextParentId
+            ? notes.find((n) => n.id === nextParentId)
+            : undefined;
         }
         break;
       }
@@ -122,7 +122,10 @@ export function HeaderBreadcrumb({ items }: HeaderBreadcrumbProps) {
 
   const renderNoteDropdown = (note: Note, isLast: boolean = false) => {
     const siblings = getSiblingNotes(note);
-    if (siblings.length === 0 || (siblings.length === 1 && siblings[0].id === note.id)) {
+    if (
+      siblings.length === 0 ||
+      (siblings.length === 1 && siblings[0].id === note.id)
+    ) {
       return renderNoteLink(note, isLast);
     }
 
@@ -171,13 +174,19 @@ export function HeaderBreadcrumb({ items }: HeaderBreadcrumbProps) {
                 router.push(ROUTES.NOTE(sibling.id));
               }}
               className={`flex items-center w-full px-2 py-1.5 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground cursor-pointer transition-colors ${
-                sibling.id === note.id ? "bg-accent/50 text-accent-foreground font-medium" : ""
+                sibling.id === note.id
+                  ? "bg-accent/50 text-accent-foreground font-medium"
+                  : ""
               }`}
             >
               {sibling.emoji ? (
                 <span className="mr-2 shrink-0">{sibling.emoji}</span>
               ) : (
-                <HugeiconsIcon icon={File01Icon} size={14} className="mr-2 shrink-0 text-muted-foreground" />
+                <HugeiconsIcon
+                  icon={File01Icon}
+                  size={14}
+                  className="mr-2 shrink-0 text-muted-foreground"
+                />
               )}
               <span className="truncate">{sibling.title || "Untitled"}</span>
             </button>
@@ -192,7 +201,11 @@ export function HeaderBreadcrumb({ items }: HeaderBreadcrumbProps) {
       return (
         <BreadcrumbPage className="flex items-center gap-1.5 text-sm font-medium whitespace-nowrap px-1.5 py-0.5">
           {note.emoji ? (
-            <span role="img" aria-hidden="true" className="shrink-0 text-[14px]">
+            <span
+              role="img"
+              aria-hidden="true"
+              className="shrink-0 text-[14px]"
+            >
               {note.emoji}
             </span>
           ) : (
@@ -215,7 +228,11 @@ export function HeaderBreadcrumb({ items }: HeaderBreadcrumbProps) {
       >
         <Link href={ROUTES.NOTE(note.id)}>
           {note.emoji ? (
-            <span role="img" aria-hidden="true" className="shrink-0 text-[14px]">
+            <span
+              role="img"
+              aria-hidden="true"
+              className="shrink-0 text-[14px]"
+            >
               {note.emoji}
             </span>
           ) : (
@@ -257,9 +274,7 @@ export function HeaderBreadcrumb({ items }: HeaderBreadcrumbProps) {
         <BreadcrumbItem className="shrink-0">
           <HoverCard openDelay={200} closeDelay={200}>
             <HoverCardTrigger asChild>
-              <button
-                className="flex items-center text-muted-foreground hover:bg-accent hover:text-accent-foreground px-1.5 py-0.5 rounded-md cursor-pointer focus:outline-none focus:ring-0"
-              >
+              <button className="flex items-center text-muted-foreground hover:bg-accent hover:text-accent-foreground px-1.5 py-0.5 rounded-md cursor-pointer focus:outline-none focus:ring-0">
                 <HugeiconsIcon icon={MoreHorizontalIcon} size={14} />
               </button>
             </HoverCardTrigger>
@@ -278,9 +293,15 @@ export function HeaderBreadcrumb({ items }: HeaderBreadcrumbProps) {
                   {hiddenNode.emoji ? (
                     <span className="mr-2 shrink-0">{hiddenNode.emoji}</span>
                   ) : (
-                    <HugeiconsIcon icon={File01Icon} size={14} className="mr-2 shrink-0 text-muted-foreground" />
+                    <HugeiconsIcon
+                      icon={File01Icon}
+                      size={14}
+                      className="mr-2 shrink-0 text-muted-foreground"
+                    />
                   )}
-                  <span className="truncate">{hiddenNode.title || "Untitled"}</span>
+                  <span className="truncate">
+                    {hiddenNode.title || "Untitled"}
+                  </span>
                 </button>
               ))}
             </HoverCardContent>
@@ -298,7 +319,7 @@ export function HeaderBreadcrumb({ items }: HeaderBreadcrumbProps) {
         <BreadcrumbItem className="shrink-0">
           {renderNoteDropdown(current, true)}
         </BreadcrumbItem>
-      </React.Fragment>
+      </React.Fragment>,
     ];
   }
 
@@ -327,10 +348,16 @@ export function HeaderBreadcrumb({ items }: HeaderBreadcrumbProps) {
                     router.push(ROUTES.NOTES);
                   }}
                   className={`flex items-center w-full px-2 py-1.5 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground cursor-pointer transition-colors ${
-                    space.id === activeSpace.id ? "bg-accent/50 text-accent-foreground font-medium" : ""
+                    space.id === activeSpace.id
+                      ? "bg-accent/50 text-accent-foreground font-medium"
+                      : ""
                   }`}
                 >
-                  <HugeiconsIcon icon={Folder01Icon} size={14} className="mr-2 shrink-0" />
+                  <HugeiconsIcon
+                    icon={Folder01Icon}
+                    size={14}
+                    className="mr-2 shrink-0"
+                  />
                   <span className="truncate">{space.name}</span>
                 </button>
               ))}
