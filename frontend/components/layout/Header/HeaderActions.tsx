@@ -53,11 +53,9 @@ export function HeaderActions() {
     return format(new Date(currentNote.updatedAt), "MMM d");
   }, [currentNote]);
 
-  const avatarEmoji = useMemo(() => {
-    return userProfile?.name
-      ? userProfile.name.charAt(0).toUpperCase()
-      : MOCK_USER.AVATAR;
-  }, [userProfile?.name]);
+  const avatarEmoji = userProfile?.name
+    ? userProfile.name.charAt(0).toUpperCase()
+    : MOCK_USER.AVATAR;
 
   const username = userProfile?.name || MOCK_USER.NAME;
 
