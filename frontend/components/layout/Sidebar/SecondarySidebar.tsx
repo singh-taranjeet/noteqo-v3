@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useAppShell } from "../AppShell";
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,7 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
+  useSidebar,
 } from "@/components/ui/sidebar";
 
 const SECONDARY_SIDEBAR_WIDTH = 260;
@@ -30,8 +31,16 @@ export function SecondarySidebar() {
     isLoading: spacesLoading,
   } = useSpaces();
   const [searchQuery, setSearchQuery] = useState("");
+  const { open, openMobile, isMobile } = useSidebar();
 
   const isOpen = secondarySidebarType !== null;
+
+  useEffect(() => {
+    const isSidebarOpen = isMobile ? openMobile : open;
+    if (!isSidebarOpen && isOpen) {
+      closeSecondarySidebar();
+    }
+  }, [isMobile, openMobile, open, isOpen, closeSecondarySidebar]);
 
   const title = useMemo(() => {
     switch (secondarySidebarType) {
