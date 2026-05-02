@@ -9,6 +9,7 @@ import {
   ItemTitle,
 } from "@/components/ui/item";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import type { SidebarSearchResultItem } from "@/features/workspace";
 
 interface SearchResultRowProps {
@@ -33,9 +34,10 @@ export function SearchResultRow({
     : item.previewText;
 
   return (
-    <button
+    <Button
       type="button"
-      className={cn("w-full rounded-md px-2", isSelected && "bg-accent")}
+      variant="ghost"
+      className={cn("w-full rounded-md px-2 h-auto", isSelected && "bg-accent")}
       onClick={() => onSelect(item.id)}
       onMouseEnter={() => onHover(item.id)}
       onFocus={() => onHover(item.id)}
@@ -62,6 +64,6 @@ export function SearchResultRow({
           )}
         </ItemContent>
       </Item>
-    </button>
+    </Button>
   );
 }

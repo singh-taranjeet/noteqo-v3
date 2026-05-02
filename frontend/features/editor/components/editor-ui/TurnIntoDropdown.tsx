@@ -112,7 +112,10 @@ export const TurnIntoDropdown: React.FC<TurnIntoDropdownProps> = ({
           onMouseDown={(e) => e.preventDefault()}
         >
           {activeOption.name}
-          <HugeiconsIcon icon={ArrowDown01Icon} className="w-3 h-3 opacity-50" />
+          <HugeiconsIcon
+            icon={ArrowDown01Icon}
+            className="w-3 h-3 opacity-50"
+          />
         </Button>
       </PopoverTrigger>
       <PopoverContent
@@ -144,10 +147,20 @@ export const TurnIntoDropdown: React.FC<TurnIntoDropdownProps> = ({
                 }`}
               >
                 <div className="flex items-center gap-2.5">
-                  <HugeiconsIcon icon={option.icon} className="text-muted-foreground shrink-0" size={16} />
+                  <HugeiconsIcon
+                    icon={option.icon}
+                    className="text-muted-foreground shrink-0"
+                    size={16}
+                  />
                   <span>{option.name}</span>
                 </div>
-                {isActive && <HugeiconsIcon icon={Tick02Icon} className="shrink-0" size={16} />}
+                {isActive && (
+                  <HugeiconsIcon
+                    icon={Tick02Icon}
+                    className="shrink-0"
+                    size={16}
+                  />
+                )}
               </Button>
             );
           })}

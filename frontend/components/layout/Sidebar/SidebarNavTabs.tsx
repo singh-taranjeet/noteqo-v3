@@ -27,8 +27,8 @@ export function SidebarNavTabs({
 
   return (
     <>
-      <SidebarMenu>
-        <SidebarMenuItem>
+      <SidebarMenu className="flex-row gap-2 px-2">
+        <SidebarMenuItem className="flex-1">
           <SidebarMenuButton
             isActive={activeTab === "home"}
             onClick={() => {
@@ -36,16 +36,18 @@ export function SidebarNavTabs({
               router.push(ROUTES.NOTES);
             }}
             tooltip="Home"
+            className="justify-center"
           >
             <HugeiconsIcon icon={Home01Icon} size={18} strokeWidth={1.5} />
             <span>Home</span>
           </SidebarMenuButton>
         </SidebarMenuItem>
-        <SidebarMenuItem>
+        <SidebarMenuItem className="flex-1">
           <SidebarMenuButton
             onClick={() => setIsSearchOpen(true)}
             isActive={activeTab === "search"}
             tooltip="Search"
+            className="justify-center"
           >
             <HugeiconsIcon icon={Search01Icon} size={18} strokeWidth={1.5} />
             <span>Search</span>

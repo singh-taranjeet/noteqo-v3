@@ -21,6 +21,7 @@ export class NotesService {
       dto.type,
       dto.createdAt,
       dto.updatedAt,
+      dto.parentId,
     );
   }
 
@@ -49,6 +50,8 @@ export class NotesService {
       Buffer.from(dto.ciphertext, 'utf8'),
       note.version,
       dto.updatedAt,
+      dto.isFavorite,
+      dto.parentId,
     );
   }
 

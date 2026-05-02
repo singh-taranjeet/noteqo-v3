@@ -12,4 +12,5 @@ export class NoteResponseDto {
   deletedBy?: string;
   createdAt: Date;
   updatedAt?: Date;
+  parentId?: string | null;
 }

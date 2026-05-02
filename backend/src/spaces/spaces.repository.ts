@@ -25,7 +25,7 @@ export class SpacesRepository {
     @InjectRepository(SpaceKeySlotEntity)
     private readonly keySlotOrm: Repository<SpaceKeySlotEntity>,
     private readonly dataSource: DataSource,
-  ) { }
+  ) {}
 
   /**
    * Creates a space with the owner as the first member and their key slot.
@@ -89,7 +89,7 @@ export class SpacesRepository {
 
       return (await this.findById(savedSpace.id)) as Space;
     } catch (err) {
-      this.logger.error("Create space failed", err);
+      this.logger.error('Create space failed', err);
       await queryRunner.rollbackTransaction();
       throw err;
     } finally {
@@ -112,10 +112,7 @@ export class SpacesRepository {
         'member.userId = :userId',
         { userId },
       )
-      .leftJoinAndSelect(
-        'space.notes',
-        'note',
-      )
+      .leftJoinAndSelect('space.notes', 'note')
       .leftJoinAndSelect(
         'space.keySlots',
         'keySlot',
@@ -132,37 +129,36 @@ export class SpacesRepository {
 
     const entities = await this.spaceOrm
       .createQueryBuilder('space')
-      // 1. ACCESS CONTROL: Inner join to ensure the user belongs to the space, 
+      // 1. ACCESS CONTROL: Inner join to ensure the user belongs to the space,
       // but don't select it here so it doesn't mess with our payload.
       .innerJoin(
         'space.members',
         'accessMember',
         'accessMember.userId = :userId',
-        { userId: currentUserId }
+        { userId: currentUserId },
       )
       // 2. FETCH MEMBERS: Left join to grab the members of the space
-      .leftJoinAndSelect(
-        'space.members',
-        'member'
-      )
+      .leftJoinAndSelect('space.members', 'member')
       // 3. FETCH NOTES: Left join to grab ONLY notes that were recently updated
       .leftJoinAndSelect(
         'space.notes',
         'note',
-        'note.updatedAt > :lastUpdated AND note.updatedBy != :userId'
+        'note.updatedAt > :lastUpdated AND note.updatedBy != :userId',
       )
       // 4. FETCH KEYSLOTS
       .leftJoinAndSelect(
         'space.keySlots',
         'keySlot',
-        'keySlot.userId = :userId'
+        'keySlot.userId = :userId',
       )
       // 5. FILTERING: Only return the Space if the Space itself, a Note, or a Member was updated
-      .where(new Brackets(qb => {
-        qb.where('space.updatedAt > :lastUpdated')
-          .orWhere('note.id IS NOT NULL') // True if our left join condition on notes found a match
-          .orWhere('member.updatedAt > :lastUpdated');
-      }))
+      .where(
+        new Brackets((qb) => {
+          qb.where('space.updatedAt > :lastUpdated')
+            .orWhere('note.id IS NOT NULL') // True if our left join condition on notes found a match
+            .orWhere('member.updatedAt > :lastUpdated');
+        }),
+      )
       .setParameters({ lastUpdated, userId: currentUserId })
       .orderBy('space.updatedAt', 'DESC')
       .getMany();
@@ -338,12 +334,12 @@ export class SpacesRepository {
         userId: ks.userId,
         encryptedSpaceKey: ks.encryptedSpaceKey.toString('base64'),
       })),
-      notes: entity?.notes?.map(note => {
+      notes: entity?.notes?.map((note) => {
         return {
           ...note,
-          ciphertext: note.ciphertext.toString('utf8')
-        }
-      })
+          ciphertext: note.ciphertext.toString('utf8'),
+        };
+      }),
     };
   }
 }

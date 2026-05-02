@@ -12,6 +12,7 @@ export * from "./hooks/useAuthCheck";
 export * from "./hooks/useLogin";
 export * from "./hooks/useLogout";
 export * from "./hooks/useRegister";
+export * from "./hooks/useUserProfile";
 
 // Services
 export * from "./services/auth.service";

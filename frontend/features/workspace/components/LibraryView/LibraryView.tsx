@@ -18,24 +18,28 @@ export function LibraryView() {
   const [activeTab, setActiveTab] = useState<TabType>("private");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const { data: spacesData, spaceNotesMap, isLoading: spacesLoading } = useSpaces();
+  const {
+    data: spacesData,
+    spaceNotesMap,
+    isLoading: spacesLoading,
+  } = useSpaces();
   const { notes: recentNotes, isLoading: recentLoading } = useRecentNotes();
 
-  const spaces = spacesData?.spaces || [];
-
   const privateSpaces = useMemo(
-    () => spaces.filter((s) => s.type === SPACE_TYPE.PERSONAL),
-    [spaces]
+    () =>
+      (spacesData?.spaces || []).filter((s) => s.type === SPACE_TYPE.PERSONAL),
+    [spacesData?.spaces],
   );
 
   const sharedSpaces = useMemo(
-    () => spaces.filter((s) => s.type === SPACE_TYPE.SHARED),
-    [spaces]
+    () =>
+      (spacesData?.spaces || []).filter((s) => s.type === SPACE_TYPE.SHARED),
+    [spacesData?.spaces],
   );
 
   const favoriteNotes = useMemo(
     () => recentNotes.filter((n) => n.isFavorite),
-    [recentNotes]
+    [recentNotes],
   );
 
   // Determine spaces to show in Create Dialog based on active tab
@@ -44,7 +48,8 @@ export function LibraryView() {
     return privateSpaces;
   }, [activeTab, sharedSpaces, privateSpaces]);
 
-  const dialogSpaceLabel = activeTab === "shared" ? "shared space" : "private space";
+  const dialogSpaceLabel =
+    activeTab === "shared" ? "shared space" : "private space";
 
   const isLoading = spacesLoading || recentLoading;
 
@@ -53,22 +58,29 @@ export function LibraryView() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-3">
-            <HugeiconsIcon icon={NotebookIcon} size={32} className="text-primary" />
+            <HugeiconsIcon
+              icon={NotebookIcon}
+              size={32}
+              className="text-primary"
+            />
             Library
           </h1>
           <p className="text-muted-foreground mt-1">
             Manage your spaces and notes
           </p>
         </div>
-        <Button onClick={() => setIsDialogOpen(true)} className="w-full sm:w-auto">
+        <Button
+          onClick={() => setIsDialogOpen(true)}
+          className="w-full sm:w-auto"
+        >
           <HugeiconsIcon icon={PlusSignIcon} size={18} className="mr-2" />
           New Page
         </Button>
       </div>
 
-      <Tabs 
-        value={activeTab} 
-        onValueChange={(val) => setActiveTab(val as TabType)} 
+      <Tabs
+        value={activeTab}
+        onValueChange={(val) => setActiveTab(val as TabType)}
         className="flex-1 flex flex-col"
       >
         <TabsList className="mb-6">
@@ -84,32 +96,44 @@ export function LibraryView() {
           </div>
         ) : (
           <div className="flex-1 overflow-y-auto pb-12">
-            <TabsContent value="private" className="m-0 focus-visible:outline-none">
-              <SpaceAccordion 
-                spaces={privateSpaces} 
-                spaceNotesMap={spaceNotesMap} 
+            <TabsContent
+              value="private"
+              className="m-0 focus-visible:outline-none"
+            >
+              <SpaceAccordion
+                spaces={privateSpaces}
+                spaceNotesMap={spaceNotesMap}
                 emptyMessage="You don't have any private spaces yet."
               />
             </TabsContent>
-            
-            <TabsContent value="shared" className="m-0 focus-visible:outline-none">
-              <SpaceAccordion 
-                spaces={sharedSpaces} 
-                spaceNotesMap={spaceNotesMap} 
+
+            <TabsContent
+              value="shared"
+              className="m-0 focus-visible:outline-none"
+            >
+              <SpaceAccordion
+                spaces={sharedSpaces}
+                spaceNotesMap={spaceNotesMap}
                 emptyMessage="You don't have any shared spaces yet."
               />
             </TabsContent>
-            
-            <TabsContent value="recent" className="m-0 focus-visible:outline-none">
-              <NoteList 
-                notes={recentNotes} 
+
+            <TabsContent
+              value="recent"
+              className="m-0 focus-visible:outline-none"
+            >
+              <NoteList
+                notes={recentNotes}
                 emptyMessage="You haven't viewed or edited any notes recently."
               />
             </TabsContent>
-            
-            <TabsContent value="favorite" className="m-0 focus-visible:outline-none">
-              <NoteList 
-                notes={favoriteNotes} 
+
+            <TabsContent
+              value="favorite"
+              className="m-0 focus-visible:outline-none"
+            >
+              <NoteList
+                notes={favoriteNotes}
                 emptyMessage="You don't have any favorite notes yet."
               />
             </TabsContent>
@@ -122,7 +146,9 @@ export function LibraryView() {
         onOpenChange={setIsDialogOpen}
         spaces={dialogSpaces}
         spaceTypeLabel={dialogSpaceLabel}
-        defaultSpaceId={dialogSpaces.length > 0 ? dialogSpaces[0].id : undefined}
+        defaultSpaceId={
+          dialogSpaces.length > 0 ? dialogSpaces[0].id : undefined
+        }
       />
     </div>
   );

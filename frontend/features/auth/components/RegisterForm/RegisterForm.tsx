@@ -14,6 +14,7 @@ import { useRegister } from "@/features/auth/hooks/useRegister";
 import { AUTH_CONFIG } from "@/features/auth/constants/auth.constants";
 import { ROUTES } from "@/constants/routes";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { KeysService } from "@/features/auth/services/keys.service";
 import { spaceService } from "@/features/spaces/services/space.service";
 
@@ -75,10 +76,18 @@ export function RegisterForm() {
           masterKey: result.masterKey,
         });
 
-        // 2. Create default personal space
+        // 2. Store user profile
+        const { storageService, STORAGE_KEYS } =
+          await import("@/features/storage");
+        await storageService.put(
+          STORAGE_KEYS.USER_PROFILE,
+          result.response.data.user,
+        );
+
+        // 3. Create default personal space
         await spaceService.createSpace();
 
-        // 3. Show recovery code dialog
+        // 4. Show recovery code dialog
         setGeneratedMasterKey(result.masterKey);
       } catch (err: unknown) {
         if (err instanceof Error) {
@@ -120,12 +129,12 @@ export function RegisterForm() {
             footer={
               <>
                 Already have an account?{" "}
-                <a
+                <Link
                   href={ROUTES.LOGIN}
                   className="ml-1 text-primary hover:underline underline-offset-4"
                 >
                   Log in
-                </a>
+                </Link>
               </>
             }
           />

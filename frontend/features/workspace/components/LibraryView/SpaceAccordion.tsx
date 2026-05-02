@@ -49,23 +49,22 @@ export function SpaceAccordion({
     <Accordion type="multiple" defaultValue={defaultValue} className="w-full">
       {spaces.map((space) => {
         const notes = spaceNotesMap[space.id] || [];
-        
+
         return (
-          <AccordionItem
-            key={space.id}
-            value={space.id}
-          >
+          <AccordionItem key={space.id} value={space.id}>
             <AccordionTrigger className="hover:no-underline py-4">
               <div className="flex items-center gap-2">
-                <span className="font-semibold">{space.name || "Untitled Space"}</span>
+                <span className="font-semibold">
+                  {space.name || "Untitled Space"}
+                </span>
                 <span className="bg-muted text-muted-foreground text-xs rounded-full px-2 py-0.5">
                   {notes.length}
                 </span>
               </div>
             </AccordionTrigger>
             <AccordionContent className="pb-4">
-              <NoteList 
-                notes={notes} 
+              <NoteList
+                notes={notes}
                 emptyMessage="This space has no notes yet."
               />
             </AccordionContent>

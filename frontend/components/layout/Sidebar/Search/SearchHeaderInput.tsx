@@ -1,7 +1,7 @@
 "use client";
 
 import { HugeiconsIcon } from "@hugeicons/react";
-import { LayoutLeftIcon, Search01Icon } from "@hugeicons/core-free-icons";
+import { Close, Search01Icon } from "@hugeicons/core-free-icons";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { SEARCH_LABELS } from "../constants/search.constants";
@@ -41,7 +41,7 @@ export function SearchHeaderInput({
           className="text-muted-foreground"
           aria-label={SEARCH_LABELS.SEARCH_RESULTS_REGION_LABEL}
         >
-          <HugeiconsIcon icon={LayoutLeftIcon} size={16} strokeWidth={1.5} />
+          <HugeiconsIcon icon={Close} size={16} strokeWidth={1.5} />
         </Button>
       </div>
     </div>

@@ -19,10 +19,10 @@ import { SyncModule } from '../sync/sync.module';
     ]),
     NotesModule,
     UsersModule,
-    SyncModule
+    SyncModule,
   ],
   controllers: [SpacesController],
   providers: [SpacesService, SpacesRepository],
   exports: [SpacesService],
 })
-export class SpacesModule { }
+export class SpacesModule {}

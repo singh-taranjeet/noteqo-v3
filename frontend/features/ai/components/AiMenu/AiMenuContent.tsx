@@ -7,20 +7,21 @@ import { AiLoadingIndicator } from "./AiLoadingIndicator";
 import { AiActionButton } from "./AiActionButton";
 import type { AiActionType } from "@/features/ai/types/ai.types";
 import { AI_ACTION_LABELS } from "@/features/ai/constants/ai.constants";
+import { HugeiconsIcon } from "@hugeicons/react";
 import {
-  AlignLeft,
-  CheckCircle,
-  ClipboardList,
-  ChevronDown,
-  LayoutGrid,
-} from "lucide-react";
+  TextAlignLeftIcon,
+  CheckmarkCircle01Icon,
+  NoteIcon,
+  ArrowDown01Icon,
+  LayoutIcon,
+} from "@hugeicons/core-free-icons";
 
 const ACTION_ICONS: Record<AiActionType, React.ReactNode> = {
-  reformat: <AlignLeft className="h-3.5 w-3.5" />,
-  spellcheck: <CheckCircle className="h-3.5 w-3.5" />,
-  summarize: <ClipboardList className="h-3.5 w-3.5" />,
-  restructure_accordion: <ChevronDown className="h-3.5 w-3.5" />,
-  restructure_card: <LayoutGrid className="h-3.5 w-3.5" />,
+  reformat: <HugeiconsIcon icon={TextAlignLeftIcon} size={14} />,
+  spellcheck: <HugeiconsIcon icon={CheckmarkCircle01Icon} size={14} />,
+  summarize: <HugeiconsIcon icon={NoteIcon} size={14} />,
+  restructure_accordion: <HugeiconsIcon icon={ArrowDown01Icon} size={14} />,
+  restructure_card: <HugeiconsIcon icon={LayoutIcon} size={14} />,
 };
 
 const PRIMARY_ACTIONS: AiActionType[] = ["reformat", "spellcheck", "summarize"];

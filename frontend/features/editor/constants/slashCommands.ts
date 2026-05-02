@@ -1,4 +1,5 @@
 import type { Editor, Range } from "@tiptap/core";
+import type { IconSvgElement } from "@hugeicons/react";
 
 import {
   Heading01Icon,
@@ -18,12 +19,13 @@ import {
   AttachmentIcon,
   ImageAdd01Icon,
   CameraVideoIcon,
+  FileAddIcon,
 } from "@hugeicons/core-free-icons";
 import type { AiActionType } from "@/features/ai/types/ai.types";
 
 export interface SuggestionItem {
   title: string;
-  icon?: any;
+  icon?: IconSvgElement;
   shortcut?: string;
   command: (props: { editor: Editor; range: Range }) => void;
 }
@@ -154,6 +156,7 @@ export const SLASH_COMMANDS: SuggestionItem[] = [
         .run();
     },
   },
+
   {
     title: "Accordion",
     icon: ArrowDown01Icon,
@@ -206,6 +209,17 @@ export const SLASH_COMMANDS: SuggestionItem[] = [
     command: ({ editor, range }) => {
       editor.chain().focus().deleteRange(range).run();
       editor.commands.promptFileUpload("video/*");
+    },
+  },
+  {
+    title: "Child Note",
+    icon: FileAddIcon,
+    command: ({ editor, range }) => {
+      editor.chain().focus().deleteRange(range).run();
+      const event = new CustomEvent("noteqo:create-child-note", {
+        bubbles: true,
+      });
+      editor.view.dom.dispatchEvent(event);
     },
   },
 ];

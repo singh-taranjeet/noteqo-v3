@@ -21,7 +21,11 @@ export const noteService = {
    * Creates a new note locally in Dexie and enqueues a CREATE sync event.
    * Returns the note immediately — no network call.
    */
-  async createNote(spaceId: string, title?: string): Promise<Note> {
+  async createNote(
+    spaceId: string,
+    title?: string,
+    parentId?: string,
+  ): Promise<Note> {
     const now = new Date().toISOString();
 
     // Determine note type from the cached space
@@ -36,6 +40,7 @@ export const noteService = {
       content: null,
       syncStatus: "pending",
       spaceId,
+      parentId,
       type: noteType,
       isFavorite: false,
       createdAt: now,
@@ -166,6 +171,7 @@ export const noteService = {
         emoji?: string;
         coverImage?: string;
         content?: unknown;
+        parentId?: string;
       };
 
       return {
@@ -174,6 +180,7 @@ export const noteService = {
         emoji: payload.emoji ?? NOTE_FALLBACKS.EMOJI,
         coverImage: payload.coverImage ?? NOTE_FALLBACKS.COVER_IMAGE,
         content: payload.content ?? null,
+        parentId: note.parentId ?? payload.parentId ?? undefined,
         syncStatus: "pending",
         spaceId: note.spaceId,
         type: note.type as "private" | "shared",

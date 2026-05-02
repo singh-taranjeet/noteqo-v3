@@ -56,7 +56,10 @@ export const ColorPickerPopover: React.FC<ColorPickerPopoverProps> = ({
           onMouseDown={(e) => e.preventDefault()}
         >
           <HugeiconsIcon icon={TextColorIcon} className="w-4 h-4" />
-          <HugeiconsIcon icon={ArrowDown01Icon} className="w-3 h-3 opacity-50" />
+          <HugeiconsIcon
+            icon={ArrowDown01Icon}
+            className="w-3 h-3 opacity-50"
+          />
         </Button>
       </PopoverTrigger>
       <PopoverContent

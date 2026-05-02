@@ -9,6 +9,7 @@ import {
   MoreHorizontalIcon,
   Clock04Icon,
   Copy01Icon,
+  Add01Icon,
 } from "@hugeicons/core-free-icons";
 import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
@@ -17,17 +18,19 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { TooltipIconButton } from "@/components/ui/tooltip-icon-button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useLocalNotes } from "@/features/workspace/hooks/useLocalNotes";
 import { useDuplicateNote } from "@/features/workspace/hooks/useDuplicateNote";
 import { useToggleFavoriteNote } from "@/features/workspace/hooks/useToggleFavoriteNote";
-import { MOCK_USER } from "@/features/auth";
+import { useCreateNote } from "@/features/workspace/hooks/useCreateNote";
+import { MOCK_USER, useUserProfile } from "@/features/auth";
 import { VersionHistoryDialog } from "@/features/editor";
 
 export function HeaderActions() {
@@ -39,8 +42,11 @@ export function HeaderActions() {
   const isDuplicating = duplicateMutation.isPending;
 
   const toggleFavoriteMutation = useToggleFavoriteNote();
+  const createNoteMutation = useCreateNote();
 
   const [isVersionHistoryOpen, setIsVersionHistoryOpen] = useState(false);
+
+  const { data: userProfile } = useUserProfile();
 
   const currentNote = useMemo(() => {
     if (!notes || !noteId) return null;
@@ -52,13 +58,11 @@ export function HeaderActions() {
     return format(new Date(currentNote.updatedAt), "MMM d");
   }, [currentNote]);
 
-  const userInitials = useMemo(() => {
-    return MOCK_USER.NAME.split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .substring(0, 2);
-  }, []);
+  const avatarEmoji = userProfile?.name
+    ? userProfile.name.charAt(0).toUpperCase()
+    : MOCK_USER.AVATAR;
+
+  const username = userProfile?.name || MOCK_USER.NAME;
 
   return (
     <div className="flex items-center gap-1 shrink-0">
@@ -71,51 +75,70 @@ export function HeaderActions() {
 
       {/* User avatar */}
       {currentNote && (
-        <Avatar className="h-6 w-6 text-xs">
-          <AvatarFallback className="bg-primary/10 text-foreground text-xs font-medium">
-            {userInitials}
-          </AvatarFallback>
-        </Avatar>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="hidden sm:flex items-center justify-center h-6 w-6 bg-sidebar-accent rounded-md shrink-0 cursor-default mr-1">
+              <span
+                className="text-sm shrink-0 leading-none"
+                role="img"
+                aria-label="User avatar"
+              >
+                {avatarEmoji}
+              </span>
+            </div>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">
+            Last edited by {username}
+          </TooltipContent>
+        </Tooltip>
       )}
 
       {/* Version history */}
       {noteId && currentNote && (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-7 w-7"
-              aria-label="Version history"
-              onClick={() => setIsVersionHistoryOpen(true)}
-              id="version-history-button"
-            >
-              <HugeiconsIcon icon={Clock04Icon} size={16} strokeWidth={1.5} />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent side="bottom">Version history</TooltipContent>
-        </Tooltip>
+        <TooltipIconButton
+          icon={Clock04Icon}
+          tooltip="Version history"
+          className="hidden sm:flex h-7 w-7"
+          onClick={() => setIsVersionHistoryOpen(true)}
+          id="version-history-button"
+        />
+      )}
+
+      {/* Add child note */}
+      {noteId && currentNote && (
+        <TooltipIconButton
+          icon={Add01Icon}
+          tooltip="Add child note"
+          className="hidden sm:flex h-7 w-7"
+          onClick={() =>
+            createNoteMutation.mutate({
+              spaceId: currentNote.spaceId,
+              parentId: currentNote.id,
+            })
+          }
+          disabled={createNoteMutation.isPending}
+          id="add-child-note-button"
+        />
       )}
 
       {/* Favorite toggle */}
       {noteId && currentNote && (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className={`h-7 w-7 ${currentNote.isFavorite ? "text-yellow-500 hover:text-yellow-600" : ""}`}
-              aria-label={currentNote.isFavorite ? "Remove from favorites" : "Add to favorites"}
-              onClick={() => toggleFavoriteMutation.mutate({ noteId, isFavorite: !currentNote.isFavorite })}
-              disabled={toggleFavoriteMutation.isPending}
-            >
-              <HugeiconsIcon icon={FavouriteIcon} size={16} strokeWidth={1.5} />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent side="bottom">
-            {currentNote.isFavorite ? "Remove from favorites" : "Add to favorites"}
-          </TooltipContent>
-        </Tooltip>
+        <TooltipIconButton
+          icon={FavouriteIcon}
+          tooltip={
+            currentNote.isFavorite
+              ? "Remove from favorites"
+              : "Add to favorites"
+          }
+          className={`hidden sm:flex h-7 w-7 ${currentNote.isFavorite ? "text-yellow-500 hover:text-yellow-600" : ""}`}
+          onClick={() =>
+            toggleFavoriteMutation.mutate({
+              noteId,
+              isFavorite: !currentNote.isFavorite,
+            })
+          }
+          disabled={toggleFavoriteMutation.isPending}
+        />
       )}
 
       {/* More options dropdown */}
@@ -141,6 +164,55 @@ export function HeaderActions() {
           <TooltipContent side="bottom">More options</TooltipContent>
         </Tooltip>
         <DropdownMenuContent align="end">
+          <div className="sm:hidden">
+            {currentNote && formattedDate && (
+              <div className="px-2 py-1.5 text-xs text-muted-foreground flex items-center gap-2">
+                <div className="flex items-center justify-center h-6 w-6 bg-sidebar-accent rounded-md shrink-0 cursor-default">
+                  <span
+                    className="text-sm shrink-0 leading-none"
+                    role="img"
+                    aria-label="User avatar"
+                  >
+                    {avatarEmoji}
+                  </span>
+                </div>
+                <span>
+                  Edited by {username}
+                  <br />
+                  {formattedDate}
+                </span>
+              </div>
+            )}
+            {noteId && currentNote && (
+              <DropdownMenuItem
+                onClick={() =>
+                  toggleFavoriteMutation.mutate({
+                    noteId,
+                    isFavorite: !currentNote.isFavorite,
+                  })
+                }
+                disabled={toggleFavoriteMutation.isPending}
+              >
+                <HugeiconsIcon
+                  icon={FavouriteIcon}
+                  size={16}
+                  strokeWidth={1.5}
+                  className={currentNote.isFavorite ? "text-yellow-500" : ""}
+                />
+                {currentNote.isFavorite
+                  ? "Remove from favorites"
+                  : "Add to favorites"}
+              </DropdownMenuItem>
+            )}
+            {noteId && currentNote && (
+              <DropdownMenuItem onClick={() => setIsVersionHistoryOpen(true)}>
+                <HugeiconsIcon icon={Clock04Icon} size={16} strokeWidth={1.5} />
+                Version history
+              </DropdownMenuItem>
+            )}
+            <DropdownMenuSeparator />
+          </div>
+
           {noteId && currentNote && (
             <DropdownMenuItem
               id="duplicate-page-button"

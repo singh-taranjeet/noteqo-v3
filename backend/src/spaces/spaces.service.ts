@@ -29,7 +29,7 @@ export class SpacesService {
     private readonly spacesRepository: SpacesRepository,
     private readonly syncService: SyncService,
     private readonly usersService: UsersService,
-  ) { }
+  ) {}
 
   // ─── Space CRUD ──────────────────────────────────────────────────────────────
 
@@ -97,7 +97,9 @@ export class SpacesService {
     if (!lastUpdated) {
       return this.findAll();
     }
-    const data = await this.spacesRepository.findAllRecentlyUpdatedNotes(lastUpdated);
+    const data = await this.spacesRepository.findAllRecentlyUpdatedNotes(
+      lastUpdated,
+    );
     await this.syncService.updateSync();
     return data;
   }

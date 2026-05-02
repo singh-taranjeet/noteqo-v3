@@ -1,5 +1,3 @@
-
-
 export class NoteVersionResponseDto {
   id: string;
   noteId: string;
