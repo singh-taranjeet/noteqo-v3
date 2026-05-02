@@ -47,7 +47,7 @@ export function SearchFilterBar({
   const inFilterLabel = getInFilterLabel(selectedPageIds.length);
 
   return (
-    <div className="flex items-center gap-2 px-4 py-2">
+    <div className="flex items-center gap-2 px-2 pb-2">
       <Button
         variant={titleOnly ? "secondary" : "ghost"}
         size="sm"
