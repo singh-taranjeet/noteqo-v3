@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Logout02Icon } from "@hugeicons/core-free-icons";
+import { Logout02Icon, ArrowDown01Icon, ArrowUp01Icon } from "@hugeicons/core-free-icons";
 import {
   SidebarMenu,
   SidebarMenuItem,
@@ -35,6 +35,7 @@ export function SidebarUserProfile({
 }: SidebarUserProfileProps) {
   const { logout } = useLogout();
   const { isMobile } = useSidebar();
+  const [isOpen, setIsOpen] = useState(false);
   const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
 
   if (isLoading) {
@@ -54,26 +55,33 @@ export function SidebarUserProfile({
     <>
       <SidebarMenu>
         <SidebarMenuItem>
-          <DropdownMenu>
+          <DropdownMenu onOpenChange={setIsOpen}>
             <DropdownMenuTrigger asChild>
               <SidebarMenuButton
-                size="lg"
-                className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground justify-between"
                 id="sidebar-user-profile-trigger"
               >
-                <span
-                  className="text-lg shrink-0"
-                  role="img"
-                  aria-label="User avatar"
-                >
-                  {avatarEmoji}
-                </span>
-                <span className="text-sm font-medium truncate">{username}</span>
+                <div className="flex items-center gap-2 overflow-hidden flex-1">
+                  <span
+                    className="text-base shrink-0"
+                    role="img"
+                    aria-label="User avatar"
+                  >
+                    {avatarEmoji}
+                  </span>
+                  <span className="text-sm font-medium truncate text-left">{username}</span>
+                </div>
+                <HugeiconsIcon
+                  icon={isOpen ? ArrowUp01Icon : ArrowDown01Icon}
+                  size={14}
+                  strokeWidth={1.5}
+                  className="opacity-50 shrink-0"
+                />
               </SidebarMenuButton>
             </DropdownMenuTrigger>
 
             <DropdownMenuContent
-              side={isMobile ? "bottom" : "right"}
+              side="bottom"
               align="start"
               className="w-56"
             >
