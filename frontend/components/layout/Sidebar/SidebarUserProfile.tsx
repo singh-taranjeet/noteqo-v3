@@ -2,7 +2,11 @@
 
 import { useState } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Logout02Icon, ArrowDown01Icon, ArrowUp01Icon } from "@hugeicons/core-free-icons";
+import {
+  Logout02Icon,
+  ArrowDown01Icon,
+  ArrowUp01Icon,
+} from "@hugeicons/core-free-icons";
 import {
   SidebarMenu,
   SidebarMenuItem,
@@ -69,7 +73,9 @@ export function SidebarUserProfile({
                   >
                     {avatarEmoji}
                   </span>
-                  <span className="text-sm font-medium truncate text-left">{username}</span>
+                  <span className="text-sm font-medium truncate text-left">
+                    {username}
+                  </span>
                 </div>
                 <HugeiconsIcon
                   icon={isOpen ? ArrowUp01Icon : ArrowDown01Icon}
@@ -80,11 +86,7 @@ export function SidebarUserProfile({
               </SidebarMenuButton>
             </DropdownMenuTrigger>
 
-            <DropdownMenuContent
-              side="bottom"
-              align="start"
-              className="w-56"
-            >
+            <DropdownMenuContent side="bottom" align="start" className="w-56">
               <DropdownMenuLabel>{username}</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem

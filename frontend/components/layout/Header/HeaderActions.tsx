@@ -23,6 +23,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { useLocalNotes } from "@/features/workspace/hooks/useLocalNotes";
 import { useDuplicateNote } from "@/features/workspace/hooks/useDuplicateNote";
@@ -73,7 +74,7 @@ export function HeaderActions() {
       {currentNote && (
         <Tooltip>
           <TooltipTrigger asChild>
-            <div className="flex items-center justify-center h-6 w-6 bg-sidebar-accent rounded-md shrink-0 cursor-default mr-1">
+            <div className="hidden sm:flex items-center justify-center h-6 w-6 bg-sidebar-accent rounded-md shrink-0 cursor-default mr-1">
               <span
                 className="text-sm shrink-0 leading-none"
                 role="img"
@@ -94,7 +95,7 @@ export function HeaderActions() {
         <TooltipIconButton
           icon={Clock04Icon}
           tooltip="Version history"
-          className="h-7 w-7"
+          className="hidden sm:flex h-7 w-7"
           onClick={() => setIsVersionHistoryOpen(true)}
           id="version-history-button"
         />
@@ -109,7 +110,7 @@ export function HeaderActions() {
               ? "Remove from favorites"
               : "Add to favorites"
           }
-          className={`h-7 w-7 ${currentNote.isFavorite ? "text-yellow-500 hover:text-yellow-600" : ""}`}
+          className={`hidden sm:flex h-7 w-7 ${currentNote.isFavorite ? "text-yellow-500 hover:text-yellow-600" : ""}`}
           onClick={() =>
             toggleFavoriteMutation.mutate({
               noteId,
@@ -143,6 +144,55 @@ export function HeaderActions() {
           <TooltipContent side="bottom">More options</TooltipContent>
         </Tooltip>
         <DropdownMenuContent align="end">
+          <div className="sm:hidden">
+            {currentNote && formattedDate && (
+              <div className="px-2 py-1.5 text-xs text-muted-foreground flex items-center gap-2">
+                <div className="flex items-center justify-center h-6 w-6 bg-sidebar-accent rounded-md shrink-0 cursor-default">
+                  <span
+                    className="text-sm shrink-0 leading-none"
+                    role="img"
+                    aria-label="User avatar"
+                  >
+                    {avatarEmoji}
+                  </span>
+                </div>
+                <span>
+                  Edited by {username}
+                  <br />
+                  {formattedDate}
+                </span>
+              </div>
+            )}
+            {noteId && currentNote && (
+              <DropdownMenuItem
+                onClick={() =>
+                  toggleFavoriteMutation.mutate({
+                    noteId,
+                    isFavorite: !currentNote.isFavorite,
+                  })
+                }
+                disabled={toggleFavoriteMutation.isPending}
+              >
+                <HugeiconsIcon
+                  icon={FavouriteIcon}
+                  size={16}
+                  strokeWidth={1.5}
+                  className={currentNote.isFavorite ? "text-yellow-500" : ""}
+                />
+                {currentNote.isFavorite
+                  ? "Remove from favorites"
+                  : "Add to favorites"}
+              </DropdownMenuItem>
+            )}
+            {noteId && currentNote && (
+              <DropdownMenuItem onClick={() => setIsVersionHistoryOpen(true)}>
+                <HugeiconsIcon icon={Clock04Icon} size={16} strokeWidth={1.5} />
+                Version history
+              </DropdownMenuItem>
+            )}
+            <DropdownMenuSeparator />
+          </div>
+
           {noteId && currentNote && (
             <DropdownMenuItem
               id="duplicate-page-button"
