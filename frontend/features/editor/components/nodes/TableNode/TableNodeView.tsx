@@ -21,6 +21,8 @@ interface TableData {
   headers: string[];
   rows: string[][];
   columnWidths: (number | null)[];
+  columnColors?: (string | null)[];
+  hasHeader?: boolean;
 }
 
 /* ─── Constants ──────────────────────────────────────────────── */
@@ -35,21 +37,29 @@ const COLUMN_COLORS: Array<{
   value: string | null;
   swatch: string;
 }> = [
-  { label: "Default", value: null, swatch: "transparent" },
-  { label: "Gray", value: "#f5f5f5", swatch: "#f5f5f5" },
-  { label: "Blue", value: "#dbeafe", swatch: "#dbeafe" },
-  { label: "Green", value: "#dcfce7", swatch: "#dcfce7" },
-  { label: "Yellow", value: "#fef9c3", swatch: "#fef9c3" },
-  { label: "Red", value: "#fee2e2", swatch: "#fee2e2" },
-  { label: "Purple", value: "#f3e8ff", swatch: "#f3e8ff" },
-];
+    { label: "Default", value: null, swatch: "transparent" },
+    { label: "Gray", value: "#f5f5f5", swatch: "#f5f5f5" },
+    { label: "Blue", value: "#dbeafe", swatch: "#dbeafe" },
+    { label: "Green", value: "#dcfce7", swatch: "#dcfce7" },
+    { label: "Yellow", value: "#fef9c3", swatch: "#fef9c3" },
+    { label: "Red", value: "#fee2e2", swatch: "#fee2e2" },
+    { label: "Purple", value: "#f3e8ff", swatch: "#f3e8ff" },
+  ];
 
 /* ─── Helpers ────────────────────────────────────────────────── */
 
 function parseTableData(raw: string): TableData {
   try {
     const parsed = JSON.parse(raw) as TableData;
-    if (parsed.headers && parsed.rows) return parsed;
+    if (parsed.headers && parsed.rows) {
+      if (!parsed.columnColors) {
+        parsed.columnColors = Array.from({ length: parsed.headers.length }, () => null);
+      }
+      if (parsed.hasHeader === undefined) {
+        parsed.hasHeader = true;
+      }
+      return parsed;
+    }
   } catch {
     /* fall through */
   }
@@ -60,6 +70,8 @@ function parseTableData(raw: string): TableData {
       Array.from({ length: DEFAULT_COLS }, () => ""),
     ),
     columnWidths: Array.from({ length: DEFAULT_COLS }, () => null),
+    columnColors: Array.from({ length: DEFAULT_COLS }, () => null),
+    hasHeader: true,
   };
 }
 
@@ -68,6 +80,7 @@ function parseTableData(raw: string): TableData {
 export const TableNodeView = ({
   node,
   updateAttributes,
+  deleteNode,
   editor,
 }: NodeViewProps) => {
   const data = parseTableData(node.attrs.tableData as string);
@@ -142,11 +155,80 @@ export const TableNodeView = ({
       headers: [...data.headers, ""],
       rows: data.rows.map((r) => [...r, ""]),
       columnWidths: [...data.columnWidths, null],
+      columnColors: [...(data.columnColors || Array.from({ length: colCount }, () => null)), null],
     };
     persist(next);
-  }, [data, persist]);
+  }, [data, colCount, persist]);
 
   /* ─── Delete row / column ─────────────────────────────────── */
+
+  const deleteRow = useCallback(
+    (rowIdx: number) => {
+      if (data.rows.length <= 1) return;
+      const next: TableData = {
+        ...data,
+        rows: data.rows.filter((_, i) => i !== rowIdx),
+      };
+      persist(next);
+    },
+    [data, persist],
+  );
+
+  const insertRowBefore = useCallback(
+    (rowIdx: number) => {
+      const next: TableData = {
+        ...data,
+        rows: [
+          ...data.rows.slice(0, rowIdx),
+          Array.from({ length: colCount }, () => ""),
+          ...data.rows.slice(rowIdx),
+        ],
+      };
+      persist(next);
+    },
+    [data, colCount, persist],
+  );
+
+  const insertRowAfter = useCallback(
+    (rowIdx: number) => {
+      const next: TableData = {
+        ...data,
+        rows: [
+          ...data.rows.slice(0, rowIdx + 1),
+          Array.from({ length: colCount }, () => ""),
+          ...data.rows.slice(rowIdx + 1),
+        ],
+      };
+      persist(next);
+    },
+    [data, colCount, persist],
+  );
+
+  const duplicateRow = useCallback(
+    (rowIdx: number) => {
+      const next: TableData = {
+        ...data,
+        rows: [
+          ...data.rows.slice(0, rowIdx + 1),
+          [...data.rows[rowIdx]],
+          ...data.rows.slice(rowIdx + 1),
+        ],
+      };
+      persist(next);
+    },
+    [data, persist],
+  );
+
+  const clearRowContents = useCallback(
+    (rowIdx: number) => {
+      const next: TableData = {
+        ...data,
+        rows: data.rows.map((r, i) => (i === rowIdx ? r.map(() => "") : r)),
+      };
+      persist(next);
+    },
+    [data, persist],
+  );
 
   const deleteColumn = useCallback(
     (colIdx: number) => {
@@ -155,6 +237,7 @@ export const TableNodeView = ({
         headers: data.headers.filter((_, i) => i !== colIdx),
         rows: data.rows.map((r) => r.filter((_, i) => i !== colIdx)),
         columnWidths: data.columnWidths.filter((_, i) => i !== colIdx),
+        columnColors: (data.columnColors || []).filter((_, i) => i !== colIdx),
       };
       persist(next);
     },
@@ -178,6 +261,11 @@ export const TableNodeView = ({
           ...data.columnWidths.slice(0, colIdx),
           null,
           ...data.columnWidths.slice(colIdx),
+        ],
+        columnColors: [
+          ...(data.columnColors || []).slice(0, colIdx),
+          null,
+          ...(data.columnColors || []).slice(colIdx),
         ],
       };
       persist(next);
@@ -203,11 +291,66 @@ export const TableNodeView = ({
           null,
           ...data.columnWidths.slice(colIdx + 1),
         ],
+        columnColors: [
+          ...(data.columnColors || []).slice(0, colIdx + 1),
+          null,
+          ...(data.columnColors || []).slice(colIdx + 1),
+        ],
       };
       persist(next);
     },
     [data, persist],
   );
+
+  const toggleHeader = useCallback(() => {
+    const next = {
+      ...data,
+      hasHeader: data.hasHeader === false ? true : false,
+    };
+    persist(next);
+  }, [data, persist]);
+
+  const handleColumnDragMove = useCallback((clientX: number) => {
+    const table = tableRef.current?.querySelector("table");
+    if (!table) return;
+    const row = table.querySelector(data.hasHeader !== false ? "thead tr" : "tbody tr");
+    if (!row) return;
+    const cells = row.querySelectorAll(data.hasHeader !== false ? "th" : "td");
+    let closest = 0;
+    let closestDist = Infinity;
+    cells.forEach((cell, i) => {
+      const rect = cell.getBoundingClientRect();
+      const center = rect.left + rect.width / 2;
+      const dist = Math.abs(clientX - center);
+      if (dist < closestDist) {
+        closestDist = dist;
+        closest = i;
+      }
+    });
+    setDropTargetSafe(closest);
+  }, [data.hasHeader, setDropTargetSafe]);
+
+  const handleColumnDragEnd = useCallback((fromIdx: number) => {
+    const currentDropTarget = dropTargetRef.current;
+    if (currentDropTarget !== null && fromIdx !== currentDropTarget) {
+      const reorder = <T,>(arr: T[]): T[] => {
+        const result = [...arr];
+        const [moved] = result.splice(fromIdx, 1);
+        result.splice(currentDropTarget, 0, moved);
+        return result;
+      };
+      const next: TableData = {
+        ...data,
+        headers: reorder(data.headers),
+        rows: data.rows.map((r) => reorder(r)),
+        columnWidths: reorder(data.columnWidths),
+        columnColors: data.columnColors ? reorder(data.columnColors) : undefined,
+      };
+      persist(next);
+    }
+    setDragColSafe(null);
+    setDropTargetSafe(null);
+  }, [data, persist, setDragColSafe, setDropTargetSafe]);
 
   const clearColumnContents = useCallback(
     (colIdx: number) => {
@@ -219,6 +362,18 @@ export const TableNodeView = ({
       persist(next);
     },
     [data, persist],
+  );
+
+  const setColumnColor = useCallback(
+    (colIdx: number, color: string | null) => {
+      const next = {
+        ...data,
+        columnColors: data.columnColors ? [...data.columnColors] : Array.from({ length: colCount }, () => null),
+      };
+      next.columnColors[colIdx] = color;
+      persist(next);
+    },
+    [data, colCount, persist],
   );
 
   /* ─── Column Resize ───────────────────────────────────────── */
@@ -291,6 +446,46 @@ export const TableNodeView = ({
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
+        {/* ── Table Options Button ──────────────────────────── */}
+        {isEditable && (
+          <div className="absolute -top-3 -right-3 opacity-0 group-hover/table:opacity-100 z-30 transition-opacity">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className="flex items-center justify-center w-6 h-6 bg-background border border-border rounded-md text-muted-foreground hover:bg-muted transition-colors duration-150 shadow-sm"
+                  aria-label="Table options"
+                >
+                  <MoreHorizontalIcon />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem onClick={toggleHeader}>
+                  <span className="flex items-center gap-2">
+                    {data.hasHeader !== false ? (
+                      <>
+                        <EyeOffIcon /> Hide header
+                      </>
+                    ) : (
+                      <>
+                        <EyeIcon /> Show header
+                      </>
+                    )}
+                  </span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={deleteNode}
+                  className="text-destructive focus:text-destructive"
+                >
+                  <span className="flex items-center gap-2">
+                    <TrashIcon /> Delete table
+                  </span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        )}
+
         {/* ── Drop indicator during column drag ─────────────── */}
         {dragCol !== null && dropTarget !== null && dropTarget !== dragCol && (
           <div
@@ -300,9 +495,9 @@ export const TableNodeView = ({
               left: (() => {
                 const table = tableRef.current?.querySelector("table");
                 if (!table) return 0;
-                const headerRow = table.querySelector("thead tr:last-child");
-                if (!headerRow) return 0;
-                const cells = headerRow.querySelectorAll("th");
+                const row = table.querySelector(data.hasHeader !== false ? "thead tr" : "tbody tr");
+                if (!row) return 0;
+                const cells = row.querySelectorAll(data.hasHeader !== false ? "th" : "td");
                 if (cells[dropTarget]) {
                   const rect = cells[dropTarget].getBoundingClientRect();
                   const tableRect = table.getBoundingClientRect();
@@ -317,7 +512,7 @@ export const TableNodeView = ({
         )}
 
         {/* ── The actual table ──────────────────────────────── */}
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto overflow-y-hidden pt-4 pl-4 -ml-4">
           <table className="w-full table-fixed border-collapse border border-border">
             {/* Colgroup for width control */}
             <colgroup>
@@ -326,127 +521,76 @@ export const TableNodeView = ({
               ))}
             </colgroup>
 
-            <thead>
-              {/* ── Grip handles row (inside table for alignment) ── */}
-              {isEditable && (
-                <tr
-                  className={cn(
-                    "transition-opacity duration-150",
-                    isHovered ? "opacity-100" : "opacity-0",
-                  )}
-                >
-                  {data.headers.map((_, colIdx) => (
+            {data.hasHeader !== false && (
+              <thead>
+                {/* ── Actual header row ─────────────────────────── */}
+                <tr>
+                  {data.headers.map((header, colIdx) => (
                     <th
-                      key={`grip-${colIdx}`}
-                      className="border-none p-0 bg-transparent"
+                      key={`th-${colIdx}`}
+                      className={cn(
+                        "border border-border px-3 py-2 text-left font-semibold text-foreground relative group/th",
+                        !data.columnColors?.[colIdx] && "bg-muted",
+                        dragCol === colIdx && "opacity-50",
+                      )}
+                      style={data.columnColors?.[colIdx] ? { backgroundColor: data.columnColors[colIdx]! } : undefined}
                     >
-                      <div className="flex justify-center pb-1">
-                        <ColumnGripButton
-                          colIdx={colIdx}
-                          menuCol={menuCol}
-                          setMenuCol={setMenuCol}
-                          dragCol={dragCol}
-                          onDragStart={setDragColSafe}
-                          onDragMove={(clientX) => {
-                            const table =
-                              tableRef.current?.querySelector("table");
-                            if (!table) return;
-                            const headerRow = table.querySelector(
-                              "thead tr:last-child",
-                            );
-                            if (!headerRow) return;
-                            const cells = headerRow.querySelectorAll("th");
-                            let closest = 0;
-                            let closestDist = Infinity;
-                            cells.forEach((cell, i) => {
-                              const rect = cell.getBoundingClientRect();
-                              const center = rect.left + rect.width / 2;
-                              const dist = Math.abs(clientX - center);
-                              if (dist < closestDist) {
-                                closestDist = dist;
-                                closest = i;
-                              }
-                            });
-                            setDropTargetSafe(closest);
-                          }}
-                          onDragEnd={(fromIdx) => {
-                            const currentDropTarget = dropTargetRef.current;
-                            if (
-                              currentDropTarget !== null &&
-                              fromIdx !== currentDropTarget
-                            ) {
-                              const reorder = <T,>(arr: T[]): T[] => {
-                                const result = [...arr];
-                                const [moved] = result.splice(fromIdx, 1);
-                                result.splice(currentDropTarget, 0, moved);
-                                return result;
-                              };
-                              const next: TableData = {
-                                headers: reorder(data.headers),
-                                rows: data.rows.map((r) => reorder(r)),
-                                columnWidths: reorder(data.columnWidths),
-                              };
-                              persist(next);
-                            }
-                            setDragColSafe(null);
-                            setDropTargetSafe(null);
-                          }}
-                          insertColumnBefore={insertColumnBefore}
-                          insertColumnAfter={insertColumnAfter}
-                          clearColumnContents={clearColumnContents}
-                          deleteColumn={deleteColumn}
-                          colCount={colCount}
+                      {/* Grip handle */}
+                      {isEditable && (
+                        <div className="absolute left-1/2 -translate-x-1/2 -top-3.5 opacity-0 group-hover/table:opacity-100 transition-opacity z-20">
+                          <ColumnGripButton
+                            colIdx={colIdx}
+                            menuCol={menuCol}
+                            setMenuCol={setMenuCol}
+                            dragCol={dragCol}
+                            onDragStart={setDragColSafe}
+                            setColumnColor={setColumnColor}
+                            onDragMove={handleColumnDragMove}
+                            onDragEnd={handleColumnDragEnd}
+                            insertColumnBefore={insertColumnBefore}
+                            insertColumnAfter={insertColumnAfter}
+                            clearColumnContents={clearColumnContents}
+                            deleteColumn={deleteColumn}
+                            colCount={colCount}
+                          />
+                        </div>
+                      )}
+
+                      {isEditable ? (
+                        <input
+                          type="text"
+                          className="w-full bg-transparent border-none outline-none text-sm font-semibold placeholder:text-muted-foreground"
+                          value={header}
+                          onChange={(e) => updateHeader(colIdx, e.target.value)}
+                          placeholder="Header"
                         />
-                      </div>
+                      ) : (
+                        <span className="text-sm font-semibold">
+                          {header || "Header"}
+                        </span>
+                      )}
+
+                      {/* Resize handle */}
+                      {isEditable && (
+                        <div
+                          className={cn(
+                            "absolute top-0 right-0 bottom-0 cursor-col-resize z-10 hover:bg-primary/40 transition-colors duration-100",
+                            resizingCol === colIdx ? "bg-primary" : "",
+                          )}
+                          style={{ width: `${RESIZE_HANDLE_WIDTH}px` }}
+                          onMouseDown={(e) => handleResizeStart(e, colIdx)}
+                        />
+                      )}
                     </th>
                   ))}
                 </tr>
-              )}
-
-              {/* ── Actual header row ─────────────────────────── */}
-              <tr>
-                {data.headers.map((header, colIdx) => (
-                  <th
-                    key={`th-${colIdx}`}
-                    className={cn(
-                      "border border-border px-3 py-2 text-left font-semibold bg-muted text-foreground relative",
-                      dragCol === colIdx && "opacity-50",
-                    )}
-                  >
-                    {isEditable ? (
-                      <input
-                        type="text"
-                        className="w-full bg-transparent border-none outline-none text-sm font-semibold placeholder:text-muted-foreground"
-                        value={header}
-                        onChange={(e) => updateHeader(colIdx, e.target.value)}
-                        placeholder="Header"
-                      />
-                    ) : (
-                      <span className="text-sm font-semibold">
-                        {header || "Header"}
-                      </span>
-                    )}
-
-                    {/* Resize handle */}
-                    {isEditable && (
-                      <div
-                        className={cn(
-                          "absolute top-0 right-0 bottom-0 cursor-col-resize z-10 hover:bg-primary/40 transition-colors duration-100",
-                          resizingCol === colIdx ? "bg-primary" : "",
-                        )}
-                        style={{ width: `${RESIZE_HANDLE_WIDTH}px` }}
-                        onMouseDown={(e) => handleResizeStart(e, colIdx)}
-                      />
-                    )}
-                  </th>
-                ))}
-              </tr>
-            </thead>
+              </thead>
+            )}
 
             {/* Body rows */}
             <tbody>
               {data.rows.map((row, rowIdx) => (
-                <tr key={`row-${rowIdx}`}>
+                <tr key={`row-${rowIdx}`} className="group/row">
                   {row.map((cell, colIdx) => (
                     <td
                       key={`cell-${rowIdx}-${colIdx}`}
@@ -454,7 +598,44 @@ export const TableNodeView = ({
                         "border border-border px-3 py-2 align-top relative",
                         dragCol === colIdx && "opacity-50",
                       )}
+                      style={data.columnColors?.[colIdx] ? { backgroundColor: data.columnColors[colIdx]! } : undefined}
                     >
+                      {/* Row grip handle */}
+                      {colIdx === 0 && isEditable && (
+                        <div className="absolute top-1/2 -left-3.5 -translate-y-1/2 opacity-0 group-hover/row:opacity-100 z-20">
+                          <RowOptionsButton
+                            rowIdx={rowIdx}
+                            insertRowBefore={insertRowBefore}
+                            insertRowAfter={insertRowAfter}
+                            duplicateRow={duplicateRow}
+                            clearRowContents={clearRowContents}
+                            deleteRow={deleteRow}
+                            rowCount={data.rows.length}
+                          />
+                        </div>
+                      )}
+
+                      {/* Column Grip handle when header is hidden */}
+                      {isEditable && data.hasHeader === false && rowIdx === 0 && (
+                        <div className="absolute left-1/2 -translate-x-1/2 -top-3.5 opacity-0 group-hover/table:opacity-100 transition-opacity z-20">
+                          <ColumnGripButton
+                            colIdx={colIdx}
+                            menuCol={menuCol}
+                            setMenuCol={setMenuCol}
+                            dragCol={dragCol}
+                            onDragStart={setDragColSafe}
+                            setColumnColor={setColumnColor}
+                            onDragMove={handleColumnDragMove}
+                            onDragEnd={handleColumnDragEnd}
+                            insertColumnBefore={insertColumnBefore}
+                            insertColumnAfter={insertColumnAfter}
+                            clearColumnContents={clearColumnContents}
+                            deleteColumn={deleteColumn}
+                            colCount={colCount}
+                          />
+                        </div>
+                      )}
+
                       {isEditable ? (
                         <input
                           type="text"
@@ -495,7 +676,7 @@ export const TableNodeView = ({
             className={cn(
               "w-full h-5 flex items-center justify-center",
               "bg-muted/50 hover:bg-muted text-muted-foreground",
-              "rounded-b-md cursor-pointer transition-all duration-150 border border-t-0 border-border",
+              "rounded-bl-md cursor-pointer transition-all duration-150 border border-t-0 border-r-0 border-border",
               isHovered ? "opacity-100" : "opacity-0",
             )}
             aria-label="Add row"
@@ -509,7 +690,7 @@ export const TableNodeView = ({
           <button
             onClick={addColumn}
             className={cn(
-              "absolute right-[-20px] top-0 bottom-0 w-5 flex items-center justify-center",
+              "absolute right-[-20px] top-4 bottom-0 w-5 flex items-center justify-center",
               "bg-muted/50 hover:bg-muted text-muted-foreground",
               "rounded-r-md cursor-pointer transition-all duration-150 border border-l-0 border-border",
               isHovered ? "opacity-100" : "opacity-0",
@@ -544,6 +725,7 @@ interface ColumnGripButtonProps {
   clearColumnContents: (colIdx: number) => void;
   deleteColumn: (colIdx: number) => void;
   colCount: number;
+  setColumnColor: (colIdx: number, color: string | null) => void;
 }
 
 function ColumnGripButton({
@@ -559,6 +741,7 @@ function ColumnGripButton({
   clearColumnContents,
   deleteColumn,
   colCount,
+  setColumnColor,
 }: ColumnGripButtonProps) {
   const isDraggingRef = useRef(false);
 
@@ -639,7 +822,10 @@ function ColumnGripButton({
             {COLUMN_COLORS.map((color) => (
               <DropdownMenuItem
                 key={color.label}
-                onClick={() => setMenuCol(-1)}
+                onClick={() => {
+                  setColumnColor(colIdx, color.value);
+                  setMenuCol(-1);
+                }}
               >
                 <span className="flex items-center gap-2">
                   <span
@@ -747,6 +933,130 @@ function GripDotsIcon() {
   );
 }
 
+interface RowOptionsButtonProps {
+  rowIdx: number;
+  insertRowBefore: (rowIdx: number) => void;
+  insertRowAfter: (rowIdx: number) => void;
+  duplicateRow: (rowIdx: number) => void;
+  clearRowContents: (rowIdx: number) => void;
+  deleteRow: (rowIdx: number) => void;
+  rowCount: number;
+}
+
+function RowOptionsButton({
+  rowIdx,
+  insertRowBefore,
+  insertRowAfter,
+  duplicateRow,
+  clearRowContents,
+  deleteRow,
+  rowCount,
+}: RowOptionsButtonProps) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button
+          className={cn(
+            "flex items-center justify-center w-4 h-5 cursor-pointer",
+            "bg-background border border-border rounded-sm text-muted-foreground",
+            "hover:bg-muted transition-colors duration-150 shadow-sm",
+          )}
+          aria-label={`Row ${rowIdx + 1} options`}
+        >
+          <GripDotsIcon />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="w-48">
+        <DropdownMenuItem onClick={() => insertRowBefore(rowIdx)}>
+          <span className="flex items-center gap-2">
+            <ArrowUpIcon /> Insert above
+          </span>
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => insertRowAfter(rowIdx)}>
+          <span className="flex items-center gap-2">
+            <ArrowDownIcon /> Insert below
+          </span>
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => duplicateRow(rowIdx)}>
+          <span className="flex items-center justify-between w-full">
+            <span className="flex items-center gap-2">
+              <DuplicateIcon /> Duplicate
+            </span>
+          </span>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => clearRowContents(rowIdx)}>
+          <span className="flex items-center gap-2">
+            <ClearIcon /> Clear contents
+          </span>
+        </DropdownMenuItem>
+        {rowCount > 1 && (
+          <DropdownMenuItem
+            onClick={() => deleteRow(rowIdx)}
+            className="text-destructive focus:text-destructive"
+          >
+            <span className="flex items-center gap-2">
+              <TrashIcon /> Delete
+            </span>
+          </DropdownMenuItem>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+function MoreHorizontalIcon() {
+  return (
+    <svg
+      className="w-4 h-4"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="12" cy="12" r="1" />
+      <circle cx="19" cy="12" r="1" />
+      <circle cx="5" cy="12" r="1" />
+    </svg>
+  );
+}
+
+function ArrowUpIcon() {
+  return (
+    <svg
+      className="w-4 h-4"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="m5 12 7-7 7 7" />
+      <path d="M12 19V5" />
+    </svg>
+  );
+}
+
+function ArrowDownIcon() {
+  return (
+    <svg
+      className="w-4 h-4"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="m19 12-7 7-7-7" />
+      <path d="M12 5v14" />
+    </svg>
+  );
+}
+
 function PaletteIcon() {
   return (
     <svg
@@ -849,6 +1159,42 @@ function TrashIcon() {
       <path d="M3 6h18" />
       <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
       <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+    </svg>
+  );
+}
+
+function EyeIcon() {
+  return (
+    <svg
+      className="w-4 h-4"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  );
+}
+
+function EyeOffIcon() {
+  return (
+    <svg
+      className="w-4 h-4"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
+      <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" />
+      <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" />
+      <line x1="2" x2="22" y1="2" y2="22" />
     </svg>
   );
 }
