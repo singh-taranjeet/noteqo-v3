@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
+import { logService } from "@/services";
 
 function urlBase64ToUint8Array(base64String: string) {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
@@ -61,7 +62,7 @@ export function PushNotificationManager() {
       await subscribeUser(serializedSub);
       toast.success("Subscribed to notifications!");
     } catch (error) {
-      console.error(error);
+      logService.error("Push notification error", error);
       toast.error("Failed to subscribe to notifications.");
     }
   }
@@ -73,7 +74,7 @@ export function PushNotificationManager() {
       await unsubscribeUser();
       toast.success("Unsubscribed from notifications.");
     } catch (error) {
-      console.error(error);
+      logService.error("Push notification error", error);
       toast.error("Failed to unsubscribe.");
     }
   }

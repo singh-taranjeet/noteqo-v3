@@ -35,8 +35,7 @@ import { useAppShell } from "../AppShell";
 import { SPACE_TYPE } from "@/features/spaces";
 import type { Space } from "@/features/spaces";
 import type { Note } from "@/features/workspace";
-import Link from "next/link";
-import { ROUTES } from "@/constants/routes";
+import { SidebarNoteItem } from "./SidebarNoteItem";
 
 interface SidebarSpaceCategoryProps {
   label: string;
@@ -219,18 +218,11 @@ function SpaceGroupItem({
               <>
                 {notes.map((note) => (
                   <SidebarMenuSubItem key={note.id}>
-                    <SidebarMenuSubButton asChild size="sm">
-                      <Link href={ROUTES.NOTE(note.id)}>
-                        <span
-                          className="shrink-0 text-base"
-                          role="img"
-                          aria-hidden="true"
-                        >
-                          {note.emoji}
-                        </span>
-                        <span>{note.title}</span>
-                      </Link>
-                    </SidebarMenuSubButton>
+                    <SidebarNoteItem
+                      noteId={note.id}
+                      emoji={note.emoji}
+                      title={note.title}
+                    />
                   </SidebarMenuSubItem>
                 ))}
                 {totalNoteCount > 10 && (

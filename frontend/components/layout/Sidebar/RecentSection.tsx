@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { ArrowRight01Icon } from "@hugeicons/core-free-icons";
+import { SidebarNoteItem } from "./SidebarNoteItem";
 import {
   SidebarGroup,
   SidebarGroupLabel,
@@ -19,8 +20,6 @@ import {
 } from "@/components/ui/collapsible";
 import { useAppShell } from "../AppShell";
 import { useRecentNotes } from "@/features/workspace";
-import Link from "next/link";
-import { ROUTES } from "@/constants/routes";
 
 export function RecentSection() {
   const { notes, isLoading } = useRecentNotes();
@@ -71,18 +70,11 @@ export function RecentSection() {
               <SidebarMenu>
                 {recentNotes.map((note) => (
                   <SidebarMenuItem key={note.id}>
-                    <SidebarMenuButton asChild size="sm">
-                      <Link href={ROUTES.NOTE(note.id)}>
-                        <span
-                          className="shrink-0 text-base"
-                          role="img"
-                          aria-hidden="true"
-                        >
-                          {note.emoji}
-                        </span>
-                        <span>{note.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
+                    <SidebarNoteItem
+                      noteId={note.id}
+                      emoji={note.emoji}
+                      title={note.title}
+                    />
                   </SidebarMenuItem>
                 ))}
                 {notes.length > 10 && (

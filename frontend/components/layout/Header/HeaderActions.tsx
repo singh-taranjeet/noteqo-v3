@@ -17,6 +17,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { TooltipIconButton } from "@/components/ui/tooltip-icon-button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -90,53 +91,33 @@ export function HeaderActions() {
 
       {/* Version history */}
       {noteId && currentNote && (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-7 w-7"
-              aria-label="Version history"
-              onClick={() => setIsVersionHistoryOpen(true)}
-              id="version-history-button"
-            >
-              <HugeiconsIcon icon={Clock04Icon} size={16} strokeWidth={1.5} />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent side="bottom">Version history</TooltipContent>
-        </Tooltip>
+        <TooltipIconButton
+          icon={Clock04Icon}
+          tooltip="Version history"
+          className="h-7 w-7"
+          onClick={() => setIsVersionHistoryOpen(true)}
+          id="version-history-button"
+        />
       )}
 
       {/* Favorite toggle */}
       {noteId && currentNote && (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className={`h-7 w-7 ${currentNote.isFavorite ? "text-yellow-500 hover:text-yellow-600" : ""}`}
-              aria-label={
-                currentNote.isFavorite
-                  ? "Remove from favorites"
-                  : "Add to favorites"
-              }
-              onClick={() =>
-                toggleFavoriteMutation.mutate({
-                  noteId,
-                  isFavorite: !currentNote.isFavorite,
-                })
-              }
-              disabled={toggleFavoriteMutation.isPending}
-            >
-              <HugeiconsIcon icon={FavouriteIcon} size={16} strokeWidth={1.5} />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent side="bottom">
-            {currentNote.isFavorite
+        <TooltipIconButton
+          icon={FavouriteIcon}
+          tooltip={
+            currentNote.isFavorite
               ? "Remove from favorites"
-              : "Add to favorites"}
-          </TooltipContent>
-        </Tooltip>
+              : "Add to favorites"
+          }
+          className={`h-7 w-7 ${currentNote.isFavorite ? "text-yellow-500 hover:text-yellow-600" : ""}`}
+          onClick={() =>
+            toggleFavoriteMutation.mutate({
+              noteId,
+              isFavorite: !currentNote.isFavorite,
+            })
+          }
+          disabled={toggleFavoriteMutation.isPending}
+        />
       )}
 
       {/* More options dropdown */}

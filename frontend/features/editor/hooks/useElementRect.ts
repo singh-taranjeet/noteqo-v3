@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useThrottledCallback } from "@/features/editor/hooks/useThrottledCallback";
-import { IS_BROWSER } from "@/lib/utils";
+
+const IS_BROWSER = typeof window !== "undefined";
 
 export type RectState = Omit<DOMRect, "toJSON">;
 

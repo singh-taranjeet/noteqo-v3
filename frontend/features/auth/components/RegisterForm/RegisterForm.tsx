@@ -14,6 +14,7 @@ import { useRegister } from "@/features/auth/hooks/useRegister";
 import { AUTH_CONFIG } from "@/features/auth/constants/auth.constants";
 import { ROUTES } from "@/constants/routes";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { KeysService } from "@/features/auth/services/keys.service";
 import { spaceService } from "@/features/spaces/services/space.service";
 
@@ -128,12 +129,12 @@ export function RegisterForm() {
             footer={
               <>
                 Already have an account?{" "}
-                <a
+                <Link
                   href={ROUTES.LOGIN}
                   className="ml-1 text-primary hover:underline underline-offset-4"
                 >
                   Log in
-                </a>
+                </Link>
               </>
             }
           />

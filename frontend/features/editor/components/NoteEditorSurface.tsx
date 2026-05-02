@@ -4,6 +4,7 @@ import { EditorContent, EditorContext } from "@tiptap/react";
 import type { Editor } from "@tiptap/react";
 import type { ChangeEvent, FocusEvent } from "react";
 import { cn } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
 import { BlockDragHandle } from "@/features/editor/components/editor-ui/BlockDragHandle";
 import { EditorBubbleMenu } from "@/features/editor/components/editor-ui/EditorBubbleMenu";
 import { NOTE_DEFAULTS } from "@/features/workspace/constants/workspace.constants";
@@ -67,9 +68,9 @@ export function NoteEditorSurface({
               {title || NOTE_DEFAULTS.TITLE}
             </h1>
           ) : (
-            <input
+            <Input
               type="text"
-              className="w-full border-none bg-transparent text-4xl font-bold text-foreground outline-none placeholder:text-muted-foreground focus:ring-0 sm:text-5xl"
+              className="w-full border-none bg-transparent text-4xl font-bold text-foreground shadow-none outline-none placeholder:text-muted-foreground focus-visible:ring-0 sm:text-5xl"
               value={title || NOTE_DEFAULTS.TITLE}
               onChange={onTitleChange}
               onBlur={onTitleBlur}

@@ -10,8 +10,8 @@ import { Cancel01Icon, Search01Icon } from "@hugeicons/core-free-icons";
 import { useRecentNotes, type Note } from "@/features/workspace";
 import { useSpaces } from "@/features/spaces";
 import { SPACE_TYPE } from "@/features/spaces";
-import Link from "next/link";
 import { ROUTES } from "@/constants/routes";
+import { SidebarNoteItem } from "./SidebarNoteItem";
 import {
   SidebarMenu,
   SidebarMenuItem,
@@ -142,18 +142,11 @@ export function SecondarySidebar() {
             <SidebarMenu className="px-2">
               {items.map((note) => (
                 <SidebarMenuItem key={note.id}>
-                  <SidebarMenuButton asChild size="sm">
-                    <Link href={ROUTES.NOTE(note.id)}>
-                      <span
-                        className="shrink-0 text-base"
-                        role="img"
-                        aria-hidden="true"
-                      >
-                        {note.emoji}
-                      </span>
-                      <span>{note.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
+                  <SidebarNoteItem
+                    noteId={note.id}
+                    emoji={note.emoji}
+                    title={note.title}
+                  />
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
