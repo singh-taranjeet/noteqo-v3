@@ -96,7 +96,11 @@ export function AiMenu({
           className="h-7 px-2 text-purple-500 hover:text-purple-600 hover:bg-purple-500/10 rounded-sm gap-1 transition-colors"
           onMouseDown={(e) => e.preventDefault()}
         >
-          <HugeiconsIcon icon={SparklesIcon} className="text-purple-500" size={14} />
+          <HugeiconsIcon
+            icon={SparklesIcon}
+            className="text-purple-500"
+            size={14}
+          />
           <span className="text-xs font-medium">Ask AI</span>
         </Button>
       </PopoverTrigger>
@@ -111,7 +115,11 @@ export function AiMenu({
           {/* Header */}
           <div className="flex items-center justify-between border-b bg-muted/30 px-2.5 py-2">
             <div className="flex items-center gap-1.5">
-              <HugeiconsIcon icon={SparklesIcon} className="text-purple-500" size={14} />
+              <HugeiconsIcon
+                icon={SparklesIcon}
+                className="text-purple-500"
+                size={14}
+              />
               <span className="text-xs font-semibold text-foreground">
                 AI Assistant
               </span>

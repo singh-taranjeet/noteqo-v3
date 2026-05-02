@@ -63,11 +63,7 @@ export function SidebarUserProfile({
               onClick={logout}
               id="sidebar-logout-button"
             >
-              <HugeiconsIcon
-                icon={Logout02Icon}
-                size={16}
-                strokeWidth={1.5}
-              />
+              <HugeiconsIcon icon={Logout02Icon} size={16} strokeWidth={1.5} />
               Log out
             </DropdownMenuItem>
           </DropdownMenuContent>

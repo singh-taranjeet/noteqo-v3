@@ -78,7 +78,13 @@ export const CommandList = forwardRef((props: CommandListProps, ref) => {
           index === selectedIndex && "bg-accent text-accent-foreground",
         )}
       >
-        {Icon && <HugeiconsIcon icon={Icon} className="mr-2 text-muted-foreground" size={16} />}
+        {Icon && (
+          <HugeiconsIcon
+            icon={Icon}
+            className="mr-2 text-muted-foreground"
+            size={16}
+          />
+        )}
         <span>{item.title}</span>
         {item.shortcut && <CommandShortcut>{item.shortcut}</CommandShortcut>}
       </CommandItem>

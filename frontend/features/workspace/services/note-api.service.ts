@@ -77,7 +77,11 @@ export const noteApiService = {
         mutationFn: async (vars: typeof payload) => {
           const res: { data: RemoteNote } = await apiClient.patch(
             `${WORKSPACE_API_ROUTES.NOTES}/${vars.id}`,
-            { ciphertext: vars.ciphertext, updatedAt: vars.updatedAt, isFavorite: vars.isFavorite },
+            {
+              ciphertext: vars.ciphertext,
+              updatedAt: vars.updatedAt,
+              isFavorite: vars.isFavorite,
+            },
             { auth: true },
           );
           return res.data;

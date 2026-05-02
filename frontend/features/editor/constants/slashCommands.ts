@@ -1,4 +1,5 @@
 import type { Editor, Range } from "@tiptap/core";
+import type { IconSvgElement } from "@hugeicons/react";
 
 import {
   Heading01Icon,
@@ -23,7 +24,7 @@ import type { AiActionType } from "@/features/ai/types/ai.types";
 
 export interface SuggestionItem {
   title: string;
-  icon?: any;
+  icon?: IconSvgElement;
   shortcut?: string;
   command: (props: { editor: Editor; range: Range }) => void;
 }
@@ -154,6 +155,7 @@ export const SLASH_COMMANDS: SuggestionItem[] = [
         .run();
     },
   },
+
   {
     title: "Accordion",
     icon: ArrowDown01Icon,

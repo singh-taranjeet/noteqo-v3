@@ -2,7 +2,6 @@ import React, { useState, forwardRef, useImperativeHandle } from "react";
 import { cn } from "@/lib/utils";
 import {
   Command,
-  CommandEmpty,
   CommandGroup,
   CommandItem,
   CommandList as CommandListWrapper,

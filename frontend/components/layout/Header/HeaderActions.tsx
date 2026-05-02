@@ -105,15 +105,26 @@ export function HeaderActions() {
               variant="ghost"
               size="icon"
               className={`h-7 w-7 ${currentNote.isFavorite ? "text-yellow-500 hover:text-yellow-600" : ""}`}
-              aria-label={currentNote.isFavorite ? "Remove from favorites" : "Add to favorites"}
-              onClick={() => toggleFavoriteMutation.mutate({ noteId, isFavorite: !currentNote.isFavorite })}
+              aria-label={
+                currentNote.isFavorite
+                  ? "Remove from favorites"
+                  : "Add to favorites"
+              }
+              onClick={() =>
+                toggleFavoriteMutation.mutate({
+                  noteId,
+                  isFavorite: !currentNote.isFavorite,
+                })
+              }
               disabled={toggleFavoriteMutation.isPending}
             >
               <HugeiconsIcon icon={FavouriteIcon} size={16} strokeWidth={1.5} />
             </Button>
           </TooltipTrigger>
           <TooltipContent side="bottom">
-            {currentNote.isFavorite ? "Remove from favorites" : "Add to favorites"}
+            {currentNote.isFavorite
+              ? "Remove from favorites"
+              : "Add to favorites"}
           </TooltipContent>
         </Tooltip>
       )}

@@ -19,8 +19,7 @@ const REVOKE_URL_DELAY_MS = 30_000;
 
 export const VideoNodeView: React.FC<NodeViewProps> = (props) => {
   const { node, editor, updateAttributes, selected } = props;
-  const { url, fileName, mimeType, uploading, spaceId, align, width } =
-    node.attrs;
+  const { url, mimeType, uploading, spaceId, align, width } = node.attrs;
 
   const [isDecrypting, setIsDecrypting] = useState(false);
   const [objectUrl, setObjectUrl] = useState<string | null>(null);
@@ -205,21 +204,38 @@ export const VideoNodeView: React.FC<NodeViewProps> = (props) => {
                   type="single"
                   value={(align as string) || "center"}
                   onValueChange={(value) => {
-                    if (value) setAlign(value as "left" | "center" | "right" | "full");
+                    if (value)
+                      setAlign(value as "left" | "center" | "right" | "full");
                   }}
                   className="gap-1"
                 >
-                  <ToggleGroupItem value="left" aria-label="Align Left" className="h-7 w-7 p-0">
+                  <ToggleGroupItem
+                    value="left"
+                    aria-label="Align Left"
+                    className="h-7 w-7 p-0"
+                  >
                     <HugeiconsIcon icon={TextAlignLeftIcon} size={16} />
                   </ToggleGroupItem>
-                  <ToggleGroupItem value="center" aria-label="Align Center" className="h-7 w-7 p-0">
+                  <ToggleGroupItem
+                    value="center"
+                    aria-label="Align Center"
+                    className="h-7 w-7 p-0"
+                  >
                     <HugeiconsIcon icon={TextAlignCenterIcon} size={16} />
                   </ToggleGroupItem>
-                  <ToggleGroupItem value="right" aria-label="Align Right" className="h-7 w-7 p-0">
+                  <ToggleGroupItem
+                    value="right"
+                    aria-label="Align Right"
+                    className="h-7 w-7 p-0"
+                  >
                     <HugeiconsIcon icon={TextAlignRightIcon} size={16} />
                   </ToggleGroupItem>
                   <Separator orientation="vertical" className="h-4 mx-0.5" />
-                  <ToggleGroupItem value="full" aria-label="Full Width" className="h-7 w-7 p-0">
+                  <ToggleGroupItem
+                    value="full"
+                    aria-label="Full Width"
+                    className="h-7 w-7 p-0"
+                  >
                     <HugeiconsIcon icon={ExpandIcon} size={16} />
                   </ToggleGroupItem>
                 </ToggleGroup>
@@ -228,7 +244,11 @@ export const VideoNodeView: React.FC<NodeViewProps> = (props) => {
           </>
         ) : (
           <div className="flex flex-col items-center justify-center p-12 bg-destructive/10 rounded-lg min-h-[200px] w-full text-destructive border border-destructive/20">
-            <HugeiconsIcon icon={CameraVideoIcon} className="mb-2 opacity-50" size={32} />
+            <HugeiconsIcon
+              icon={CameraVideoIcon}
+              className="mb-2 opacity-50"
+              size={32}
+            />
             <span className="text-sm">Failed to load video</span>
           </div>
         )}

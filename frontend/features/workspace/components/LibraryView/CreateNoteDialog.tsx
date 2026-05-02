@@ -35,7 +35,7 @@ export function CreateNoteDialog({
   spaceTypeLabel = "space",
 }: CreateNoteDialogProps) {
   const [selectedSpaceId, setSelectedSpaceId] = useState<string>(
-    defaultSpaceId || (spaces.length > 0 ? spaces[0].id : "")
+    defaultSpaceId || (spaces.length > 0 ? spaces[0].id : ""),
   );
 
   const { mutate: createNote, isPending } = useCreateNote();
@@ -48,7 +48,7 @@ export function CreateNoteDialog({
         onSuccess: () => {
           onOpenChange(false);
         },
-      }
+      },
     );
   };
 

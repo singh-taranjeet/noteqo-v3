@@ -68,7 +68,11 @@ export function SidebarSpaceCategory({
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
 
   return (
-    <Collapsible open={isCategoryOpen} onOpenChange={setIsCategoryOpen} className="group/collapsible">
+    <Collapsible
+      open={isCategoryOpen}
+      onOpenChange={setIsCategoryOpen}
+      className="group/collapsible"
+    >
       <SidebarGroup>
         <SidebarGroupLabel asChild>
           <CollapsibleTrigger className="cursor-pointer">
@@ -120,9 +124,15 @@ export function SidebarSpaceCategory({
                       totalNoteCount={notes.length}
                       onCreateNote={() => onCreateNote(space.id)}
                       onSettingsClick={
-                        onSettingsClick ? () => onSettingsClick(space) : undefined
+                        onSettingsClick
+                          ? () => onSettingsClick(space)
+                          : undefined
                       }
-                      onShowMore={() => openSecondarySidebar(secondarySidebarType as "shared" | "private")}
+                      onShowMore={() =>
+                        openSecondarySidebar(
+                          secondarySidebarType as "shared" | "private",
+                        )
+                      }
                     />
                   );
                 })}

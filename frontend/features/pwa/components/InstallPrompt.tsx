@@ -1,12 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export function InstallPrompt() {
   const [isIOS, setIsIOS] = useState(false);
@@ -53,8 +48,8 @@ export function InstallPrompt() {
           </p>
         ) : (
           <p className="text-sm text-muted-foreground italic">
-            Look for the install icon in your browser&apos;s address bar to add this
-            app to your device.
+            Look for the install icon in your browser&apos;s address bar to add
+            this app to your device.
           </p>
         )}
       </CardContent>
