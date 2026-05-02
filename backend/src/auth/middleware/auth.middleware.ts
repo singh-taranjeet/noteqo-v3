@@ -19,7 +19,7 @@ export class AuthMiddleware implements NestMiddleware {
   constructor(
     private readonly jwtService: JwtService,
     private readonly cls: ClsService,
-  ) { }
+  ) {}
 
   use(req: Request, res: Response, next: NextFunction) {
     const authHeader = req.headers.authorization;

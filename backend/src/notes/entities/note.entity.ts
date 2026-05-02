@@ -1,6 +1,17 @@
-import { Entity, Column, Index, OneToMany, ManyToOne, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  Index,
+  OneToMany,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { AppBaseEntity } from '../../shared/entities/base.entity';
-import { NOTE_TABLE, NOTE_COLUMN, NOTE_TYPE } from '../constants/notes.constants';
+import {
+  NOTE_TABLE,
+  NOTE_COLUMN,
+  NOTE_TYPE,
+} from '../constants/notes.constants';
 import { NoteVersionEntity } from './note-version.entity';
 import { SpaceEntity } from '../../spaces/entities/space.entity';
 import { NoteType } from '../types/notes.types';

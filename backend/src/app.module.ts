@@ -45,9 +45,10 @@ import { SyncModule } from './sync/sync.module';
           database: !dbConfig.url ? dbConfig.name : undefined,
           username: !dbConfig.url ? dbConfig.username : undefined,
           password: !dbConfig.url ? dbConfig.password : undefined,
-          ssl: dbConfig.url && dbConfig.url.includes('sslmode=require') 
-            ? { rejectUnauthorized: false } 
-            : undefined,
+          ssl:
+            dbConfig.url && dbConfig.url.includes('sslmode=require')
+              ? { rejectUnauthorized: false }
+              : undefined,
           autoLoadEntities: true,
           synchronize:
             configService.get(`${CONFIG_KEYS.APP}.env`) !== 'production', // From user feedback

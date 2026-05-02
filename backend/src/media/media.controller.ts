@@ -24,11 +24,11 @@ export class MediaController {
    */
   @Post('upload')
   @HttpCode(HttpStatus.OK)
-  async handleUpload(
-    @Req() request: any,
-    @Body() body: any,
-  ): Promise<any> {
-    const result = await this.mediaService.handleVercelBlobUpload(request, body);
+  async handleUpload(@Req() request: any, @Body() body: any): Promise<any> {
+    const result = await this.mediaService.handleVercelBlobUpload(
+      request,
+      body,
+    );
     return { success: true, ...result };
   }
 

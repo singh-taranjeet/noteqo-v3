@@ -49,6 +49,7 @@ export class NotesService {
       Buffer.from(dto.ciphertext, 'utf8'),
       note.version,
       dto.updatedAt,
+      dto.isFavorite,
     );
   }
 

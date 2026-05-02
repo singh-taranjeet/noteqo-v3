@@ -32,7 +32,7 @@ import { Note } from '../notes/types/notes.types';
 @Controller(SPACE_ROUTES.BASE)
 @UseGuards(JwtAuthGuard)
 export class SpacesController {
-  constructor(private readonly spacesService: SpacesService) { }
+  constructor(private readonly spacesService: SpacesService) {}
 
   // ─── Spaces CRUD ─────────────────────────────────────────────────────────────
 
@@ -76,7 +76,6 @@ export class SpacesController {
   ): Promise<void> {
     await this.spacesService.remove(spaceId, req.user.id);
   }
-
 
   // Get spaces with all notes, which were updated after the user last sycned
   @Get(SPACE_ROUTES.ALL_RECENTLY_UPDATED_NOTES)
@@ -206,7 +205,7 @@ export class SpacesController {
         userId: ks.userId,
         encryptedSpaceKey: ks.encryptedSpaceKey,
       })),
-      notes: space.notes
+      notes: space.notes,
     };
   }
 

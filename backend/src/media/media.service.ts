@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { MediaRepository } from './media.repository';
 import { Media } from './types/media.types';
 import { UploadMediaDto } from './dto/upload-media.dto';
@@ -26,7 +30,7 @@ export class MediaService {
    */
   async handleVercelBlobUpload(request: any, body: any): Promise<any> {
     const blobConfig = this.configService.get(CONFIG_KEYS.VERCEL_BLOB);
-    
+
     return handleUpload({
       body,
       request,
@@ -64,13 +68,19 @@ export class MediaService {
       },
       onUploadCompleted: async ({ blob, tokenPayload }) => {
         if (!tokenPayload) return;
-        
+
         try {
           const payloadObj = JSON.parse(tokenPayload);
           const { id, spaceId, noteId, mimeType, sizeBytes } = payloadObj;
-          
+
           await this.mediaRepository.create(
-            { id, spaceId, noteId, mimeType, sizeBytes: parseInt(sizeBytes, 10) },
+            {
+              id,
+              spaceId,
+              noteId,
+              mimeType,
+              sizeBytes: parseInt(sizeBytes, 10),
+            },
             blob.url,
           );
         } catch (err) {

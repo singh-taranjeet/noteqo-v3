@@ -94,6 +94,7 @@ export class NotesRepository {
     newCiphertext: Buffer,
     currentVersion: number,
     updatedAt: Date,
+    isFavorite?: boolean,
   ): Promise<Note> {
     const nextVersion = currentVersion + 1;
 
@@ -110,6 +111,7 @@ export class NotesRepository {
         version: nextVersion,
         updatedBy: currentUserId,
         updatedAt,
+        ...(isFavorite !== undefined ? { isFavorite } : {}),
       });
 
       // 2. Record version snapshot
