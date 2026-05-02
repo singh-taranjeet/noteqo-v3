@@ -37,14 +37,14 @@ const COLUMN_COLORS: Array<{
   value: string | null;
   swatch: string;
 }> = [
-    { label: "Default", value: null, swatch: "transparent" },
-    { label: "Gray", value: "#f5f5f5", swatch: "#f5f5f5" },
-    { label: "Blue", value: "#dbeafe", swatch: "#dbeafe" },
-    { label: "Green", value: "#dcfce7", swatch: "#dcfce7" },
-    { label: "Yellow", value: "#fef9c3", swatch: "#fef9c3" },
-    { label: "Red", value: "#fee2e2", swatch: "#fee2e2" },
-    { label: "Purple", value: "#f3e8ff", swatch: "#f3e8ff" },
-  ];
+  { label: "Default", value: null, swatch: "transparent" },
+  { label: "Gray", value: "#f5f5f5", swatch: "#f5f5f5" },
+  { label: "Blue", value: "#dbeafe", swatch: "#dbeafe" },
+  { label: "Green", value: "#dcfce7", swatch: "#dcfce7" },
+  { label: "Yellow", value: "#fef9c3", swatch: "#fef9c3" },
+  { label: "Red", value: "#fee2e2", swatch: "#fee2e2" },
+  { label: "Purple", value: "#f3e8ff", swatch: "#f3e8ff" },
+];
 
 /* ─── Helpers ────────────────────────────────────────────────── */
 
@@ -53,7 +53,10 @@ function parseTableData(raw: string): TableData {
     const parsed = JSON.parse(raw) as TableData;
     if (parsed.headers && parsed.rows) {
       if (!parsed.columnColors) {
-        parsed.columnColors = Array.from({ length: parsed.headers.length }, () => null);
+        parsed.columnColors = Array.from(
+          { length: parsed.headers.length },
+          () => null,
+        );
       }
       if (parsed.hasHeader === undefined) {
         parsed.hasHeader = true;
@@ -155,7 +158,10 @@ export const TableNodeView = ({
       headers: [...data.headers, ""],
       rows: data.rows.map((r) => [...r, ""]),
       columnWidths: [...data.columnWidths, null],
-      columnColors: [...(data.columnColors || Array.from({ length: colCount }, () => null)), null],
+      columnColors: [
+        ...(data.columnColors || Array.from({ length: colCount }, () => null)),
+        null,
+      ],
     };
     persist(next);
   }, [data, colCount, persist]);
@@ -310,47 +316,59 @@ export const TableNodeView = ({
     persist(next);
   }, [data, persist]);
 
-  const handleColumnDragMove = useCallback((clientX: number) => {
-    const table = tableRef.current?.querySelector("table");
-    if (!table) return;
-    const row = table.querySelector(data.hasHeader !== false ? "thead tr" : "tbody tr");
-    if (!row) return;
-    const cells = row.querySelectorAll(data.hasHeader !== false ? "th" : "td");
-    let closest = 0;
-    let closestDist = Infinity;
-    cells.forEach((cell, i) => {
-      const rect = cell.getBoundingClientRect();
-      const center = rect.left + rect.width / 2;
-      const dist = Math.abs(clientX - center);
-      if (dist < closestDist) {
-        closestDist = dist;
-        closest = i;
-      }
-    });
-    setDropTargetSafe(closest);
-  }, [data.hasHeader, setDropTargetSafe]);
+  const handleColumnDragMove = useCallback(
+    (clientX: number) => {
+      const table = tableRef.current?.querySelector("table");
+      if (!table) return;
+      const row = table.querySelector(
+        data.hasHeader !== false ? "thead tr" : "tbody tr",
+      );
+      if (!row) return;
+      const cells = row.querySelectorAll(
+        data.hasHeader !== false ? "th" : "td",
+      );
+      let closest = 0;
+      let closestDist = Infinity;
+      cells.forEach((cell, i) => {
+        const rect = cell.getBoundingClientRect();
+        const center = rect.left + rect.width / 2;
+        const dist = Math.abs(clientX - center);
+        if (dist < closestDist) {
+          closestDist = dist;
+          closest = i;
+        }
+      });
+      setDropTargetSafe(closest);
+    },
+    [data.hasHeader, setDropTargetSafe],
+  );
 
-  const handleColumnDragEnd = useCallback((fromIdx: number) => {
-    const currentDropTarget = dropTargetRef.current;
-    if (currentDropTarget !== null && fromIdx !== currentDropTarget) {
-      const reorder = <T,>(arr: T[]): T[] => {
-        const result = [...arr];
-        const [moved] = result.splice(fromIdx, 1);
-        result.splice(currentDropTarget, 0, moved);
-        return result;
-      };
-      const next: TableData = {
-        ...data,
-        headers: reorder(data.headers),
-        rows: data.rows.map((r) => reorder(r)),
-        columnWidths: reorder(data.columnWidths),
-        columnColors: data.columnColors ? reorder(data.columnColors) : undefined,
-      };
-      persist(next);
-    }
-    setDragColSafe(null);
-    setDropTargetSafe(null);
-  }, [data, persist, setDragColSafe, setDropTargetSafe]);
+  const handleColumnDragEnd = useCallback(
+    (fromIdx: number) => {
+      const currentDropTarget = dropTargetRef.current;
+      if (currentDropTarget !== null && fromIdx !== currentDropTarget) {
+        const reorder = <T,>(arr: T[]): T[] => {
+          const result = [...arr];
+          const [moved] = result.splice(fromIdx, 1);
+          result.splice(currentDropTarget, 0, moved);
+          return result;
+        };
+        const next: TableData = {
+          ...data,
+          headers: reorder(data.headers),
+          rows: data.rows.map((r) => reorder(r)),
+          columnWidths: reorder(data.columnWidths),
+          columnColors: data.columnColors
+            ? reorder(data.columnColors)
+            : undefined,
+        };
+        persist(next);
+      }
+      setDragColSafe(null);
+      setDropTargetSafe(null);
+    },
+    [data, persist, setDragColSafe, setDropTargetSafe],
+  );
 
   const clearColumnContents = useCallback(
     (colIdx: number) => {
@@ -368,7 +386,9 @@ export const TableNodeView = ({
     (colIdx: number, color: string | null) => {
       const next = {
         ...data,
-        columnColors: data.columnColors ? [...data.columnColors] : Array.from({ length: colCount }, () => null),
+        columnColors: data.columnColors
+          ? [...data.columnColors]
+          : Array.from({ length: colCount }, () => null),
       };
       next.columnColors[colIdx] = color;
       persist(next);
@@ -495,9 +515,13 @@ export const TableNodeView = ({
               left: (() => {
                 const table = tableRef.current?.querySelector("table");
                 if (!table) return 0;
-                const row = table.querySelector(data.hasHeader !== false ? "thead tr" : "tbody tr");
+                const row = table.querySelector(
+                  data.hasHeader !== false ? "thead tr" : "tbody tr",
+                );
                 if (!row) return 0;
-                const cells = row.querySelectorAll(data.hasHeader !== false ? "th" : "td");
+                const cells = row.querySelectorAll(
+                  data.hasHeader !== false ? "th" : "td",
+                );
                 if (cells[dropTarget]) {
                   const rect = cells[dropTarget].getBoundingClientRect();
                   const tableRect = table.getBoundingClientRect();
@@ -533,7 +557,11 @@ export const TableNodeView = ({
                         !data.columnColors?.[colIdx] && "bg-muted",
                         dragCol === colIdx && "opacity-50",
                       )}
-                      style={data.columnColors?.[colIdx] ? { backgroundColor: data.columnColors[colIdx]! } : undefined}
+                      style={
+                        data.columnColors?.[colIdx]
+                          ? { backgroundColor: data.columnColors[colIdx]! }
+                          : undefined
+                      }
                     >
                       {/* Grip handle */}
                       {isEditable && (
@@ -598,7 +626,11 @@ export const TableNodeView = ({
                         "border border-border px-3 py-2 align-top relative",
                         dragCol === colIdx && "opacity-50",
                       )}
-                      style={data.columnColors?.[colIdx] ? { backgroundColor: data.columnColors[colIdx]! } : undefined}
+                      style={
+                        data.columnColors?.[colIdx]
+                          ? { backgroundColor: data.columnColors[colIdx]! }
+                          : undefined
+                      }
                     >
                       {/* Row grip handle */}
                       {colIdx === 0 && isEditable && (
@@ -616,25 +648,27 @@ export const TableNodeView = ({
                       )}
 
                       {/* Column Grip handle when header is hidden */}
-                      {isEditable && data.hasHeader === false && rowIdx === 0 && (
-                        <div className="absolute left-1/2 -translate-x-1/2 -top-3.5 opacity-0 group-hover/table:opacity-100 transition-opacity z-20">
-                          <ColumnGripButton
-                            colIdx={colIdx}
-                            menuCol={menuCol}
-                            setMenuCol={setMenuCol}
-                            dragCol={dragCol}
-                            onDragStart={setDragColSafe}
-                            setColumnColor={setColumnColor}
-                            onDragMove={handleColumnDragMove}
-                            onDragEnd={handleColumnDragEnd}
-                            insertColumnBefore={insertColumnBefore}
-                            insertColumnAfter={insertColumnAfter}
-                            clearColumnContents={clearColumnContents}
-                            deleteColumn={deleteColumn}
-                            colCount={colCount}
-                          />
-                        </div>
-                      )}
+                      {isEditable &&
+                        data.hasHeader === false &&
+                        rowIdx === 0 && (
+                          <div className="absolute left-1/2 -translate-x-1/2 -top-3.5 opacity-0 group-hover/table:opacity-100 transition-opacity z-20">
+                            <ColumnGripButton
+                              colIdx={colIdx}
+                              menuCol={menuCol}
+                              setMenuCol={setMenuCol}
+                              dragCol={dragCol}
+                              onDragStart={setDragColSafe}
+                              setColumnColor={setColumnColor}
+                              onDragMove={handleColumnDragMove}
+                              onDragEnd={handleColumnDragEnd}
+                              insertColumnBefore={insertColumnBefore}
+                              insertColumnAfter={insertColumnAfter}
+                              clearColumnContents={clearColumnContents}
+                              deleteColumn={deleteColumn}
+                              colCount={colCount}
+                            />
+                          </div>
+                        )}
 
                       {isEditable ? (
                         <input

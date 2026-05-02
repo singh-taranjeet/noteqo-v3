@@ -82,9 +82,28 @@ export const KeysService = {
       return false;
     }
   },
-  clear: async () => {
+  clear: async (deleteMasterKey: boolean = true) => {
+    if (deleteMasterKey) {
+      const publicKey = await storageService.get<string>(
+        STORAGE_KEYS.PUBLIC_KEY,
+      );
+      if (publicKey) {
+        const keys = LocalService.get();
+        if (keys[publicKey]) {
+          delete keys[publicKey];
+          LocalService.set(keys);
+        }
+      }
+      await storageService.clear();
+    } else {
+      await Promise.all([
+        storageService.delete(STORAGE_KEYS.PUBLIC_KEY),
+        storageService.delete(STORAGE_KEYS.JWT_KEY),
+        storageService.delete(STORAGE_KEYS.PRIVATE_KEY),
+      ]);
+    }
+
     await Promise.all([
-      storageService.clear(),
       db.notes.clear(),
       db.syncQueue.clear(),
       db.spaces.clear(),
@@ -134,6 +153,18 @@ export const KeysService = {
         storageService.put(STORAGE_KEYS.PRIVATE_KEY, decryptedPrivateKey),
         storageService.put(STORAGE_KEYS.MASTER_KEY, masterKey),
       ]);
+
+      const publicKey = await storageService.get<string>(
+        STORAGE_KEYS.PUBLIC_KEY,
+      );
+
+      if (publicKey) {
+        LocalService.setCurrent({
+          publicKey,
+          privateKey: decryptedPrivateKey,
+          masterKey,
+        });
+      }
     } else {
       logService.error("Private key is not present");
     }

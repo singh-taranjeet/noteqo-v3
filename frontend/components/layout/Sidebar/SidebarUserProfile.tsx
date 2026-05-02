@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Logout02Icon } from "@hugeicons/core-free-icons";
 import {
@@ -17,6 +18,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useLogout } from "@/features/auth";
+import { DynamicDialog } from "@/components/ui/DynamicDialog";
+import { Button } from "@/components/ui/button";
 
 interface SidebarUserProfileProps {
   username: string;
@@ -29,46 +32,81 @@ export function SidebarUserProfile({
 }: SidebarUserProfileProps) {
   const { logout } = useLogout();
   const { isMobile } = useSidebar();
+  const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
 
   return (
-    <SidebarMenu>
-      <SidebarMenuItem>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <SidebarMenuButton
-              size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-              id="sidebar-user-profile-trigger"
-            >
-              <span
-                className="text-lg shrink-0"
-                role="img"
-                aria-label="User avatar"
+    <>
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <SidebarMenuButton
+                size="lg"
+                className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                id="sidebar-user-profile-trigger"
               >
-                {avatarEmoji}
-              </span>
-              <span className="text-sm font-medium truncate">{username}</span>
-            </SidebarMenuButton>
-          </DropdownMenuTrigger>
+                <span
+                  className="text-lg shrink-0"
+                  role="img"
+                  aria-label="User avatar"
+                >
+                  {avatarEmoji}
+                </span>
+                <span className="text-sm font-medium truncate">{username}</span>
+              </SidebarMenuButton>
+            </DropdownMenuTrigger>
 
-          <DropdownMenuContent
-            side={isMobile ? "bottom" : "right"}
-            align="start"
-            className="w-56"
-          >
-            <DropdownMenuLabel>{username}</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              variant="destructive"
-              onClick={logout}
-              id="sidebar-logout-button"
+            <DropdownMenuContent
+              side={isMobile ? "bottom" : "right"}
+              align="start"
+              className="w-56"
             >
-              <HugeiconsIcon icon={Logout02Icon} size={16} strokeWidth={1.5} />
-              Log out
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </SidebarMenuItem>
-    </SidebarMenu>
+              <DropdownMenuLabel>{username}</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                variant="destructive"
+                onClick={() => setIsLogoutDialogOpen(true)}
+                id="sidebar-logout-button"
+              >
+                <HugeiconsIcon
+                  icon={Logout02Icon}
+                  size={16}
+                  strokeWidth={1.5}
+                />
+                Log out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </SidebarMenuItem>
+      </SidebarMenu>
+
+      <DynamicDialog
+        title="Log Out"
+        description="Would you like to keep your Master Key on this device for easier login next time?"
+        isOpen={isLogoutDialogOpen}
+        onOpenChange={setIsLogoutDialogOpen}
+      >
+        <div className="flex flex-col gap-3 pt-4">
+          <Button
+            variant="default"
+            onClick={() => {
+              setIsLogoutDialogOpen(false);
+              logout(false);
+            }}
+          >
+            Keep Master Key (Easier login)
+          </Button>
+          <Button
+            variant="destructive"
+            onClick={() => {
+              setIsLogoutDialogOpen(false);
+              logout(true);
+            }}
+          >
+            Delete Master Key (More secure)
+          </Button>
+        </div>
+      </DynamicDialog>
+    </>
   );
 }
