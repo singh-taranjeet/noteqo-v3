@@ -193,6 +193,8 @@ function Sidebar({
             } as React.CSSProperties
           }
           side={side}
+          onInteractOutside={() => setOpenMobile(false)}
+          onEscapeKeyDown={() => setOpenMobile(false)}
         >
           <SheetHeader className="sr-only">
             <SheetTitle>Sidebar</SheetTitle>
