@@ -318,7 +318,7 @@ export const TableNodeView = ({
 
         {/* ── The actual table ──────────────────────────────── */}
         <div className="overflow-x-auto">
-          <table className="w-full border-collapse border border-border">
+          <table className="w-full table-fixed border-collapse border border-border">
             {/* Colgroup for width control */}
             <colgroup>
               {data.headers.map((_, colIdx) => (
@@ -562,8 +562,8 @@ function ColumnGripButton({
 }: ColumnGripButtonProps) {
   const isDraggingRef = useRef(false);
 
-  const handleMouseDown = useCallback(
-    (e: React.MouseEvent) => {
+  const handlePointerDown = useCallback(
+    (e: React.PointerEvent) => {
       if (e.button !== 0) return;
       e.preventDefault();
 
@@ -571,7 +571,7 @@ function ColumnGripButton({
       const startY = e.clientY;
       isDraggingRef.current = false;
 
-      const handleMouseMove = (moveEvent: MouseEvent) => {
+      const handlePointerMove = (moveEvent: PointerEvent) => {
         const dx = Math.abs(moveEvent.clientX - startX);
         const dy = Math.abs(moveEvent.clientY - startY);
 
@@ -588,9 +588,9 @@ function ColumnGripButton({
         }
       };
 
-      const handleMouseUp = () => {
-        document.removeEventListener("mousemove", handleMouseMove);
-        document.removeEventListener("mouseup", handleMouseUp);
+      const handlePointerUp = () => {
+        document.removeEventListener("pointermove", handlePointerMove);
+        document.removeEventListener("pointerup", handlePointerUp);
 
         if (isDraggingRef.current) {
           onDragEnd(colIdx);
@@ -601,8 +601,8 @@ function ColumnGripButton({
         }
       };
 
-      document.addEventListener("mousemove", handleMouseMove);
-      document.addEventListener("mouseup", handleMouseUp);
+      document.addEventListener("pointermove", handlePointerMove);
+      document.addEventListener("pointerup", handlePointerUp);
     },
     [colIdx, menuCol, setMenuCol, onDragStart, onDragMove, onDragEnd],
   );
@@ -616,7 +616,7 @@ function ColumnGripButton({
     >
       <DropdownMenuTrigger asChild>
         <button
-          onMouseDown={handleMouseDown}
+          onPointerDown={handlePointerDown}
           className={cn(
             "flex items-center justify-center w-6 h-5 cursor-grab active:cursor-grabbing",
             "bg-background border border-border rounded-sm text-muted-foreground",
