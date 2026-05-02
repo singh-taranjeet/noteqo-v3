@@ -144,14 +144,14 @@ export function AppSidebar() {
                   handleCreateNote(defaultPersonalSpace.id);
                 }
               }}
-              className="justify-center"
+              className="justify-center bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90 hover:text-sidebar-primary-foreground"
             >
               <HugeiconsIcon
                 icon={PencilEdit01Icon}
                 size={16}
                 strokeWidth={1.5}
               />
-              <span>New</span>
+              <span>Quick Create</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
