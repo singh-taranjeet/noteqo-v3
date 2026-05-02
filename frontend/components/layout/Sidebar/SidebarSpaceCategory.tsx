@@ -19,6 +19,7 @@ import {
   SidebarMenuSub,
   SidebarMenuSubItem,
   SidebarMenuSubButton,
+  SidebarMenuSkeleton,
 } from "@/components/ui/sidebar";
 import {
   Tooltip,
@@ -102,9 +103,14 @@ export function SidebarSpaceCategory({
         <CollapsibleContent>
           <SidebarGroupContent>
             {isLoading && (
-              <div className="px-3 py-2 text-xs text-muted-foreground animate-pulse">
-                Loading spaces...
-              </div>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuSkeleton showIcon />
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuSkeleton showIcon />
+                </SidebarMenuItem>
+              </SidebarMenu>
             )}
             {!isLoading && spaces.length === 0 && (
               <div className="px-3 py-1.5 text-xs text-muted-foreground">

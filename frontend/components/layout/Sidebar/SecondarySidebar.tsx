@@ -86,7 +86,7 @@ export function SecondarySidebar() {
   return (
     <aside
       className={cn(
-        "flex flex-col h-svh bg-sidebar/60 backdrop-blur-xl border-r border-sidebar-border shrink-0 overflow-hidden",
+        "flex flex-col h-svh bg-white dark:bg-sidebar border-r border-sidebar-border shrink-0 overflow-hidden",
         "transition-all ease-in-out max-md:fixed max-md:inset-y-0 max-md:left-0 max-md:z-[60] max-md:shadow-2xl",
         !isOpen && "border-r-0",
       )}

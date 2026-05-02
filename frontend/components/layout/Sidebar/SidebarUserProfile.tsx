@@ -7,6 +7,7 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
+  SidebarMenuSkeleton,
   useSidebar,
 } from "@/components/ui/sidebar";
 import {
@@ -24,15 +25,27 @@ import { Button } from "@/components/ui/button";
 interface SidebarUserProfileProps {
   username: string;
   avatarEmoji?: string;
+  isLoading?: boolean;
 }
 
 export function SidebarUserProfile({
   username,
   avatarEmoji = "😎",
+  isLoading,
 }: SidebarUserProfileProps) {
   const { logout } = useLogout();
   const { isMobile } = useSidebar();
   const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
+
+  if (isLoading) {
+    return (
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <SidebarMenuSkeleton showIcon className="h-12 w-full px-4 rounded-lg" />
+        </SidebarMenuItem>
+      </SidebarMenu>
+    );
+  }
 
   return (
     <>

@@ -23,11 +23,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useLocalNotes } from "@/features/workspace/hooks/useLocalNotes";
 import { useDuplicateNote } from "@/features/workspace/hooks/useDuplicateNote";
 import { useToggleFavoriteNote } from "@/features/workspace/hooks/useToggleFavoriteNote";
-import { MOCK_USER } from "@/features/auth";
+import { MOCK_USER, useUserProfile } from "@/features/auth";
 import { VersionHistoryDialog } from "@/features/editor";
 
 export function HeaderActions() {
@@ -42,6 +41,8 @@ export function HeaderActions() {
 
   const [isVersionHistoryOpen, setIsVersionHistoryOpen] = useState(false);
 
+  const { data: userProfile } = useUserProfile();
+
   const currentNote = useMemo(() => {
     if (!notes || !noteId) return null;
     return notes.find((n) => n.id === noteId);
@@ -52,13 +53,13 @@ export function HeaderActions() {
     return format(new Date(currentNote.updatedAt), "MMM d");
   }, [currentNote]);
 
-  const userInitials = useMemo(() => {
-    return MOCK_USER.NAME.split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .substring(0, 2);
-  }, []);
+  const avatarEmoji = useMemo(() => {
+    return userProfile?.name
+      ? userProfile.name.charAt(0).toUpperCase()
+      : MOCK_USER.AVATAR;
+  }, [userProfile?.name]);
+
+  const username = userProfile?.name || MOCK_USER.NAME;
 
   return (
     <div className="flex items-center gap-1 shrink-0">
@@ -71,11 +72,22 @@ export function HeaderActions() {
 
       {/* User avatar */}
       {currentNote && (
-        <Avatar className="h-6 w-6 text-xs">
-          <AvatarFallback className="bg-primary/10 text-foreground text-xs font-medium">
-            {userInitials}
-          </AvatarFallback>
-        </Avatar>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="flex items-center justify-center h-6 w-6 bg-sidebar-accent rounded-md shrink-0 cursor-default mr-1">
+              <span
+                className="text-sm shrink-0 leading-none"
+                role="img"
+                aria-label="User avatar"
+              >
+                {avatarEmoji}
+              </span>
+            </div>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">
+            Last edited by {username}
+          </TooltipContent>
+        </Tooltip>
       )}
 
       {/* Version history */}

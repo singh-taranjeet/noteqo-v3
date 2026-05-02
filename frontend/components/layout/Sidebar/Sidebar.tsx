@@ -94,15 +94,16 @@ export function AppSidebar() {
               ? userProfile.name.charAt(0).toUpperCase()
               : MOCK_USER.AVATAR
           }
+          isLoading={isUserProfileLoading}
         />
-      </SidebarHeader>
-
-      <SidebarContent>
         <SidebarGroup className="py-0">
           <SidebarGroupContent>
             <SidebarNavTabs activeTab={activeTab} setActiveTab={setActiveTab} />
           </SidebarGroupContent>
         </SidebarGroup>
+      </SidebarHeader>
+
+      <SidebarContent>
 
         {/* Recent Section */}
         <RecentSection />

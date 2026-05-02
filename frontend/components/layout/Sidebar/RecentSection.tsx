@@ -10,6 +10,7 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
+  SidebarMenuSkeleton,
 } from "@/components/ui/sidebar";
 import {
   Collapsible,
@@ -49,9 +50,17 @@ export function RecentSection() {
         <CollapsibleContent>
           <SidebarGroupContent>
             {isLoading && (
-              <div className="px-3 py-2 text-xs text-muted-foreground animate-pulse">
-                Loading recent...
-              </div>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuSkeleton showIcon />
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuSkeleton showIcon />
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuSkeleton showIcon />
+                </SidebarMenuItem>
+              </SidebarMenu>
             )}
             {!isLoading && recentNotes.length === 0 && (
               <div className="px-3 py-1.5 text-xs text-muted-foreground">
