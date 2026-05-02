@@ -20,7 +20,7 @@ import { RecentSection } from "./RecentSection";
 import { SharedSpaceSettingsDialog } from "./SharedSpaceSettingsDialog";
 import { useSpaces, useCreateSpace } from "@/features/spaces";
 import { useCreateNote, useSyncQueue } from "@/features/workspace";
-import { MOCK_USER } from "@/features/auth";
+import { MOCK_USER, useUserProfile } from "@/features/auth";
 import { SPACE_TYPE } from "@/features/spaces";
 import type { Space, SpaceType } from "@/features/spaces";
 import { DynamicDialog } from "@/components/ui/DynamicDialog";
@@ -70,6 +70,9 @@ export function AppSidebar() {
     (personalSpace) => personalSpace.isDefault,
   );
 
+  const { data: userProfile, isLoading: isUserProfileLoading } =
+    useUserProfile();
+
   const handleCreateNote = (spaceId: string) => {
     createNote({ spaceId });
   };
@@ -85,8 +88,12 @@ export function AppSidebar() {
     <Sidebar collapsible="offcanvas">
       <SidebarHeader>
         <SidebarUserProfile
-          username={MOCK_USER.NAME}
-          avatarEmoji={MOCK_USER.AVATAR}
+          username={userProfile?.name || MOCK_USER.NAME}
+          avatarEmoji={
+            userProfile?.name
+              ? userProfile.name.charAt(0).toUpperCase()
+              : MOCK_USER.AVATAR
+          }
         />
       </SidebarHeader>
 

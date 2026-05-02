@@ -100,6 +100,7 @@ export const KeysService = {
         storageService.delete(STORAGE_KEYS.PUBLIC_KEY),
         storageService.delete(STORAGE_KEYS.JWT_KEY),
         storageService.delete(STORAGE_KEYS.PRIVATE_KEY),
+        storageService.delete(STORAGE_KEYS.USER_PROFILE),
       ]);
     }
 

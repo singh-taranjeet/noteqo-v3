@@ -75,10 +75,18 @@ export function RegisterForm() {
           masterKey: result.masterKey,
         });
 
-        // 2. Create default personal space
+        // 2. Store user profile
+        const { storageService, STORAGE_KEYS } =
+          await import("@/features/storage");
+        await storageService.put(
+          STORAGE_KEYS.USER_PROFILE,
+          result.response.data.user,
+        );
+
+        // 3. Create default personal space
         await spaceService.createSpace();
 
-        // 3. Show recovery code dialog
+        // 4. Show recovery code dialog
         setGeneratedMasterKey(result.masterKey);
       } catch (err: unknown) {
         if (err instanceof Error) {
