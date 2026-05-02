@@ -46,12 +46,14 @@ export class NotesRepository {
     type: NoteType,
     createdAt: Date,
     updatedAt: Date,
+    parentId?: string,
   ): Promise<Note> {
     const note = this.noteOrm.create({
       id,
       ciphertext,
       version: 1,
       spaceId,
+      parentId,
       type,
       createdAt,
       updatedAt,
@@ -95,6 +97,7 @@ export class NotesRepository {
     currentVersion: number,
     updatedAt: Date,
     isFavorite?: boolean,
+    parentId?: string,
   ): Promise<Note> {
     const nextVersion = currentVersion + 1;
 
@@ -105,13 +108,13 @@ export class NotesRepository {
     try {
       const currentUserId = getCurrentUserId();
 
-      // 1. Update the note (last-write-wins)
       await queryRunner.manager.update(NoteEntity, id, {
         ciphertext: newCiphertext,
         version: nextVersion,
         updatedBy: currentUserId,
         updatedAt,
         ...(isFavorite !== undefined ? { isFavorite } : {}),
+        ...(parentId !== undefined ? { parentId } : {}),
       });
 
       // 2. Record version snapshot
@@ -162,6 +165,7 @@ export class NotesRepository {
       ciphertext: entity.ciphertext.toString('utf8'),
       version: entity.version,
       spaceId: entity.spaceId,
+      parentId: entity.parentId,
       type: entity.type as NoteType,
       createdBy: entity.createdBy,
       updatedBy: entity.updatedBy,

@@ -7,6 +7,7 @@ export interface Note {
   ciphertext: string;
   version: number;
   spaceId: string;
+  parentId?: string | null;
   type: NoteType;
   isFavorite: boolean;
   createdBy: string;

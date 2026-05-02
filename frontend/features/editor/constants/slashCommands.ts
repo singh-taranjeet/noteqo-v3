@@ -19,6 +19,7 @@ import {
   AttachmentIcon,
   ImageAdd01Icon,
   CameraVideoIcon,
+  FileAddIcon,
 } from "@hugeicons/core-free-icons";
 import type { AiActionType } from "@/features/ai/types/ai.types";
 
@@ -208,6 +209,17 @@ export const SLASH_COMMANDS: SuggestionItem[] = [
     command: ({ editor, range }) => {
       editor.chain().focus().deleteRange(range).run();
       editor.commands.promptFileUpload("video/*");
+    },
+  },
+  {
+    title: "Child Note",
+    icon: FileAddIcon,
+    command: ({ editor, range }) => {
+      editor.chain().focus().deleteRange(range).run();
+      const event = new CustomEvent("noteqo:create-child-note", {
+        bubbles: true,
+      });
+      editor.view.dom.dispatchEvent(event);
     },
   },
 ];

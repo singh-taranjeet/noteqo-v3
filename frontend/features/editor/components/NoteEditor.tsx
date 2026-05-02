@@ -64,6 +64,7 @@ import {
 import { NOTE_DEFAULTS } from "@/features/workspace/constants/workspace.constants";
 import { noteService } from "@/features/workspace/services/note.service";
 import type { Note } from "@/features/workspace/types/workspace.types";
+import { useCreateNote } from "@/features/workspace/hooks/useCreateNote";
 import { NoteEditorSurface } from "./NoteEditorSurface";
 import { NoteEditorSkeleton } from "./NoteEditorSkeleton";
 
@@ -149,6 +150,8 @@ export function NoteEditor({
   className,
   contentWrapperClassName,
 }: Readonly<NoteEditorProps>) {
+  const { mutate: createNoteMutation } = useCreateNote();
+
   const queueNoteUpdate = useMemo(
     () => (props: { editor: Editor; id: string }) => {
       const { editor, id } = props;
@@ -313,6 +316,26 @@ export function NoteEditor({
       window.removeEventListener(VERSION_RESTORED_EVENT, handleVersionRestored);
     };
   }, [editor, isReadOnly, noteId, setNote]);
+
+  // Listen for slash command to create child note
+  useEffect(() => {
+    if (!editor || isReadOnly || !noteId || !spaceId) return;
+
+    const handleCreateChildNote = () => {
+      createNoteMutation({
+        spaceId,
+        parentId: noteId,
+      });
+    };
+
+    window.addEventListener("noteqo:create-child-note", handleCreateChildNote);
+    return () => {
+      window.removeEventListener(
+        "noteqo:create-child-note",
+        handleCreateChildNote,
+      );
+    };
+  }, [editor, isReadOnly, noteId, spaceId, createNoteMutation]);
 
   if (!isReady) {
     return <NoteEditorSkeleton />;

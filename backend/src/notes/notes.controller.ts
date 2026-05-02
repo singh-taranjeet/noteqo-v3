@@ -76,6 +76,7 @@ export class NotesController {
       deletedBy: note.deletedBy,
       createdAt: note.createdAt,
       updatedAt: note.updatedAt,
+      parentId: note.parentId,
     };
   }
 

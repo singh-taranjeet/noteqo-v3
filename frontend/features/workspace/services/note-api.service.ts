@@ -48,6 +48,7 @@ export const noteApiService = {
     spaceId: string;
     type: string;
     isFavorite?: boolean;
+    parentId?: string | null;
     createdAt: string;
     updatedAt: string;
   }) => {
@@ -69,6 +70,7 @@ export const noteApiService = {
     id: string;
     ciphertext: string;
     isFavorite?: boolean;
+    parentId?: string | null;
     updatedAt: string;
   }) => {
     const response = await queryClient
@@ -81,6 +83,7 @@ export const noteApiService = {
               ciphertext: vars.ciphertext,
               updatedAt: vars.updatedAt,
               isFavorite: vars.isFavorite,
+              parentId: vars.parentId,
             },
             { auth: true },
           );

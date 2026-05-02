@@ -4,6 +4,7 @@ import {
   IsDateString,
   IsBoolean,
   IsOptional,
+  IsUUID,
 } from 'class-validator';
 
 export class UpdateNoteDto {
@@ -14,6 +15,10 @@ export class UpdateNoteDto {
   @IsBoolean()
   @IsOptional()
   isFavorite?: boolean;
+
+  @IsOptional()
+  @IsUUID()
+  parentId?: string;
 
   @IsDateString()
   @IsNotEmpty()

@@ -41,6 +41,17 @@ export class NoteEntity extends AppBaseEntity {
   })
   type: NoteType;
 
+  @Column({ name: 'parent_id', type: 'uuid', nullable: true })
+  @Index()
+  parentId: string | null;
+
+  @ManyToOne(() => NoteEntity, (note) => note.children, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'parent_id' })
+  parent: NoteEntity;
+
+  @OneToMany(() => NoteEntity, (note) => note.parent)
+  children: NoteEntity[];
+
   @Column({
     name: NOTE_COLUMN.IS_FAVORITE,
     type: 'boolean',

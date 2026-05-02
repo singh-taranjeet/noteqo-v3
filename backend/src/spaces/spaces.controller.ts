@@ -222,6 +222,7 @@ export class SpacesController {
       createdAt: note.createdAt,
       updatedAt: note.updatedAt,
       isFavorite: note.isFavorite,
+      parentId: note.parentId,
     };
   }
 }

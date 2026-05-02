@@ -9,6 +9,7 @@ import {
   MoreHorizontalIcon,
   Clock04Icon,
   Copy01Icon,
+  Add01Icon,
 } from "@hugeicons/core-free-icons";
 import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
@@ -28,6 +29,7 @@ import {
 import { useLocalNotes } from "@/features/workspace/hooks/useLocalNotes";
 import { useDuplicateNote } from "@/features/workspace/hooks/useDuplicateNote";
 import { useToggleFavoriteNote } from "@/features/workspace/hooks/useToggleFavoriteNote";
+import { useCreateNote } from "@/features/workspace/hooks/useCreateNote";
 import { MOCK_USER, useUserProfile } from "@/features/auth";
 import { VersionHistoryDialog } from "@/features/editor";
 
@@ -40,6 +42,7 @@ export function HeaderActions() {
   const isDuplicating = duplicateMutation.isPending;
 
   const toggleFavoriteMutation = useToggleFavoriteNote();
+  const createNoteMutation = useCreateNote();
 
   const [isVersionHistoryOpen, setIsVersionHistoryOpen] = useState(false);
 
@@ -98,6 +101,23 @@ export function HeaderActions() {
           className="hidden sm:flex h-7 w-7"
           onClick={() => setIsVersionHistoryOpen(true)}
           id="version-history-button"
+        />
+      )}
+
+      {/* Add child note */}
+      {noteId && currentNote && (
+        <TooltipIconButton
+          icon={Add01Icon}
+          tooltip="Add child note"
+          className="hidden sm:flex h-7 w-7"
+          onClick={() =>
+            createNoteMutation.mutate({
+              spaceId: currentNote.spaceId,
+              parentId: currentNote.id,
+            })
+          }
+          disabled={createNoteMutation.isPending}
+          id="add-child-note-button"
         />
       )}
 

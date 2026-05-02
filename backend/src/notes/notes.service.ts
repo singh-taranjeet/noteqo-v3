@@ -21,6 +21,7 @@ export class NotesService {
       dto.type,
       dto.createdAt,
       dto.updatedAt,
+      dto.parentId,
     );
   }
 
@@ -50,6 +51,7 @@ export class NotesService {
       note.version,
       dto.updatedAt,
       dto.isFavorite,
+      dto.parentId,
     );
   }
 

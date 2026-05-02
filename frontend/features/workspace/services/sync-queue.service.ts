@@ -171,6 +171,7 @@ class SyncQueueService {
           spaceId: note.spaceId,
           type: note.type,
           isFavorite: note.isFavorite,
+          parentId: note.parentId,
           createdAt: note.createdAt,
           updatedAt: this.getUpdatedAt(),
         });
@@ -184,6 +185,7 @@ class SyncQueueService {
           id: event.entityId,
           ciphertext,
           isFavorite: note.isFavorite,
+          parentId: note.parentId,
           updatedAt: this.getUpdatedAt(),
         });
         break;

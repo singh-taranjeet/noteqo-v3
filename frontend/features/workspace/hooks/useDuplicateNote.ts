@@ -14,6 +14,7 @@ export function useDuplicateNote() {
       noteService.duplicateNote(noteId),
     onSuccess: (note) => {
       void queryClient.invalidateQueries({ queryKey: NOTES_QUERY_KEY });
+      void queryClient.invalidateQueries({ queryKey: ["spaces"] });
       router.push(ROUTES.NOTE(note.id));
     },
   });
