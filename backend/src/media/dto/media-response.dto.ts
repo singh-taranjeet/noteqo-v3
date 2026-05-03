@@ -5,5 +5,6 @@ export class MediaResponseDto {
   mimeType: string;
   sizeBytes: number;
   url: string;
+  meta: string | null;
   createdAt: Date;
 }

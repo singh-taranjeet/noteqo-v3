@@ -5,6 +5,7 @@ export interface Media {
   mimeType: string;
   sizeBytes: number;
   url: string;
+  meta: string | null;
   createdAt: Date;
   updatedAt: Date;
 }

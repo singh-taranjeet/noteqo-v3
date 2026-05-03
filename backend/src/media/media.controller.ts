@@ -1,6 +1,9 @@
 import {
   Controller,
   Post,
+  Get,
+  Patch,
+  Query,
   Delete,
   Param,
   Body,
@@ -12,8 +15,14 @@ import {
 } from '@nestjs/common';
 import { MediaService } from './media.service';
 import { MediaResponseDto } from './dto/media-response.dto';
+import { UpdateMediaDto } from './dto/update-media.dto';
+import { UploadMediaDto } from './dto/upload-media.dto';
 import { MEDIA_ROUTES } from './constants/media.constants';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import {
+  CurrentUser,
+  AuthenticatedUser,
+} from '../shared/decorators/current-user.decorator';
 
 @Controller(MEDIA_ROUTES.BASE)
 export class MediaController {
@@ -30,6 +39,47 @@ export class MediaController {
       body,
     );
     return { success: true, ...result };
+  }
+
+  @Get()
+  @UseGuards(JwtAuthGuard)
+  async findAll(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query('spaceId') spaceId?: string,
+  ): Promise<MediaResponseDto[]> {
+    if (spaceId) {
+      const media = await this.mediaService.findBySpaceId(spaceId);
+      return media.map(this.mapToResponse);
+    } else {
+      const media = await this.mediaService.findByUserId(user.id);
+      return media.map(this.mapToResponse);
+    }
+  }
+
+  /**
+   * Register a media record after a successful client-side upload.
+   * This is a fallback for when the Vercel Blob onUploadCompleted
+   * webhook cannot reach the server (e.g. local development).
+   * If the record already exists, it is returned as-is.
+   */
+  @Post('register')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async register(
+    @Body() dto: UploadMediaDto & { url: string },
+  ): Promise<MediaResponseDto> {
+    const media = await this.mediaService.registerMedia(dto, dto.url);
+    return this.mapToResponse(media);
+  }
+
+  @Patch(MEDIA_ROUTES.BY_ID)
+  @UseGuards(JwtAuthGuard)
+  async update(
+    @Param('mediaId', ParseUUIDPipe) mediaId: string,
+    @Body() dto: UpdateMediaDto,
+  ): Promise<MediaResponseDto> {
+    const media = await this.mediaService.update(mediaId, dto);
+    return this.mapToResponse(media);
   }
 
   /**
@@ -51,6 +101,7 @@ export class MediaController {
     mimeType: string;
     sizeBytes: number;
     url: string;
+    meta: string | null;
     createdAt: Date;
   }): MediaResponseDto {
     return {
@@ -60,6 +111,7 @@ export class MediaController {
       mimeType: media.mimeType,
       sizeBytes: media.sizeBytes,
       url: media.url,
+      meta: media.meta,
       createdAt: media.createdAt,
     };
   }

@@ -41,11 +41,11 @@ const CREATE_SPACE_FIELDS: FormFieldConfig[] = [
 ];
 
 export function AppSidebar() {
-  const { data, isLoading: spacesLoading, spaceNoteTreesMap } = useSpaces();
-  const { spaces = [] } = data || {};
-
   // Start background sync queue
   useSyncQueue();
+
+  const { data, isLoading: spacesLoading, spaceNoteTreesMap } = useSpaces();
+  const { spaces = [] } = data || {};
 
   const { mutate: createNote } = useCreateNote();
   const { createSpace, isLoading: isCreatingSpace } = useCreateSpace();

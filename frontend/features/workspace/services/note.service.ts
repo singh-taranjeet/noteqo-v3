@@ -87,7 +87,7 @@ export const noteService = {
     if (remoteNote) {
       const decryptedNote = await noteService.decryptNote(remoteNote);
       if (decryptedNote) {
-        logService.log("Decrypted Note", decryptedNote, remoteNote);
+        // logService.log("Decrypted Note", decryptedNote, remoteNote);
         await db.notes.put(decryptedNote);
       }
       return decryptedNote ?? undefined;
