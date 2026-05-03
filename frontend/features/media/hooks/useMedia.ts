@@ -3,6 +3,7 @@ import { mediaService } from "../services/media.service";
 import type { MediaResponseDto, DecryptedMedia } from "../types/media.types";
 import { cryptoService } from "@/features/crypto";
 import { spaceService } from "@/features/spaces";
+import { SYNC_CONFIG } from "@/features/workspace/constants/workspace.constants";
 
 export function useMediaList(spaceId?: string) {
   return useQuery({
@@ -26,6 +27,7 @@ export function useMediaList(spaceId?: string) {
       );
     },
     enabled: !!spaceId,
+    staleTime: SYNC_CONFIG.INTERVAL_MS,
   });
 }
 
@@ -83,5 +85,7 @@ export function useAllMediaList(spaceIds: string[]) {
         );
     },
     enabled: spaceIds?.length > 0,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    gcTime: 1000 * 60 * 10, // 10 minutes
   });
 }
