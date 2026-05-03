@@ -19,7 +19,7 @@ export const useLogout = () => {
   const queryClient = useQueryClient();
 
   const logout = useCallback(
-    async (deleteMasterKey: boolean = true) => {
+    async (deleteMasterKey: boolean = true, autoRedirect = true) => {
       await KeysService.clear(deleteMasterKey);
 
       // 2. Clear React Query cache
@@ -28,8 +28,10 @@ export const useLogout = () => {
       // Clear the inti localstorage option as well
       localStorage.removeItem(LOCAL_STORAGE_ALL_SPACES_INITIALLY_FETCHED);
 
-      // 3. Redirect to auth page
-      router.replace(ROUTES.LOGIN);
+      if (autoRedirect) {
+        // 3. Redirect to auth page
+        router.replace(ROUTES.LOGIN);
+      }
     },
     [router, queryClient],
   );
