@@ -1,7 +1,7 @@
 import { cryptoService } from "@/features/crypto";
 import { spaceService } from "@/features/spaces/services/space.service";
 import { apiClient } from "@/services/api";
-import type { MediaResponseDto } from "../types/media.types";
+import type { DecryptedMedia, MediaResponseDto } from "../types/media.types";
 import { upload } from "@vercel/blob/client";
 import { storageService, STORAGE_KEYS, db } from "@/features/storage";
 import { API_BASE_URL } from "@/constants/config";
@@ -67,15 +67,26 @@ export const mediaService = {
       logService.warn("Failed to cache uploaded media blob locally", cacheErr);
     }
 
-    return {
+    const mediaRecord = {
       id,
       noteId,
       spaceId,
       mimeType,
       sizeBytes: parseInt(sizeBytes, 10),
       url: blob.url,
+      meta: null,
       createdAt: new Date().toISOString(),
     };
+
+    // Fallback: Manually register the media record with the backend
+    // Since Vercel Blob webhook can't reach localhost during local dev, this ensures the DB record exists.
+    try {
+      await apiClient.post("/media/register", mediaRecord, { auth: true });
+    } catch (err) {
+      logService.warn("Failed to register media record with backend", err);
+    }
+
+    return mediaRecord;
   },
 
   /**
@@ -135,6 +146,141 @@ export const mediaService = {
     }
 
     return decryptedBlob;
+  },
+
+  /**
+   * Fetches all media for a given space ID from remote, decrypts if necessary, and caches.
+   */
+  async getRemoteMediaList(spaceId: string): Promise<MediaResponseDto[]> {
+    const res = await apiClient.get<{ data: MediaResponseDto[] }>(
+      `/media?spaceId=${spaceId}`,
+      {
+        auth: true,
+      },
+    );
+
+    const remoteMedia = res.data || [];
+
+    // Cache to Dexie
+    await this.cacheDecryptMediaList(spaceId, remoteMedia);
+    return remoteMedia;
+  },
+
+  async cacheDecryptMediaList(spaceId: string, mediaList: MediaResponseDto[]) {
+    const spaceKeyBase64 = await spaceService.getCachedSpaceKey(spaceId);
+
+    if (!spaceKeyBase64) throw new Error("Space key not found");
+    const spaceKeyBytes = new Uint8Array(
+      cryptoService.decodeBase64(spaceKeyBase64),
+    );
+
+    return Promise.all(
+      mediaList.map(async (media) => {
+        let title = "";
+        let description = "";
+        if (media.meta) {
+          try {
+            const decryptedMetaStr = await cryptoService.decryptString(
+              media.meta,
+              spaceKeyBytes,
+            );
+            const meta = JSON.parse(decryptedMetaStr);
+            title = meta.title || "";
+            description = meta.description || "";
+          } catch (err) {
+            console.error("Failed to decrypt media meta", err);
+          }
+        }
+        return { ...media, title, description };
+      }),
+    );
+  },
+
+  /**
+   * Fetches all media for the current user from remote, decrypts if necessary, and caches.
+   */
+  async getAllMediaList(spaceIds: string[]): Promise<DecryptedMedia[]> {
+    const res = await apiClient.get<{ data: MediaResponseDto[] }>("/media", {
+      auth: true,
+    });
+
+    let mediaList: MediaResponseDto[] = [];
+    const remote = res.data || [];
+
+    try {
+      mediaList = remote.filter((m) => spaceIds.includes(m.spaceId));
+    } catch (err) {
+      console.warn("Falling back to local media cache for all spaces", err);
+      mediaList = await mediaService.getLocalMediaListForSpaces(spaceIds);
+    }
+
+    if (!mediaList.length) return [];
+
+    // We need to group media by spaceId so we can fetch the right spaceKey
+    const mediaBySpaceId = mediaList.reduce(
+      (acc, media) => {
+        if (!acc[media.spaceId]) acc[media.spaceId] = [];
+        acc[media.spaceId].push(media);
+        return acc;
+      },
+      {} as Record<string, MediaResponseDto[]>,
+    );
+
+    const decryptedMediaPromises = Object.entries(mediaBySpaceId).map(
+      async ([spaceId, list]) => this.cacheDecryptMediaList(spaceId, list),
+    );
+
+    const results = await Promise.all(decryptedMediaPromises);
+    return results.flat();
+  },
+
+  /**
+   * Gets media list from local Dexie database for multiple spaces
+   */
+  async getLocalMediaListForSpaces(
+    spaceIds: string[],
+  ): Promise<MediaResponseDto[]> {
+    if (!spaceIds || spaceIds.length === 0) return [];
+    return db.media
+      .where("spaceId")
+      .anyOf(spaceIds)
+      .reverse()
+      .sortBy("createdAt");
+  },
+
+  /**
+   * Gets media list from local Dexie database
+   */
+  async getLocalMediaList(spaceId: string): Promise<MediaResponseDto[]> {
+    return db.media
+      .where("spaceId")
+      .equals(spaceId)
+      .reverse()
+      .sortBy("createdAt");
+  },
+
+  /**
+   * Updates meta for a media blob locally and remotely.
+   */
+  async updateMedia(
+    mediaId: string,
+    data: { meta?: string },
+  ): Promise<MediaResponseDto> {
+    const res = await apiClient.patch<{ data: MediaResponseDto }>(
+      `/media/${mediaId}`,
+      data,
+      {
+        auth: true,
+      },
+    );
+
+    const response = res.data;
+    const localMedia = await db.media.get({ id: mediaId });
+    if (localMedia) {
+      console.log("Local media fetched", localMedia);
+      await this.cacheDecryptMediaList(localMedia?.spaceId, [response]);
+    }
+    return response;
   },
 
   /**

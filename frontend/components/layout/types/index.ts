@@ -1,1 +1,1 @@
-export type ActiveTabType = "home" | "search";
+export type ActiveTabType = "home" | "search" | "assets";

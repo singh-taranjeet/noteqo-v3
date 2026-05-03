@@ -17,6 +17,10 @@ export interface Note {
   updatedAt: string;
 }
 
+export interface NoteTreeNode extends Note {
+  children: NoteTreeNode[];
+}
+
 export interface SyncEvent {
   id: string;
   type: SyncEventType;

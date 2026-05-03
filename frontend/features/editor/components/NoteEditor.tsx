@@ -61,7 +61,7 @@ import {
   EDITOR_CONFIG,
   VERSION_RESTORED_EVENT,
 } from "@/features/editor/constants/editor.constants";
-import { NOTE_DEFAULTS } from "@/features/workspace/constants/workspace.constants";
+
 import { noteService } from "@/features/workspace/services/note.service";
 import type { Note } from "@/features/workspace/types/workspace.types";
 import { useCreateNote } from "@/features/workspace/hooks/useCreateNote";
@@ -82,13 +82,11 @@ interface NoteEditorProps {
 interface LoadNoteContentOptions {
   noteId?: string;
   initialNote?: Note;
-  isReadOnly: boolean;
 }
 
 const useLoadNoteContent = ({
   noteId,
   initialNote,
-  isReadOnly = false,
 }: Readonly<LoadNoteContentOptions>) => {
   const [note, setNote] = useState<Note | null>(initialNote ?? null);
   const [isReady, setIsReady] = useState<boolean>(Boolean(initialNote));
@@ -97,23 +95,20 @@ const useLoadNoteContent = ({
     async function loadContent() {
       if (noteId && !initialNote) {
         try {
-          const localNote = await noteService.getLocalNote(noteId);
-
-          if (localNote) {
-            setNote(localNote);
-            setIsReady(true);
-          }
-
-          if (isReadOnly) {
-            return;
-          }
-
-          // Fetch decrypted note
-          const remoteNote = await noteService.getRemoteNote(noteId);
-
-          if (remoteNote) {
-            setNote(remoteNote);
-            setIsReady(true);
+          // If ther user is online, then fetch the latest note from remote
+          if (navigator && navigator.onLine) {
+            // Fetch decrypted note
+            const remoteNote = await noteService.getRemoteNote(noteId);
+            if (remoteNote) {
+              setNote(remoteNote);
+              setIsReady(true);
+            }
+          } else {
+            const localNote = await noteService.getLocalNote(noteId);
+            if (localNote) {
+              setNote(localNote);
+              setIsReady(true);
+            }
           }
         } catch (error) {
           logService.error(`Error in rendering this note`, error);
@@ -122,7 +117,7 @@ const useLoadNoteContent = ({
       }
     }
     loadContent();
-  }, [isReadOnly, initialNote, noteId]);
+  }, [initialNote, noteId]);
 
   const [prevInitialNote, setPrevInitialNote] = useState<Note | undefined>(
     initialNote,
@@ -166,7 +161,6 @@ export function NoteEditor({
   const { note, isReady, setNote } = useLoadNoteContent({
     noteId,
     initialNote: providedNote,
-    isReadOnly,
   });
 
   const noteRef = useRef(note);
@@ -346,22 +340,34 @@ export function NoteEditor({
   const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (isReadOnly) return;
     if (!note) return;
+
     setNote({ ...note, title: e.target.value });
+    void noteService.updateNote(noteId, { title: e.target.value });
   };
 
   const handleTitleBlur = (e: FocusEvent<HTMLInputElement>) => {
-    if (isReadOnly) return;
-    if (!note || !noteId) return;
-    void noteService.updateNote(noteId, { title: e.target.value });
+    handleTitleChange(e);
   };
 
   return (
     <NoteEditorSurface
       editor={editor}
-      title={note?.title ?? NOTE_DEFAULTS.TITLE}
+      title={note?.title}
       emoji={note?.emoji ?? ""}
       coverImage={note?.coverImage ?? ""}
       isReadOnly={isReadOnly}
+      spaceId={spaceId ?? undefined}
+      noteId={noteId}
+      onUpdateCoverImage={(url) => {
+        if (!noteId) return;
+        setNote((prev) => (prev ? { ...prev, coverImage: url } : prev));
+        void noteService.updateNote(noteId, { coverImage: url });
+      }}
+      onUpdateEmoji={(emoji) => {
+        if (!noteId) return;
+        setNote((prev) => (prev ? { ...prev, emoji } : prev));
+        void noteService.updateNote(noteId, { emoji });
+      }}
       onTitleChange={handleTitleChange}
       onTitleBlur={handleTitleBlur}
       className={className}

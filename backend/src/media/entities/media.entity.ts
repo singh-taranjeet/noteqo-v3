@@ -20,4 +20,7 @@ export class MediaEntity extends AppBaseEntity {
 
   @Column({ name: MEDIA_TABLE.COLUMN.URL, type: 'varchar' })
   url: string;
+
+  @Column({ name: MEDIA_TABLE.COLUMN.META, type: 'text', nullable: true })
+  meta: string | null;
 }
