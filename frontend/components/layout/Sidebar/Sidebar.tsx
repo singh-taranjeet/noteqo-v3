@@ -13,6 +13,7 @@ import {
   SidebarMenuButton,
   SidebarRail,
 } from "@/components/ui/sidebar";
+import { useAllMediaList } from "@/features/media";
 import { SidebarUserProfile } from "./SidebarUserProfile";
 import { SidebarNavTabs } from "./SidebarNavTabs";
 import { SidebarSpaceCategory } from "./SidebarSpaceCategory";
@@ -46,6 +47,10 @@ export function AppSidebar() {
 
   const { data, isLoading: spacesLoading, spaceNoteTreesMap } = useSpaces();
   const { spaces = [] } = data || {};
+
+  // Prefetch media for all spaces so it's instantly available when opening the media picker
+  useAllMediaList(spaces.map(s => s.id));
+
 
   const { mutate: createNote } = useCreateNote();
   const { createSpace, isLoading: isCreatingSpace } = useCreateSpace();

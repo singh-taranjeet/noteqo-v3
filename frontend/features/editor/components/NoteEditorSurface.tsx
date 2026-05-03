@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/popover";
 import { MediaPicker } from "@/features/media/components/MediaPicker";
 import { EncryptedImage } from "@/features/media/components/EncryptedImage";
-import { useMediaList } from "@/features/media";
+
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Image01Icon, SmileIcon } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
@@ -88,8 +88,7 @@ export function NoteEditorSurface({
   onUpdateCoverImage,
   onUpdateEmoji,
 }: Readonly<NoteEditorSurfaceProps>) {
-  // Prefetch media for this space so it's instantly available when opening the media picker
-  useMediaList(spaceId);
+  
 
   return (
     <div

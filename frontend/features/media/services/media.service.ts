@@ -151,7 +151,7 @@ export const mediaService = {
   /**
    * Fetches all media for a given space ID from remote, decrypts if necessary, and caches.
    */
-  async getRemoteMediaList(spaceId: string): Promise<MediaResponseDto[]> {
+  async getRemoteMediaList(spaceId: string): Promise<DecryptedMedia[]> {
     const res = await apiClient.get<{ data: MediaResponseDto[] }>(
       `/media?spaceId=${spaceId}`,
       {
@@ -161,12 +161,11 @@ export const mediaService = {
 
     const remoteMedia = res.data || [];
 
-    // Cache to Dexie
-    await this.cacheDecryptMediaList(spaceId, remoteMedia);
-    return remoteMedia;
+    // Cache to Dexie and return the decrypted media
+    return this.cacheDecryptMediaList(spaceId, remoteMedia);
   },
 
-  async cacheDecryptMediaList(spaceId: string, mediaList: MediaResponseDto[]) {
+  async cacheDecryptMediaList(spaceId: string, mediaList: MediaResponseDto[]): Promise<DecryptedMedia[]> {
     const spaceKeyBase64 = await spaceService.getCachedSpaceKey(spaceId);
 
     if (!spaceKeyBase64) throw new Error("Space key not found");
@@ -174,7 +173,7 @@ export const mediaService = {
       cryptoService.decodeBase64(spaceKeyBase64),
     );
 
-    return Promise.all(
+    const decryptedList = await Promise.all(
       mediaList.map(async (media) => {
         let title = "";
         let description = "";
@@ -191,9 +190,16 @@ export const mediaService = {
             console.error("Failed to decrypt media meta", err);
           }
         }
-        return { ...media, title, description };
+        return { ...media, title, description } as DecryptedMedia;
       }),
     );
+
+    // Save to local IndexedDB cache
+    if (decryptedList.length > 0) {
+      await db.media.bulkPut(decryptedList);
+    }
+
+    return decryptedList;
   },
 
   /**
@@ -239,7 +245,7 @@ export const mediaService = {
    */
   async getLocalMediaListForSpaces(
     spaceIds: string[],
-  ): Promise<MediaResponseDto[]> {
+  ): Promise<DecryptedMedia[]> {
     if (!spaceIds || spaceIds.length === 0) return [];
     return db.media
       .where("spaceId")
@@ -251,7 +257,7 @@ export const mediaService = {
   /**
    * Gets media list from local Dexie database
    */
-  async getLocalMediaList(spaceId: string): Promise<MediaResponseDto[]> {
+  async getLocalMediaList(spaceId: string): Promise<DecryptedMedia[]> {
     return db.media
       .where("spaceId")
       .equals(spaceId)
