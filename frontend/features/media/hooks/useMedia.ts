@@ -19,8 +19,8 @@ export function useMediaList(spaceId?: string) {
 
       return Promise.all(
         mediaList.map(async (media) => {
-          let title = "";
-          let description = "";
+          const title = "";
+          const description = "";
           return { ...media, title, description };
         }),
       );

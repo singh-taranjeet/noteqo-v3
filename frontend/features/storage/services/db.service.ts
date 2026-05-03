@@ -7,10 +7,7 @@ import type {
 } from "@/features/workspace/types/workspace.types";
 import type { Space } from "@/features/spaces/types/spaces.types";
 
-import type {
-  DecryptedMedia,
-  MediaResponseDto,
-} from "@/features/media/types/media.types";
+import type { DecryptedMedia } from "@/features/media/types/media.types";
 
 /** Shape of a key-value entry in the keys table (migrated from raw IndexedDB). */
 interface KeyEntry {

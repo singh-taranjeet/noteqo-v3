@@ -26,9 +26,8 @@ export const useComposedRef = <T extends HTMLElement>(
 
   return useCallback(
     (instance: T | null) => {
-      if (libRef && "current" in libRef) {
-        // eslint-disable-next-line react-hooks/immutability
-        (libRef as React.MutableRefObject<T | null>).current = instance;
+      if (libRef) {
+        updateRef(libRef, instance);
       }
 
       if (prevUserRef.current) {

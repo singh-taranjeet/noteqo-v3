@@ -61,6 +61,7 @@ export function useDecryptMedia({
     let createdUrl: string | null = null;
     if (blob) {
       createdUrl = URL.createObjectURL(blob);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setObjectUrl(createdUrl);
     }
 
