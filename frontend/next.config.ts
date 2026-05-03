@@ -34,7 +34,7 @@ const nextConfig: NextConfig = {
           {
             key: "Content-Security-Policy",
             value:
-              "default-src 'self'; script-src 'self'; connect-src 'self' http://localhost:* https://api.noteqo.com https://*.public.blob.vercel-storage.com",
+              "default-src 'self'; script-src 'self'; connect-src 'self' http://localhost:* https://api.noteqo.com https://*.public.blob.vercel-storage.com https://huggingface.co https://*.huggingface.co",
           },
         ],
       },
