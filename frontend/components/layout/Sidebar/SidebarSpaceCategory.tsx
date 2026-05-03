@@ -17,8 +17,6 @@ import {
   SidebarMenuButton,
   SidebarMenuAction,
   SidebarMenuSub,
-  SidebarMenuSubItem,
-  SidebarMenuSubButton,
   SidebarMenuSkeleton,
 } from "@/components/ui/sidebar";
 import {
@@ -31,19 +29,18 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { useAppShell } from "../AppShell";
-import { SPACE_TYPE } from "@/features/spaces";
+
 import type { Space } from "@/features/spaces";
-import type { Note } from "@/features/workspace";
-import { SidebarNoteItem } from "./SidebarNoteItem";
+import { useParams } from "next/navigation";
+import type { NoteTreeNode } from "@/features/workspace/types/workspace.types";
+import { SidebarNoteTreeItem } from "./SidebarNoteTreeItem";
 
 interface SidebarSpaceCategoryProps {
   label: string;
-  type: string;
   spaces: Space[];
   isLoading: boolean;
   emptyMessage: string;
-  spaceNotesMap: Record<string, Note[]> | undefined;
+  spaceNoteTreesMap: Record<string, NoteTreeNode[]> | undefined;
   onAddSpaceClick: () => void;
   addSpaceTooltip: string;
   onCreateNote: (spaceId: string) => void;
@@ -52,19 +49,15 @@ interface SidebarSpaceCategoryProps {
 
 export function SidebarSpaceCategory({
   label,
-  type,
   spaces,
   isLoading,
   emptyMessage,
-  spaceNotesMap,
+  spaceNoteTreesMap,
   onAddSpaceClick,
   addSpaceTooltip,
   onCreateNote,
   onSettingsClick,
 }: Readonly<SidebarSpaceCategoryProps>) {
-  const { openSecondarySidebar } = useAppShell();
-  const secondarySidebarType =
-    type === SPACE_TYPE.SHARED ? "shared" : "private";
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
 
   return (
@@ -119,24 +112,17 @@ export function SidebarSpaceCategory({
             {!isLoading && (
               <SidebarMenu>
                 {spaces.map((space) => {
-                  const notes = spaceNotesMap?.[space.id] ?? [];
-                  const displayNotes = notes.slice(0, 10);
+                  const noteTrees = spaceNoteTreesMap?.[space.id] ?? [];
                   return (
                     <SpaceGroupItem
                       key={space.id}
                       space={space}
-                      notes={displayNotes}
-                      totalNoteCount={notes.length}
+                      noteTrees={noteTrees}
                       onCreateNote={() => onCreateNote(space.id)}
                       onSettingsClick={
                         onSettingsClick
                           ? () => onSettingsClick(space)
                           : undefined
-                      }
-                      onShowMore={() =>
-                        openSecondarySidebar(
-                          secondarySidebarType as "shared" | "private",
-                        )
                       }
                     />
                   );
@@ -152,22 +138,20 @@ export function SidebarSpaceCategory({
 
 interface SpaceGroupItemProps {
   space: Space;
-  notes: Note[];
-  totalNoteCount: number;
+  noteTrees: NoteTreeNode[];
   onCreateNote: () => void;
   onSettingsClick?: () => void;
-  onShowMore: () => void;
 }
 
 function SpaceGroupItem({
   space,
-  notes,
-  totalNoteCount,
+  noteTrees,
   onCreateNote,
   onSettingsClick,
-  onShowMore,
 }: SpaceGroupItemProps) {
   const [isOpen, setIsOpen] = useState(true);
+  const params = useParams();
+  const activeNoteId = params?.note_id as string | undefined;
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen} asChild>
@@ -209,33 +193,20 @@ function SpaceGroupItem({
         </SidebarMenuAction>
 
         <CollapsibleContent>
-          <SidebarMenuSub>
-            {notes.length === 0 ? (
+          <SidebarMenuSub className="mr-0 pr-0">
+            {noteTrees.length === 0 ? (
               <div className="px-2 py-1 text-xs text-muted-foreground italic">
                 No notes
               </div>
             ) : (
               <>
-                {notes.map((note) => (
-                  <SidebarMenuSubItem key={note.id}>
-                    <SidebarNoteItem
-                      noteId={note.id}
-                      emoji={note.emoji}
-                      title={note.title}
-                    />
-                  </SidebarMenuSubItem>
+                {noteTrees.map((note) => (
+                  <SidebarNoteTreeItem
+                    key={note.id}
+                    note={note}
+                    activeNoteId={activeNoteId}
+                  />
                 ))}
-                {totalNoteCount > 10 && (
-                  <SidebarMenuSubItem>
-                    <SidebarMenuSubButton
-                      size="sm"
-                      className="text-muted-foreground"
-                      onClick={onShowMore}
-                    >
-                      More
-                    </SidebarMenuSubButton>
-                  </SidebarMenuSubItem>
-                )}
               </>
             )}
           </SidebarMenuSub>
