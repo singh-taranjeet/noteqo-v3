@@ -27,7 +27,7 @@ export function useMediaList(spaceId?: string) {
       );
     },
     enabled: !!spaceId,
-    staleTime: SYNC_CONFIG.INTERVAL_MS,
+    staleTime: 1000 * 60 * 10,
   });
 }
 

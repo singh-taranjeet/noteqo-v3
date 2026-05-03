@@ -2,6 +2,7 @@ import { Extension } from "@tiptap/core";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { mediaService } from "@/features/media";
 import { logService } from "@/services/log.service";
+import { getQueryClient } from "@/components/Providers/Providers";
 
 export interface FileUploaderOptions {
   /**
@@ -86,6 +87,11 @@ export const FileUploaderExtension = Extension.create<FileUploaderOptions>({
 
       try {
         const response = await mediaService.uploadMedia(file, spaceId, noteId);
+
+        // Invalidate the media list so the new file shows up in the assets tab
+        const queryClient = getQueryClient();
+        queryClient.invalidateQueries({ queryKey: ["media", spaceId] });
+        queryClient.invalidateQueries({ queryKey: ["media", "all"] });
 
         // 2. Find the node and update its attributes with the real URL
         editor.view.state.doc.descendants((node, pos) => {
