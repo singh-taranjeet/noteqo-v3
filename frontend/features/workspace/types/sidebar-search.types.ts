@@ -11,6 +11,8 @@ export interface SidebarSearchResultItem {
   previewText: string;
   searchableTitle: string;
   searchableBody: string;
+  parentNoteTitle?: string;
+  lastEditedByUsername?: string;
 }
 
 export interface SidebarSearchFilters {

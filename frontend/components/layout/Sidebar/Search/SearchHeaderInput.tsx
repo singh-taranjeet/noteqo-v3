@@ -1,7 +1,6 @@
 "use client";
+import { Search, X } from "lucide-react";
 
-import { HugeiconsIcon } from "@hugeicons/react";
-import { Close, Search01Icon } from "@hugeicons/core-free-icons";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { SEARCH_LABELS } from "../constants/search.constants";
@@ -19,8 +18,7 @@ export function SearchHeaderInput({
 }: Readonly<SearchHeaderInputProps>) {
   return (
     <div className="relative flex items-center">
-      <HugeiconsIcon
-        icon={Search01Icon}
+      <Search
         size={18}
         strokeWidth={1.5}
         className="pointer-events-none absolute left-3 text-muted-foreground"
@@ -41,7 +39,7 @@ export function SearchHeaderInput({
           className="text-muted-foreground"
           aria-label={SEARCH_LABELS.SEARCH_RESULTS_REGION_LABEL}
         >
-          <HugeiconsIcon icon={Close} size={16} strokeWidth={1.5} />
+          <X size={16} strokeWidth={1.5} />
         </Button>
       </div>
     </div>

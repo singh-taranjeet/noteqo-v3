@@ -1,8 +1,7 @@
 "use client";
 
 import React from "react";
-import type { IconSvgElement } from "@hugeicons/react";
-import { HugeiconsIcon } from "@hugeicons/react";
+import type { LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -14,7 +13,7 @@ interface TooltipIconButtonProps extends Omit<
   React.ComponentProps<typeof Button>,
   "children"
 > {
-  icon: IconSvgElement;
+  icon: LucideIcon;
   tooltip: string;
   tooltipSide?: "top" | "bottom" | "left" | "right";
   iconSize?: number;
@@ -25,7 +24,7 @@ interface TooltipIconButtonProps extends Omit<
  * in headers, toolbars, and sidebars.
  */
 export function TooltipIconButton({
-  icon,
+  icon: Icon,
   tooltip,
   tooltipSide = "bottom",
   iconSize = 16,
@@ -40,7 +39,7 @@ export function TooltipIconButton({
           aria-label={tooltip}
           {...buttonProps}
         >
-          <HugeiconsIcon icon={icon} size={iconSize} strokeWidth={1.5} />
+          <Icon size={iconSize} strokeWidth={1.5} />
         </Button>
       </TooltipTrigger>
       <TooltipContent side={tooltipSide}>{tooltip}</TooltipContent>

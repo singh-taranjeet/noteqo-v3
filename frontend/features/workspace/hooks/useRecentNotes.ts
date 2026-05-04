@@ -32,7 +32,7 @@ export function useRecentNotes() {
   });
 
   const recentNotes = useMemo(() => {
-    return [...notes].sort(sortByRecent);
+    return [...notes].filter((n) => !n.deletedAt).sort(sortByRecent);
   }, [notes]);
 
   return {

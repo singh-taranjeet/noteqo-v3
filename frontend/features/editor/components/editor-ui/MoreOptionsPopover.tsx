@@ -1,4 +1,13 @@
 "use client";
+import {
+  AlignCenter,
+  AlignJustify,
+  AlignLeft,
+  AlignRight,
+  MoreVertical,
+  Subscript,
+  Superscript,
+} from "lucide-react";
 
 import React from "react";
 import type { Editor } from "@tiptap/react";
@@ -16,17 +25,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-import { HugeiconsIcon } from "@hugeicons/react";
-import {
-  MoreVerticalIcon,
-  TextSuperscriptIcon,
-  TextSubscriptIcon,
-  TextAlignLeftIcon,
-  TextAlignCenterIcon,
-  TextAlignRightIcon,
-  TextAlignJustifyLeftIcon,
-} from "@hugeicons/core-free-icons";
-
 interface MoreOptionsPopoverProps {
   editor: Editor;
   isOpen: boolean;
@@ -38,7 +36,7 @@ const MORE_OPTIONS_GROUPS = [
     {
       name: "superscript",
       tooltip: "Superscript",
-      icon: TextSuperscriptIcon,
+      icon: Superscript,
       command: (editor: Editor) =>
         editor.chain().focus().toggleSuperscript().run(),
       isActive: (editor: Editor) => editor.isActive("superscript"),
@@ -46,7 +44,7 @@ const MORE_OPTIONS_GROUPS = [
     {
       name: "subscript",
       tooltip: "Subscript",
-      icon: TextSubscriptIcon,
+      icon: Subscript,
       command: (editor: Editor) =>
         editor.chain().focus().toggleSubscript().run(),
       isActive: (editor: Editor) => editor.isActive("subscript"),
@@ -56,7 +54,7 @@ const MORE_OPTIONS_GROUPS = [
     {
       name: "align-left",
       tooltip: "Align Left",
-      icon: TextAlignLeftIcon,
+      icon: AlignLeft,
       command: (editor: Editor) =>
         editor.chain().focus().setTextAlign("left").run(),
       isActive: (editor: Editor) => editor.isActive({ textAlign: "left" }),
@@ -64,7 +62,7 @@ const MORE_OPTIONS_GROUPS = [
     {
       name: "align-center",
       tooltip: "Align Center",
-      icon: TextAlignCenterIcon,
+      icon: AlignCenter,
       command: (editor: Editor) =>
         editor.chain().focus().setTextAlign("center").run(),
       isActive: (editor: Editor) => editor.isActive({ textAlign: "center" }),
@@ -72,7 +70,7 @@ const MORE_OPTIONS_GROUPS = [
     {
       name: "align-right",
       tooltip: "Align Right",
-      icon: TextAlignRightIcon,
+      icon: AlignRight,
       command: (editor: Editor) =>
         editor.chain().focus().setTextAlign("right").run(),
       isActive: (editor: Editor) => editor.isActive({ textAlign: "right" }),
@@ -80,7 +78,7 @@ const MORE_OPTIONS_GROUPS = [
     {
       name: "align-justify",
       tooltip: "Justify",
-      icon: TextAlignJustifyLeftIcon,
+      icon: AlignJustify,
       command: (editor: Editor) =>
         editor.chain().focus().setTextAlign("justify").run(),
       isActive: (editor: Editor) => editor.isActive({ textAlign: "justify" }),
@@ -106,7 +104,7 @@ export const MoreOptionsPopover: React.FC<MoreOptionsPopoverProps> = ({
                 aria-label="More options"
                 className="rounded-sm p-1.5 h-auto min-w-0 data-[state=on]:bg-muted"
               >
-                <HugeiconsIcon icon={MoreVerticalIcon} size={16} />
+                <MoreVertical size={16} />
               </Toggle>
             </PopoverTrigger>
           </TooltipTrigger>
@@ -130,6 +128,7 @@ export const MoreOptionsPopover: React.FC<MoreOptionsPopoverProps> = ({
               )}
               {group.map((option) => {
                 const active = option.isActive(editor);
+                const Icon = option.icon;
                 return (
                   <Tooltip key={option.name}>
                     <TooltipTrigger asChild>
@@ -143,7 +142,7 @@ export const MoreOptionsPopover: React.FC<MoreOptionsPopoverProps> = ({
                         aria-label={option.tooltip}
                         className="rounded-sm p-1.5 h-auto min-w-0"
                       >
-                        <HugeiconsIcon icon={option.icon} size={16} />
+                        <Icon size={16} />
                       </Toggle>
                     </TooltipTrigger>
                     <TooltipContent side="top" className="text-xs">

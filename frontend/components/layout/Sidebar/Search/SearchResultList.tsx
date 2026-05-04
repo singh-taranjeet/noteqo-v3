@@ -27,7 +27,7 @@ export function SearchResultList({
 
   return (
     <ScrollArea
-      className="flex-1"
+      className="flex-1 h-full"
       aria-label={SEARCH_LABELS.SEARCH_RESULTS_REGION_LABEL}
     >
       {!hasResults ? (

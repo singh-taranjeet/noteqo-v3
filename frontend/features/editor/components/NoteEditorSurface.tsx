@@ -1,4 +1,5 @@
 "use client";
+import { Image as ImageIcon, Smile } from "lucide-react";
 
 import { EditorContent, EditorContext } from "@tiptap/react";
 import type { Editor } from "@tiptap/react";
@@ -9,18 +10,19 @@ import { BlockDragHandle } from "@/features/editor/components/editor-ui/BlockDra
 import { EditorBubbleMenu } from "@/features/editor/components/editor-ui/EditorBubbleMenu";
 
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 import { MediaPicker } from "@/features/media/components/MediaPicker";
 import { EncryptedImage } from "@/features/media/components/EncryptedImage";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { Image01Icon, SmileIcon } from "@hugeicons/core-free-icons";
-import { Button } from "@/components/ui/button";
-import { useState } from "react";
 
-interface MediaPopoverProps {
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import React, { useState, useEffect, useCallback } from "react";
+import type { DecryptedMedia } from "@/features/media/types/media.types";
+
+interface MediaHoverCardProps {
   type: "cover" | "emoji";
   spaceId: string;
   noteId: string;
@@ -29,19 +31,47 @@ interface MediaPopoverProps {
   align?: "center" | "start" | "end";
 }
 
-function MediaPopover({
+function MediaHoverCard({
   type,
   spaceId,
   noteId,
   onSelect,
   children,
   align = "start",
-}: MediaPopoverProps) {
+}: MediaHoverCardProps) {
   const [open, setOpen] = useState(false);
+
+  const triggerWithClick = React.isValidElement(children)
+    ? React.cloneElement(
+        children as React.ReactElement<{
+          onClick?: (e: React.MouseEvent) => void;
+        }>,
+        {
+          onClick: (e: React.MouseEvent) => {
+            setOpen(true);
+            const originalOnClick = (
+              children as React.ReactElement<{
+                onClick?: (e: React.MouseEvent) => void;
+              }>
+            ).props.onClick;
+            if (originalOnClick) originalOnClick(e);
+          },
+        },
+      )
+    : children;
+
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>{children}</PopoverTrigger>
-      <PopoverContent align={align} className="w-auto p-0">
+    <HoverCard
+      openDelay={100}
+      closeDelay={100}
+      open={open}
+      onOpenChange={setOpen}
+    >
+      <HoverCardTrigger asChild>{triggerWithClick}</HoverCardTrigger>
+      <HoverCardContent
+        align={align}
+        className="w-auto p-0 shadow-xl overflow-hidden bg-glass border-white/10"
+      >
         <MediaPicker
           type={type}
           spaceId={spaceId}
@@ -51,8 +81,8 @@ function MediaPopover({
             setOpen(false);
           }}
         />
-      </PopoverContent>
-    </Popover>
+      </HoverCardContent>
+    </HoverCard>
   );
 }
 
@@ -62,6 +92,7 @@ interface NoteEditorSurfaceProps {
   emoji: string;
   coverImage: string;
   isReadOnly: boolean;
+  isTrashed?: boolean;
   onTitleChange?: (event: ChangeEvent<HTMLInputElement>) => void;
   onTitleBlur?: (event: FocusEvent<HTMLInputElement>) => void;
   className?: string;
@@ -78,6 +109,7 @@ export function NoteEditorSurface({
   emoji,
   coverImage,
   isReadOnly,
+  isTrashed,
   onTitleChange,
   onTitleBlur,
   className,
@@ -87,6 +119,71 @@ export function NoteEditorSurface({
   onUpdateCoverImage,
   onUpdateEmoji,
 }: Readonly<NoteEditorSurfaceProps>) {
+  const [mediaPickerState, setMediaPickerState] = useState<{
+    open: boolean;
+    accept?: string;
+  }>({ open: false });
+
+  useEffect(() => {
+    const handlePromptMediaPicker = (e: Event) => {
+      const customEvent = e as CustomEvent<{ accept?: string }>;
+      setMediaPickerState({ open: true, accept: customEvent.detail?.accept });
+    };
+
+    window.addEventListener(
+      "noteqo:prompt-media-picker",
+      handlePromptMediaPicker,
+    );
+    return () => {
+      window.removeEventListener(
+        "noteqo:prompt-media-picker",
+        handlePromptMediaPicker,
+      );
+    };
+  }, []);
+
+  const handleAttachmentSelect = useCallback(
+    (url: string, asset?: DecryptedMedia) => {
+      if (!asset) return; // Handled by onFileSelect if uploaded directly
+
+      const isVideo = asset.mimeType?.startsWith("video/");
+      const nodeType = isVideo ? "encryptedVideo" : "encryptedImage";
+
+      editor
+        .chain()
+        .focus()
+        .insertContent({
+          type: nodeType,
+          attrs: {
+            url: asset.url,
+            fileName: asset.title || "Asset",
+            mimeType: asset.mimeType,
+            sizeBytes: asset.sizeBytes,
+            spaceId: spaceId,
+          },
+        })
+        .run();
+
+      setMediaPickerState({ open: false });
+    },
+    [editor, spaceId],
+  );
+
+  const handleAttachmentFileSelect = useCallback(
+    (file: File) => {
+      const pos = editor.state.selection.from;
+      const fileUploaderStorage = (editor.storage as Record<string, any>).fileUploader as {
+        handleUpload?: (file: File, pos: number) => void;
+      };
+
+      if (fileUploaderStorage?.handleUpload) {
+        fileUploaderStorage.handleUpload(file, pos);
+      }
+      setMediaPickerState({ open: false });
+    },
+    [editor],
+  );
+
   return (
     <div
       className={cn(
@@ -94,6 +191,12 @@ export function NoteEditorSurface({
         className,
       )}
     >
+      {isTrashed && (
+        <div className="w-full bg-destructive/10 text-destructive text-sm font-medium p-3 text-center border-b border-destructive/20 shrink-0">
+          This note is in the Trash and is currently read-only.
+        </div>
+      )}
+
       {coverImage ? (
         <div className="group/cover relative h-[25vh] shrink-0 sm:h-[30vh]">
           <EncryptedImage
@@ -104,7 +207,7 @@ export function NoteEditorSurface({
           />
           {!isReadOnly && spaceId && noteId && onUpdateCoverImage && (
             <div className="absolute right-4 bottom-4 opacity-0 transition-opacity group-hover/cover:opacity-100">
-              <MediaPopover
+              <MediaHoverCard
                 type="cover"
                 spaceId={spaceId}
                 noteId={noteId}
@@ -116,10 +219,10 @@ export function NoteEditorSurface({
                   size="sm"
                   className="bg-background/80 backdrop-blur-sm"
                 >
-                  <HugeiconsIcon icon={Image01Icon} className="mr-2 h-4 w-4" />
+                  <ImageIcon className="mr-2 h-4 w-4" />
                   Change Cover
                 </Button>
-              </MediaPopover>
+              </MediaHoverCard>
             </div>
           )}
         </div>
@@ -138,7 +241,7 @@ export function NoteEditorSurface({
             !coverImage &&
             onUpdateCoverImage && (
               <div className="absolute -top-6 left-0 opacity-0 transition-opacity group-hover/header:opacity-100">
-                <MediaPopover
+                <MediaHoverCard
                   type="cover"
                   spaceId={spaceId}
                   noteId={noteId}
@@ -149,13 +252,10 @@ export function NoteEditorSurface({
                     size="sm"
                     className="text-muted-foreground hover:text-foreground"
                   >
-                    <HugeiconsIcon
-                      icon={Image01Icon}
-                      className="mr-2 h-4 w-4"
-                    />
+                    <ImageIcon className="mr-2 h-4 w-4" />
                     Add Cover
                   </Button>
-                </MediaPopover>
+                </MediaHoverCard>
               </div>
             )}
 
@@ -166,15 +266,15 @@ export function NoteEditorSurface({
                   src={emoji}
                   alt="Icon"
                   spaceId={spaceId}
-                  className="h-[72px] w-[72px] object-cover rounded-md"
+                  className="size-18 object-cover rounded-md"
                 />
               ) : (
-                <div className="text-[72px] leading-none">{emoji}</div>
+                <div className="text-7xl leading-none">{emoji}</div>
               )}
 
               {!isReadOnly && spaceId && noteId && onUpdateEmoji && (
                 <div className="absolute -right-8 bottom-0 opacity-0 transition-opacity group-hover/emoji:opacity-100">
-                  <MediaPopover
+                  <MediaHoverCard
                     type="emoji"
                     spaceId={spaceId}
                     noteId={noteId}
@@ -185,9 +285,9 @@ export function NoteEditorSurface({
                       size="icon"
                       className="h-6 w-6 rounded-full bg-background/80 shadow-sm backdrop-blur-sm"
                     >
-                      <HugeiconsIcon icon={SmileIcon} className="h-3 w-3" />
+                      <Smile className="h-3 w-3" />
                     </Button>
-                  </MediaPopover>
+                  </MediaHoverCard>
                 </div>
               )}
             </div>
@@ -197,7 +297,7 @@ export function NoteEditorSurface({
             noteId &&
             onUpdateEmoji && (
               <div className="absolute -top-6 left-28 opacity-0 transition-opacity group-hover/header:opacity-100">
-                <MediaPopover
+                <MediaHoverCard
                   type="emoji"
                   spaceId={spaceId}
                   noteId={noteId}
@@ -208,10 +308,10 @@ export function NoteEditorSurface({
                     size="sm"
                     className="text-muted-foreground hover:text-foreground"
                   >
-                    <HugeiconsIcon icon={SmileIcon} className="mr-2 h-4 w-4" />
+                    <Smile className="mr-2 h-4 w-4" />
                     Add Icon
                   </Button>
-                </MediaPopover>
+                </MediaHoverCard>
               </div>
             )
           )}
@@ -224,6 +324,7 @@ export function NoteEditorSurface({
             onBlur={onTitleBlur}
             placeholder={"Note title"}
             readOnly={isReadOnly}
+            maxLength={50}
           />
         </div>
 
@@ -237,6 +338,26 @@ export function NoteEditorSurface({
           />
         </EditorContext.Provider>
       </div>
+      <Dialog
+        open={mediaPickerState.open}
+        onOpenChange={(open) =>
+          setMediaPickerState((prev) => ({ ...prev, open }))
+        }
+      >
+        <DialogContent className="p-0 border-white/10 bg-glass max-w-min shadow-xl overflow-hidden">
+          <DialogTitle className="sr-only">Select Media</DialogTitle>
+          {spaceId && noteId && (
+            <MediaPicker
+              type="attachment"
+              spaceId={spaceId}
+              noteId={noteId}
+              accept={mediaPickerState.accept}
+              onSelect={handleAttachmentSelect}
+              onFileSelect={handleAttachmentFileSelect}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

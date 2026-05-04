@@ -1,9 +1,9 @@
 "use client";
+import { ChevronRight } from "lucide-react";
 
-import { useState } from "react";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { ArrowRight01Icon } from "@hugeicons/core-free-icons";
+import { useState, useMemo } from "react";
 import { SidebarNoteItem } from "./SidebarNoteItem";
+import { SidebarHoverCard } from "./SidebarHoverCard";
 import {
   SidebarGroup,
   SidebarGroupLabel,
@@ -18,15 +18,23 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { useAppShell } from "../AppShell";
 import { useRecentNotes } from "@/features/workspace";
 
 export function RecentSection() {
   const { notes, isLoading } = useRecentNotes();
-  const { openSecondarySidebar } = useAppShell();
   const [isOpen, setIsOpen] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const recentNotes = notes.slice(0, 10);
+
+  const filteredExtraNotes = useMemo(() => {
+    let extra = notes.slice(10);
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      extra = extra.filter((note) => note.title.toLowerCase().includes(query));
+    }
+    return extra;
+  }, [notes, searchQuery]);
 
   return (
     <Collapsible
@@ -37,13 +45,12 @@ export function RecentSection() {
       <SidebarGroup>
         <SidebarGroupLabel asChild>
           <CollapsibleTrigger className="cursor-pointer">
-            <HugeiconsIcon
-              icon={ArrowRight01Icon}
+            <ChevronRight
               size={12}
               strokeWidth={2}
               className="transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90"
             />
-            Recent
+            <span className="text-sm font-medium">Recent</span>
           </CollapsibleTrigger>
         </SidebarGroupLabel>
         <CollapsibleContent>
@@ -77,15 +84,45 @@ export function RecentSection() {
                     />
                   </SidebarMenuItem>
                 ))}
-                {notes.length > 10 && (
+                {Array.isArray(notes) && (
                   <SidebarMenuItem>
-                    <SidebarMenuButton
-                      size="sm"
-                      className="text-muted-foreground"
-                      onClick={() => openSecondarySidebar("recent")}
+                    <SidebarHoverCard
+                      title="More Recent Notes"
+                      searchQuery={searchQuery}
+                      onSearchChange={setSearchQuery}
+                      searchPlaceholder="Search recent notes..."
+                      trigger={
+                        <SidebarMenuButton
+                          size="sm"
+                          className="text-muted-foreground w-full flex justify-between group/more-btn"
+                          onClick={(e) => e.preventDefault()}
+                        >
+                          <span>More</span>
+                          <ChevronRight
+                            size={14}
+                            className="opacity-0 group-hover/more-btn:opacity-100 transition-opacity"
+                          />
+                        </SidebarMenuButton>
+                      }
                     >
-                      More
-                    </SidebarMenuButton>
+                      {filteredExtraNotes.length === 0 ? (
+                        <div className="px-3 py-2 text-xs text-muted-foreground">
+                          No matching notes found.
+                        </div>
+                      ) : (
+                        <SidebarMenu>
+                          {filteredExtraNotes.map((note) => (
+                            <SidebarMenuItem key={note.id}>
+                              <SidebarNoteItem
+                                noteId={note.id}
+                                emoji={note.emoji}
+                                title={note.title}
+                              />
+                            </SidebarMenuItem>
+                          ))}
+                        </SidebarMenu>
+                      )}
+                    </SidebarHoverCard>
                   </SidebarMenuItem>
                 )}
               </SidebarMenu>

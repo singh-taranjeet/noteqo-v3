@@ -1,4 +1,5 @@
 "use client";
+import { Loader2 } from "lucide-react";
 
 import * as React from "react";
 import { useState, useCallback } from "react";
@@ -18,8 +19,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Field, FieldLabel, FieldDescription } from "@/components/ui/field";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { Loading01Icon } from "@hugeicons/core-free-icons";
 
 import type {
   DynamicFormProps,
@@ -127,10 +126,7 @@ export function DynamicForm({
       >
         {isLoading ? (
           <>
-            <HugeiconsIcon
-              icon={Loading01Icon}
-              className="mr-2 h-4 w-4 animate-spin"
-            />
+            <Loader2 className="animate-spin mr-2 h-4 w-4 animate-spin" />
             {loadingLabel}
           </>
         ) : (

@@ -1,6 +1,6 @@
+import { Image } from "lucide-react";
 import { NodeViewWrapper, type NodeViewProps } from "@tiptap/react";
 import React, { useRef } from "react";
-import { Image01Icon } from "@hugeicons/core-free-icons";
 import { cn } from "@/lib/utils";
 import { resolveSpaceId } from "@/features/editor/utils/resolveSpaceId";
 import { useDecryptMedia } from "@/features/editor/hooks/useDecryptMedia";
@@ -95,7 +95,7 @@ export const ImageNodeView: React.FC<NodeViewProps> = (props) => {
             />
 
             {/* Resize handle */}
-            {selected && align !== "full" && (
+            {selected && align !== "full" && editor.isEditable && (
               <div
                 className={cn(
                   "absolute top-0 bottom-0 w-3 cursor-col-resize hover:bg-primary/50 transition-colors z-10 flex items-center justify-center group-hover:bg-primary/20",
@@ -108,18 +108,16 @@ export const ImageNodeView: React.FC<NodeViewProps> = (props) => {
             )}
 
             {/* Toolbar - only visible when selected */}
-            {selected && (
+            {selected && editor.isEditable && (
               <MediaAlignmentToolbar
                 align={(align as string) || "center"}
                 onAlignChange={setAlign}
+                onDelete={props.deleteNode}
               />
             )}
           </>
         ) : (
-          <MediaErrorPlaceholder
-            icon={Image01Icon}
-            message="Failed to load image"
-          />
+          <MediaErrorPlaceholder icon={Image} message="Failed to load image" />
         )}
       </div>
     </NodeViewWrapper>

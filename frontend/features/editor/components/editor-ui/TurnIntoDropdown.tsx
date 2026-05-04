@@ -1,4 +1,17 @@
 "use client";
+import {
+  Check,
+  CheckSquare,
+  ChevronDown,
+  Code2,
+  Heading1,
+  Heading2,
+  Heading3,
+  List,
+  ListOrdered,
+  Quote,
+  Type,
+} from "lucide-react";
 
 import React from "react";
 import type { Editor } from "@tiptap/react";
@@ -9,20 +22,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { HugeiconsIcon } from "@hugeicons/react";
-import {
-  ArrowDown01Icon,
-  Tick02Icon,
-  TextIcon,
-  Heading01Icon,
-  Heading02Icon,
-  Heading03Icon,
-  ListViewIcon,
-  LeftToRightListNumberIcon,
-  Task01Icon,
-  QuoteUpIcon,
-  CodeCircleIcon,
-} from "@hugeicons/core-free-icons";
 
 interface TurnIntoDropdownProps {
   editor: Editor;
@@ -33,61 +32,61 @@ interface TurnIntoDropdownProps {
 const TURN_INTO_OPTIONS = [
   {
     name: "Text",
-    icon: TextIcon,
+    icon: Type,
     command: (editor: Editor) => editor.chain().focus().setParagraph().run(),
     isActive: (editor: Editor) => editor.isActive("paragraph"),
   },
   {
     name: "Heading 1",
-    icon: Heading01Icon,
+    icon: Heading1,
     command: (editor: Editor) =>
       editor.chain().focus().toggleHeading({ level: 1 }).run(),
     isActive: (editor: Editor) => editor.isActive("heading", { level: 1 }),
   },
   {
     name: "Heading 2",
-    icon: Heading02Icon,
+    icon: Heading2,
     command: (editor: Editor) =>
       editor.chain().focus().toggleHeading({ level: 2 }).run(),
     isActive: (editor: Editor) => editor.isActive("heading", { level: 2 }),
   },
   {
     name: "Heading 3",
-    icon: Heading03Icon,
+    icon: Heading3,
     command: (editor: Editor) =>
       editor.chain().focus().toggleHeading({ level: 3 }).run(),
     isActive: (editor: Editor) => editor.isActive("heading", { level: 3 }),
   },
   {
     name: "Bulleted list",
-    icon: ListViewIcon,
+    icon: List,
     command: (editor: Editor) =>
       editor.chain().focus().toggleBulletList().run(),
     isActive: (editor: Editor) => editor.isActive("bulletList"),
   },
   {
     name: "Numbered list",
-    icon: LeftToRightListNumberIcon,
+    icon: ListOrdered,
     command: (editor: Editor) =>
       editor.chain().focus().toggleOrderedList().run(),
     isActive: (editor: Editor) => editor.isActive("orderedList"),
   },
   {
     name: "To-do list",
-    icon: Task01Icon,
+    icon: CheckSquare,
     command: (editor: Editor) => editor.chain().focus().toggleTaskList().run(),
     isActive: (editor: Editor) => editor.isActive("taskList"),
   },
   {
     name: "Blockquote",
-    icon: QuoteUpIcon,
+    icon: Quote,
     command: (editor: Editor) =>
       editor.chain().focus().toggleBlockquote().run(),
     isActive: (editor: Editor) => editor.isActive("blockquote"),
   },
   {
     name: "Code block",
-    icon: CodeCircleIcon,
+    icon: Code2,
     command: (editor: Editor) => editor.chain().focus().toggleCodeBlock().run(),
     isActive: (editor: Editor) => editor.isActive("codeBlock"),
   },
@@ -112,10 +111,7 @@ export const TurnIntoDropdown: React.FC<TurnIntoDropdownProps> = ({
           onMouseDown={(e) => e.preventDefault()}
         >
           {activeOption.name}
-          <HugeiconsIcon
-            icon={ArrowDown01Icon}
-            className="w-3 h-3 opacity-50"
-          />
+          <ChevronDown className="w-3 h-3 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent
@@ -125,12 +121,13 @@ export const TurnIntoDropdown: React.FC<TurnIntoDropdownProps> = ({
         onOpenAutoFocus={(e: Event) => e.preventDefault()}
         onCloseAutoFocus={(e: Event) => e.preventDefault()}
       >
-        <ScrollArea className="h-[280px] w-full p-1">
+        <ScrollArea className="h-70 w-full p-1">
           <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground mb-1">
             Turn Into
           </div>
           {TURN_INTO_OPTIONS.map((option) => {
             const isActive = option.isActive(editor);
+            const Icon = option.icon;
             return (
               <Button
                 key={option.name}
@@ -147,20 +144,10 @@ export const TurnIntoDropdown: React.FC<TurnIntoDropdownProps> = ({
                 }`}
               >
                 <div className="flex items-center gap-2.5">
-                  <HugeiconsIcon
-                    icon={option.icon}
-                    className="text-muted-foreground shrink-0"
-                    size={16}
-                  />
+                  <Icon className="text-muted-foreground shrink-0" size={16} />
                   <span>{option.name}</span>
                 </div>
-                {isActive && (
-                  <HugeiconsIcon
-                    icon={Tick02Icon}
-                    className="shrink-0"
-                    size={16}
-                  />
-                )}
+                {isActive && <Check className="shrink-0" size={16} />}
               </Button>
             );
           })}

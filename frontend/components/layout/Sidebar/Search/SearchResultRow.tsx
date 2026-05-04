@@ -1,6 +1,6 @@
 "use client";
 
-import { formatDistanceToNow } from "date-fns";
+import { format } from "date-fns";
 import {
   Item,
   ItemContent,
@@ -25,13 +25,16 @@ export function SearchResultRow({
   onSelect,
   onHover,
 }: Readonly<SearchResultRowProps>) {
-  const updatedTime = item.updatedAt
-    ? `Updated ${formatDistanceToNow(new Date(item.updatedAt))} ago`
-    : "";
+  const parts = [];
+  if (item.spaceName) parts.push(item.spaceName);
+  if (item.parentNoteTitle) parts.push(item.parentNoteTitle);
+  if (item.lastEditedByUsername) parts.push(item.lastEditedByUsername);
+  if (item.updatedAt)
+    parts.push(`Edited ${format(new Date(item.updatedAt), "MMM d, yyyy")}`);
 
-  const description = item.spaceName
-    ? `${item.spaceName} • ${item.previewText}`
-    : item.previewText;
+  const prefix = parts.length > 0 ? parts.join(" • ") : "";
+
+  const description = prefix;
 
   return (
     <Button
@@ -54,13 +57,10 @@ export function SearchResultRow({
         </ItemMedia>
         <ItemContent>
           <ItemTitle className="max-w-full truncate">{item.title}</ItemTitle>
-          <ItemDescription className="line-clamp-1 text-xs">
-            {description}
-          </ItemDescription>
-          {updatedTime && (
-            <div className="text-[10px] text-muted-foreground mt-0.5">
-              {updatedTime}
-            </div>
+          {description && (
+            <ItemDescription className="line-clamp-1 text-[10px] mt-0.5 opacity-80">
+              {description}
+            </ItemDescription>
           )}
         </ItemContent>
       </Item>

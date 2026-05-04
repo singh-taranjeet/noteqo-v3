@@ -1,16 +1,10 @@
 "use client";
+import { Clock, Copy, MoreHorizontal, Plus, Star, Trash2 } from "lucide-react";
+import { ROUTES } from "@/constants/routes";
 
 import { useMemo, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { format } from "date-fns";
-import { HugeiconsIcon } from "@hugeicons/react";
-import {
-  FavouriteIcon,
-  MoreHorizontalIcon,
-  Clock04Icon,
-  Copy01Icon,
-  Add01Icon,
-} from "@hugeicons/core-free-icons";
 import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,6 +24,7 @@ import { useLocalNotes } from "@/features/workspace/hooks/useLocalNotes";
 import { useDuplicateNote } from "@/features/workspace/hooks/useDuplicateNote";
 import { useToggleFavoriteNote } from "@/features/workspace/hooks/useToggleFavoriteNote";
 import { useCreateNote } from "@/features/workspace/hooks/useCreateNote";
+import { useDeleteNote } from "@/features/workspace/hooks/useDeleteNote";
 import { MOCK_USER, useUserProfile } from "@/features/auth";
 import { VersionHistoryDialog } from "@/features/editor";
 
@@ -43,6 +38,8 @@ export function HeaderActions() {
 
   const toggleFavoriteMutation = useToggleFavoriteNote();
   const createNoteMutation = useCreateNote();
+  const deleteNoteMutation = useDeleteNote();
+  const router = useRouter();
 
   const [isVersionHistoryOpen, setIsVersionHistoryOpen] = useState(false);
 
@@ -96,7 +93,7 @@ export function HeaderActions() {
       {/* Version history */}
       {noteId && currentNote && (
         <TooltipIconButton
-          icon={Clock04Icon}
+          icon={Clock}
           tooltip="Version history"
           className="hidden sm:flex h-7 w-7"
           onClick={() => setIsVersionHistoryOpen(true)}
@@ -107,7 +104,7 @@ export function HeaderActions() {
       {/* Add child note */}
       {noteId && currentNote && (
         <TooltipIconButton
-          icon={Add01Icon}
+          icon={Plus}
           tooltip="Add child note"
           className="hidden sm:flex h-7 w-7"
           onClick={() =>
@@ -124,7 +121,7 @@ export function HeaderActions() {
       {/* Favorite toggle */}
       {noteId && currentNote && (
         <TooltipIconButton
-          icon={FavouriteIcon}
+          icon={Star}
           tooltip={
             currentNote.isFavorite
               ? "Remove from favorites"
@@ -153,11 +150,7 @@ export function HeaderActions() {
                 aria-label="More options"
                 id="more-options-button"
               >
-                <HugeiconsIcon
-                  icon={MoreHorizontalIcon}
-                  size={16}
-                  strokeWidth={1.5}
-                />
+                <MoreHorizontal size={16} strokeWidth={1.5} />
               </Button>
             </DropdownMenuTrigger>
           </TooltipTrigger>
@@ -193,8 +186,7 @@ export function HeaderActions() {
                 }
                 disabled={toggleFavoriteMutation.isPending}
               >
-                <HugeiconsIcon
-                  icon={FavouriteIcon}
+                <Star
                   size={16}
                   strokeWidth={1.5}
                   className={currentNote.isFavorite ? "text-yellow-500" : ""}
@@ -206,7 +198,7 @@ export function HeaderActions() {
             )}
             {noteId && currentNote && (
               <DropdownMenuItem onClick={() => setIsVersionHistoryOpen(true)}>
-                <HugeiconsIcon icon={Clock04Icon} size={16} strokeWidth={1.5} />
+                <Clock size={16} strokeWidth={1.5} />
                 Version history
               </DropdownMenuItem>
             )}
@@ -214,18 +206,38 @@ export function HeaderActions() {
           </div>
 
           {noteId && currentNote && (
-            <DropdownMenuItem
-              id="duplicate-page-button"
-              disabled={isDuplicating}
-              onClick={() => duplicateMutation.mutate({ noteId })}
-            >
-              {isDuplicating ? (
-                <Spinner className="size-4" />
-              ) : (
-                <HugeiconsIcon icon={Copy01Icon} size={16} strokeWidth={1.5} />
-              )}
-              Duplicate page
-            </DropdownMenuItem>
+            <>
+              <DropdownMenuItem
+                id="duplicate-page-button"
+                disabled={isDuplicating}
+                onClick={() => duplicateMutation.mutate({ noteId })}
+              >
+                {isDuplicating ? (
+                  <Spinner className="size-4" />
+                ) : (
+                  <Copy size={16} strokeWidth={1.5} />
+                )}
+                Duplicate page
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="text-destructive focus:text-destructive"
+                disabled={deleteNoteMutation.isPending}
+                onClick={() => {
+                  deleteNoteMutation.mutate(noteId, {
+                    onSuccess: () => {
+                      router.push(ROUTES.NOTES);
+                    },
+                  });
+                }}
+              >
+                {deleteNoteMutation.isPending ? (
+                  <Spinner className="size-4" />
+                ) : (
+                  <Trash2 size={16} strokeWidth={1.5} />
+                )}
+                Delete
+              </DropdownMenuItem>
+            </>
           )}
         </DropdownMenuContent>
       </DropdownMenu>

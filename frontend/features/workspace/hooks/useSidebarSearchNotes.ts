@@ -7,6 +7,8 @@ import { SEARCH_CONFIG } from "@/components/layout/Sidebar/constants/search.cons
 import type { SidebarSearchResultItem } from "../types/sidebar-search.types";
 import type { Note } from "../types/workspace.types";
 
+import { useUserProfile } from "@/features/auth";
+
 export const SIDEBAR_SEARCH_NOTES_QUERY_KEY = ["sidebar-search-notes"] as const;
 export const SIDEBAR_SEARCH_SPACES_QUERY_KEY = [
   "sidebar-search-spaces",
@@ -79,6 +81,8 @@ function sortByRecent(lhs: Note, rhs: Note): number {
 }
 
 export function useSidebarSearchNotes() {
+  const { data: userProfile } = useUserProfile();
+
   const {
     data: notes = [],
     isLoading: isNotesLoading,
@@ -103,6 +107,7 @@ export function useSidebarSearchNotes() {
     const spaceNameById = new Map(
       spaces.map((space) => [space.id, space.name]),
     );
+    const noteTitleById = new Map(notes.map((note) => [note.id, note.title]));
 
     return [...notes].sort(sortByRecent).map((note) => {
       const bodyText = getBodyTextFromNote(note);
@@ -126,9 +131,13 @@ export function useSidebarSearchNotes() {
         previewText,
         searchableTitle: normalizedTitle,
         searchableBody: normalizedBody,
+        parentNoteTitle: note.parentId
+          ? noteTitleById.get(note.parentId)
+          : undefined,
+        lastEditedByUsername: userProfile?.name ?? undefined,
       };
     });
-  }, [notes, spaces]);
+  }, [notes, spaces, userProfile?.name]);
 
   return {
     items,

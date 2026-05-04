@@ -1,5 +1,4 @@
 import React, { useState, forwardRef, useImperativeHandle } from "react";
-import { HugeiconsIcon } from "@hugeicons/react";
 import { cn } from "@/lib/utils";
 import {
   Command,
@@ -78,13 +77,7 @@ export const CommandList = forwardRef((props: CommandListProps, ref) => {
           index === selectedIndex && "bg-accent text-accent-foreground",
         )}
       >
-        {Icon && (
-          <HugeiconsIcon
-            icon={Icon}
-            className="mr-2 text-muted-foreground"
-            size={16}
-          />
-        )}
+        {Icon && <Icon className="mr-2 text-muted-foreground" size={16} />}
         <span>{item.title}</span>
         {item.shortcut && <CommandShortcut>{item.shortcut}</CommandShortcut>}
       </CommandItem>

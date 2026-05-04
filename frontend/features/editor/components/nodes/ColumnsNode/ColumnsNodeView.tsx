@@ -90,7 +90,7 @@ export const ColumnsNodeView = ({
                 v && updateAttributes({ visibleColumns: parseInt(v) })
               }
             >
-              <SelectTrigger className="h-6 w-[80px] text-[10px] bg-background shadow-sm border">
+              <SelectTrigger className="h-6 w-20 text-xs bg-background shadow-sm border">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

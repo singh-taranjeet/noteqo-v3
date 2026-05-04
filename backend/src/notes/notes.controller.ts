@@ -63,6 +63,18 @@ export class NotesController {
     return versions.map((v) => this.mapVersionToResponse(v));
   }
 
+  @Post(NOTE_ROUTES.RESTORE)
+  @HttpCode(HttpStatus.OK)
+  async restore(@Param('noteId', ParseUUIDPipe) id: string): Promise<void> {
+    await this.notesService.restore(id);
+  }
+
+  @Delete(NOTE_ROUTES.PERMANENT)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async permanentDelete(@Param('noteId', ParseUUIDPipe) id: string): Promise<void> {
+    await this.notesService.permanentDelete(id);
+  }
+
   private mapToResponse(note: Note): NoteResponseDto {
     return {
       id: note.id,
@@ -76,6 +88,7 @@ export class NotesController {
       deletedBy: note.deletedBy,
       createdAt: note.createdAt,
       updatedAt: note.updatedAt,
+      deletedAt: note.deletedAt,
       parentId: note.parentId,
     };
   }
