@@ -95,7 +95,7 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar collapsible="offcanvas">
+    <Sidebar variant="inset" collapsible="offcanvas">
       <SidebarHeader>
         <SidebarUserProfile
           username={userProfile?.name || MOCK_USER.NAME}
@@ -201,7 +201,7 @@ export function AppSidebar() {
                 size={16}
                 strokeWidth={1.5}
               />
-              <span className="text-base font-medium">Quick Create</span>
+              <span className="text-sm font-medium">Quick Create</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
