@@ -1,7 +1,6 @@
 "use client";
+import { ChevronDown, FileText } from "lucide-react";
 
-import { HugeiconsIcon } from "@hugeicons/react";
-import { ArrowDown01Icon, File01Icon } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -66,7 +65,7 @@ export function SearchFilterBar({
         disabled
         title={SEARCH_LABELS.FILTER_CREATED_BY_UNAVAILABLE}
       >
-        <HugeiconsIcon icon={UserIcon} size={14} strokeWidth={1.5} />
+        <UserIcon size={14} strokeWidth={1.5} />
         {SEARCH_LABELS.FILTER_CREATED_BY}
       </Button> */}
 
@@ -77,9 +76,9 @@ export function SearchFilterBar({
             size="sm"
             className="h-7 gap-1.5 text-xs font-medium text-muted-foreground"
           >
-            <HugeiconsIcon icon={File01Icon} size={14} strokeWidth={1.5} />
+            <FileText size={14} strokeWidth={1.5} />
             {inFilterLabel}
-            <HugeiconsIcon icon={ArrowDown01Icon} size={12} strokeWidth={1.5} />
+            <ChevronDown size={12} strokeWidth={1.5} />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-72">
@@ -114,7 +113,7 @@ export function SearchFilterBar({
         size="sm"
         className="h-7 gap-1 text-xs font-medium text-muted-foreground"
       >
-        <HugeiconsIcon icon={FilterIcon} size={14} strokeWidth={1.5} />
+        <FilterIcon size={14} strokeWidth={1.5} />
         {SEARCH_LABELS.FILTER_ADD}
       </Button> */}
     </div>

@@ -1,13 +1,7 @@
 "use client";
+import { AlignCenter, AlignLeft, AlignRight, Maximize2 } from "lucide-react";
 
 import React from "react";
-import { HugeiconsIcon } from "@hugeicons/react";
-import {
-  TextAlignLeftIcon,
-  TextAlignCenterIcon,
-  TextAlignRightIcon,
-  ExpandIcon,
-} from "@hugeicons/core-free-icons";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Separator } from "@/components/ui/separator";
 
@@ -41,21 +35,21 @@ export function MediaAlignmentToolbar({
           aria-label="Align Left"
           className="h-7 w-7 p-0"
         >
-          <HugeiconsIcon icon={TextAlignLeftIcon} size={16} />
+          <AlignLeft size={16} />
         </ToggleGroupItem>
         <ToggleGroupItem
           value="center"
           aria-label="Align Center"
           className="h-7 w-7 p-0"
         >
-          <HugeiconsIcon icon={TextAlignCenterIcon} size={16} />
+          <AlignCenter size={16} />
         </ToggleGroupItem>
         <ToggleGroupItem
           value="right"
           aria-label="Align Right"
           className="h-7 w-7 p-0"
         >
-          <HugeiconsIcon icon={TextAlignRightIcon} size={16} />
+          <AlignRight size={16} />
         </ToggleGroupItem>
         <Separator orientation="vertical" className="h-4 mx-0.5" />
         <ToggleGroupItem
@@ -63,7 +57,7 @@ export function MediaAlignmentToolbar({
           aria-label="Full Width"
           className="h-7 w-7 p-0"
         >
-          <HugeiconsIcon icon={ExpandIcon} size={16} />
+          <Maximize2 size={16} />
         </ToggleGroupItem>
       </ToggleGroup>
     </div>

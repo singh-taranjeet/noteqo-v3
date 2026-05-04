@@ -1,3 +1,4 @@
+import { Book } from "lucide-react";
 import {
   Accordion,
   AccordionContent,
@@ -7,8 +8,6 @@ import {
 import { NoteList } from "./NoteList";
 import type { Space } from "@/features/spaces/types/spaces.types";
 import type { Note } from "@/features/workspace/types/workspace.types";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { NotebookIcon } from "@hugeicons/core-free-icons";
 import {
   Empty,
   EmptyTitle,
@@ -33,7 +32,7 @@ export function SpaceAccordion({
       <Empty>
         <EmptyContent>
           <EmptyMedia>
-            <HugeiconsIcon icon={NotebookIcon} size={24} />
+            <Book size={24} />
           </EmptyMedia>
           <EmptyTitle>No spaces found</EmptyTitle>
           <EmptyDescription>{emptyMessage}</EmptyDescription>

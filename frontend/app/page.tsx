@@ -1,11 +1,6 @@
+import { BookOpen, CircleHelp, Store } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { HugeiconsIcon } from "@hugeicons/react";
-import {
-  Book02Icon,
-  HelpCircleIcon,
-  Store01Icon,
-} from "@hugeicons/core-free-icons";
 
 export const metadata = {
   title: "Noteqo - Secure Encrypted Note Workspace",
@@ -102,7 +97,7 @@ export default function PublicLandingPage() {
           <div className="grid gap-8 md:grid-cols-3">
             <div className="flex flex-col items-center text-center p-6 bg-card rounded-xl border">
               <div className="p-3 bg-primary/10 rounded-full mb-4 text-primary">
-                <HugeiconsIcon icon={HelpCircleIcon} size={32} />
+                <CircleHelp size={32} />
               </div>
               <h3 className="text-xl font-bold mb-2">E2E Encryption</h3>
               <p className="text-muted-foreground">
@@ -113,7 +108,7 @@ export default function PublicLandingPage() {
 
             <div className="flex flex-col items-center text-center p-6 bg-card rounded-xl border">
               <div className="p-3 bg-primary/10 rounded-full mb-4 text-primary">
-                <HugeiconsIcon icon={Book02Icon} size={32} />
+                <BookOpen size={32} />
               </div>
               <h3 className="text-xl font-bold mb-2">
                 Private & Shared Spaces
@@ -126,12 +121,12 @@ export default function PublicLandingPage() {
 
             <div className="flex flex-col items-center text-center p-6 bg-card rounded-xl border">
               <div className="p-3 bg-primary/10 rounded-full mb-4 text-primary">
-                <HugeiconsIcon icon={Store01Icon} size={32} />
+                <Store size={32} />
               </div>
               <h3 className="text-xl font-bold mb-2">Offline First</h3>
               <p className="text-muted-foreground">
-                Access and edit your notes even when you're offline. Everything
-                syncs seamlessly once you're back.
+                Access and edit your notes even when you&apos;re offline.
+                Everything syncs seamlessly once you&apos;re back.
               </p>
             </div>
           </div>

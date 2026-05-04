@@ -1,4 +1,5 @@
 "use client";
+import { FileText, Folder, Home, MoreHorizontal } from "lucide-react";
 
 import {
   Breadcrumb,
@@ -12,13 +13,6 @@ import React from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSpaces } from "@/features/spaces";
 import Link from "next/link";
-import { HugeiconsIcon } from "@hugeicons/react";
-import {
-  Home01Icon,
-  Folder01Icon,
-  File01Icon,
-  MoreHorizontalIcon,
-} from "@hugeicons/core-free-icons";
 import { ROUTES } from "@/constants/routes";
 import {
   HoverCard,
@@ -106,7 +100,7 @@ export function HeaderBreadcrumb({ items }: HeaderBreadcrumbProps) {
               className="flex items-center gap-1.5 text-sm cursor-pointer"
             >
               <Link href={ROUTES.NOTES}>
-                <HugeiconsIcon icon={Home01Icon} size={14} strokeWidth={2} />
+                <Home size={14} strokeWidth={2} />
                 <span className="truncate">Home</span>
               </Link>
             </BreadcrumbLink>
@@ -136,8 +130,7 @@ export function HeaderBreadcrumb({ items }: HeaderBreadcrumbProps) {
             {note.emoji}
           </span>
         ) : (
-          <HugeiconsIcon
-            icon={File01Icon}
+          <FileText
             size={14}
             strokeWidth={2}
             className="text-muted-foreground"
@@ -182,8 +175,7 @@ export function HeaderBreadcrumb({ items }: HeaderBreadcrumbProps) {
               {sibling.emoji ? (
                 <span className="mr-2 shrink-0">{sibling.emoji}</span>
               ) : (
-                <HugeiconsIcon
-                  icon={File01Icon}
+                <FileText
                   size={14}
                   className="mr-2 shrink-0 text-muted-foreground"
                 />
@@ -209,8 +201,7 @@ export function HeaderBreadcrumb({ items }: HeaderBreadcrumbProps) {
               {note.emoji}
             </span>
           ) : (
-            <HugeiconsIcon
-              icon={File01Icon}
+            <FileText
               size={14}
               strokeWidth={2}
               className="text-muted-foreground"
@@ -236,8 +227,7 @@ export function HeaderBreadcrumb({ items }: HeaderBreadcrumbProps) {
               {note.emoji}
             </span>
           ) : (
-            <HugeiconsIcon
-              icon={File01Icon}
+            <FileText
               size={14}
               strokeWidth={2}
               className="text-muted-foreground"
@@ -275,7 +265,7 @@ export function HeaderBreadcrumb({ items }: HeaderBreadcrumbProps) {
           <HoverCard openDelay={200} closeDelay={200}>
             <HoverCardTrigger asChild>
               <button className="flex items-center text-muted-foreground hover:bg-accent hover:text-accent-foreground px-1.5 py-0.5 rounded-md cursor-pointer focus:outline-none focus:ring-0">
-                <HugeiconsIcon icon={MoreHorizontalIcon} size={14} />
+                <MoreHorizontal size={14} />
               </button>
             </HoverCardTrigger>
             <HoverCardContent
@@ -293,8 +283,7 @@ export function HeaderBreadcrumb({ items }: HeaderBreadcrumbProps) {
                   {hiddenNode.emoji ? (
                     <span className="mr-2 shrink-0">{hiddenNode.emoji}</span>
                   ) : (
-                    <HugeiconsIcon
-                      icon={File01Icon}
+                    <FileText
                       size={14}
                       className="mr-2 shrink-0 text-muted-foreground"
                     />
@@ -333,7 +322,7 @@ export function HeaderBreadcrumb({ items }: HeaderBreadcrumbProps) {
                 className="flex items-center gap-1.5 text-sm hover:bg-accent hover:text-accent-foreground px-1.5 py-0.5 rounded-md cursor-pointer whitespace-nowrap focus:outline-none focus:ring-0"
                 onClick={() => router.push(ROUTES.NOTES)}
               >
-                <HugeiconsIcon icon={Folder01Icon} size={14} strokeWidth={2} />
+                <Folder size={14} strokeWidth={2} />
                 <span className="truncate">{activeSpace.name}</span>
               </button>
             </HoverCardTrigger>
@@ -353,11 +342,7 @@ export function HeaderBreadcrumb({ items }: HeaderBreadcrumbProps) {
                       : ""
                   }`}
                 >
-                  <HugeiconsIcon
-                    icon={Folder01Icon}
-                    size={14}
-                    className="mr-2 shrink-0"
-                  />
+                  <Folder size={14} className="mr-2 shrink-0" />
                   <span className="truncate">{space.name}</span>
                 </button>
               ))}

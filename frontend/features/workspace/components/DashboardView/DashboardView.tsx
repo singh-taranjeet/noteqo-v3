@@ -1,8 +1,7 @@
 "use client";
+import { Clock, Home } from "lucide-react";
 
 import { useRecentNotes } from "@/features/workspace/hooks/useRecentNotes";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { Home01Icon, Clock04Icon } from "@hugeicons/core-free-icons";
 
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -31,11 +30,7 @@ export function DashboardView() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-3">
-            <HugeiconsIcon
-              icon={Home01Icon}
-              size={32}
-              className="text-primary"
-            />
+            <Home size={32} className="text-primary" />
             Home
           </h1>
           <p className="text-muted-foreground mt-1">
@@ -113,7 +108,7 @@ export function DashboardView() {
                           </h3>
                         </div>
                         <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-3">
-                          <HugeiconsIcon icon={Clock04Icon} size={12} />
+                          <Clock size={12} />
                           <span className="truncate">
                             {formatDistanceToNow(new Date(note.updatedAt), {
                               addSuffix: true,

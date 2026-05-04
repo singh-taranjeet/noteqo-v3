@@ -1,6 +1,6 @@
 "use client";
 
-// Since QueryClientProvider relies on useContext under the hood, we have to put 'use client' on top
+// Since QueryClientProvider relies on useContext under the hood, we have to put  on top
 import {
   environmentManager,
   QueryClient,

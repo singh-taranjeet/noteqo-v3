@@ -1,4 +1,5 @@
 "use client";
+import { Sparkles } from "lucide-react";
 
 import { useEffect, useCallback, useState } from "react";
 import type { Editor } from "@tiptap/react";
@@ -13,8 +14,6 @@ import {
 import { useAiActions } from "@/features/ai/hooks/useAiActions";
 import { AiMenuContent } from "./AiMenuContent";
 import type { AiActionType } from "@/features/ai/types/ai.types";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { SparklesIcon } from "@hugeicons/core-free-icons";
 
 interface AiMenuProps {
   editor: Editor;
@@ -96,11 +95,7 @@ export function AiMenu({
           className="h-7 px-2 text-purple-500 hover:text-purple-600 hover:bg-purple-500/10 rounded-sm gap-1 transition-colors"
           onMouseDown={(e) => e.preventDefault()}
         >
-          <HugeiconsIcon
-            icon={SparklesIcon}
-            className="text-purple-500"
-            size={14}
-          />
+          <Sparkles className="text-purple-500" size={14} />
           <span className="text-xs font-medium">Ask AI</span>
         </Button>
       </PopoverTrigger>
@@ -115,11 +110,7 @@ export function AiMenu({
           {/* Header */}
           <div className="flex items-center justify-between border-b bg-muted/30 px-2.5 py-2">
             <div className="flex items-center gap-1.5">
-              <HugeiconsIcon
-                icon={SparklesIcon}
-                className="text-purple-500"
-                size={14}
-              />
+              <Sparkles className="text-purple-500" size={14} />
               <span className="text-xs font-semibold text-foreground">
                 AI Assistant
               </span>

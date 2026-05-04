@@ -1,8 +1,7 @@
 "use client";
 
 import React from "react";
-import type { IconSvgElement } from "@hugeicons/react";
-import { HugeiconsIcon } from "@hugeicons/react";
+
 import { Spinner } from "@/components/ui/spinner";
 
 interface MediaLoadingPlaceholderProps {
@@ -23,8 +22,10 @@ export function MediaLoadingPlaceholder({
   );
 }
 
+import type { LucideIcon } from "lucide-react";
+
 interface MediaErrorPlaceholderProps {
-  icon: IconSvgElement;
+  icon: LucideIcon;
   message: string;
 }
 
@@ -32,12 +33,12 @@ interface MediaErrorPlaceholderProps {
  * Error fallback shown when media decryption or loading fails.
  */
 export function MediaErrorPlaceholder({
-  icon,
+  icon: Icon,
   message,
 }: Readonly<MediaErrorPlaceholderProps>) {
   return (
     <div className="flex flex-col items-center justify-center p-12 bg-destructive/10 rounded-md min-h-50 w-full text-destructive border border-destructive/20">
-      <HugeiconsIcon icon={icon} className="mb-2 opacity-50" size={32} />
+      <Icon className="mb-2 opacity-50" size={32} />
       <span className="text-sm">{message}</span>
     </div>
   );

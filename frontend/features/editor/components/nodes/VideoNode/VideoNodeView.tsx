@@ -1,6 +1,6 @@
+import { Video } from "lucide-react";
 import { NodeViewWrapper, type NodeViewProps } from "@tiptap/react";
 import React, { useRef } from "react";
-import { CameraVideoIcon } from "@hugeicons/core-free-icons";
 import { cn } from "@/lib/utils";
 import { resolveSpaceId } from "@/features/editor/utils/resolveSpaceId";
 import { useDecryptMedia } from "@/features/editor/hooks/useDecryptMedia";
@@ -120,10 +120,7 @@ export const VideoNodeView: React.FC<NodeViewProps> = (props) => {
             )}
           </>
         ) : (
-          <MediaErrorPlaceholder
-            icon={CameraVideoIcon}
-            message="Failed to load video"
-          />
+          <MediaErrorPlaceholder icon={Video} message="Failed to load video" />
         )}
       </div>
     </NodeViewWrapper>

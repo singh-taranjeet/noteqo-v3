@@ -1,6 +1,6 @@
+import { Image } from "lucide-react";
 import { NodeViewWrapper, type NodeViewProps } from "@tiptap/react";
 import React, { useRef } from "react";
-import { Image01Icon } from "@hugeicons/core-free-icons";
 import { cn } from "@/lib/utils";
 import { resolveSpaceId } from "@/features/editor/utils/resolveSpaceId";
 import { useDecryptMedia } from "@/features/editor/hooks/useDecryptMedia";
@@ -116,10 +116,7 @@ export const ImageNodeView: React.FC<NodeViewProps> = (props) => {
             )}
           </>
         ) : (
-          <MediaErrorPlaceholder
-            icon={Image01Icon}
-            message="Failed to load image"
-          />
+          <MediaErrorPlaceholder icon={Image} message="Failed to load image" />
         )}
       </div>
     </NodeViewWrapper>

@@ -1,22 +1,20 @@
 "use client";
+import {
+  ChevronDown,
+  ChevronRight,
+  Eye,
+  RefreshCw,
+  Trash2,
+} from "lucide-react";
 
 import { useSpaces } from "@/features/spaces";
 import { useRestoreNote } from "../../hooks/useRestoreNote";
 import { usePermanentDeleteNote } from "../../hooks/usePermanentDeleteNote";
 import { Button } from "@/components/ui/button";
-import { HugeiconsIcon } from "@hugeicons/react";
-import {
-  RefreshIcon,
-  Delete01Icon,
-  File01Icon,
-  ArrowRight01Icon,
-  ArrowDown01Icon,
-  ViewIcon,
-} from "@hugeicons/core-free-icons";
 import { format } from "date-fns";
 import { Spinner } from "@/components/ui/spinner";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Note } from "../../types/workspace.types";
+import type { Note } from "../../types/workspace.types";
 import { useMemo, useState } from "react";
 import { PreviewNoteDialog } from "./PreviewNoteDialog";
 
@@ -37,9 +35,11 @@ function TrashNodeItem({
   const restoreMutation = useRestoreNote();
   const permanentDeleteMutation = usePermanentDeleteNote();
 
-  const isRestoring = restoreMutation.isPending && restoreMutation.variables === note.id;
+  const isRestoring =
+    restoreMutation.isPending && restoreMutation.variables === note.id;
   const isDeleting =
-    permanentDeleteMutation.isPending && permanentDeleteMutation.variables === note.id;
+    permanentDeleteMutation.isPending &&
+    permanentDeleteMutation.variables === note.id;
 
   const children = childrenMap.get(note.id) || [];
   const [isExpanded, setIsExpanded] = useState(true);
@@ -59,13 +59,17 @@ function TrashNodeItem({
               }}
               className="flex items-center justify-center w-6 h-6 rounded-md hover:bg-muted text-muted-foreground shrink-0"
             >
-              <HugeiconsIcon icon={isExpanded ? ArrowDown01Icon : ArrowRight01Icon} size={16} />
+              {isExpanded ? (
+                <ChevronDown size={16} />
+              ) : (
+                <ChevronRight size={16} />
+              )}
             </button>
           ) : (
             <div className="w-6 h-6 shrink-0" /> // Spacer for alignment
           )}
-          
-          <button 
+
+          <button
             onClick={() => onPreviewClick(note.id)}
             className="flex items-center gap-3 min-w-0 flex-1 cursor-pointer text-left"
           >
@@ -73,9 +77,14 @@ function TrashNodeItem({
               <span className="text-lg">{note.emoji}</span>
             </div>
             <div className="flex flex-col min-w-0">
-              <span className="font-medium text-sm truncate group-hover:underline decoration-muted-foreground underline-offset-2">{note.title}</span>
+              <span className="font-medium text-sm truncate group-hover:underline decoration-muted-foreground underline-offset-2">
+                {note.title}
+              </span>
               <span className="text-xs text-muted-foreground truncate">
-                Deleted {note.deletedAt ? format(new Date(note.deletedAt), "MMM d, yyyy") : "Unknown"}
+                Deleted{" "}
+                {note.deletedAt
+                  ? format(new Date(note.deletedAt), "MMM d, yyyy")
+                  : "Unknown"}
               </span>
             </div>
           </button>
@@ -88,7 +97,7 @@ function TrashNodeItem({
             onClick={() => onPreviewClick(note.id)}
             className="hidden sm:flex"
           >
-            <HugeiconsIcon icon={ViewIcon} size={14} className="mr-2" />
+            <Eye size={14} className="mr-2" />
             Preview
           </Button>
 
@@ -103,7 +112,7 @@ function TrashNodeItem({
                 {isRestoring ? (
                   <Spinner className="size-4 mr-2" />
                 ) : (
-                  <HugeiconsIcon icon={RefreshIcon} size={14} className="mr-2" />
+                  <RefreshCw size={14} className="mr-2" />
                 )}
                 Restore
               </Button>
@@ -116,7 +125,7 @@ function TrashNodeItem({
                 {isDeleting ? (
                   <Spinner className="size-4 mr-2" />
                 ) : (
-                  <HugeiconsIcon icon={Delete01Icon} size={14} className="mr-2" />
+                  <Trash2 size={14} className="mr-2" />
                 )}
                 Delete
               </Button>
@@ -148,7 +157,8 @@ export function TrashView() {
   const [previewNoteId, setPreviewNoteId] = useState<string | null>(null);
 
   const { rootNotes, childrenMap } = useMemo(() => {
-    if (!trashedNotes) return { rootNotes: [], childrenMap: new Map<string, Note[]>() };
+    if (!trashedNotes)
+      return { rootNotes: [], childrenMap: new Map<string, Note[]>() };
 
     const trashedIds = new Set(trashedNotes.map((n) => n.id));
     const roots: Note[] = [];
@@ -188,10 +198,12 @@ export function TrashView() {
     return (
       <div className="flex flex-col items-center justify-center h-full w-full text-center space-y-4 px-4">
         <div className="h-16 w-16 bg-muted rounded-full flex items-center justify-center">
-          <HugeiconsIcon icon={Delete01Icon} size={32} className="text-muted-foreground" />
+          <Trash2 size={32} className="text-muted-foreground" />
         </div>
         <div className="space-y-1">
-          <h2 className="text-xl font-semibold tracking-tight">Trash is empty</h2>
+          <h2 className="text-xl font-semibold tracking-tight">
+            Trash is empty
+          </h2>
           <p className="text-sm text-muted-foreground">
             Notes you delete will appear here.
           </p>
@@ -223,10 +235,10 @@ export function TrashView() {
           ))}
         </div>
       </ScrollArea>
-      <PreviewNoteDialog 
-        noteId={previewNoteId} 
-        isOpen={!!previewNoteId} 
-        onClose={() => setPreviewNoteId(null)} 
+      <PreviewNoteDialog
+        noteId={previewNoteId}
+        isOpen={!!previewNoteId}
+        onClose={() => setPreviewNoteId(null)}
       />
     </div>
   );

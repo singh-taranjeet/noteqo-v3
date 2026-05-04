@@ -27,7 +27,9 @@ export function PreviewNoteDialog({
       <DialogContent className="sm:max-w-[95vw] max-w-[95vw] w-[95vw] h-[85vh] p-0 flex flex-col overflow-hidden bg-background">
         <VisuallyHidden>
           <DialogTitle>Note Preview</DialogTitle>
-          <DialogDescription>A read-only preview of the deleted note.</DialogDescription>
+          <DialogDescription>
+            A read-only preview of the deleted note.
+          </DialogDescription>
         </VisuallyHidden>
         <div className="flex-1 overflow-y-auto">
           <NoteEditor noteId={noteId} isReadOnly />

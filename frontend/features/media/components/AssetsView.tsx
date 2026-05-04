@@ -1,4 +1,5 @@
 "use client";
+import { Image, Loader2, Pencil } from "lucide-react";
 
 import {
   useUpdateMedia,
@@ -11,12 +12,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { HugeiconsIcon } from "@hugeicons/react";
-import {
-  Loading02Icon,
-  Image01Icon,
-  PencilEdit02Icon,
-} from "@hugeicons/core-free-icons";
 import { EncryptedImage } from "@/features/media/components/EncryptedImage";
 import { Button } from "@/components/ui/button";
 import {
@@ -54,7 +49,7 @@ function MediaEditPopover({
           size="icon"
           className="h-8 w-8 absolute top-2 right-2 bg-background/50 hover:bg-background/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity"
         >
-          <HugeiconsIcon icon={PencilEdit02Icon} className="h-4 w-4" />
+          <Pencil className="h-4 w-4" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-80">
@@ -106,17 +101,11 @@ export function AssetsView() {
 
         {isLoading ? (
           <div className="flex h-64 items-center justify-center">
-            <HugeiconsIcon
-              icon={Loading02Icon}
-              className="h-8 w-8 animate-spin text-muted-foreground"
-            />
+            <Loader2 className="animate-spin h-8 w-8 animate-spin text-muted-foreground" />
           </div>
         ) : !mediaList?.length ? (
           <div className="flex flex-col items-center justify-center space-y-4 rounded-lg border border-dashed py-24 text-center">
-            <HugeiconsIcon
-              icon={Image01Icon}
-              className="h-12 w-12 text-muted-foreground"
-            />
+            <Image className="h-12 w-12 text-muted-foreground" />
             <div className="space-y-1">
               <h3 className="font-medium text-lg">No assets yet</h3>
               <p className="text-muted-foreground">

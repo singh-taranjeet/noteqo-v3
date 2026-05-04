@@ -1,4 +1,5 @@
 "use client";
+import { ChevronDown, Type } from "lucide-react";
 
 import React from "react";
 import type { Editor } from "@tiptap/react";
@@ -8,8 +9,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { ArrowDown01Icon, TextColorIcon } from "@hugeicons/core-free-icons";
 import {
   TEXT_COLORS,
   HIGHLIGHT_COLORS,
@@ -55,11 +54,8 @@ export const ColorPickerPopover: React.FC<ColorPickerPopoverProps> = ({
           className="h-7 px-2 text-muted-foreground hover:bg-muted/50 rounded-sm gap-1"
           onMouseDown={(e) => e.preventDefault()}
         >
-          <HugeiconsIcon icon={TextColorIcon} className="w-4 h-4" />
-          <HugeiconsIcon
-            icon={ArrowDown01Icon}
-            className="w-3 h-3 opacity-50"
-          />
+          <Type className="w-4 h-4" />
+          <ChevronDown className="w-3 h-3 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent

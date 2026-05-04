@@ -1,16 +1,9 @@
 "use client";
+import { Bold, Code, Italic, Strikethrough, Underline } from "lucide-react";
 
 import React from "react";
 import type { Editor } from "@tiptap/react";
 import { BubbleMenu } from "@tiptap/react/menus";
-import { HugeiconsIcon } from "@hugeicons/react";
-import {
-  TextBoldIcon,
-  TextItalicIcon,
-  TextStrikethroughIcon,
-  TextUnderlineIcon,
-  CodeIcon,
-} from "@hugeicons/core-free-icons";
 import {
   Tooltip,
   TooltipContent,
@@ -32,27 +25,27 @@ const MENU_ITEMS = [
   {
     name: "bold",
     tooltip: "Bold (⌘B)",
-    icon: TextBoldIcon,
+    icon: Bold,
   },
   {
     name: "italic",
     tooltip: "Italic (⌘I)",
-    icon: TextItalicIcon,
+    icon: Italic,
   },
   {
     name: "underline",
     tooltip: "Underline (⌘U)",
-    icon: TextUnderlineIcon,
+    icon: Underline,
   },
   {
     name: "strike",
     tooltip: "Strikethrough (⌘⇧X)",
-    icon: TextStrikethroughIcon,
+    icon: Strikethrough,
   },
   {
     name: "code",
     tooltip: "Code (⌘E)",
-    icon: CodeIcon,
+    icon: Code,
   },
 ] as const;
 
@@ -124,6 +117,7 @@ export const EditorBubbleMenu: React.FC<EditorBubbleMenuProps> = ({
       <TooltipProvider delayDuration={200}>
         {MENU_ITEMS.map((item) => {
           const isActive = editor.isActive(item.name);
+          const Icon = item.icon;
           return (
             <Tooltip key={item.name}>
               <TooltipTrigger asChild>
@@ -135,7 +129,7 @@ export const EditorBubbleMenu: React.FC<EditorBubbleMenuProps> = ({
                   aria-label={item.tooltip}
                   className="rounded-sm p-1.5 h-auto min-w-0"
                 >
-                  <HugeiconsIcon icon={item.icon} size={16} />
+                  <Icon size={16} />
                 </Toggle>
               </TooltipTrigger>
               <TooltipContent side="top" className="text-xs">

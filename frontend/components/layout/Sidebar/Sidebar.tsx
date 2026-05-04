@@ -1,4 +1,5 @@
 "use client";
+import { BookOpen, Image, PenLine, Trash2 } from "lucide-react";
 
 import { useState } from "react";
 import {
@@ -28,13 +29,6 @@ import { DynamicDialog } from "@/components/ui/DynamicDialog";
 import { DynamicForm } from "@/components/ui/DynamicForm";
 import type { FormFieldConfig, FormValues } from "@/components/ui/DynamicForm";
 import type { ActiveTabType } from "../types";
-import { HugeiconsIcon } from "@hugeicons/react";
-import {
-  PencilEdit01Icon,
-  Book02Icon,
-  Delete01Icon,
-  Image01Icon,
-} from "@hugeicons/core-free-icons";
 import Link from "next/link";
 
 const CREATE_SPACE_FIELDS: FormFieldConfig[] = [
@@ -148,11 +142,7 @@ export function AppSidebar() {
             <SidebarMenuItem>
               <SidebarMenuButton asChild>
                 <Link href="/library">
-                  <HugeiconsIcon
-                    icon={Book02Icon}
-                    size={16}
-                    strokeWidth={1.5}
-                  />
+                  <BookOpen size={16} strokeWidth={1.5} />
                   <span>Library</span>
                 </Link>
               </SidebarMenuButton>
@@ -160,11 +150,7 @@ export function AppSidebar() {
             <SidebarMenuItem>
               <SidebarMenuButton asChild>
                 <Link href="/assets">
-                  <HugeiconsIcon
-                    icon={Image01Icon}
-                    size={16}
-                    strokeWidth={1.5}
-                  />
+                  <Image size={16} strokeWidth={1.5} />
                   <span>Assets</span>
                 </Link>
               </SidebarMenuButton>
@@ -172,11 +158,7 @@ export function AppSidebar() {
             <SidebarMenuItem>
               <SidebarMenuButton asChild>
                 <Link href="/trash">
-                  <HugeiconsIcon
-                    icon={Delete01Icon}
-                    size={16}
-                    strokeWidth={1.5}
-                  />
+                  <Trash2 size={16} strokeWidth={1.5} />
                   <span>Trash</span>
                 </Link>
               </SidebarMenuButton>
@@ -196,11 +178,7 @@ export function AppSidebar() {
               }}
               className="justify-center bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90 hover:text-sidebar-primary-foreground"
             >
-              <HugeiconsIcon
-                icon={PencilEdit01Icon}
-                size={16}
-                strokeWidth={1.5}
-              />
+              <PenLine size={16} strokeWidth={1.5} />
               <span className="text-sm font-medium">Quick Create</span>
             </SidebarMenuButton>
           </SidebarMenuItem>

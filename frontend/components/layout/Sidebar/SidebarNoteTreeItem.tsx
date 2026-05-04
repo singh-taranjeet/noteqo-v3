@@ -1,9 +1,8 @@
 "use client";
+import { ChevronRight } from "lucide-react";
 
 import { useState } from "react";
 import Link from "next/link";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { ArrowRight01Icon } from "@hugeicons/core-free-icons";
 import {
   SidebarMenuSub,
   SidebarMenuSubItem,
@@ -40,8 +39,7 @@ export function SidebarNoteTreeItem({
                 className="absolute left-0 w-6 h-6 flex items-center justify-center z-10 hover:bg-sidebar-accent rounded-sm text-sidebar-foreground"
                 aria-label="Toggle children"
               >
-                <HugeiconsIcon
-                  icon={ArrowRight01Icon}
+                <ChevronRight
                   size={10}
                   strokeWidth={2}
                   className={`transition-transform duration-200 ${isOpen ? "rotate-90" : ""}`}
@@ -61,7 +59,9 @@ export function SidebarNoteTreeItem({
                 >
                   {note.emoji}
                 </span>
-                <span className="text-sm font-medium">{note.title || "Untitled"}</span>
+                <span className="text-sm font-medium">
+                  {note.title || "Untitled"}
+                </span>
               </Link>
             </SidebarMenuSubButton>
           </div>
@@ -88,7 +88,9 @@ export function SidebarNoteTreeItem({
           <span className="shrink-0 text-base" role="img" aria-hidden="true">
             {note.emoji}
           </span>
-          <span className="text-sm font-medium">{note.title || "Untitled"}</span>
+          <span className="text-sm font-medium">
+            {note.title || "Untitled"}
+          </span>
         </Link>
       </SidebarMenuSubButton>
     </SidebarMenuSubItem>

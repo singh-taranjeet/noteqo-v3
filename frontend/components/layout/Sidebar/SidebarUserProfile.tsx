@@ -1,12 +1,7 @@
 "use client";
+import { ChevronDown, ChevronUp, LogOut } from "lucide-react";
 
 import { useState } from "react";
-import { HugeiconsIcon } from "@hugeicons/react";
-import {
-  Logout02Icon,
-  ArrowDown01Icon,
-  ArrowUp01Icon,
-} from "@hugeicons/core-free-icons";
 import {
   SidebarMenu,
   SidebarMenuItem,
@@ -75,12 +70,19 @@ export function SidebarUserProfile({
                     {username}
                   </span>
                 </div>
-                <HugeiconsIcon
-                  icon={isOpen ? ArrowUp01Icon : ArrowDown01Icon}
-                  size={14}
-                  strokeWidth={1.5}
-                  className="opacity-50 shrink-0"
-                />
+                {isOpen ? (
+                  <ChevronUp
+                    size={14}
+                    strokeWidth={1.5}
+                    className="opacity-50 shrink-0"
+                  />
+                ) : (
+                  <ChevronDown
+                    size={14}
+                    strokeWidth={1.5}
+                    className="opacity-50 shrink-0"
+                  />
+                )}
               </SidebarMenuButton>
             </DropdownMenuTrigger>
 
@@ -92,11 +94,7 @@ export function SidebarUserProfile({
                 onClick={() => setIsLogoutDialogOpen(true)}
                 id="sidebar-logout-button"
               >
-                <HugeiconsIcon
-                  icon={Logout02Icon}
-                  size={16}
-                  strokeWidth={1.5}
-                />
+                <LogOut size={16} strokeWidth={1.5} />
                 Log out
               </DropdownMenuItem>
             </DropdownMenuContent>

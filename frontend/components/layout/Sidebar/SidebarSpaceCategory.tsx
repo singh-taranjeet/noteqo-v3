@@ -1,12 +1,7 @@
 "use client";
+import { ChevronRight, MoreHorizontal, Plus } from "lucide-react";
 
 import { useState } from "react";
-import { HugeiconsIcon } from "@hugeicons/react";
-import {
-  ArrowRight01Icon,
-  Add01Icon,
-  MoreHorizontalIcon,
-} from "@hugeicons/core-free-icons";
 import {
   SidebarGroup,
   SidebarGroupLabel,
@@ -69,8 +64,7 @@ export function SidebarSpaceCategory({
       <SidebarGroup>
         <SidebarGroupLabel asChild>
           <CollapsibleTrigger className="cursor-pointer">
-            <HugeiconsIcon
-              icon={ArrowRight01Icon}
+            <ChevronRight
               size={12}
               strokeWidth={2}
               className="transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90"
@@ -87,7 +81,7 @@ export function SidebarSpaceCategory({
               }}
               aria-label={addSpaceTooltip}
             >
-              <HugeiconsIcon icon={Add01Icon} size={14} strokeWidth={2} />
+              <Plus size={14} strokeWidth={2} />
             </SidebarGroupAction>
           </TooltipTrigger>
           <TooltipContent>{addSpaceTooltip}</TooltipContent>
@@ -158,8 +152,7 @@ function SpaceGroupItem({
       <SidebarMenuItem>
         <CollapsibleTrigger asChild>
           <SidebarMenuButton size="sm">
-            <HugeiconsIcon
-              icon={ArrowRight01Icon}
+            <ChevronRight
               size={10}
               strokeWidth={2}
               className="transition-transform duration-200 data-[state=open]:rotate-90"
@@ -176,11 +169,7 @@ function SpaceGroupItem({
             aria-label={`Settings for ${space.name}`}
             className="right-7"
           >
-            <HugeiconsIcon
-              icon={MoreHorizontalIcon}
-              size={14}
-              strokeWidth={2}
-            />
+            <MoreHorizontal size={14} strokeWidth={2} />
           </SidebarMenuAction>
         )}
 
@@ -189,7 +178,7 @@ function SpaceGroupItem({
           onClick={onCreateNote}
           aria-label={`Create note in ${space.name}`}
         >
-          <HugeiconsIcon icon={Add01Icon} size={14} strokeWidth={2} />
+          <Plus size={14} strokeWidth={2} />
         </SidebarMenuAction>
 
         <CollapsibleContent>

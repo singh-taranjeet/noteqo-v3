@@ -143,15 +143,17 @@ export const noteService = {
   async getDescendantIdsLocally(id: string): Promise<string[]> {
     const allNotes = await db.notes.toArray();
     const descendants: string[] = [id];
-    
+
     const queue = [id];
     while (queue.length > 0) {
       const currentId = queue.shift()!;
-      const children = allNotes.filter(n => n.parentId === currentId).map(n => n.id);
+      const children = allNotes
+        .filter((n) => n.parentId === currentId)
+        .map((n) => n.id);
       descendants.push(...children);
       queue.push(...children);
     }
-    
+
     return descendants;
   },
 
@@ -161,11 +163,14 @@ export const noteService = {
   async deleteNote(id: string): Promise<void> {
     const descendantIds = await this.getDescendantIdsLocally(id);
     const now = new Date().toISOString();
-    
+
     for (const descendantId of descendantIds) {
-      await db.notes.update(descendantId, { deletedAt: now, syncStatus: "pending" });
+      await db.notes.update(descendantId, {
+        deletedAt: now,
+        syncStatus: "pending",
+      });
     }
-    
+
     // Only enqueue DELETE for the parent; backend will cascade
     await syncQueueService.enqueue("DELETE", id, { id });
   },
@@ -175,7 +180,7 @@ export const noteService = {
    */
   async restoreNote(id: string): Promise<void> {
     const descendantIds = await this.getDescendantIdsLocally(id);
-    
+
     for (const descendantId of descendantIds) {
       // Use Dexie's modify to unset deletedAt if it exists
       const note = await db.notes.get(descendantId);
@@ -185,7 +190,7 @@ export const noteService = {
         await db.notes.put(note);
       }
     }
-    
+
     // Only enqueue RESTORE for the parent; backend will cascade
     await syncQueueService.enqueue("RESTORE", id, { id });
   },
@@ -195,11 +200,11 @@ export const noteService = {
    */
   async permanentDeleteNote(id: string): Promise<void> {
     const descendantIds = await this.getDescendantIdsLocally(id);
-    
+
     for (const descendantId of descendantIds) {
       await db.notes.delete(descendantId);
     }
-    
+
     await syncQueueService.enqueue("PERMANENT_DELETE", id, { id });
   },
 

@@ -1,17 +1,11 @@
 "use client";
-
-import { HugeiconsIcon } from "@hugeicons/react";
-import { WifiDisconnected01Icon } from "@hugeicons/core-free-icons";
+import { WifiOff } from "lucide-react";
 
 export function OfflineView() {
   return (
     <div className="flex h-screen w-full flex-col items-center justify-center bg-background p-4 text-center">
       <div className="rounded-full bg-muted p-4 mb-4">
-        <HugeiconsIcon
-          icon={WifiDisconnected01Icon}
-          size={48}
-          className="text-muted-foreground"
-        />
+        <WifiOff size={48} className="text-muted-foreground" />
       </div>
       <h1 className="mb-2 text-2xl font-bold tracking-tight">
         You are offline

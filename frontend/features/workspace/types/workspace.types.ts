@@ -1,5 +1,10 @@
 export type SyncStatus = "pending" | "synced" | "failed";
-export type SyncEventType = "CREATE" | "UPDATE" | "DELETE" | "RESTORE" | "PERMANENT_DELETE";
+export type SyncEventType =
+  | "CREATE"
+  | "UPDATE"
+  | "DELETE"
+  | "RESTORE"
+  | "PERMANENT_DELETE";
 export type NoteType = "private" | "shared";
 
 export interface Note {

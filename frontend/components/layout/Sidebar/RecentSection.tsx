@@ -1,8 +1,7 @@
 "use client";
+import { ChevronRight } from "lucide-react";
 
 import { useState } from "react";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { ArrowRight01Icon } from "@hugeicons/core-free-icons";
 import { SidebarNoteItem } from "./SidebarNoteItem";
 import {
   SidebarGroup,
@@ -37,8 +36,7 @@ export function RecentSection() {
       <SidebarGroup>
         <SidebarGroupLabel asChild>
           <CollapsibleTrigger className="cursor-pointer">
-            <HugeiconsIcon
-              icon={ArrowRight01Icon}
+            <ChevronRight
               size={12}
               strokeWidth={2}
               className="transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90"

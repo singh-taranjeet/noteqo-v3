@@ -1,10 +1,9 @@
+import { Loader2 } from "lucide-react";
 import EmojiPicker from "emoji-picker-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useMediaList } from "../hooks/useMedia";
 import { useUploadMedia } from "../hooks/useUploadMedia";
 import { Button } from "@/components/ui/button";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { Loading02Icon } from "@hugeicons/core-free-icons";
 import { EncryptedImage } from "@/features/media/components/EncryptedImage";
 
 interface MediaPickerProps {
@@ -87,10 +86,7 @@ export function MediaPicker({
         <TabsContent value="upload">
           <div className="flex h-32 flex-col items-center justify-center space-y-4 rounded-md border border-dashed p-4">
             {isUploading ? (
-              <HugeiconsIcon
-                icon={Loading02Icon}
-                className="h-6 w-6 animate-spin text-muted-foreground"
-              />
+              <Loader2 className="animate-spin h-6 w-6 animate-spin text-muted-foreground" />
             ) : (
               <>
                 <p className="text-sm text-muted-foreground">
@@ -113,10 +109,7 @@ export function MediaPicker({
         <TabsContent value="assets">
           {isLoading ? (
             <div className="flex justify-center p-4">
-              <HugeiconsIcon
-                icon={Loading02Icon}
-                className="h-6 w-6 animate-spin"
-              />
+              <Loader2 className="animate-spin h-6 w-6 animate-spin" />
             </div>
           ) : mediaList?.length ? (
             <div className="grid grid-cols-2 gap-2 max-h-64 overflow-y-auto">

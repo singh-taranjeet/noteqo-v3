@@ -15,11 +15,11 @@ export function useSpaces() {
   });
 
   const activeNotes = useMemo(() => {
-    return (query.data?.notes || []).filter(n => !n.deletedAt);
+    return (query.data?.notes || []).filter((n) => !n.deletedAt);
   }, [query.data?.notes]);
 
   const trashedNotes = useMemo(() => {
-    return (query.data?.notes || []).filter(n => !!n.deletedAt);
+    return (query.data?.notes || []).filter((n) => !!n.deletedAt);
   }, [query.data?.notes]);
 
   const spaceNotesMap = useMemo(() => {

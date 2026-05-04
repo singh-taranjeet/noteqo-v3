@@ -1,4 +1,5 @@
 "use client";
+import { ChevronLeft } from "lucide-react";
 
 import { useMemo, useState } from "react";
 
@@ -15,8 +16,6 @@ import {
   ItemDescription,
 } from "@/components/ui/item";
 import { useVersionHistory } from "../hooks/useVersionHistory";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { ArrowLeft02Icon } from "@hugeicons/core-free-icons";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { NoteEditor } from "./NoteEditor";
 import type { DecryptedNoteVersion, Note } from "@/features/workspace";
@@ -115,11 +114,7 @@ export function VersionHistoryDialog({
                     onClick={() => setMobileView("list")}
                     className="-ml-2 text-muted-foreground"
                   >
-                    <HugeiconsIcon
-                      icon={ArrowLeft02Icon}
-                      size={16}
-                      className="mr-1"
-                    />
+                    <ChevronLeft size={16} className="mr-1" />
                     Back
                   </Button>
                   <div className="text-sm font-semibold truncate px-2">

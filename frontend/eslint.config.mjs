@@ -35,7 +35,7 @@ const eslintConfig = defineConfig([
     "public",
     "features/pwa",
     "robots.ts",
-    "sitemap.ts"
+    "sitemap.ts",
   ]),
 ]);
 

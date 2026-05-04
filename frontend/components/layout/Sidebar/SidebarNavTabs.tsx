@@ -1,8 +1,7 @@
 "use client";
+import { Home, Search } from "lucide-react";
 
 import { useState } from "react";
-import { Home01Icon, Search01Icon } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
 import {
   SidebarMenu,
   SidebarMenuItem,
@@ -38,7 +37,7 @@ export function SidebarNavTabs({
             tooltip="Notes"
             className="justify-center"
           >
-            <HugeiconsIcon icon={Home01Icon} size={18} strokeWidth={1.5} />
+            <Home size={18} strokeWidth={1.5} />
             <span className="text-sm font-medium">Notes</span>
           </SidebarMenuButton>
         </SidebarMenuItem>
@@ -49,7 +48,7 @@ export function SidebarNavTabs({
             tooltip="Search"
             className="justify-center"
           >
-            <HugeiconsIcon icon={Search01Icon} size={18} strokeWidth={1.5} />
+            <Search size={18} strokeWidth={1.5} />
             <span className="text-sm font-medium">Search</span>
           </SidebarMenuButton>
         </SidebarMenuItem>

@@ -1,4 +1,5 @@
 "use client";
+import { Image, Smile } from "lucide-react";
 
 import { EditorContent, EditorContext } from "@tiptap/react";
 import type { Editor } from "@tiptap/react";
@@ -16,8 +17,6 @@ import {
 import { MediaPicker } from "@/features/media/components/MediaPicker";
 import { EncryptedImage } from "@/features/media/components/EncryptedImage";
 
-import { HugeiconsIcon } from "@hugeicons/react";
-import { Image01Icon, SmileIcon } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 
@@ -125,7 +124,7 @@ export function NoteEditorSurface({
                   size="sm"
                   className="bg-background/80 backdrop-blur-sm"
                 >
-                  <HugeiconsIcon icon={Image01Icon} className="mr-2 h-4 w-4" />
+                  <Image className="mr-2 h-4 w-4" />
                   Change Cover
                 </Button>
               </MediaPopover>
@@ -158,10 +157,7 @@ export function NoteEditorSurface({
                     size="sm"
                     className="text-muted-foreground hover:text-foreground"
                   >
-                    <HugeiconsIcon
-                      icon={Image01Icon}
-                      className="mr-2 h-4 w-4"
-                    />
+                    <Image className="mr-2 h-4 w-4" />
                     Add Cover
                   </Button>
                 </MediaPopover>
@@ -194,7 +190,7 @@ export function NoteEditorSurface({
                       size="icon"
                       className="h-6 w-6 rounded-full bg-background/80 shadow-sm backdrop-blur-sm"
                     >
-                      <HugeiconsIcon icon={SmileIcon} className="h-3 w-3" />
+                      <Smile className="h-3 w-3" />
                     </Button>
                   </MediaPopover>
                 </div>
@@ -217,7 +213,7 @@ export function NoteEditorSurface({
                     size="sm"
                     className="text-muted-foreground hover:text-foreground"
                   >
-                    <HugeiconsIcon icon={SmileIcon} className="mr-2 h-4 w-4" />
+                    <Smile className="mr-2 h-4 w-4" />
                     Add Icon
                   </Button>
                 </MediaPopover>

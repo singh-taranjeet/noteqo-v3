@@ -1,17 +1,9 @@
 "use client";
+import { Clock, Copy, MoreHorizontal, Plus, Star, Trash2 } from "lucide-react";
 
 import { useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { format } from "date-fns";
-import { HugeiconsIcon } from "@hugeicons/react";
-import {
-  FavouriteIcon,
-  MoreHorizontalIcon,
-  Clock04Icon,
-  Copy01Icon,
-  Add01Icon,
-  Delete01Icon,
-} from "@hugeicons/core-free-icons";
 import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
 import {
@@ -100,7 +92,7 @@ export function HeaderActions() {
       {/* Version history */}
       {noteId && currentNote && (
         <TooltipIconButton
-          icon={Clock04Icon}
+          icon={Clock}
           tooltip="Version history"
           className="hidden sm:flex h-7 w-7"
           onClick={() => setIsVersionHistoryOpen(true)}
@@ -111,7 +103,7 @@ export function HeaderActions() {
       {/* Add child note */}
       {noteId && currentNote && (
         <TooltipIconButton
-          icon={Add01Icon}
+          icon={Plus}
           tooltip="Add child note"
           className="hidden sm:flex h-7 w-7"
           onClick={() =>
@@ -128,7 +120,7 @@ export function HeaderActions() {
       {/* Favorite toggle */}
       {noteId && currentNote && (
         <TooltipIconButton
-          icon={FavouriteIcon}
+          icon={Star}
           tooltip={
             currentNote.isFavorite
               ? "Remove from favorites"
@@ -157,11 +149,7 @@ export function HeaderActions() {
                 aria-label="More options"
                 id="more-options-button"
               >
-                <HugeiconsIcon
-                  icon={MoreHorizontalIcon}
-                  size={16}
-                  strokeWidth={1.5}
-                />
+                <MoreHorizontal size={16} strokeWidth={1.5} />
               </Button>
             </DropdownMenuTrigger>
           </TooltipTrigger>
@@ -197,8 +185,7 @@ export function HeaderActions() {
                 }
                 disabled={toggleFavoriteMutation.isPending}
               >
-                <HugeiconsIcon
-                  icon={FavouriteIcon}
+                <Star
                   size={16}
                   strokeWidth={1.5}
                   className={currentNote.isFavorite ? "text-yellow-500" : ""}
@@ -210,7 +197,7 @@ export function HeaderActions() {
             )}
             {noteId && currentNote && (
               <DropdownMenuItem onClick={() => setIsVersionHistoryOpen(true)}>
-                <HugeiconsIcon icon={Clock04Icon} size={16} strokeWidth={1.5} />
+                <Clock size={16} strokeWidth={1.5} />
                 Version history
               </DropdownMenuItem>
             )}
@@ -227,7 +214,7 @@ export function HeaderActions() {
                 {isDuplicating ? (
                   <Spinner className="size-4" />
                 ) : (
-                  <HugeiconsIcon icon={Copy01Icon} size={16} strokeWidth={1.5} />
+                  <Copy size={16} strokeWidth={1.5} />
                 )}
                 Duplicate page
               </DropdownMenuItem>
@@ -245,7 +232,7 @@ export function HeaderActions() {
                 {deleteNoteMutation.isPending ? (
                   <Spinner className="size-4" />
                 ) : (
-                  <HugeiconsIcon icon={Delete01Icon} size={16} strokeWidth={1.5} />
+                  <Trash2 size={16} strokeWidth={1.5} />
                 )}
                 Delete
               </DropdownMenuItem>

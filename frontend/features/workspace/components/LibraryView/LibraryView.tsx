@@ -1,8 +1,7 @@
 "use client";
+import { Book, Plus } from "lucide-react";
 
 import { useState, useMemo } from "react";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { PlusSignIcon, NotebookIcon } from "@hugeicons/core-free-icons";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { useSpaces, SPACE_TYPE } from "@/features/spaces";
@@ -58,11 +57,7 @@ export function LibraryView() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-3">
-            <HugeiconsIcon
-              icon={NotebookIcon}
-              size={32}
-              className="text-primary"
-            />
+            <Book size={32} className="text-primary" />
             Library
           </h1>
           <p className="text-muted-foreground mt-1">
@@ -73,7 +68,7 @@ export function LibraryView() {
           onClick={() => setIsDialogOpen(true)}
           className="w-full sm:w-auto"
         >
-          <HugeiconsIcon icon={PlusSignIcon} size={18} className="mr-2" />
+          <Plus size={18} className="mr-2" />
           New Page
         </Button>
       </div>

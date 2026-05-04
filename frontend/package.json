@@ -14,8 +14,6 @@
   },
   "dependencies": {
     "@floating-ui/react": "^0.27.19",
-    "@hugeicons/core-free-icons": "^4.1.1",
-    "@hugeicons/react": "^1.1.6",
     "@huggingface/transformers": "^4.2.0",
     "@radix-ui/react-dropdown-menu": "^2.1.16",
     "@radix-ui/react-popover": "^1.1.15",
@@ -50,6 +48,7 @@
     "emoji-picker-react": "^4.19.1",
     "input-otp": "^1.4.2",
     "lodash.throttle": "^4.1.1",
+    "lucide-react": "^1.14.0",
     "next": "16.2.3",
     "next-themes": "^0.4.6",
     "radix-ui": "^1.4.3",
