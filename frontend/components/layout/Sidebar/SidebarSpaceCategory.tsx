@@ -1,5 +1,5 @@
 "use client";
-import { ChevronRight, MoreHorizontal, Plus } from "lucide-react";
+import { ChevronRight, MoreHorizontal, Plus, Search } from "lucide-react";
 
 import { useState } from "react";
 import {
@@ -30,6 +30,10 @@ import { useParams } from "next/navigation";
 import type { NoteTreeNode } from "@/features/workspace/types/workspace.types";
 import { SidebarNoteTreeItem } from "./SidebarNoteTreeItem";
 
+import { SidebarHoverCard } from "./SidebarHoverCard";
+import { SidebarNoteItem } from "./SidebarNoteItem";
+import { useMemo } from "react";
+
 interface SidebarSpaceCategoryProps {
   label: string;
   spaces: Space[];
@@ -54,6 +58,20 @@ export function SidebarSpaceCategory({
   onSettingsClick,
 }: Readonly<SidebarSpaceCategoryProps>) {
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const allNotes = useMemo(() => {
+    return spaces.flatMap((space) => spaceNoteTreesMap?.[space.id] || []);
+  }, [spaces, spaceNoteTreesMap]);
+
+  const filteredNotes = useMemo(() => {
+    let extra = allNotes;
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      extra = extra.filter((note) => note.title.toLowerCase().includes(query));
+    }
+    return extra;
+  }, [allNotes, searchQuery]);
 
   return (
     <Collapsible
@@ -72,6 +90,41 @@ export function SidebarSpaceCategory({
             <span className="text-sm font-medium">{label}</span>
           </CollapsibleTrigger>
         </SidebarGroupLabel>
+
+        {/* Search / All Notes HoverCard */}
+        <SidebarHoverCard
+          title={`Search ${label} Notes`}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          searchPlaceholder={`Search ${label.toLowerCase()}...`}
+          trigger={
+            <SidebarGroupAction
+              className="right-9"
+              aria-label={`Search ${label} notes`}
+            >
+              <Search size={14} strokeWidth={2} />
+            </SidebarGroupAction>
+          }
+        >
+          {filteredNotes.length === 0 ? (
+            <div className="px-3 py-2 text-xs text-muted-foreground">
+              No matching notes found.
+            </div>
+          ) : (
+            <SidebarMenu>
+              {filteredNotes.map((note) => (
+                <SidebarMenuItem key={note.id}>
+                  <SidebarNoteItem
+                    noteId={note.id}
+                    emoji={note.emoji}
+                    title={note.title}
+                  />
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          )}
+        </SidebarHoverCard>
+
         <Tooltip>
           <TooltipTrigger asChild>
             <SidebarGroupAction
