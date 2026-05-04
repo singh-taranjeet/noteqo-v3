@@ -1,10 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Home01Icon,
-  Search01Icon,
-} from "@hugeicons/core-free-icons";
+import { Home01Icon, Search01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   SidebarMenu,
