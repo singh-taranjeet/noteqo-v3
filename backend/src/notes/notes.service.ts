@@ -96,7 +96,9 @@ export class NotesService {
       throw new NoteNotFoundException();
     }
 
-    this.logger.log(`Permanently deleting note ${id} (DB CASCADE will handle descendants)`);
+    this.logger.log(
+      `Permanently deleting note ${id} (DB CASCADE will handle descendants)`,
+    );
     await this.notesRepository.hardDelete(id);
   }
 }

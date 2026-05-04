@@ -28,7 +28,7 @@ export function RegisterForm() {
 
   useEffect(() => {
     logout(false, false);
-  }, []);
+  }, [logout]);
 
   const [generatedMasterKey, setGeneratedMasterKey] = useState<string | null>(
     null,

@@ -102,7 +102,7 @@ export class SpacesRepository {
    * Returns all spaces the user is a member of.
    */
   async findAllForUser(): Promise<Space[]> {
-    const userId = getCurrentUserId(); 
+    const userId = getCurrentUserId();
 
     const entities = await this.spaceOrm
       .createQueryBuilder('space')
