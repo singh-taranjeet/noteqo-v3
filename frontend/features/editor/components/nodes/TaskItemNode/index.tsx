@@ -10,6 +10,7 @@ export const TaskItemNodeView: React.FC<NodeViewProps> = (props) => {
         <Checkbox
           checked={props.node.attrs.checked}
           onCheckedChange={(checked) => props.updateAttributes({ checked })}
+          disabled={!props.editor.isEditable}
         />
       </div>
       <NodeViewContent className="flex-1 min-w-0" />

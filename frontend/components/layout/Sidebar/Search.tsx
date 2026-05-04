@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/constants/routes";
 import { Separator } from "@/components/ui/separator";
@@ -152,6 +152,16 @@ export function SearchHoverCard({ trigger }: Readonly<SearchHoverCardProps>) {
     setOpen(false);
   }
 
+  const triggerWithClick = React.isValidElement(trigger)
+    ? React.cloneElement(trigger as React.ReactElement<any>, {
+        onClick: (e: React.MouseEvent) => {
+          setOpen(true);
+          const originalOnClick = (trigger as React.ReactElement<any>).props.onClick;
+          if (originalOnClick) originalOnClick(e);
+        },
+      })
+    : trigger;
+
   return (
     <HoverCard
       openDelay={100}
@@ -159,12 +169,12 @@ export function SearchHoverCard({ trigger }: Readonly<SearchHoverCardProps>) {
       open={open}
       onOpenChange={handleOpenChange}
     >
-      <HoverCardTrigger asChild>{trigger}</HoverCardTrigger>
+      <HoverCardTrigger asChild>{triggerWithClick}</HoverCardTrigger>
       <HoverCardContent
         side="right"
         align="start"
         sideOffset={16}
-        className="w-[90vw] max-w-[1000px] h-[80vh] min-h-[500px] max-h-[calc(100vh-2rem)] p-0 shadow-xl overflow-hidden flex flex-col bg-glass border-white/10"
+        className="w-[95vw] md:w-[90vw] max-w-[1000px] h-[85vh] md:h-[80vh] min-h-[400px] md:min-h-[500px] max-h-[calc(100vh-2rem)] p-0 shadow-xl overflow-hidden flex flex-col bg-glass border-white/10"
       >
         <SearchHeaderInput
           onClose={() => setOpen(false)}

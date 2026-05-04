@@ -40,7 +40,12 @@ export const AccordionNodeView = ({
         className="w-full"
       >
         <AccordionItem value="item-1" className="bg-card">
-          <AccordionTrigger className="hover:no-underline px-4">
+          <AccordionTrigger
+            className={cn(
+              "hover:no-underline px-4",
+              !editor.isEditable && "pointer-events-none",
+            )}
+          >
             <Input
               ref={inputRef}
               type="text"

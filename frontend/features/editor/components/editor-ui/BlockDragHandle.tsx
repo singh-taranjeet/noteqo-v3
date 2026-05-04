@@ -21,7 +21,7 @@ interface BlockDragHandleProps {
 }
 
 export const BlockDragHandle: React.FC<BlockDragHandleProps> = ({ editor }) => {
-  if (!editor) return null;
+  if (!editor || !editor.isEditable) return null;
 
   const openSlashMenu = (e?: React.MouseEvent) => {
     e?.preventDefault();

@@ -31,6 +31,7 @@ export const CodeBlockNodeView: React.FC<NodeViewProps> = (props) => {
         <Select
           defaultValue={language}
           onValueChange={(value) => props.updateAttributes({ language: value })}
+          disabled={!props.editor.isEditable}
         >
           <SelectTrigger className="h-7 w-36 border-none bg-transparent text-xs focus:ring-0">
             <SelectValue placeholder="Language" />
