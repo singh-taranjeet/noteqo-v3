@@ -26,7 +26,6 @@ export const noteService = {
     title?: string,
     parentId?: string,
   ): Promise<Note> {
-
     const now = new Date().toISOString();
 
     // Determine note type from the cached space
@@ -104,7 +103,7 @@ export const noteService = {
   ): Promise<void> {
     const patched = {
       ...updates,
-      title: updates?.title?.slice(0, 50) || '',
+      title: updates?.title?.slice(0, 50) || "",
       updatedAt: new Date().toISOString(),
       syncStatus: "pending" as const,
     };
@@ -130,8 +129,7 @@ export const noteService = {
     let newTitle = `${existingNote.title}`;
     if (newTitle.length > 40) {
       newTitle = `${newTitle.slice(0, 40)} (Copy)`;
-    }
-    else {
+    } else {
       newTitle = `${existingNote.title} (Copy)`;
     }
 

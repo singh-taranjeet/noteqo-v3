@@ -1,5 +1,5 @@
 "use client";
-import { BookOpen, Image, PenLine, Trash2 } from "lucide-react";
+import { BookOpen, Image as ImageIcon, PenLine, Trash2 } from "lucide-react";
 
 import { useState } from "react";
 import {
@@ -150,7 +150,7 @@ export function AppSidebar() {
             <SidebarMenuItem>
               <SidebarMenuButton asChild>
                 <Link href="/assets">
-                  <Image size={16} strokeWidth={1.5} />
+                  <ImageIcon size={16} strokeWidth={1.5} />
                   <span>Assets</span>
                 </Link>
               </SidebarMenuButton>

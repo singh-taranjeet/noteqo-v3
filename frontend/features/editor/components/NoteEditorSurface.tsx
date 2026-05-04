@@ -1,5 +1,5 @@
 "use client";
-import { Image, Smile } from "lucide-react";
+import { Image as ImageIcon, Smile } from "lucide-react";
 
 import { EditorContent, EditorContext } from "@tiptap/react";
 import type { Editor } from "@tiptap/react";
@@ -42,14 +42,22 @@ function MediaHoverCard({
   const [open, setOpen] = useState(false);
 
   const triggerWithClick = React.isValidElement(children)
-    ? React.cloneElement(children as React.ReactElement<any>, {
-        onClick: (e: React.MouseEvent) => {
-          setOpen(true);
-          const originalOnClick = (children as React.ReactElement<any>).props
-            .onClick;
-          if (originalOnClick) originalOnClick(e);
+    ? React.cloneElement(
+        children as React.ReactElement<{
+          onClick?: (e: React.MouseEvent) => void;
+        }>,
+        {
+          onClick: (e: React.MouseEvent) => {
+            setOpen(true);
+            const originalOnClick = (
+              children as React.ReactElement<{
+                onClick?: (e: React.MouseEvent) => void;
+              }>
+            ).props.onClick;
+            if (originalOnClick) originalOnClick(e);
+          },
         },
-      })
+      )
     : children;
 
   return (
@@ -164,7 +172,7 @@ export function NoteEditorSurface({
   const handleAttachmentFileSelect = useCallback(
     (file: File) => {
       const pos = editor.state.selection.from;
-      const fileUploaderStorage = editor.storage.fileUploader as {
+      const fileUploaderStorage = (editor.storage as Record<string, any>).fileUploader as {
         handleUpload?: (file: File, pos: number) => void;
       };
 
@@ -211,7 +219,7 @@ export function NoteEditorSurface({
                   size="sm"
                   className="bg-background/80 backdrop-blur-sm"
                 >
-                  <Image className="mr-2 h-4 w-4" />
+                  <ImageIcon className="mr-2 h-4 w-4" />
                   Change Cover
                 </Button>
               </MediaHoverCard>
@@ -244,7 +252,7 @@ export function NoteEditorSurface({
                     size="sm"
                     className="text-muted-foreground hover:text-foreground"
                   >
-                    <Image className="mr-2 h-4 w-4" />
+                    <ImageIcon className="mr-2 h-4 w-4" />
                     Add Cover
                   </Button>
                 </MediaHoverCard>

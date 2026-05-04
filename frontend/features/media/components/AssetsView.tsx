@@ -1,5 +1,5 @@
 "use client";
-import { Image, Loader2, Pencil } from "lucide-react";
+import { Image as ImageIcon, Loader2, Pencil } from "lucide-react";
 
 import {
   useUpdateMedia,
@@ -105,7 +105,7 @@ export function AssetsView() {
           </div>
         ) : !mediaList?.length ? (
           <div className="flex flex-col items-center justify-center space-y-4 rounded-lg border border-dashed py-24 text-center">
-            <Image className="h-12 w-12 text-muted-foreground" />
+            <ImageIcon className="h-12 w-12 text-muted-foreground" />
             <div className="space-y-1">
               <h3 className="font-medium text-lg">No assets yet</h3>
               <p className="text-muted-foreground">

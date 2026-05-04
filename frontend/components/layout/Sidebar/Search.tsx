@@ -153,14 +153,22 @@ export function SearchHoverCard({ trigger }: Readonly<SearchHoverCardProps>) {
   }
 
   const triggerWithClick = React.isValidElement(trigger)
-    ? React.cloneElement(trigger as React.ReactElement<any>, {
-        onClick: (e: React.MouseEvent) => {
-          setOpen(true);
-          const originalOnClick = (trigger as React.ReactElement<any>).props
-            .onClick;
-          if (originalOnClick) originalOnClick(e);
+    ? React.cloneElement(
+        trigger as React.ReactElement<{
+          onClick?: (e: React.MouseEvent) => void;
+        }>,
+        {
+          onClick: (e: React.MouseEvent) => {
+            setOpen(true);
+            const originalOnClick = (
+              trigger as React.ReactElement<{
+                onClick?: (e: React.MouseEvent) => void;
+              }>
+            ).props.onClick;
+            if (originalOnClick) originalOnClick(e);
+          },
         },
-      })
+      )
     : trigger;
 
   return (
