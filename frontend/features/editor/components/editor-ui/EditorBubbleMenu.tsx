@@ -85,10 +85,11 @@ export const EditorBubbleMenu: React.FC<EditorBubbleMenuProps> = ({
         const { selection } = state;
         const { empty } = selection;
 
-        // Do not show bubble menu for file attachments or images
+        // Do not show bubble menu for file attachments, images, or videos
         if (
           editor.isActive("fileAttachment") ||
-          editor.isActive("encryptedImage")
+          editor.isActive("encryptedImage") ||
+          editor.isActive("encryptedVideo")
         ) {
           return false;
         }

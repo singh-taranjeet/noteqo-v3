@@ -112,6 +112,7 @@ export const ImageNodeView: React.FC<NodeViewProps> = (props) => {
               <MediaAlignmentToolbar
                 align={(align as string) || "center"}
                 onAlignChange={setAlign}
+                onDelete={props.deleteNode}
               />
             )}
           </>

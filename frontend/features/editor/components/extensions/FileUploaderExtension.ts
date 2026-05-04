@@ -204,30 +204,11 @@ export const FileUploaderExtension = Extension.create<FileUploaderOptions>({
       promptFileUpload:
         (accept?: string) =>
         ({ editor }) => {
-          const input = document.createElement("input");
-          input.type = "file";
-          if (accept) {
-            input.accept = accept;
-          }
-          input.onchange = (e) => {
-            const file = (e.target as HTMLInputElement).files?.[0];
-            if (file) {
-              const pos = editor.state.selection.from;
-              // We dispatch a custom event to trigger the paste handler, or just invoke handleUpload directly.
-              interface FileUploaderStorage {
-                handleUpload: (file: File, pos: number) => void;
-              }
-              const storage = editor.storage as unknown as Record<
-                string,
-                unknown
-              >;
-              const fileUploaderStorage = storage.fileUploader as
-                | FileUploaderStorage
-                | undefined;
-              fileUploaderStorage?.handleUpload(file, pos);
-            }
-          };
-          input.click();
+          const event = new CustomEvent("noteqo:prompt-media-picker", {
+            bubbles: true,
+            detail: { accept },
+          });
+          editor.view.dom.dispatchEvent(event);
           return true;
         },
     };

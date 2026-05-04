@@ -156,7 +156,8 @@ export function SearchHoverCard({ trigger }: Readonly<SearchHoverCardProps>) {
     ? React.cloneElement(trigger as React.ReactElement<any>, {
         onClick: (e: React.MouseEvent) => {
           setOpen(true);
-          const originalOnClick = (trigger as React.ReactElement<any>).props.onClick;
+          const originalOnClick = (trigger as React.ReactElement<any>).props
+            .onClick;
           if (originalOnClick) originalOnClick(e);
         },
       })

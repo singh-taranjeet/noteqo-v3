@@ -17,8 +17,10 @@ import {
 import { MediaPicker } from "@/features/media/components/MediaPicker";
 import { EncryptedImage } from "@/features/media/components/EncryptedImage";
 
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import type { DecryptedMedia } from "@/features/media/types/media.types";
 
 interface MediaHoverCardProps {
   type: "cover" | "emoji";
@@ -43,17 +45,23 @@ function MediaHoverCard({
     ? React.cloneElement(children as React.ReactElement<any>, {
         onClick: (e: React.MouseEvent) => {
           setOpen(true);
-          const originalOnClick = (children as React.ReactElement<any>).props.onClick;
+          const originalOnClick = (children as React.ReactElement<any>).props
+            .onClick;
           if (originalOnClick) originalOnClick(e);
         },
       })
     : children;
 
   return (
-    <HoverCard openDelay={100} closeDelay={100} open={open} onOpenChange={setOpen}>
+    <HoverCard
+      openDelay={100}
+      closeDelay={100}
+      open={open}
+      onOpenChange={setOpen}
+    >
       <HoverCardTrigger asChild>{triggerWithClick}</HoverCardTrigger>
-      <HoverCardContent 
-        align={align} 
+      <HoverCardContent
+        align={align}
         className="w-auto p-0 shadow-xl overflow-hidden bg-glass border-white/10"
       >
         <MediaPicker
@@ -103,6 +111,71 @@ export function NoteEditorSurface({
   onUpdateCoverImage,
   onUpdateEmoji,
 }: Readonly<NoteEditorSurfaceProps>) {
+  const [mediaPickerState, setMediaPickerState] = useState<{
+    open: boolean;
+    accept?: string;
+  }>({ open: false });
+
+  useEffect(() => {
+    const handlePromptMediaPicker = (e: Event) => {
+      const customEvent = e as CustomEvent<{ accept?: string }>;
+      setMediaPickerState({ open: true, accept: customEvent.detail?.accept });
+    };
+
+    window.addEventListener(
+      "noteqo:prompt-media-picker",
+      handlePromptMediaPicker,
+    );
+    return () => {
+      window.removeEventListener(
+        "noteqo:prompt-media-picker",
+        handlePromptMediaPicker,
+      );
+    };
+  }, []);
+
+  const handleAttachmentSelect = useCallback(
+    (url: string, asset?: DecryptedMedia) => {
+      if (!asset) return; // Handled by onFileSelect if uploaded directly
+
+      const isVideo = asset.mimeType?.startsWith("video/");
+      const nodeType = isVideo ? "encryptedVideo" : "encryptedImage";
+
+      editor
+        .chain()
+        .focus()
+        .insertContent({
+          type: nodeType,
+          attrs: {
+            url: asset.url,
+            fileName: asset.title || "Asset",
+            mimeType: asset.mimeType,
+            sizeBytes: asset.sizeBytes,
+            spaceId: spaceId,
+          },
+        })
+        .run();
+
+      setMediaPickerState({ open: false });
+    },
+    [editor, spaceId],
+  );
+
+  const handleAttachmentFileSelect = useCallback(
+    (file: File) => {
+      const pos = editor.state.selection.from;
+      const fileUploaderStorage = editor.storage.fileUploader as {
+        handleUpload?: (file: File, pos: number) => void;
+      };
+
+      if (fileUploaderStorage?.handleUpload) {
+        fileUploaderStorage.handleUpload(file, pos);
+      }
+      setMediaPickerState({ open: false });
+    },
+    [editor],
+  );
+
   return (
     <div
       className={cn(
@@ -256,6 +329,26 @@ export function NoteEditorSurface({
           />
         </EditorContext.Provider>
       </div>
+      <Dialog
+        open={mediaPickerState.open}
+        onOpenChange={(open) =>
+          setMediaPickerState((prev) => ({ ...prev, open }))
+        }
+      >
+        <DialogContent className="p-0 border-white/10 bg-glass max-w-min shadow-xl overflow-hidden">
+          <DialogTitle className="sr-only">Select Media</DialogTitle>
+          {spaceId && noteId && (
+            <MediaPicker
+              type="attachment"
+              spaceId={spaceId}
+              noteId={noteId}
+              accept={mediaPickerState.accept}
+              onSelect={handleAttachmentSelect}
+              onFileSelect={handleAttachmentFileSelect}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
