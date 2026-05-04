@@ -195,3 +195,12 @@
     @apply font-sans;
   }
 }
+
+@layer utilities {
+  .bg-glass {
+    @apply bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60;
+  }
+  .bg-glass-sidebar {
+    @apply bg-sidebar/95 backdrop-blur supports-[backdrop-filter]:bg-sidebar/60;
+  }
+}

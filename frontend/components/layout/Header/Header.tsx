@@ -7,7 +7,7 @@ const HEADER_HEIGHT = 44;
 export function Header() {
   return (
     <header
-      className="sticky top-0 z-[49] flex items-center justify-between gap-2 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 shrink-0"
+      className="sticky top-0 z-[49] flex items-center justify-between gap-2 border-b border-border bg-glass px-4 shrink-0"
       style={{ height: `${HEADER_HEIGHT}px` }}
     >
       {/* Left: toggle + breadcrumb */}
