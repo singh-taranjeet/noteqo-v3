@@ -137,7 +137,7 @@ export function AssetsView() {
                     )}
 
                     {/* Top shadow gradient and information overlay */}
-                    <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black/80 via-black/40 to-transparent pointer-events-none opacity-80 group-hover:opacity-100 transition-opacity" />
+                    <div className="absolute inset-x-0 top-0 h-24 bg-linear-to-b from-black/80 via-black/40 to-transparent pointer-events-none opacity-80 group-hover:opacity-100 transition-opacity" />
                     <div className="absolute top-3 left-3 right-12 flex flex-col pointer-events-none">
                       <p className="truncate text-sm font-medium text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
                         {media.title ||

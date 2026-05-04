@@ -26,6 +26,7 @@ export const noteService = {
     title?: string,
     parentId?: string,
   ): Promise<Note> {
+
     const now = new Date().toISOString();
 
     // Determine note type from the cached space
@@ -34,7 +35,7 @@ export const noteService = {
 
     const note: Note = {
       id: crypto.randomUUID(),
-      title: title ?? NOTE_DEFAULTS.TITLE,
+      title: (title ?? NOTE_DEFAULTS.TITLE).slice(0, 50),
       emoji: getRandomItem(NOTE_EMOJI_POOL),
       coverImage: getRandomItem(NOTE_COVER_POOL),
       content: null,
@@ -103,6 +104,7 @@ export const noteService = {
   ): Promise<void> {
     const patched = {
       ...updates,
+      title: updates?.title?.slice(0, 50) || '',
       updatedAt: new Date().toISOString(),
       syncStatus: "pending" as const,
     };
@@ -125,10 +127,18 @@ export const noteService = {
     }
 
     const now = new Date().toISOString();
+    let newTitle = `${existingNote.title}`;
+    if (newTitle.length > 40) {
+      newTitle = `${newTitle.slice(0, 40)} (Copy)`;
+    }
+    else {
+      newTitle = `${existingNote.title} (Copy)`;
+    }
+
     const duplicate: Note = {
       ...existingNote,
       id: crypto.randomUUID(),
-      title: `${existingNote.title} (Copy)`,
+      title: newTitle,
       syncStatus: "pending",
       createdAt: now,
       updatedAt: now,

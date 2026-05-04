@@ -316,6 +316,7 @@ export function NoteEditorSurface({
             onBlur={onTitleBlur}
             placeholder={"Note title"}
             readOnly={isReadOnly}
+            maxLength={50}
           />
         </div>
 

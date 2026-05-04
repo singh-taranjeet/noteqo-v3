@@ -1,5 +1,6 @@
 "use client";
 import { Clock, Copy, MoreHorizontal, Plus, Star, Trash2 } from "lucide-react";
+import { ROUTES } from "@/constants/routes";
 
 import { useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
@@ -224,7 +225,7 @@ export function HeaderActions() {
                 onClick={() => {
                   deleteNoteMutation.mutate(noteId, {
                     onSuccess: () => {
-                      router.push("/");
+                      router.push(ROUTES.NOTES);
                     },
                   });
                 }}

@@ -219,7 +219,7 @@ class SyncQueueService {
     const spaceKeyBytes = await spaceService.getSpaceKeyBytes(note.spaceId);
 
     const payloadToEncrypt = {
-      title: note.title,
+      title: note.title?.slice(0, 50) || "",
       emoji: note.emoji,
       coverImage: note.coverImage,
       content: note.content,
