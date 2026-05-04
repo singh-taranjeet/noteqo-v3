@@ -43,7 +43,7 @@ export function MediaPicker({
   };
 
   return (
-    <div className="w-[320px] p-2 bg-background">
+    <div className="w-80 p-2 bg-background">
       <Tabs defaultValue={type === "emoji" ? "emoji" : "preloaded"}>
         <TabsList className="w-full mb-4">
           {type === "emoji" && <TabsTrigger value="emoji">Emoji</TabsTrigger>}

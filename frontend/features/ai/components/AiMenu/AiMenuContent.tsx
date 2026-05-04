@@ -89,7 +89,7 @@ export function AiMenuContent({
   // Normal action list
   return (
     <div className="flex flex-col gap-0.5">
-      <p className="px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+      <p className="px-2 py-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
         Edit
       </p>
       {PRIMARY_ACTIONS.map((actionType) => {
@@ -108,7 +108,7 @@ export function AiMenuContent({
 
       <Separator className="my-1" />
 
-      <p className="px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+      <p className="px-2 py-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
         Restructure
       </p>
       {RESTRUCTURE_ACTIONS.map((actionType) => {

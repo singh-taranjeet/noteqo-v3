@@ -175,10 +175,10 @@ export function NoteEditorSurface({
                   src={emoji}
                   alt="Icon"
                   spaceId={spaceId}
-                  className="h-[72px] w-[72px] object-cover rounded-md"
+                  className="size-18 object-cover rounded-md"
                 />
               ) : (
-                <div className="text-[72px] leading-none">{emoji}</div>
+                <div className="text-7xl leading-none">{emoji}</div>
               )}
 
               {!isReadOnly && spaceId && noteId && onUpdateEmoji && (

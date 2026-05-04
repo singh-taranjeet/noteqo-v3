@@ -41,7 +41,7 @@ export const CardNodeView = ({
               value={colorTheme}
               onValueChange={(v) => v && updateAttributes({ colorTheme: v })}
             >
-              <SelectTrigger className="h-6 w-[100px] text-[10px] bg-background shadow-sm border focus:ring-0">
+              <SelectTrigger className="h-6 w-24 text-xs bg-background shadow-sm border focus:ring-0">
                 <SelectValue placeholder="Theme" />
               </SelectTrigger>
               <SelectContent>

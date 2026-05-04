@@ -43,7 +43,7 @@ export function RecentSection() {
               strokeWidth={2}
               className="transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90"
             />
-            Recent
+            <span className="text-base font-medium">Recent</span>
           </CollapsibleTrigger>
         </SidebarGroupLabel>
         <CollapsibleContent>

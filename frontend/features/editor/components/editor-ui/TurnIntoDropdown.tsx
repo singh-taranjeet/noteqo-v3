@@ -125,7 +125,7 @@ export const TurnIntoDropdown: React.FC<TurnIntoDropdownProps> = ({
         onOpenAutoFocus={(e: Event) => e.preventDefault()}
         onCloseAutoFocus={(e: Event) => e.preventDefault()}
       >
-        <ScrollArea className="h-[280px] w-full p-1">
+        <ScrollArea className="h-70 w-full p-1">
           <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground mb-1">
             Turn Into
           </div>

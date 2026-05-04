@@ -44,7 +44,7 @@ export const AccordionNodeView = ({
             <Input
               ref={inputRef}
               type="text"
-              className="flex-1 bg-transparent border-none shadow-none outline-none focus-visible:ring-0 text-sm font-medium w-full min-w-[50px] pointer-events-auto"
+              className="flex-1 bg-transparent border-none shadow-none outline-none focus-visible:ring-0 text-sm font-medium w-full min-w-12 pointer-events-auto"
               placeholder="Toggle Title"
               value={title}
               onChange={(e) => updateAttributes({ title: e.target.value })}

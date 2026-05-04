@@ -78,7 +78,7 @@ export function ContentSkeletonHeader({
 }: ContentSkeletonHeaderProps) {
   return (
     <div className={cn("flex flex-col gap-4", className)}>
-      {showEmoji && <Skeleton className="size-[72px] rounded-2xl" />}
+      {showEmoji && <Skeleton className="size-18 rounded-2xl" />}
       {showTitle && <ContentSkeletonLine width="45%" height="2.25rem" />}
       {showSubtitle && <ContentSkeletonLine width="30%" height="0.875rem" />}
     </div>

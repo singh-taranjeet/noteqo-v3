@@ -126,7 +126,7 @@ export function AiMenu({
             </div>
             <Badge
               variant="outline"
-              className="h-4 px-1 text-[9px] font-normal text-muted-foreground"
+              className="h-4 px-1 text-xs font-normal text-muted-foreground"
             >
               Local
             </Badge>

@@ -126,7 +126,7 @@ function TrashNodeItem({
       </div>
 
       {isExpanded && children.length > 0 && (
-        <div className="flex flex-col relative before:absolute before:left-[31px] before:top-0 before:bottom-0 before:w-px before:bg-border">
+        <div className="flex flex-col relative before:absolute before:left-8 before:top-0 before:bottom-0 before:w-px before:bg-border">
           {children.map((child) => (
             <TrashNodeItem
               key={child.id}

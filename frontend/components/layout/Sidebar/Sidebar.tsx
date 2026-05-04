@@ -201,7 +201,7 @@ export function AppSidebar() {
                 size={16}
                 strokeWidth={1.5}
               />
-              <span>Quick Create</span>
+              <span className="text-base font-medium">Quick Create</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

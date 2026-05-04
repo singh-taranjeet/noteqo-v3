@@ -55,7 +55,7 @@ export function DashboardView() {
                 key={i}
                 className="basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/4 shrink-0"
               >
-                <Card className="h-[160px] flex flex-col">
+                <Card className="h-40 flex flex-col">
                   <CardContent className="flex-1 p-5 flex flex-col justify-between">
                     <div className="flex flex-col gap-2">
                       <Skeleton className="h-8 w-8 rounded-md mb-1" />
@@ -99,7 +99,7 @@ export function DashboardView() {
                     className="block h-full !no-underline group"
                   >
                     <Card className="h-full flex flex-col hover:border-primary/50 transition-all duration-200 group-hover:shadow-md cursor-pointer">
-                      <CardContent className="flex-1 p-5 flex flex-col justify-between h-[160px]">
+                      <CardContent className="flex-1 p-5 flex flex-col justify-between h-40">
                         <div className="flex flex-col gap-2">
                           <span
                             className="text-3xl mb-1"

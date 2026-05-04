@@ -39,7 +39,7 @@ export function SidebarNavTabs({
             className="justify-center"
           >
             <HugeiconsIcon icon={Home01Icon} size={18} strokeWidth={1.5} />
-            <span>Notes</span>
+            <span className="text-base font-medium">Notes</span>
           </SidebarMenuButton>
         </SidebarMenuItem>
         <SidebarMenuItem className="flex-[1_1_45%]">
@@ -50,7 +50,7 @@ export function SidebarNavTabs({
             className="justify-center"
           >
             <HugeiconsIcon icon={Search01Icon} size={18} strokeWidth={1.5} />
-            <span>Search</span>
+            <span className="text-base font-medium">Search</span>
           </SidebarMenuButton>
         </SidebarMenuItem>
       </SidebarMenu>
