@@ -24,6 +24,7 @@ interface SearchFilterBarProps {
   selectedPageIds: string[];
   onTogglePage: (pageId: string) => void;
   onClearPages: () => void;
+  onDropdownOpenChange?: (open: boolean) => void;
 }
 
 function getInFilterLabel(selectedCount: number): string {
@@ -41,6 +42,7 @@ export function SearchFilterBar({
   selectedPageIds,
   onTogglePage,
   onClearPages,
+  onDropdownOpenChange,
 }: Readonly<SearchFilterBarProps>) {
   const inFilterLabel = getInFilterLabel(selectedPageIds.length);
 
@@ -69,7 +71,7 @@ export function SearchFilterBar({
         {SEARCH_LABELS.FILTER_CREATED_BY}
       </Button> */}
 
-      <DropdownMenu>
+      <DropdownMenu onOpenChange={onDropdownOpenChange}>
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"

@@ -4,7 +4,11 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/constants/routes";
 import { Separator } from "@/components/ui/separator";
-import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 import type {
   SidebarSearchResultItem,
   SidebarSearchSection,
@@ -21,9 +25,8 @@ const RESULT_SECTION_IDS = {
   OLDER: "older",
 } as const;
 
-interface SearchSheetProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+interface SearchHoverCardProps {
+  trigger: React.ReactNode;
 }
 
 function toTimestamp(value: string): number {
@@ -41,10 +44,9 @@ function isRecentItem(item: SidebarSearchResultItem): boolean {
   return diffInDays <= daysInWindow;
 }
 
-export function SearchSheet({
-  open,
-  onOpenChange,
-}: Readonly<SearchSheetProps>) {
+export function SearchHoverCard({ trigger }: Readonly<SearchHoverCardProps>) {
+  const [open, setOpen] = useState(false);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
   const { items, isLoading } = useSidebarSearchNotes();
   const [queryInput, setQueryInput] = useState("");
   const [query, setQuery] = useState("");
@@ -55,13 +57,17 @@ export function SearchSheet({
   const router = useRouter();
 
   function handleOpenChange(nextOpen: boolean): void {
+    if (isFilterOpen && !nextOpen) {
+      return; // Do not close if filter dropdown is open
+    }
+
     if (nextOpen) {
       // Ensure default behavior is full-text search (title + content) on each open.
       setTitleOnly(false);
       setSelectedPageIds([]);
     }
 
-    onOpenChange(nextOpen);
+    setOpen(nextOpen);
   }
 
   useEffect(() => {
@@ -143,18 +149,25 @@ export function SearchSheet({
   function handleSelect(id: string): void {
     router.push(ROUTES.NOTE(id));
     setSelectedId(id);
-    onOpenChange(false);
+    setOpen(false);
   }
 
   return (
-    <Sheet open={open} onOpenChange={handleOpenChange}>
-      <SheetContent
-        className="!w-[100vw] !max-w-none md:!wd-[80vw] p-0 flex flex-col gap-0"
-        showCloseButton={false}
+    <HoverCard
+      openDelay={100}
+      closeDelay={100}
+      open={open}
+      onOpenChange={handleOpenChange}
+    >
+      <HoverCardTrigger asChild>{trigger}</HoverCardTrigger>
+      <HoverCardContent
+        side="right"
+        align="start"
+        sideOffset={16}
+        className="w-[90vw] max-w-[1000px] h-[80vh] min-h-[500px] max-h-[calc(100vh-2rem)] p-0 shadow-xl overflow-hidden flex flex-col bg-glass border-white/10"
       >
-        <SheetTitle className="sr-only">{SEARCH_LABELS.SHEET_TITLE}</SheetTitle>
         <SearchHeaderInput
-          onClose={() => onOpenChange(false)}
+          onClose={() => setOpen(false)}
           value={queryInput}
           onChange={setQueryInput}
         />
@@ -166,10 +179,11 @@ export function SearchSheet({
           selectedPageIds={selectedPageIds}
           onTogglePage={toggleSelectedPage}
           onClearPages={() => setSelectedPageIds([])}
+          onDropdownOpenChange={setIsFilterOpen}
         />
         <Separator />
         <div className="flex flex-1 min-h-0">
-          <div className="flex flex-col w-full md:w-[55%] md:border-r border-border">
+          <div className="flex flex-col w-full md:w-[55%] md:border-r border-border min-h-0">
             <SearchResultList
               sections={sections}
               selectedId={selectedIdForView}
@@ -178,11 +192,11 @@ export function SearchSheet({
               hasAnyNotes={items.length > 0}
             />
           </div>
-          <div className="hidden md:flex md:flex-col md:flex-1">
+          <div className="hidden md:flex md:flex-col md:flex-1 min-h-0">
             <SearchPreviewPane item={isLoading ? undefined : previewItem} />
           </div>
         </div>
-      </SheetContent>
-    </Sheet>
+      </HoverCardContent>
+    </HoverCard>
   );
 }
