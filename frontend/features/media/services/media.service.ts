@@ -165,7 +165,10 @@ export const mediaService = {
     return this.cacheDecryptMediaList(spaceId, remoteMedia);
   },
 
-  async cacheDecryptMediaList(spaceId: string, mediaList: MediaResponseDto[]): Promise<DecryptedMedia[]> {
+  async cacheDecryptMediaList(
+    spaceId: string,
+    mediaList: MediaResponseDto[],
+  ): Promise<DecryptedMedia[]> {
     const spaceKeyBase64 = await spaceService.getCachedSpaceKey(spaceId);
 
     if (!spaceKeyBase64) throw new Error("Space key not found");

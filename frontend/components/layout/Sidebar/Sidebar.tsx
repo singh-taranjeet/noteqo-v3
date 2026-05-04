@@ -29,7 +29,13 @@ import { DynamicForm } from "@/components/ui/DynamicForm";
 import type { FormFieldConfig, FormValues } from "@/components/ui/DynamicForm";
 import type { ActiveTabType } from "../types";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { PencilEdit01Icon } from "@hugeicons/core-free-icons";
+import {
+  PencilEdit01Icon,
+  Book02Icon,
+  Delete01Icon,
+  Image01Icon,
+} from "@hugeicons/core-free-icons";
+import Link from "next/link";
 
 const CREATE_SPACE_FIELDS: FormFieldConfig[] = [
   {
@@ -49,8 +55,7 @@ export function AppSidebar() {
   const { spaces = [] } = data || {};
 
   // Prefetch media for all spaces so it's instantly available when opening the media picker
-  useAllMediaList(spaces.map(s => s.id));
-
+  useAllMediaList(spaces.map((s) => s.id));
 
   const { mutate: createNote } = useCreateNote();
   const { createSpace, isLoading: isCreatingSpace } = useCreateSpace();
@@ -136,6 +141,48 @@ export function AppSidebar() {
           addSpaceTooltip="Create private space"
           onCreateNote={handleCreateNote}
         />
+
+        {/* Utilities Section */}
+        <SidebarGroup className="mt-auto pt-4">
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild>
+                <Link href="/library">
+                  <HugeiconsIcon
+                    icon={Book02Icon}
+                    size={16}
+                    strokeWidth={1.5}
+                  />
+                  <span>Library</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild>
+                <Link href="/assets">
+                  <HugeiconsIcon
+                    icon={Image01Icon}
+                    size={16}
+                    strokeWidth={1.5}
+                  />
+                  <span>Assets</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild>
+                <Link href="/trash">
+                  <HugeiconsIcon
+                    icon={Delete01Icon}
+                    size={16}
+                    strokeWidth={1.5}
+                  />
+                  <span>Trash</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroup>
       </SidebarContent>
 
       <SidebarFooter>

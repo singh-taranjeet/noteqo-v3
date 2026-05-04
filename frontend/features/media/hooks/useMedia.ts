@@ -1,13 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { mediaService } from "../services/media.service";
-import type { MediaResponseDto, DecryptedMedia } from "../types/media.types";
+import type { DecryptedMedia } from "../types/media.types";
 import { cryptoService } from "@/features/crypto";
 import { spaceService } from "@/features/spaces";
-import { SYNC_CONFIG } from "@/features/workspace/constants/workspace.constants";
 
 export function useMediaList(spaceId?: string) {
   const queryClient = useQueryClient();
-  
+
   return useQuery({
     queryKey: ["media", spaceId],
     queryFn: async (): Promise<DecryptedMedia[]> => {
@@ -17,7 +16,8 @@ export function useMediaList(spaceId?: string) {
 
       if (localMedia.length > 0) {
         // Trigger background sync without awaiting it
-        mediaService.getRemoteMediaList(spaceId)
+        mediaService
+          .getRemoteMediaList(spaceId)
           .then((remoteMedia) => {
             queryClient.setQueryData(["media", spaceId], remoteMedia);
           })
@@ -87,19 +87,31 @@ export function useAllMediaList(spaceIds: string[]) {
     queryFn: async (): Promise<DecryptedMedia[]> => {
       if (!spaceIds?.length) return [];
 
-      const localMedia = await mediaService.getLocalMediaListForSpaces(spaceIds);
+      const localMedia =
+        await mediaService.getLocalMediaListForSpaces(spaceIds);
 
       const processRemote = (remote: DecryptedMedia[]) => {
-        return remote.flat().sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        return remote
+          .flat()
+          .sort(
+            (a, b) =>
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+          );
       };
 
       if (localMedia.length > 0) {
         // Trigger background sync
-        mediaService.getAllMediaList(spaceIds)
+        mediaService
+          .getAllMediaList(spaceIds)
           .then((remoteMedia) => {
-            queryClient.setQueryData(["media", "all", spaceIds], processRemote(remoteMedia));
+            queryClient.setQueryData(
+              ["media", "all", spaceIds],
+              processRemote(remoteMedia),
+            );
           })
-          .catch((err) => console.warn("Failed background all-media sync", err));
+          .catch((err) =>
+            console.warn("Failed background all-media sync", err),
+          );
 
         return processRemote(localMedia);
       }

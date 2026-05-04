@@ -88,8 +88,6 @@ export function NoteEditorSurface({
   onUpdateCoverImage,
   onUpdateEmoji,
 }: Readonly<NoteEditorSurfaceProps>) {
-  
-
   return (
     <div
       className={cn(

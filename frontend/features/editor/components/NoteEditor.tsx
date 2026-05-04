@@ -166,6 +166,13 @@ export function NoteEditor({
   const noteRef = useRef(note);
   useEffect(() => {
     noteRef.current = note;
+
+    // Update the browser tab title dynamically since the server cannot read encrypted titles
+    if (note?.title) {
+      document.title = `${note.title} - Noteqo`;
+    } else {
+      document.title = "Noteqo";
+    }
   }, [note]);
 
   const content = note?.content || DEFAULT_CONTENT;

@@ -1,10 +1,10 @@
-import { LibraryView } from "@/features/workspace";
+import { DashboardView } from "@/features/workspace";
 
 export const metadata = {
-  title: "Notes Library - Noteqo",
-  description: "Manage your private and shared notes in Noteqo.",
+  title: "Dashboard - Noteqo",
+  description: "Welcome to your Noteqo workspace.",
 };
 
 export default function NotesPage() {
-  return <LibraryView />;
+  return <DashboardView />;
 }
