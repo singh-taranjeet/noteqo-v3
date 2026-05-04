@@ -10,17 +10,17 @@ import { BlockDragHandle } from "@/features/editor/components/editor-ui/BlockDra
 import { EditorBubbleMenu } from "@/features/editor/components/editor-ui/EditorBubbleMenu";
 
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 import { MediaPicker } from "@/features/media/components/MediaPicker";
 import { EncryptedImage } from "@/features/media/components/EncryptedImage";
 
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import React, { useState } from "react";
 
-interface MediaPopoverProps {
+interface MediaHoverCardProps {
   type: "cover" | "emoji";
   spaceId: string;
   noteId: string;
@@ -29,19 +29,33 @@ interface MediaPopoverProps {
   align?: "center" | "start" | "end";
 }
 
-function MediaPopover({
+function MediaHoverCard({
   type,
   spaceId,
   noteId,
   onSelect,
   children,
   align = "start",
-}: MediaPopoverProps) {
+}: MediaHoverCardProps) {
   const [open, setOpen] = useState(false);
+
+  const triggerWithClick = React.isValidElement(children)
+    ? React.cloneElement(children as React.ReactElement<any>, {
+        onClick: (e: React.MouseEvent) => {
+          setOpen(true);
+          const originalOnClick = (children as React.ReactElement<any>).props.onClick;
+          if (originalOnClick) originalOnClick(e);
+        },
+      })
+    : children;
+
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>{children}</PopoverTrigger>
-      <PopoverContent align={align} className="w-auto p-0">
+    <HoverCard openDelay={100} closeDelay={100} open={open} onOpenChange={setOpen}>
+      <HoverCardTrigger asChild>{triggerWithClick}</HoverCardTrigger>
+      <HoverCardContent 
+        align={align} 
+        className="w-auto p-0 shadow-xl overflow-hidden bg-glass border-white/10"
+      >
         <MediaPicker
           type={type}
           spaceId={spaceId}
@@ -51,8 +65,8 @@ function MediaPopover({
             setOpen(false);
           }}
         />
-      </PopoverContent>
-    </Popover>
+      </HoverCardContent>
+    </HoverCard>
   );
 }
 
@@ -112,7 +126,7 @@ export function NoteEditorSurface({
           />
           {!isReadOnly && spaceId && noteId && onUpdateCoverImage && (
             <div className="absolute right-4 bottom-4 opacity-0 transition-opacity group-hover/cover:opacity-100">
-              <MediaPopover
+              <MediaHoverCard
                 type="cover"
                 spaceId={spaceId}
                 noteId={noteId}
@@ -127,7 +141,7 @@ export function NoteEditorSurface({
                   <Image className="mr-2 h-4 w-4" />
                   Change Cover
                 </Button>
-              </MediaPopover>
+              </MediaHoverCard>
             </div>
           )}
         </div>
@@ -146,7 +160,7 @@ export function NoteEditorSurface({
             !coverImage &&
             onUpdateCoverImage && (
               <div className="absolute -top-6 left-0 opacity-0 transition-opacity group-hover/header:opacity-100">
-                <MediaPopover
+                <MediaHoverCard
                   type="cover"
                   spaceId={spaceId}
                   noteId={noteId}
@@ -160,7 +174,7 @@ export function NoteEditorSurface({
                     <Image className="mr-2 h-4 w-4" />
                     Add Cover
                   </Button>
-                </MediaPopover>
+                </MediaHoverCard>
               </div>
             )}
 
@@ -179,7 +193,7 @@ export function NoteEditorSurface({
 
               {!isReadOnly && spaceId && noteId && onUpdateEmoji && (
                 <div className="absolute -right-8 bottom-0 opacity-0 transition-opacity group-hover/emoji:opacity-100">
-                  <MediaPopover
+                  <MediaHoverCard
                     type="emoji"
                     spaceId={spaceId}
                     noteId={noteId}
@@ -192,7 +206,7 @@ export function NoteEditorSurface({
                     >
                       <Smile className="h-3 w-3" />
                     </Button>
-                  </MediaPopover>
+                  </MediaHoverCard>
                 </div>
               )}
             </div>
@@ -202,7 +216,7 @@ export function NoteEditorSurface({
             noteId &&
             onUpdateEmoji && (
               <div className="absolute -top-6 left-28 opacity-0 transition-opacity group-hover/header:opacity-100">
-                <MediaPopover
+                <MediaHoverCard
                   type="emoji"
                   spaceId={spaceId}
                   noteId={noteId}
@@ -216,7 +230,7 @@ export function NoteEditorSurface({
                     <Smile className="mr-2 h-4 w-4" />
                     Add Icon
                   </Button>
-                </MediaPopover>
+                </MediaHoverCard>
               </div>
             )
           )}
