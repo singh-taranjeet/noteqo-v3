@@ -1,3 +1,5 @@
+import { TrashView } from "@/features/workspace";
+
 export const metadata = {
   title: "Trash - Noteqo",
   description: "View and restore deleted notes.",
@@ -5,13 +7,8 @@ export const metadata = {
 
 export default function TrashPage() {
   return (
-    <div className="flex items-center justify-center h-full w-full">
-      <div className="text-center space-y-2">
-        <h1 className="text-2xl font-semibold tracking-tight">Trash</h1>
-        <p className="text-sm text-muted-foreground">
-          This feature is coming soon.
-        </p>
-      </div>
+    <div className="flex flex-col h-full w-full bg-background overflow-hidden">
+      <TrashView />
     </div>
   );
 }

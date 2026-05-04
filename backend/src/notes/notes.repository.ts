@@ -20,7 +20,10 @@ export class NotesRepository {
    * Retrieves a Note by ID.
    */
   async findById(id: string): Promise<Note | null> {
-    const entity = await this.noteOrm.findOne({ where: { id } });
+    const entity = await this.noteOrm.findOne({
+      where: { id },
+      withDeleted: true,
+    });
     return entity ? this.toDomain(entity) : null;
   }
 
@@ -145,6 +148,37 @@ export class NotesRepository {
   }
 
   /**
+   * Restores a soft-deleted note.
+   */
+  async restore(id: string): Promise<void> {
+    await this.noteOrm.restore(id);
+  }
+
+  /**
+   * Hard-deletes a note.
+   */
+  async hardDelete(id: string): Promise<void> {
+    await this.noteOrm.delete(id);
+  }
+
+  /**
+   * Returns an array of IDs of the note and all its descendants.
+   */
+  async getDescendantIds(id: string): Promise<string[]> {
+    const result = await this.noteOrm.query(`
+      WITH RECURSIVE note_tree AS (
+        SELECT id FROM notes WHERE id = $1
+        UNION ALL
+        SELECT n.id FROM notes n
+        INNER JOIN note_tree t ON n.parent_id = t.id
+      )
+      SELECT id FROM note_tree;
+    `, [id]);
+    
+    return result.map((row: { id: string }) => row.id);
+  }
+
+  /**
    * Retrieves all version snapshots for a given note, ordered newest-first.
    */
   async findVersions(noteId: string): Promise<NoteVersion[]> {
@@ -172,6 +206,7 @@ export class NotesRepository {
       deletedBy: entity.deletedBy,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
+      deletedAt: entity.deletedAt,
       isFavorite: entity.isFavorite,
     };
   }

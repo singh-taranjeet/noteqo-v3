@@ -60,7 +60,7 @@ export function SidebarUserProfile({
           <DropdownMenu onOpenChange={setIsOpen}>
             <DropdownMenuTrigger asChild>
               <SidebarMenuButton
-                className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground justify-between"
+                className="data-[state=open]:bg-sidebar-accent border data-[state=open]:text-sidebar-accent-foreground justify-between"
                 id="sidebar-user-profile-trigger"
               >
                 <div className="flex items-center gap-2 overflow-hidden flex-1">

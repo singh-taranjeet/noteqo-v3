@@ -70,7 +70,33 @@ export class NotesService {
       throw new NoteNotFoundException();
     }
 
-    this.logger.log(`Soft-deleting note ${id}`);
-    await this.notesRepository.delete(id);
+    this.logger.log(`Soft-deleting note ${id} and its descendants`);
+    const descendantIds = await this.notesRepository.getDescendantIds(id);
+    for (const descendantId of descendantIds) {
+      await this.notesRepository.delete(descendantId);
+    }
+  }
+
+  async restore(id: string): Promise<void> {
+    const note = await this.notesRepository.findById(id);
+    if (!note) {
+      throw new NoteNotFoundException();
+    }
+
+    this.logger.log(`Restoring note ${id} and its descendants`);
+    const descendantIds = await this.notesRepository.getDescendantIds(id);
+    for (const descendantId of descendantIds) {
+      await this.notesRepository.restore(descendantId);
+    }
+  }
+
+  async permanentDelete(id: string): Promise<void> {
+    const note = await this.notesRepository.findById(id);
+    if (!note) {
+      throw new NoteNotFoundException();
+    }
+
+    this.logger.log(`Permanently deleting note ${id} (DB CASCADE will handle descendants)`);
+    await this.notesRepository.hardDelete(id);
   }
 }

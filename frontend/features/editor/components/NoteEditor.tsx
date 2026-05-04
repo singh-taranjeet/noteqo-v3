@@ -178,10 +178,13 @@ export function NoteEditor({
   const content = note?.content || DEFAULT_CONTENT;
   const spaceId = note?.spaceId ?? null;
 
+  const isTrashed = !!note?.deletedAt;
+  const editorIsReadOnly = isReadOnly || isTrashed;
+
   const editor = useEditor(
     {
       immediatelyRender: false,
-      editable: !isReadOnly,
+      editable: !editorIsReadOnly,
       editorProps: {
         attributes: {
           autocomplete: "off",
@@ -260,7 +263,7 @@ export function NoteEditor({
       ],
       content,
       onUpdate: ({ editor }) => {
-        if (isReadOnly || !noteId) {
+        if (editorIsReadOnly || !noteId) {
           return;
         }
         queueNoteUpdate({ id: noteId, editor });
@@ -280,7 +283,7 @@ export function NoteEditor({
 
   // Listen for version-restore events to update editor content instantly
   useEffect(() => {
-    if (!editor || isReadOnly) return;
+    if (!editor || editorIsReadOnly) return;
 
     const handleVersionRestored = (e: Event) => {
       const detail = (e as CustomEvent).detail as {
@@ -316,11 +319,11 @@ export function NoteEditor({
     return () => {
       window.removeEventListener(VERSION_RESTORED_EVENT, handleVersionRestored);
     };
-  }, [editor, isReadOnly, noteId, setNote]);
+  }, [editor, editorIsReadOnly, noteId, setNote]);
 
   // Listen for slash command to create child note
   useEffect(() => {
-    if (!editor || isReadOnly || !noteId || !spaceId) return;
+    if (!editor || editorIsReadOnly || !noteId || !spaceId) return;
 
     const handleCreateChildNote = () => {
       createNoteMutation({
@@ -336,7 +339,7 @@ export function NoteEditor({
         handleCreateChildNote,
       );
     };
-  }, [editor, isReadOnly, noteId, spaceId, createNoteMutation]);
+  }, [editor, editorIsReadOnly, noteId, spaceId, createNoteMutation]);
 
   if (!isReady) {
     return <NoteEditorSkeleton />;
@@ -345,7 +348,7 @@ export function NoteEditor({
   if (!editor) return null;
 
   const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (isReadOnly) return;
+    if (editorIsReadOnly) return;
     if (!note) return;
 
     setNote({ ...note, title: e.target.value });
@@ -362,7 +365,8 @@ export function NoteEditor({
       title={note?.title}
       emoji={note?.emoji ?? ""}
       coverImage={note?.coverImage ?? ""}
-      isReadOnly={isReadOnly}
+      isReadOnly={editorIsReadOnly}
+      isTrashed={isTrashed}
       spaceId={spaceId ?? undefined}
       noteId={noteId}
       onUpdateCoverImage={(url) => {

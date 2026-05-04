@@ -195,6 +195,16 @@ class SyncQueueService {
         await noteApiService.deleteNote(event.entityId);
         break;
       }
+
+      case "RESTORE": {
+        await noteApiService.restoreNote(event.entityId);
+        break;
+      }
+
+      case "PERMANENT_DELETE": {
+        await noteApiService.permanentDeleteNote(event.entityId);
+        break;
+      }
     }
   }
 

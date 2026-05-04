@@ -15,6 +15,7 @@ export interface Note {
   deletedBy?: string;
   createdAt: Date;
   updatedAt?: Date;
+  deletedAt?: Date | null;
 }
 
 export interface NoteVersion {

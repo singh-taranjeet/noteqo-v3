@@ -63,6 +63,7 @@ interface NoteEditorSurfaceProps {
   emoji: string;
   coverImage: string;
   isReadOnly: boolean;
+  isTrashed?: boolean;
   onTitleChange?: (event: ChangeEvent<HTMLInputElement>) => void;
   onTitleBlur?: (event: FocusEvent<HTMLInputElement>) => void;
   className?: string;
@@ -79,6 +80,7 @@ export function NoteEditorSurface({
   emoji,
   coverImage,
   isReadOnly,
+  isTrashed,
   onTitleChange,
   onTitleBlur,
   className,
@@ -95,6 +97,12 @@ export function NoteEditorSurface({
         className,
       )}
     >
+      {isTrashed && (
+        <div className="w-full bg-destructive/10 text-destructive text-sm font-medium p-3 text-center border-b border-destructive/20 shrink-0">
+          This note is in the Trash and is currently read-only.
+        </div>
+      )}
+
       {coverImage ? (
         <div className="group/cover relative h-[25vh] shrink-0 sm:h-[30vh]">
           <EncryptedImage

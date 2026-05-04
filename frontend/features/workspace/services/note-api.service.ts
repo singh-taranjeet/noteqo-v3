@@ -117,4 +117,43 @@ export const noteApiService = {
     await queryClient.invalidateQueries({ queryKey: noteQueryKeys.detail(id) });
     return response;
   },
+
+  restoreNote: async (id: string) => {
+    const response = await queryClient
+      .getMutationCache()
+      .build(queryClient, {
+        mutationFn: async (noteId: string) => {
+          const res: { data: unknown } = await apiClient.post(
+            `${WORKSPACE_API_ROUTES.NOTES}/${noteId}/restore`,
+            {},
+            { auth: true },
+          );
+          return res.data;
+        },
+      })
+      .execute(id);
+
+    await queryClient.invalidateQueries({ queryKey: noteQueryKeys.lists() });
+    await queryClient.invalidateQueries({ queryKey: noteQueryKeys.detail(id) });
+    return response;
+  },
+
+  permanentDeleteNote: async (id: string) => {
+    const response = await queryClient
+      .getMutationCache()
+      .build(queryClient, {
+        mutationFn: async (noteId: string) => {
+          const res: { data: unknown } = await apiClient.delete(
+            `${WORKSPACE_API_ROUTES.NOTES}/${noteId}/permanent-delete`,
+            { auth: true },
+          );
+          return res.data;
+        },
+      })
+      .execute(id);
+
+    await queryClient.invalidateQueries({ queryKey: noteQueryKeys.lists() });
+    await queryClient.invalidateQueries({ queryKey: noteQueryKeys.detail(id) });
+    return response;
+  },
 };

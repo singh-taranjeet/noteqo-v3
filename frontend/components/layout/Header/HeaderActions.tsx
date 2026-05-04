@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
@@ -10,6 +10,7 @@ import {
   Clock04Icon,
   Copy01Icon,
   Add01Icon,
+  Delete01Icon,
 } from "@hugeicons/core-free-icons";
 import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
@@ -30,6 +31,7 @@ import { useLocalNotes } from "@/features/workspace/hooks/useLocalNotes";
 import { useDuplicateNote } from "@/features/workspace/hooks/useDuplicateNote";
 import { useToggleFavoriteNote } from "@/features/workspace/hooks/useToggleFavoriteNote";
 import { useCreateNote } from "@/features/workspace/hooks/useCreateNote";
+import { useDeleteNote } from "@/features/workspace/hooks/useDeleteNote";
 import { MOCK_USER, useUserProfile } from "@/features/auth";
 import { VersionHistoryDialog } from "@/features/editor";
 
@@ -43,6 +45,8 @@ export function HeaderActions() {
 
   const toggleFavoriteMutation = useToggleFavoriteNote();
   const createNoteMutation = useCreateNote();
+  const deleteNoteMutation = useDeleteNote();
+  const router = useRouter();
 
   const [isVersionHistoryOpen, setIsVersionHistoryOpen] = useState(false);
 
@@ -214,18 +218,38 @@ export function HeaderActions() {
           </div>
 
           {noteId && currentNote && (
-            <DropdownMenuItem
-              id="duplicate-page-button"
-              disabled={isDuplicating}
-              onClick={() => duplicateMutation.mutate({ noteId })}
-            >
-              {isDuplicating ? (
-                <Spinner className="size-4" />
-              ) : (
-                <HugeiconsIcon icon={Copy01Icon} size={16} strokeWidth={1.5} />
-              )}
-              Duplicate page
-            </DropdownMenuItem>
+            <>
+              <DropdownMenuItem
+                id="duplicate-page-button"
+                disabled={isDuplicating}
+                onClick={() => duplicateMutation.mutate({ noteId })}
+              >
+                {isDuplicating ? (
+                  <Spinner className="size-4" />
+                ) : (
+                  <HugeiconsIcon icon={Copy01Icon} size={16} strokeWidth={1.5} />
+                )}
+                Duplicate page
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="text-destructive focus:text-destructive"
+                disabled={deleteNoteMutation.isPending}
+                onClick={() => {
+                  deleteNoteMutation.mutate(noteId, {
+                    onSuccess: () => {
+                      router.push("/");
+                    },
+                  });
+                }}
+              >
+                {deleteNoteMutation.isPending ? (
+                  <Spinner className="size-4" />
+                ) : (
+                  <HugeiconsIcon icon={Delete01Icon} size={16} strokeWidth={1.5} />
+                )}
+                Delete
+              </DropdownMenuItem>
+            </>
           )}
         </DropdownMenuContent>
       </DropdownMenu>
