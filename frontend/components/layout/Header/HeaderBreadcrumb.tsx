@@ -1,5 +1,5 @@
 "use client";
-import { FileText, Folder, Home, MoreHorizontal } from "lucide-react";
+import { FileText, Folder, MoreHorizontal } from "lucide-react";
 
 import {
   Breadcrumb,
@@ -150,11 +150,10 @@ export function HeaderBreadcrumb({ items }: HeaderBreadcrumbProps) {
               onClick={() => {
                 router.push(ROUTES.NOTE(sibling.id));
               }}
-              className={`flex items-center w-full px-2 py-1.5 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground cursor-pointer transition-colors ${
-                sibling.id === note.id
+              className={`flex items-center w-full px-2 py-1.5 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground cursor-pointer transition-colors ${sibling.id === note.id
                   ? "bg-accent/50 text-accent-foreground font-medium"
                   : ""
-              }`}
+                }`}
             >
               {sibling.emoji ? (
                 <span className="mr-2 shrink-0">{sibling.emoji}</span>
@@ -320,11 +319,10 @@ export function HeaderBreadcrumb({ items }: HeaderBreadcrumbProps) {
                   onClick={() => {
                     router.push(ROUTES.NOTES);
                   }}
-                  className={`flex items-center w-full px-2 py-1.5 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground cursor-pointer transition-colors ${
-                    space.id === activeSpace.id
+                  className={`flex items-center w-full px-2 py-1.5 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground cursor-pointer transition-colors ${space.id === activeSpace.id
                       ? "bg-accent/50 text-accent-foreground font-medium"
                       : ""
-                  }`}
+                    }`}
                 >
                   <Folder size={14} className="mr-2 shrink-0" />
                   <span className="truncate">{space.name}</span>
