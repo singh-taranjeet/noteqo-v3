@@ -21,6 +21,7 @@ import { SidebarUserProfile } from "./SidebarUserProfile";
 import { SidebarNavTabs } from "./SidebarNavTabs";
 import { SidebarSpaceCategory } from "./SidebarSpaceCategory";
 import { RecentSection } from "./RecentSection";
+import { SidebarThemeToggle } from "./SidebarThemeToggle";
 import { SharedSpaceSettingsDialog } from "./SharedSpaceSettingsDialog";
 import { useSpaces, useCreateSpace } from "@/features/spaces";
 import { useCreateNote, useSyncQueue } from "@/features/workspace";
@@ -175,6 +176,7 @@ export function AppSidebar() {
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
+            <SidebarThemeToggle />
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>

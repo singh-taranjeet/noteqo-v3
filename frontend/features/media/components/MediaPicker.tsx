@@ -96,7 +96,10 @@ export function MediaPicker({
           : "w-[calc(100vw-2rem)] sm:w-80 max-w-full p-2 pt-12 sm:pt-2 bg-transparent"
       }
     >
-      <Tabs defaultValue={defaultTab} className={cn("gap-1", isAttachment && "mt-2")}>
+      <Tabs
+        defaultValue={defaultTab}
+        className={cn("gap-1", isAttachment && "mt-2")}
+      >
         <TabsList className="w-full">
           {!isAttachment && type === "emoji" && (
             <TabsTrigger value="emoji">Emoji</TabsTrigger>

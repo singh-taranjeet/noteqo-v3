@@ -127,7 +127,7 @@ export function HeaderActions() {
               ? "Remove from favorites"
               : "Add to favorites"
           }
-          className={`hidden sm:flex h-7 w-7 ${currentNote.isFavorite ? "text-yellow-500 hover:text-yellow-600" : ""}`}
+          className={`hidden sm:flex h-7 w-7 ${currentNote.isFavorite ? "text-red-500 hover:text-red-600" : ""}`}
           onClick={() =>
             toggleFavoriteMutation.mutate({
               noteId,
@@ -190,7 +190,9 @@ export function HeaderActions() {
                   <Star
                     size={16}
                     strokeWidth={1.5}
-                    className={currentNote.isFavorite ? "text-yellow-500" : ""}
+                    className={
+                      currentNote.isFavorite ? "text-red-500" : ""
+                    }
                   />
                   {currentNote.isFavorite
                     ? "Remove from favorites"
