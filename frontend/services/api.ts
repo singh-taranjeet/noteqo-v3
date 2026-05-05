@@ -1,5 +1,8 @@
 import { API_BASE_URL } from "@/constants/config";
+import { ROUTES } from "@/constants/routes";
+import { KeysService } from "@/features/auth/services/keys.service";
 import { storageService, STORAGE_KEYS } from "@/features/storage";
+import { LOCAL_STORAGE_ALL_SPACES_INITIALLY_FETCHED } from "@/features/spaces";
 
 export interface ApiRequestInit extends RequestInit {
   auth?: boolean;
@@ -41,6 +44,13 @@ async function request<T>(url: string, init: ApiRequestInit): Promise<T> {
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
+    else {
+      KeysService.clear(false).then(() => {
+        // Clear the inti localstorage option as well
+        localStorage.removeItem(LOCAL_STORAGE_ALL_SPACES_INITIALLY_FETCHED);
+      });
+      window.location.href = ROUTES.LOGIN;
+    }
   }
 
   const response = await fetch(`${API_BASE_URL}${url}`, {
@@ -49,6 +59,13 @@ async function request<T>(url: string, init: ApiRequestInit): Promise<T> {
   });
 
   if (!response.ok) {
+    if (response.status === 401 && typeof window !== "undefined") {
+      await KeysService.clear(false);
+      // Clear the inti localstorage option as well
+      localStorage.removeItem(LOCAL_STORAGE_ALL_SPACES_INITIALLY_FETCHED);
+      window.location.href = ROUTES.LOGIN;
+    }
+
     const errorBody = await response.json().catch(() => null);
     throw new Error(
       errorBody?.message || `HTTP error! status: ${response.status}`,
@@ -87,6 +104,11 @@ async function requestForm<T>(
   });
 
   if (!response.ok) {
+    if (response.status === 401 && typeof window !== "undefined") {
+      await KeysService.clear(false);
+      window.location.href = ROUTES.LOGIN;
+    }
+
     const errorBody = await response.json().catch(() => null);
     throw new Error(
       errorBody?.message || `HTTP error! status: ${response.status}`,

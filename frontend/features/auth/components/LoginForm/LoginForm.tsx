@@ -32,7 +32,7 @@ export function LoginForm() {
   const [masterKey, setMasterKey] = useState("");
 
   useEffect(() => {
-    logout(false);
+    logout(false, false);
   }, []);
 
   const redirectNotespage = useCallback(

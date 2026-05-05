@@ -108,6 +108,9 @@ export const KeysService = {
       db.notes.clear(),
       db.syncQueue.clear(),
       db.spaces.clear(),
+      db.media.clear(),
+      db.keys.clear(),
+      db.mediaBlobs.clear(),
     ]);
   },
   store: async (payload: {

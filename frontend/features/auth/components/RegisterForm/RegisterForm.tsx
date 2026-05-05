@@ -27,7 +27,7 @@ export function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
-    logout(false);
+    logout(false, false);
   }, []);
 
   const [generatedMasterKey, setGeneratedMasterKey] = useState<string | null>(
