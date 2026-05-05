@@ -171,8 +171,9 @@ export function NoteEditorSurface({
   const handleAttachmentFileSelect = useCallback(
     (file: File) => {
       const pos = editor.state.selection.from;
-      const fileUploaderStorage = (editor.storage as Record<string, unknown>)
-        .fileUploader as {
+      const fileUploaderStorage = (
+        editor.storage as unknown as Record<string, unknown>
+      ).fileUploader as {
         handleUpload?: (file: File, pos: number) => void;
       };
 

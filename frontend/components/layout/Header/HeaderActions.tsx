@@ -190,9 +190,7 @@ export function HeaderActions() {
                   <Star
                     size={16}
                     strokeWidth={1.5}
-                    className={
-                      currentNote.isFavorite ? "text-red-500" : ""
-                    }
+                    className={currentNote.isFavorite ? "text-red-500" : ""}
                   />
                   {currentNote.isFavorite
                     ? "Remove from favorites"
