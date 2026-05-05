@@ -1,5 +1,5 @@
 import { Loader2 } from "lucide-react";
-import EmojiPicker from "emoji-picker-react";
+import { EmojiPicker } from "@/components/ui/emoji-picker";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useMediaList } from "../hooks/useMedia";
 import { useUploadMedia } from "../hooks/useUploadMedia";
@@ -88,9 +88,9 @@ export function MediaPicker({
     }) || [];
 
   return (
-    <div className="w-80 p-2 bg-transparent">
-      <Tabs defaultValue={defaultTab}>
-        <TabsList className="w-full mb-4">
+    <div className="w-[calc(100vw-2rem)] sm:w-80 max-w-full p-2 pt-10 sm:pt-2 bg-transparent">
+      <Tabs defaultValue={defaultTab} className="gap-1">
+        <TabsList className="w-full">
           {!isAttachment && type === "emoji" && (
             <TabsTrigger value="emoji">Emoji</TabsTrigger>
           )}
