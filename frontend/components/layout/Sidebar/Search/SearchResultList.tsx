@@ -39,7 +39,7 @@ export function SearchResultList({
           {sections.map((section) =>
             section.items.length > 0 ? (
               <div key={section.id} className="flex flex-col gap-1">
-                <p className="px-4 pt-2 pb-1 text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
+                <p className="px-4 pt-2 pb-1 text-xs font-medium tracking-wide text-muted-foreground uppercase">
                   {section.label}
                 </p>
                 {section.items.map((item) => (

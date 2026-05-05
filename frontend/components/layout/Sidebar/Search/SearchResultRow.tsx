@@ -58,7 +58,7 @@ export function SearchResultRow({
         <ItemContent>
           <ItemTitle className="max-w-full truncate">{item.title}</ItemTitle>
           {description && (
-            <ItemDescription className="line-clamp-1 text-[10px] mt-0.5 opacity-80">
+            <ItemDescription className="line-clamp-1 text-xs mt-0.5 opacity-80">
               {description}
             </ItemDescription>
           )}

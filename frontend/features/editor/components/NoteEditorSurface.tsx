@@ -26,7 +26,7 @@ import {
 import { Button } from "@/components/ui/button";
 import React, { useState, useEffect, useCallback } from "react";
 import type { DecryptedMedia } from "@/features/media/types/media.types";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 interface MediaPopoverProps {
   type: "cover" | "emoji";

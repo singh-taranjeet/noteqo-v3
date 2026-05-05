@@ -110,7 +110,7 @@ export function HeaderBreadcrumb({ items }: HeaderBreadcrumbProps) {
     const NoteTriggerContent = () => (
       <>
         {note.emoji ? (
-          <span role="img" aria-hidden="true" className="shrink-0 text-[14px]">
+          <span role="img" aria-hidden="true" className="shrink-0 text-sm">
             {note.emoji}
           </span>
         ) : (
@@ -177,11 +177,7 @@ export function HeaderBreadcrumb({ items }: HeaderBreadcrumbProps) {
       return (
         <BreadcrumbPage className="flex items-center gap-1.5 text-sm font-medium whitespace-nowrap px-1.5 py-0.5">
           {note.emoji ? (
-            <span
-              role="img"
-              aria-hidden="true"
-              className="shrink-0 text-[14px]"
-            >
+            <span role="img" aria-hidden="true" className="shrink-0 text-sm">
               {note.emoji}
             </span>
           ) : (
@@ -203,11 +199,7 @@ export function HeaderBreadcrumb({ items }: HeaderBreadcrumbProps) {
       >
         <Link href={ROUTES.NOTE(note.id)}>
           {note.emoji ? (
-            <span
-              role="img"
-              aria-hidden="true"
-              className="shrink-0 text-[14px]"
-            >
+            <span role="img" aria-hidden="true" className="shrink-0 text-sm">
               {note.emoji}
             </span>
           ) : (

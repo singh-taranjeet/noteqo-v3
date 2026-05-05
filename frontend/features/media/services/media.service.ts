@@ -1,5 +1,5 @@
 import { cryptoService } from "@/features/crypto";
-import { spaceService } from "@/features/spaces/services/space.service";
+import { spaceService } from "@/features/spaces";
 import { apiClient } from "@/services/api";
 import type { DecryptedMedia, MediaResponseDto } from "../types/media.types";
 import { upload } from "@vercel/blob/client";

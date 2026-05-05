@@ -54,7 +54,7 @@ export function SearchFilterBar({
         className="h-7 gap-1.5 text-xs font-medium"
         onClick={onToggleTitleOnly}
       >
-        <span className="text-[11px] font-semibold tracking-wide">
+        <span className="text-xs font-semibold tracking-wide">
           {SEARCH_LABELS.TITLE_ONLY_BADGE}
         </span>
         {SEARCH_LABELS.FILTER_TITLE_ONLY}

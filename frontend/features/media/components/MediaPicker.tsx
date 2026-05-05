@@ -221,12 +221,12 @@ export function MediaPicker({
                       )}
                     </div>
                     <div className="p-2 border-t border-border/50 bg-muted/10">
-                      <p className="truncate text-[11px] font-medium text-foreground">
+                      <p className="truncate text-xs font-medium text-foreground">
                         {asset.title ||
                           asset.url.split("/").pop()?.split("?")[0]}
                       </p>
                       {asset.mimeType && (
-                        <p className="truncate text-[9px] font-bold tracking-wider text-muted-foreground mt-0.5 uppercase">
+                        <p className="truncate text-xs font-bold tracking-wider text-muted-foreground mt-0.5 uppercase">
                           {asset.mimeType.split("/")[1] || "FILE"}
                         </p>
                       )}

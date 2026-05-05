@@ -1,13 +1,10 @@
 import Dexie from "dexie";
 import type { Table } from "dexie";
 import { STORAGE_CONFIG } from "../constants/storage.constants";
-import type {
-  Note,
-  SyncEvent,
-} from "@/features/workspace/types/workspace.types";
-import type { Space } from "@/features/spaces/types/spaces.types";
+import type { Note, SyncEvent } from "@/features/workspace";
+import type { Space } from "@/features/spaces";
 
-import type { DecryptedMedia } from "@/features/media/types/media.types";
+import type { DecryptedMedia } from "@/features/media";
 
 /** Shape of a key-value entry in the keys table (migrated from raw IndexedDB). */
 interface KeyEntry {

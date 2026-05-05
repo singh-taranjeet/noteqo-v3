@@ -10,7 +10,7 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 interface SidebarHoverCardProps {
   trigger: ReactNode;
@@ -66,7 +66,7 @@ export function SidebarHoverCard({
   );
 
   const sharedClasses = cn(
-    "w-64 p-0 shadow-xl overflow-hidden flex flex-col h-[60vh] min-h-[400px] max-h-[calc(100vh-2rem)] bg-background md:bg-glass border-white/10 md:backdrop-blur-md md:supports-[backdrop-filter]:bg-background/60",
+    "w-64 p-0 shadow-xl overflow-hidden flex flex-col h-[60vh] min-h-96 max-h-[calc(100vh-2rem)] bg-background md:bg-glass border-white/10 md:backdrop-blur-md md:supports-[backdrop-filter]:bg-background/60",
     className,
   );
 

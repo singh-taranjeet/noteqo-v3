@@ -16,6 +16,7 @@ export * from "./hooks/useUserProfile";
 
 // Services
 export * from "./services/auth.service";
+export * from "./services/keys.service";
 
 // Types
 export * from "./types/auth.types";

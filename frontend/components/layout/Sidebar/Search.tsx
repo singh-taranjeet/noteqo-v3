@@ -152,7 +152,7 @@ export function SearchDialog({ trigger }: Readonly<SearchDialogProps>) {
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent
         showCloseButton={false}
-        className="sm:max-w-[1000px] w-[95vw] md:w-[90vw] h-[85vh] md:h-[80vh] min-h-[400px] md:min-h-[500px] max-h-[calc(100vh-2rem)] p-2 md:p-4 shadow-2xl overflow-hidden flex flex-col gap-0 border-border bg-background"
+        className="sm:max-w-5xl w-[95vw] md:w-[90vw] h-[85vh] md:h-[80vh] min-h-96 max-h-[calc(100vh-2rem)] p-2 md:p-4 shadow-2xl overflow-hidden flex flex-col gap-0 border-border bg-background"
       >
         <SearchHeaderInput
           onClose={() => setOpen(false)}

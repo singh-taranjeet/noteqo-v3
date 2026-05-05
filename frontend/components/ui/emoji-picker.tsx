@@ -99,7 +99,7 @@ export function EmojiPicker({
         )}
       </div>
 
-      <div className="h-[240px] w-full overflow-y-auto overscroll-contain touch-pan-y relative mt-1 px-2">
+      <div className="h-60 w-full overflow-y-auto overscroll-contain touch-pan-y relative mt-1 px-2">
         <div className="pb-4">
           {!emojisData ? (
             <div className="grid grid-cols-6 sm:grid-cols-7 md:grid-cols-8 gap-1">
@@ -110,7 +110,7 @@ export function EmojiPicker({
           ) : search ? (
             Object.entries(filteredEmojis).map(([group, emojis]) => (
               <div key={group} className="mb-4 last:mb-0">
-                <h4 className="text-[11px] font-semibold mb-2 text-muted-foreground sticky top-0 bg-background/95 backdrop-blur-sm py-1.5 z-10 uppercase tracking-wider">
+                <h4 className="text-xs font-semibold mb-2 text-muted-foreground sticky top-0 bg-background/95 backdrop-blur-sm py-1.5 z-10 uppercase tracking-wider">
                   {CATEGORY_LABELS[group] || group}
                 </h4>
                 <div className="grid grid-cols-6 sm:grid-cols-7 md:grid-cols-8 gap-1 justify-items-center">

@@ -62,9 +62,7 @@ import {
   VERSION_RESTORED_EVENT,
 } from "@/features/editor/constants/editor.constants";
 
-import { noteService } from "@/features/workspace/services/note.service";
-import type { Note } from "@/features/workspace/types/workspace.types";
-import { useCreateNote } from "@/features/workspace/hooks/useCreateNote";
+import { noteService, useCreateNote, type Note } from "@/features/workspace";
 import { NoteEditorSurface } from "./NoteEditorSurface";
 import { NoteEditorSkeleton } from "./NoteEditorSkeleton";
 

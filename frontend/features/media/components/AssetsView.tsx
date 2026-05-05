@@ -170,7 +170,7 @@ export function AssetsView() {
                           side="left"
                           align="center"
                           sideOffset={15}
-                          className="w-[400px] p-0 bg-black/95 border-white/10 overflow-hidden shadow-2xl flex items-center justify-center z-50"
+                          className="w-96 p-0 bg-black/95 border-white/10 overflow-hidden shadow-2xl flex items-center justify-center z-50"
                         >
                           {media.mimeType?.startsWith("video/") ? (
                             <EncryptedVideo
@@ -219,7 +219,7 @@ export function AssetsView() {
                       media.url.split("/").pop()?.split("?")[0] ||
                       "Unnamed Asset"}
                   </p>
-                  <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground font-medium uppercase tracking-wider">
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium uppercase tracking-wider">
                     <span>
                       {media.mimeType
                         ? media.mimeType.split("/")[1] || "FILE"

@@ -1,6 +1,6 @@
 import { API_BASE_URL } from "@/constants/config";
 import { ROUTES } from "@/constants/routes";
-import { KeysService } from "@/features/auth/services/keys.service";
+import { KeysService } from "@/features/auth";
 import { storageService, STORAGE_KEYS } from "@/features/storage";
 import { LOCAL_STORAGE_ALL_SPACES_INITIALLY_FETCHED } from "@/features/spaces";
 import { logService } from "./log.service";
