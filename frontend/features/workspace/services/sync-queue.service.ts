@@ -75,11 +75,11 @@ class SyncQueueService {
         return;
       }
 
-      if (existing.type === "CREATE" && type === "DELETE") {
-        // Net zero — never hit the API
-        await db.syncQueue.delete(existing.id);
-        return;
-      }
+      // if (existing.type === "CREATE" && type === "DELETE") {
+      //   // Net zero — never hit the API
+      //   await db.syncQueue.delete(existing.id);
+      //   return;
+      // }
 
       if (existing.type === "UPDATE" && type === "UPDATE") {
         // Update payload of existing UPDATE event
