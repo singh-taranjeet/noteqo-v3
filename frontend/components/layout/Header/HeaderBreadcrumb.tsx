@@ -91,23 +91,7 @@ export function HeaderBreadcrumb({ items }: HeaderBreadcrumbProps) {
 
   // Default Home view when no note is selected
   if (!activeSpace || !activeNote) {
-    return (
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink
-              asChild
-              className="flex items-center gap-1.5 text-sm cursor-pointer"
-            >
-              <Link href={ROUTES.NOTES}>
-                <Home size={14} strokeWidth={2} />
-                <span className="truncate">Home</span>
-              </Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-    );
+    return null;
   }
 
   const getSiblingNotes = (note: Note) => {

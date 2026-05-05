@@ -7,7 +7,7 @@ import {
   SidebarMenuButton,
 } from "@/components/ui/sidebar";
 import type { ActiveTabType } from "../types";
-import { SearchHoverCard } from "./Search";
+import { SearchDialog } from "./Search";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/constants/routes";
 
@@ -39,7 +39,7 @@ export function SidebarNavTabs({
         </SidebarMenuButton>
       </SidebarMenuItem>
       <SidebarMenuItem className="flex-[1_1_45%]">
-        <SearchHoverCard
+        <SearchDialog
           trigger={
             <SidebarMenuButton
               isActive={activeTab === "search"}

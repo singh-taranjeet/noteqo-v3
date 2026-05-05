@@ -1,9 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource } from 'typeorm';
+import { Repository, DataSource, In } from 'typeorm';
 import { SpaceEntity } from './entities/space.entity';
 import { SpaceMemberEntity } from './entities/space-member.entity';
 import { SpaceKeySlotEntity } from './entities/space-key-slot.entity';
+import { NoteEntity } from '../notes/entities/note.entity';
 import {
   Space,
   SpaceRole,
@@ -101,7 +102,7 @@ export class SpacesRepository {
    * Returns all spaces the user is a member of.
    */
   async findAllForUser(): Promise<Space[]> {
-    const userId = getCurrentUserId(); // Add 'await' if this is an async function
+    const userId = getCurrentUserId(); 
 
     const entities = await this.spaceOrm
       .createQueryBuilder('space')
@@ -112,16 +113,34 @@ export class SpacesRepository {
         'member.userId = :userId',
         { userId },
       )
-      .leftJoinAndSelect('space.notes', 'note')
       .leftJoinAndSelect(
         'space.keySlots',
         'keySlot',
         'keySlot.userId = :userId',
       )
-      .withDeleted()
       .where('space.deletedAt IS NULL')
       .orderBy('space.updatedAt', 'DESC')
       .getMany();
+
+    if (entities.length > 0) {
+      const spaceIds = entities.map((s) => s.id);
+      const notes = await this.spaceOrm.manager.find(NoteEntity, {
+        where: { spaceId: In(spaceIds) },
+        withDeleted: true,
+      });
+
+      const notesBySpace = new Map<string, NoteEntity[]>();
+      for (const note of notes) {
+        if (!notesBySpace.has(note.spaceId)) {
+          notesBySpace.set(note.spaceId, []);
+        }
+        notesBySpace.get(note.spaceId)!.push(note);
+      }
+
+      for (const space of entities) {
+        space.notes = notesBySpace.get(space.id) || [];
+      }
+    }
 
     return entities.map((e) => this.toDomain(e));
   }
