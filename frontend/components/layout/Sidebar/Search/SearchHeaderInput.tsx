@@ -19,13 +19,13 @@ export function SearchHeaderInput({
   return (
     <div className="relative flex items-center">
       <Search
-        size={18}
+        size={20}
         strokeWidth={1.5}
         className="pointer-events-none absolute left-3 text-muted-foreground"
       />
       <Input
         id="search-sheet-input"
-        className="h-11 rounded-none border-0 bg-transparent pr-4 pl-10 text-sm shadow-none focus-visible:border-0 focus-visible:ring-0"
+        className="h-12 rounded-md border-0 bg-transparent pr-4 pl-10 text-base font-medium shadow-none focus-visible:border-0 focus-visible:ring-0"
         placeholder={SEARCH_LABELS.SEARCH_PLACEHOLDER}
         value={value}
         onChange={(event) => onChange(event.target.value)}

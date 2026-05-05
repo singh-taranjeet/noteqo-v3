@@ -36,7 +36,10 @@ export function SearchPreviewPane({ item }: Readonly<SearchPreviewPaneProps>) {
   const previewNote = toPreviewNote(item);
 
   return (
-    <div className="h-full" aria-label={SEARCH_LABELS.PREVIEW_REGION_LABEL}>
+    <div
+      className="h-full rounded-xl overflow-hidden bg-background"
+      aria-label={SEARCH_LABELS.PREVIEW_REGION_LABEL}
+    >
       <NoteEditor
         noteId={previewNote.id}
         key={previewNote.id}

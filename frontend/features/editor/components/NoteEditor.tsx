@@ -70,6 +70,7 @@ import { NoteEditorSkeleton } from "./NoteEditorSkeleton";
 
 import DEFAULT_CONTENT from "@/features/editor/components/data/content.json";
 import { logService } from "@/services/log.service";
+import { cn } from "@/lib/utils";
 
 interface NoteEditorProps {
   noteId: string;
@@ -305,12 +306,12 @@ export function NoteEditor({
       setNote((prev) =>
         prev
           ? {
-              ...prev,
-              title: detail.title ?? prev.title,
-              emoji: detail.emoji ?? prev.emoji,
-              coverImage: detail.coverImage ?? prev.coverImage,
-              content: detail.content ?? prev.content,
-            }
+            ...prev,
+            title: detail.title ?? prev.title,
+            emoji: detail.emoji ?? prev.emoji,
+            coverImage: detail.coverImage ?? prev.coverImage,
+            content: detail.content ?? prev.content,
+          }
           : prev,
       );
     };

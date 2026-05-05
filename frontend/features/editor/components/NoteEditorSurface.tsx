@@ -43,21 +43,21 @@ function MediaHoverCard({
 
   const triggerWithClick = React.isValidElement(children)
     ? React.cloneElement(
-        children as React.ReactElement<{
-          onClick?: (e: React.MouseEvent) => void;
-        }>,
-        {
-          onClick: (e: React.MouseEvent) => {
-            setOpen(true);
-            const originalOnClick = (
-              children as React.ReactElement<{
-                onClick?: (e: React.MouseEvent) => void;
-              }>
-            ).props.onClick;
-            if (originalOnClick) originalOnClick(e);
-          },
+      children as React.ReactElement<{
+        onClick?: (e: React.MouseEvent) => void;
+      }>,
+      {
+        onClick: (e: React.MouseEvent) => {
+          setOpen(true);
+          const originalOnClick = (
+            children as React.ReactElement<{
+              onClick?: (e: React.MouseEvent) => void;
+            }>
+          ).props.onClick;
+          if (originalOnClick) originalOnClick(e);
         },
-      )
+      },
+    )
     : children;
 
   return (
@@ -172,9 +172,10 @@ export function NoteEditorSurface({
   const handleAttachmentFileSelect = useCallback(
     (file: File) => {
       const pos = editor.state.selection.from;
-      const fileUploaderStorage = (editor.storage as Record<string, any>).fileUploader as {
-        handleUpload?: (file: File, pos: number) => void;
-      };
+      const fileUploaderStorage = (editor.storage as Record<string, any>)
+        .fileUploader as {
+          handleUpload?: (file: File, pos: number) => void;
+        };
 
       if (fileUploaderStorage?.handleUpload) {
         fileUploaderStorage.handleUpload(file, pos);
@@ -266,7 +267,7 @@ export function NoteEditorSurface({
                   src={emoji}
                   alt="Icon"
                   spaceId={spaceId}
-                  className="size-18 object-cover rounded-md"
+                  className={cn("size-18 object-cover rounded-md")}
                 />
               ) : (
                 <div className="text-7xl leading-none">{emoji}</div>
@@ -318,7 +319,7 @@ export function NoteEditorSurface({
 
           <Input
             type="text"
-            className={`w-full !rounded-none !px-0 border-none bg-transparent !text-4xl font-bold text-foreground shadow-none outline-none placeholder:text-muted-foreground focus-visible:ring-0 !sm:text-5xl ${isReadOnly ? "!pointer-events-none" : ""}`}
+            className={`w-full rounded-none! px-0! border-none bg-transparent text-4xl! font-bold text-foreground shadow-none outline-none placeholder:text-muted-foreground focus-visible:ring-0 !sm:text-5xl ${isReadOnly ? "!pointer-events-none" : ""}`}
             value={title}
             onChange={onTitleChange}
             onBlur={onTitleBlur}
@@ -334,7 +335,7 @@ export function NoteEditorSurface({
           <EditorContent
             editor={editor}
             role="presentation"
-            className="flex-1 w-full"
+            className={cn("flex-1 w-full")}
           />
         </EditorContext.Provider>
       </div>

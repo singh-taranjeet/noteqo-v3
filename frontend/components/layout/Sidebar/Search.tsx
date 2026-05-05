@@ -3,12 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/constants/routes";
-import { Separator } from "@/components/ui/separator";
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import type {
   SidebarSearchResultItem,
   SidebarSearchSection,
@@ -25,7 +20,7 @@ const RESULT_SECTION_IDS = {
   OLDER: "older",
 } as const;
 
-interface SearchHoverCardProps {
+interface SearchDialogProps {
   trigger: React.ReactNode;
 }
 
@@ -44,7 +39,7 @@ function isRecentItem(item: SidebarSearchResultItem): boolean {
   return diffInDays <= daysInWindow;
 }
 
-export function SearchHoverCard({ trigger }: Readonly<SearchHoverCardProps>) {
+export function SearchDialog({ trigger }: Readonly<SearchDialogProps>) {
   const [open, setOpen] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const { items, isLoading } = useSidebarSearchNotes();
@@ -152,45 +147,18 @@ export function SearchHoverCard({ trigger }: Readonly<SearchHoverCardProps>) {
     setOpen(false);
   }
 
-  const triggerWithClick = React.isValidElement(trigger)
-    ? React.cloneElement(
-        trigger as React.ReactElement<{
-          onClick?: (e: React.MouseEvent) => void;
-        }>,
-        {
-          onClick: (e: React.MouseEvent) => {
-            setOpen(true);
-            const originalOnClick = (
-              trigger as React.ReactElement<{
-                onClick?: (e: React.MouseEvent) => void;
-              }>
-            ).props.onClick;
-            if (originalOnClick) originalOnClick(e);
-          },
-        },
-      )
-    : trigger;
-
   return (
-    <HoverCard
-      openDelay={100}
-      closeDelay={100}
-      open={open}
-      onOpenChange={handleOpenChange}
-    >
-      <HoverCardTrigger asChild>{triggerWithClick}</HoverCardTrigger>
-      <HoverCardContent
-        side="right"
-        align="start"
-        sideOffset={16}
-        className="w-[95vw] md:w-[90vw] max-w-[1000px] h-[85vh] md:h-[80vh] min-h-[400px] md:min-h-[500px] max-h-[calc(100vh-2rem)] p-0 shadow-xl overflow-hidden flex flex-col bg-glass border-white/10"
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogTrigger asChild>{trigger}</DialogTrigger>
+      <DialogContent
+        showCloseButton={false}
+        className="sm:max-w-[1000px] w-[95vw] md:w-[90vw] h-[85vh] md:h-[80vh] min-h-[400px] md:min-h-[500px] max-h-[calc(100vh-2rem)] p-2 md:p-4 shadow-2xl overflow-hidden flex flex-col gap-0 border-border bg-background"
       >
         <SearchHeaderInput
           onClose={() => setOpen(false)}
           value={queryInput}
           onChange={setQueryInput}
         />
-        <Separator />
         <SearchFilterBar
           titleOnly={titleOnly}
           onToggleTitleOnly={() => setTitleOnly((previous) => !previous)}
@@ -200,9 +168,8 @@ export function SearchHoverCard({ trigger }: Readonly<SearchHoverCardProps>) {
           onClearPages={() => setSelectedPageIds([])}
           onDropdownOpenChange={setIsFilterOpen}
         />
-        <Separator />
-        <div className="flex flex-1 min-h-0">
-          <div className="flex flex-col w-full md:w-[55%] md:border-r border-border min-h-0">
+        <div className="flex flex-1 min-h-0 mt-2">
+          <div className="flex flex-col flex-1 min-w-0 min-h-0">
             <SearchResultList
               sections={sections}
               selectedId={selectedIdForView}
@@ -211,11 +178,11 @@ export function SearchHoverCard({ trigger }: Readonly<SearchHoverCardProps>) {
               hasAnyNotes={items.length > 0}
             />
           </div>
-          <div className="hidden md:flex md:flex-col md:flex-1 min-h-0">
+          <div className="hidden md:flex md:flex-col md:flex-none min-h-0 pl-2 ml-2 border-l border-border/50 md:w-96 overflow-hidden">
             <SearchPreviewPane item={isLoading ? undefined : previewItem} />
           </div>
         </div>
-      </HoverCardContent>
-    </HoverCard>
+      </DialogContent>
+    </Dialog>
   );
 }
