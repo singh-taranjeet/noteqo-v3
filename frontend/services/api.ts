@@ -3,6 +3,7 @@ import { ROUTES } from "@/constants/routes";
 import { KeysService } from "@/features/auth/services/keys.service";
 import { storageService, STORAGE_KEYS } from "@/features/storage";
 import { LOCAL_STORAGE_ALL_SPACES_INITIALLY_FETCHED } from "@/features/spaces";
+import { logService } from "./log.service";
 
 export interface ApiRequestInit extends RequestInit {
   auth?: boolean;
@@ -43,8 +44,7 @@ async function request<T>(url: string, init: ApiRequestInit): Promise<T> {
 
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
-    }
-    else {
+    } else {
       KeysService.clear(false).then(() => {
         // Clear the inti localstorage option as well
         localStorage.removeItem(LOCAL_STORAGE_ALL_SPACES_INITIALLY_FETCHED);
@@ -67,9 +67,10 @@ async function request<T>(url: string, init: ApiRequestInit): Promise<T> {
     }
 
     const errorBody = await response.json().catch(() => null);
-    throw new Error(
-      errorBody?.message || `HTTP error! status: ${response.status}`,
+    logService.error(
+      `${errorBody?.message} || HTTP error! status: ${response.status}`,
     );
+    throw new Error(`Please try agin`);
   }
 
   // Handle empty responses
@@ -110,9 +111,10 @@ async function requestForm<T>(
     }
 
     const errorBody = await response.json().catch(() => null);
-    throw new Error(
-      errorBody?.message || `HTTP error! status: ${response.status}`,
+    logService.error(
+      `${errorBody?.message} || HTTP error! status: ${response.status}`,
     );
+    throw new Error(`Please try agin`);
   }
 
   const text = await response.text();

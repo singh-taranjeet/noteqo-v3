@@ -165,7 +165,8 @@ export class NotesRepository {
    * Returns an array of IDs of the note and all its descendants.
    */
   async getDescendantIds(id: string): Promise<string[]> {
-    const result = await this.noteOrm.query(`
+    const result = await this.noteOrm.query(
+      `
       WITH RECURSIVE note_tree AS (
         SELECT id FROM notes WHERE id = $1
         UNION ALL
@@ -173,8 +174,10 @@ export class NotesRepository {
         INNER JOIN note_tree t ON n.parent_id = t.id
       )
       SELECT id FROM note_tree;
-    `, [id]);
-    
+    `,
+      [id],
+    );
+
     return result.map((row: { id: string }) => row.id);
   }
 

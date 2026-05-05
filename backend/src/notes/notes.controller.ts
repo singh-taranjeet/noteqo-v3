@@ -71,7 +71,9 @@ export class NotesController {
 
   @Delete(NOTE_ROUTES.PERMANENT)
   @HttpCode(HttpStatus.NO_CONTENT)
-  async permanentDelete(@Param('noteId', ParseUUIDPipe) id: string): Promise<void> {
+  async permanentDelete(
+    @Param('noteId', ParseUUIDPipe) id: string,
+  ): Promise<void> {
     await this.notesService.permanentDelete(id);
   }
 

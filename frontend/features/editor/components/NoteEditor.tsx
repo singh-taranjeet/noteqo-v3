@@ -355,8 +355,8 @@ export function NoteEditor({
     void noteService.updateNote(noteId, { title: e.target.value });
   };
 
-  const handleTitleBlur = (e: FocusEvent<HTMLInputElement>) => {
-    handleTitleChange(e);
+  const handleTitleBlur = (_e: FocusEvent<HTMLInputElement>) => {
+    // handleTitleChange(e);
   };
 
   return (

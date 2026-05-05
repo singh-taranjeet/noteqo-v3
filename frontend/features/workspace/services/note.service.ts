@@ -34,7 +34,7 @@ export const noteService = {
 
     const note: Note = {
       id: crypto.randomUUID(),
-      title: (title ?? NOTE_DEFAULTS.TITLE).slice(0, 50),
+      title: title || NOTE_DEFAULTS.TITLE,
       emoji: getRandomItem(NOTE_EMOJI_POOL),
       coverImage: getRandomItem(NOTE_COVER_POOL),
       content: null,
@@ -103,10 +103,11 @@ export const noteService = {
   ): Promise<void> {
     const patched = {
       ...updates,
-      title: updates?.title?.slice(0, 50) || "",
+      title: updates?.title || "",
       updatedAt: new Date().toISOString(),
       syncStatus: "pending" as const,
     };
+    console.log("Patched", patched);
     await db.notes.update(id, patched);
 
     const note = await db.notes.get(id);
@@ -126,12 +127,7 @@ export const noteService = {
     }
 
     const now = new Date().toISOString();
-    let newTitle = `${existingNote.title}`;
-    if (newTitle.length > 40) {
-      newTitle = `${newTitle.slice(0, 40)} (Copy)`;
-    } else {
-      newTitle = `${existingNote.title} (Copy)`;
-    }
+    const newTitle = `${existingNote.title} (Copy)`;
 
     const duplicate: Note = {
       ...existingNote,

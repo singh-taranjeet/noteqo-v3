@@ -33,7 +33,7 @@ export function LoginForm() {
 
   useEffect(() => {
     logout(false, false);
-  }, []);
+  }, [logout]);
 
   const redirectNotespage = useCallback(
     function redirectNotesPage() {
