@@ -344,7 +344,7 @@ export function NoteEditorSurface({
           setMediaPickerState((prev) => ({ ...prev, open }))
         }
       >
-        <DialogContent className="p-0 border-white/10 bg-glass max-w-min shadow-xl overflow-hidden">
+        <DialogContent className="p-0 border-border bg-background sm:max-w-md shadow-xl overflow-hidden">
           <DialogTitle className="sr-only">Select Media</DialogTitle>
           {spaceId && noteId && (
             <MediaPicker

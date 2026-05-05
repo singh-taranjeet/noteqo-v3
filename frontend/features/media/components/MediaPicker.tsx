@@ -1,9 +1,10 @@
-import { Loader2 } from "lucide-react";
+import { Loader2, UploadCloud, Search } from "lucide-react";
 import { EmojiPicker } from "@/components/ui/emoji-picker";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useMediaList } from "../hooks/useMedia";
 import { useUploadMedia } from "../hooks/useUploadMedia";
-import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+
 import { EncryptedImage } from "@/features/media/components/EncryptedImage";
 import { EncryptedVideo } from "@/features/media/components/EncryptedVideo";
 import { useState } from "react";
@@ -88,8 +89,14 @@ export function MediaPicker({
     }) || [];
 
   return (
-    <div className="w-[calc(100vw-2rem)] sm:w-80 max-w-full p-2 pt-10 sm:pt-2 bg-transparent">
-      <Tabs defaultValue={defaultTab} className="gap-1">
+    <div
+      className={
+        isAttachment
+          ? "w-full p-4 pt-12 sm:p-6 sm:pt-10 bg-transparent"
+          : "w-[calc(100vw-2rem)] sm:w-80 max-w-full p-2 pt-12 sm:pt-2 bg-transparent"
+      }
+    >
+      <Tabs defaultValue={defaultTab} className={cn("gap-1", isAttachment && "mt-2")}>
         <TabsList className="w-full">
           {!isAttachment && type === "emoji" && (
             <TabsTrigger value="emoji">Emoji</TabsTrigger>
@@ -133,76 +140,90 @@ export function MediaPicker({
           </TabsContent>
         )}
 
-        <TabsContent value="upload">
-          <div className="flex h-32 flex-col items-center justify-center space-y-4 rounded-md border border-dashed p-4">
+        <TabsContent value="upload" className="mt-2">
+          <div className="group relative flex h-48 flex-col items-center justify-center rounded-2xl border-2 border-dashed border-primary/20 bg-primary/5 hover:bg-primary/10 hover:border-primary/40 transition-all duration-300 overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background/5 pointer-events-none" />
             {isUploading && !onFileSelect ? (
-              <Loader2 className="animate-spin h-6 w-6 text-muted-foreground" />
-            ) : (
-              <>
-                <p className="text-sm text-muted-foreground">
-                  Choose a file to upload
-                </p>
-                <div className="relative">
-                  <Button variant="outline">Select File</Button>
-                  <input
-                    type="file"
-                    className="absolute inset-0 cursor-pointer opacity-0"
-                    accept={effectiveAccept}
-                    onChange={handleUpload}
-                  />
+              <div className="flex flex-col items-center gap-3 z-10">
+                <div className="rounded-full bg-primary/20 p-3 animate-pulse">
+                  <Loader2 className="animate-spin h-6 w-6 text-primary" />
                 </div>
-              </>
+                <p className="text-sm font-medium text-primary">Uploading...</p>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center gap-3 z-10 pointer-events-none">
+                <div className="rounded-full bg-background/80 shadow-sm border border-border/50 p-4 group-hover:scale-110 group-hover:shadow-md transition-all duration-300">
+                  <UploadCloud className="h-6 w-6 text-muted-foreground group-hover:text-primary transition-colors" />
+                </div>
+                <div className="text-center space-y-1">
+                  <p className="text-sm font-medium text-foreground">
+                    Click to browse files
+                  </p>
+                  <p className="text-xs text-muted-foreground px-4">
+                    Supports images and videos depending on context
+                  </p>
+                </div>
+              </div>
             )}
+            <input
+              type="file"
+              className="absolute inset-0 h-full w-full cursor-pointer opacity-0 z-20"
+              accept={effectiveAccept}
+              onChange={handleUpload}
+              disabled={isUploading && !onFileSelect}
+            />
           </div>
         </TabsContent>
 
-        <TabsContent value="assets" className="flex flex-col space-y-4">
-          <Input
-            placeholder="Search assets..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full"
-          />
+        <TabsContent value="assets" className="flex flex-col space-y-4 mt-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search assets..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9 h-9 w-full text-sm rounded-xl bg-muted/40 border-transparent shadow-none focus-visible:ring-1 focus-visible:bg-background transition-colors"
+            />
+          </div>
           {isLoading ? (
-            <div className="flex justify-center p-4">
-              <Loader2 className="h-6 w-6 animate-spin" />
+            <div className="flex justify-center p-8">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
             </div>
           ) : imageAssets.length ? (
-            <ScrollArea className="h-64 w-full pr-3">
-              <div className="grid grid-cols-2 gap-2">
+            <ScrollArea className="h-72 w-full pr-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-1 pb-4">
                 {imageAssets.map((asset) => (
                   <div
                     key={asset.id}
-                    className="group relative aspect-video cursor-pointer overflow-hidden rounded-xl border bg-muted/30 transition-all hover:scale-[1.02] hover:shadow-md hover:ring-2 hover:ring-primary/50"
+                    className="group flex flex-col cursor-pointer overflow-hidden rounded-xl border bg-card transition-all hover:shadow-md hover:ring-2 hover:ring-primary/50"
                     onClick={() => onSelect(asset.url, asset)}
                     title={asset.title || "Asset"}
                   >
-                    {asset.mimeType?.startsWith("video/") ? (
-                      <EncryptedVideo
-                        src={asset.url}
-                        className="h-full w-full object-contain"
-                        preload="metadata"
-                        spaceId={spaceId}
-                        mimeType={asset.mimeType}
-                      />
-                    ) : (
-                      <EncryptedImage
-                        src={asset.url}
-                        alt={asset.title || ""}
-                        spaceId={spaceId}
-                        className="h-full w-full object-contain"
-                      />
-                    )}
-
-                    {/* Top shadow gradient and information overlay */}
-                    <div className="absolute inset-x-0 top-0 h-16 bg-linear-to-b from-black/80 to-transparent pointer-events-none opacity-80 group-hover:opacity-100 transition-opacity" />
-                    <div className="absolute top-2 left-2 right-2 flex flex-col pointer-events-none">
-                      <p className="truncate text-xs font-medium text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+                    <div className="relative aspect-video w-full overflow-hidden bg-muted/30">
+                      {asset.mimeType?.startsWith("video/") ? (
+                        <EncryptedVideo
+                          src={asset.url}
+                          className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          preload="metadata"
+                          spaceId={spaceId}
+                          mimeType={asset.mimeType}
+                        />
+                      ) : (
+                        <EncryptedImage
+                          src={asset.url}
+                          alt={asset.title || ""}
+                          spaceId={spaceId}
+                          className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                      )}
+                    </div>
+                    <div className="p-2 border-t border-border/50 bg-muted/10">
+                      <p className="truncate text-[11px] font-medium text-foreground">
                         {asset.title ||
                           asset.url.split("/").pop()?.split("?")[0]}
                       </p>
                       {asset.mimeType && (
-                        <p className="truncate text-[9px] font-medium tracking-wider text-white/80 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] mt-0.5 uppercase">
+                        <p className="truncate text-[9px] font-bold tracking-wider text-muted-foreground mt-0.5 uppercase">
                           {asset.mimeType.split("/")[1] || "FILE"}
                         </p>
                       )}
@@ -212,7 +233,7 @@ export function MediaPicker({
               </div>
             </ScrollArea>
           ) : (
-            <div className="p-4 text-center text-sm text-muted-foreground">
+            <div className="p-8 text-center text-sm text-muted-foreground border-2 border-dashed rounded-xl border-border/50">
               No matching assets found.
             </div>
           )}
