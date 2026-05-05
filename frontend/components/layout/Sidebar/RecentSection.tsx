@@ -95,7 +95,6 @@ export function RecentSection() {
                         <SidebarMenuButton
                           size="sm"
                           className="text-muted-foreground w-full flex justify-between group/more-btn"
-                          onClick={(e) => e.preventDefault()}
                         >
                           <span>More</span>
                           <ChevronRight
