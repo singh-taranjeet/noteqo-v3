@@ -10,19 +10,25 @@ import { BlockDragHandle } from "@/features/editor/components/editor-ui/BlockDra
 import { EditorBubbleMenu } from "@/features/editor/components/editor-ui/EditorBubbleMenu";
 
 import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { MediaPicker } from "@/features/media/components/MediaPicker";
 import { EncryptedImage } from "@/features/media/components/EncryptedImage";
 
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import React, { useState, useEffect, useCallback } from "react";
 import type { DecryptedMedia } from "@/features/media/types/media.types";
+import { useIsMobile } from "@/hooks/use-mobile";
 
-interface MediaHoverCardProps {
+interface MediaPopoverProps {
   type: "cover" | "emoji";
   spaceId: string;
   noteId: string;
@@ -31,58 +37,51 @@ interface MediaHoverCardProps {
   align?: "center" | "start" | "end";
 }
 
-function MediaHoverCard({
+function MediaPopover({
   type,
   spaceId,
   noteId,
   onSelect,
   children,
   align = "start",
-}: MediaHoverCardProps) {
+}: MediaPopoverProps) {
   const [open, setOpen] = useState(false);
+  const isMobile = useIsMobile();
 
-  const triggerWithClick = React.isValidElement(children)
-    ? React.cloneElement(
-      children as React.ReactElement<{
-        onClick?: (e: React.MouseEvent) => void;
-      }>,
-      {
-        onClick: (e: React.MouseEvent) => {
-          setOpen(true);
-          const originalOnClick = (
-            children as React.ReactElement<{
-              onClick?: (e: React.MouseEvent) => void;
-            }>
-          ).props.onClick;
-          if (originalOnClick) originalOnClick(e);
-        },
-      },
-    )
-    : children;
+  const content = (
+    <MediaPicker
+      type={type}
+      spaceId={spaceId}
+      noteId={noteId}
+      onSelect={(url) => {
+        onSelect(url);
+        setOpen(false);
+      }}
+    />
+  );
+
+  if (isMobile) {
+    return (
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger asChild>{children}</DialogTrigger>
+        <DialogContent className="w-auto max-w-[calc(100%-2rem)] p-0 shadow-xl overflow-hidden bg-background border-border/50 z-[100] gap-0">
+          <DialogTitle className="sr-only">Choose {type}</DialogTitle>
+          {content}
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
-    <HoverCard
-      openDelay={100}
-      closeDelay={100}
-      open={open}
-      onOpenChange={setOpen}
-    >
-      <HoverCardTrigger asChild>{triggerWithClick}</HoverCardTrigger>
-      <HoverCardContent
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>{children}</PopoverTrigger>
+      <PopoverContent
         align={align}
         className="w-auto p-0 shadow-xl overflow-hidden bg-glass border-white/10"
       >
-        <MediaPicker
-          type={type}
-          spaceId={spaceId}
-          noteId={noteId}
-          onSelect={(url) => {
-            onSelect(url);
-            setOpen(false);
-          }}
-        />
-      </HoverCardContent>
-    </HoverCard>
+        {content}
+      </PopoverContent>
+    </Popover>
   );
 }
 
@@ -172,10 +171,10 @@ export function NoteEditorSurface({
   const handleAttachmentFileSelect = useCallback(
     (file: File) => {
       const pos = editor.state.selection.from;
-      const fileUploaderStorage = (editor.storage as Record<string, any>)
+      const fileUploaderStorage = (editor.storage as Record<string, unknown>)
         .fileUploader as {
-          handleUpload?: (file: File, pos: number) => void;
-        };
+        handleUpload?: (file: File, pos: number) => void;
+      };
 
       if (fileUploaderStorage?.handleUpload) {
         fileUploaderStorage.handleUpload(file, pos);
@@ -207,8 +206,8 @@ export function NoteEditorSurface({
             className="h-full w-full object-cover"
           />
           {!isReadOnly && spaceId && noteId && onUpdateCoverImage && (
-            <div className="absolute right-4 bottom-4 opacity-0 transition-opacity group-hover/cover:opacity-100">
-              <MediaHoverCard
+            <div className="absolute right-4 bottom-4 opacity-100 transition-opacity md:opacity-0 md:group-hover/cover:opacity-100">
+              <MediaPopover
                 type="cover"
                 spaceId={spaceId}
                 noteId={noteId}
@@ -223,7 +222,7 @@ export function NoteEditorSurface({
                   <ImageIcon className="mr-2 h-4 w-4" />
                   Change Cover
                 </Button>
-              </MediaHoverCard>
+              </MediaPopover>
             </div>
           )}
         </div>
@@ -241,8 +240,8 @@ export function NoteEditorSurface({
             noteId &&
             !coverImage &&
             onUpdateCoverImage && (
-              <div className="absolute -top-6 left-0 opacity-0 transition-opacity group-hover/header:opacity-100">
-                <MediaHoverCard
+              <div className="absolute -top-6 left-0 opacity-100 transition-opacity md:opacity-0 md:group-hover/header:opacity-100">
+                <MediaPopover
                   type="cover"
                   spaceId={spaceId}
                   noteId={noteId}
@@ -256,7 +255,7 @@ export function NoteEditorSurface({
                     <ImageIcon className="mr-2 h-4 w-4" />
                     Add Cover
                   </Button>
-                </MediaHoverCard>
+                </MediaPopover>
               </div>
             )}
 
@@ -274,8 +273,8 @@ export function NoteEditorSurface({
               )}
 
               {!isReadOnly && spaceId && noteId && onUpdateEmoji && (
-                <div className="absolute -right-8 bottom-0 opacity-0 transition-opacity group-hover/emoji:opacity-100">
-                  <MediaHoverCard
+                <div className="absolute -right-8 bottom-0 opacity-100 transition-opacity md:opacity-0 md:group-hover/emoji:opacity-100">
+                  <MediaPopover
                     type="emoji"
                     spaceId={spaceId}
                     noteId={noteId}
@@ -288,7 +287,7 @@ export function NoteEditorSurface({
                     >
                       <Smile className="h-3 w-3" />
                     </Button>
-                  </MediaHoverCard>
+                  </MediaPopover>
                 </div>
               )}
             </div>
@@ -297,8 +296,8 @@ export function NoteEditorSurface({
             spaceId &&
             noteId &&
             onUpdateEmoji && (
-              <div className="absolute -top-6 left-28 opacity-0 transition-opacity group-hover/header:opacity-100">
-                <MediaHoverCard
+              <div className="absolute -top-6 left-28 opacity-100 transition-opacity md:opacity-0 md:group-hover/header:opacity-100">
+                <MediaPopover
                   type="emoji"
                   spaceId={spaceId}
                   noteId={noteId}
@@ -312,7 +311,7 @@ export function NoteEditorSurface({
                     <Smile className="mr-2 h-4 w-4" />
                     Add Icon
                   </Button>
-                </MediaHoverCard>
+                </MediaPopover>
               </div>
             )
           )}

@@ -23,7 +23,9 @@ function PopoverContent({
   sideOffset = 4,
   portaled = true,
   ...props
-}: React.ComponentProps<typeof PopoverPrimitive.Content> & { portaled?: boolean }) {
+}: React.ComponentProps<typeof PopoverPrimitive.Content> & {
+  portaled?: boolean;
+}) {
   const content = (
     <PopoverPrimitive.Content
       data-slot="popover-content"

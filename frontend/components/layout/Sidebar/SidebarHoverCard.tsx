@@ -5,11 +5,7 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
-import {
-  Dialog,
-  DialogContent,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { Search } from "lucide-react";
@@ -79,7 +75,10 @@ export function SidebarHoverCard({
       <Dialog>
         <DialogTrigger asChild>{trigger}</DialogTrigger>
         <DialogContent
-          className={cn(sharedClasses, "w-full max-w-[calc(100%-2rem)] z-[100] gap-0")}
+          className={cn(
+            sharedClasses,
+            "w-full max-w-[calc(100%-2rem)] z-[100] gap-0",
+          )}
         >
           {content}
         </DialogContent>
