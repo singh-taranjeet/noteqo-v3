@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -13,8 +13,10 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { KeysService } from "@/features/auth/services/keys.service";
 import { spaceService } from "@/features/spaces/services/space.service";
+import { useLogout } from "@/features/auth/hooks/useLogout";
 
 export function RegisterForm() {
+  const { logout } = useLogout();
   const router = useRouter();
   const { mutateAsync: register, isPending } = useRegister();
   const [error, setError] = useState<string | null>(null);
@@ -23,6 +25,10 @@ export function RegisterForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    logout(false);
+  }, []);
 
   const [generatedMasterKey, setGeneratedMasterKey] = useState<string | null>(
     null,

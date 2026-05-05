@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -16,8 +16,10 @@ import Link from "next/link";
 import { DynamicDialog } from "@/components/ui/DynamicDialog";
 import { KeysService } from "@/features/auth/services/keys.service";
 import { logService } from "@/services";
+import { useLogout } from "@/features/auth/hooks/useLogout";
 
 export function LoginForm() {
+  const { logout } = useLogout();
   const router = useRouter();
   const { mutateAsync: login, isPending } = useLogin();
   const [error, setError] = useState<string | null>(null);
@@ -28,6 +30,10 @@ export function LoginForm() {
 
   const [showMasterKeyPrompt, setShowMasterKeyPrompt] = useState(false);
   const [masterKey, setMasterKey] = useState("");
+
+  useEffect(() => {
+    logout(false);
+  }, []);
 
   const redirectNotespage = useCallback(
     function redirectNotesPage() {
