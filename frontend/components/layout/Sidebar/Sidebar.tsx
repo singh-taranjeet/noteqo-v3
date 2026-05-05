@@ -1,7 +1,8 @@
 "use client";
 import { BookOpen, Image as ImageIcon, PenLine, Trash2 } from "lucide-react";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import {
   Sidebar,
   SidebarContent,
@@ -13,6 +14,7 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarRail,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { useAllMediaList } from "@/features/media";
 import { SidebarUserProfile } from "./SidebarUserProfile";
@@ -42,6 +44,16 @@ const CREATE_SPACE_FIELDS: FormFieldConfig[] = [
 ];
 
 export function AppSidebar() {
+  const pathname = usePathname();
+  const { setOpenMobile, isMobile } = useSidebar();
+
+  // Close sidebar on mobile when route changes
+  useEffect(() => {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  }, [pathname, isMobile, setOpenMobile]);
+
   // Start background sync queue
   useSyncQueue();
 
