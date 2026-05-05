@@ -249,8 +249,8 @@ export function AssetsView() {
         open={!!previewMedia}
         onOpenChange={(open) => !open && setPreviewMedia(null)}
       >
-        <DialogContent 
-          showCloseButton={false} 
+        <DialogContent
+          showCloseButton={false}
           className="max-w-[95vw] sm:max-w-[95vw] w-fit max-h-[95vh] bg-transparent border-none shadow-none p-0 flex flex-col justify-center items-center"
         >
           <DialogHeader className="sr-only">

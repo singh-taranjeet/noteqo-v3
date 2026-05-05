@@ -13,6 +13,8 @@ import {
   SidebarMenuAction,
   SidebarMenuSub,
   SidebarMenuSkeleton,
+  SidebarMenuSubItem,
+  SidebarMenuSubButton,
 } from "@/components/ui/sidebar";
 import {
   Tooltip,
@@ -46,6 +48,30 @@ interface SidebarSpaceCategoryProps {
   onSettingsClick?: (space: Space) => void;
 }
 
+function filterNodeTree(
+  node: NoteTreeNode,
+  query: string,
+): NoteTreeNode | null {
+  const isMatch = (node.title || "Untitled").toLowerCase().includes(query);
+
+  if (node.children && node.children.length > 0) {
+    const filteredChildren = node.children
+      .map((child) => filterNodeTree(child, query))
+      .filter((child): child is NoteTreeNode => child !== null);
+
+    if (isMatch || filteredChildren.length > 0) {
+      return {
+        ...node,
+        children: filteredChildren,
+      };
+    }
+  } else if (isMatch) {
+    return node;
+  }
+
+  return null;
+}
+
 export function SidebarSpaceCategory({
   label,
   spaces,
@@ -68,7 +94,9 @@ export function SidebarSpaceCategory({
     let extra = allNotes;
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      extra = extra.filter((note) => note.title.toLowerCase().includes(query));
+      extra = extra
+        .map((note) => filterNodeTree(note, query))
+        .filter((note): note is NoteTreeNode => note !== null);
     }
     return extra;
   }, [allNotes, searchQuery]);
@@ -197,8 +225,22 @@ function SpaceGroupItem({
   onSettingsClick,
 }: SpaceGroupItemProps) {
   const [isOpen, setIsOpen] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
   const params = useParams();
   const activeNoteId = params?.note_id as string | undefined;
+
+  const visibleNotes = noteTrees.slice(0, 5);
+
+  const filteredExtraNotes = useMemo(() => {
+    let extra = noteTrees.slice(5);
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      extra = extra
+        .map((note) => filterNodeTree(note, query))
+        .filter((note): note is NoteTreeNode => note !== null);
+    }
+    return extra;
+  }, [noteTrees, searchQuery]);
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen} asChild>
@@ -242,13 +284,51 @@ function SpaceGroupItem({
               </div>
             ) : (
               <>
-                {noteTrees.map((note) => (
+                {visibleNotes.map((note) => (
                   <SidebarNoteTreeItem
                     key={note.id}
                     note={note}
                     activeNoteId={activeNoteId}
                   />
                 ))}
+                {noteTrees.length > 5 && (
+                  <SidebarMenuSubItem>
+                    <SidebarHoverCard
+                      title={`More ${space.name} Notes`}
+                      searchQuery={searchQuery}
+                      onSearchChange={setSearchQuery}
+                      searchPlaceholder={`Search ${space.name}...`}
+                      trigger={
+                        <SidebarMenuSubButton
+                          size="sm"
+                          className="text-muted-foreground w-full flex justify-between group/more-btn pl-6 cursor-pointer"
+                        >
+                          <span>More</span>
+                          <ChevronRight
+                            size={14}
+                            className="opacity-0 group-hover/more-btn:opacity-100 transition-opacity"
+                          />
+                        </SidebarMenuSubButton>
+                      }
+                    >
+                      {filteredExtraNotes.length === 0 ? (
+                        <div className="px-3 py-2 text-xs text-muted-foreground">
+                          No matching notes found.
+                        </div>
+                      ) : (
+                        <SidebarMenuSub className="mr-0 pr-0 border-none">
+                          {filteredExtraNotes.map((note) => (
+                            <SidebarNoteTreeItem
+                              key={note.id}
+                              note={note}
+                              activeNoteId={activeNoteId}
+                            />
+                          ))}
+                        </SidebarMenuSub>
+                      )}
+                    </SidebarHoverCard>
+                  </SidebarMenuSubItem>
+                )}
               </>
             )}
           </SidebarMenuSub>
