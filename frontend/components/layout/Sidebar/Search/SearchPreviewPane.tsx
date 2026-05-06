@@ -16,7 +16,6 @@ function toPreviewNote(item: SidebarSearchResultItem): Note {
     emoji: item.emoji,
     coverImage: item.coverImage,
     content: item.content,
-    syncStatus: "synced",
     spaceId: item.spaceId,
     type: "private",
     createdAt: item.createdAt,

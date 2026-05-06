@@ -106,11 +106,6 @@ export const spaceService = {
         decryptedNotes.push({
           ...decryptedNote,
           content: latestContent,
-          // If local is newer, keep its pending status if applicable
-          syncStatus:
-            localTime > remoteTime
-              ? localNote?.syncStatus || "synced"
-              : "synced",
         });
       }
     }

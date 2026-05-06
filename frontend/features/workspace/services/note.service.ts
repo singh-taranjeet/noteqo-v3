@@ -38,7 +38,6 @@ export const noteService = {
       emoji: getRandomItem(NOTE_EMOJI_POOL),
       coverImage: getRandomItem(NOTE_COVER_POOL),
       content: null,
-      syncStatus: "pending",
       spaceId,
       parentId,
       type: noteType,
@@ -80,18 +79,10 @@ export const noteService = {
   },
 
   /**
-   * Fetches a single note from remote, decrypts with space key, and caches locally.
+   * Fetches a single note from remote.
    */
   async getRemoteNote(id: string): Promise<Note | undefined> {
-    const remoteNote = await noteApiService.getNote(id);
-    if (remoteNote) {
-      const decryptedNote = await noteService.decryptNote(remoteNote);
-      if (decryptedNote) {
-        // logService.log("Decrypted Note", decryptedNote, remoteNote);
-        await db.notes.put(decryptedNote);
-      }
-      return decryptedNote ?? undefined;
-    }
+    return noteApiService.getNote(id);
   },
 
   /**
@@ -101,13 +92,11 @@ export const noteService = {
     id: string,
     updates: Partial<Omit<Note, "id" | "createdAt">>,
   ): Promise<void> {
-
     const note = await this.getLocalNote(id);
     const patched = {
       ...note,
       ...updates,
       updatedAt: new Date().toISOString(),
-      syncStatus: "pending" as const,
     };
     await db.notes.update(id, patched);
     const updatedNote = await this.getLocalNote(id);
@@ -133,7 +122,6 @@ export const noteService = {
       ...existingNote,
       id: crypto.randomUUID(),
       title: newTitle,
-      syncStatus: "pending",
       createdAt: now,
       updatedAt: now,
     };
@@ -171,7 +159,6 @@ export const noteService = {
     for (const descendantId of descendantIds) {
       await db.notes.update(descendantId, {
         deletedAt: now,
-        syncStatus: "pending",
       });
     }
 
@@ -190,7 +177,6 @@ export const noteService = {
       const note = await db.notes.get(descendantId);
       if (note) {
         delete note.deletedAt;
-        note.syncStatus = "pending";
         await db.notes.put(note);
       }
     }
@@ -245,7 +231,6 @@ export const noteService = {
         coverImage: payload.coverImage ?? NOTE_FALLBACKS.COVER_IMAGE,
         content: payload.content ?? null,
         parentId: note.parentId ?? payload.parentId ?? undefined,
-        syncStatus: "pending",
         spaceId: note.spaceId,
         type: note.type as "private" | "shared",
         isFavorite: note.isFavorite ?? false,

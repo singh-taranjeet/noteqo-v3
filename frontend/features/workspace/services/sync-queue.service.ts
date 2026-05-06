@@ -75,12 +75,6 @@ class SyncQueueService {
         return;
       }
 
-      // if (existing.type === "CREATE" && type === "DELETE") {
-      //   // Net zero — never hit the API
-      //   await db.syncQueue.delete(existing.id);
-      //   return;
-      // }
-
       if (existing.type === "UPDATE" && type === "UPDATE") {
         // Update payload of existing UPDATE event
         await db.syncQueue.update(existing.id, { payload });
@@ -99,6 +93,7 @@ class SyncQueueService {
       id: crypto.randomUUID(),
       type,
       entityId,
+      syncStatus: "pending",
       payload,
       retryCount: 0,
       createdAt: new Date().toISOString(),
@@ -129,15 +124,12 @@ class SyncQueueService {
           await this.processEvent(event);
           // Success — delete from queue
           await db.syncQueue.delete(event.id);
-          // Update note syncStatus
-          await db.notes.update(event.entityId, { syncStatus: "synced" });
         } catch {
           const newRetryCount = event.retryCount + 1;
 
           if (newRetryCount >= SYNC_CONFIG.MAX_RETRY_COUNT) {
             // Max retries exceeded — delete event, mark note as failed
-            await db.syncQueue.delete(event.id);
-            await db.notes.update(event.entityId, { syncStatus: "failed" });
+            await db.syncQueue.update(event.id, { syncStatus: "failed" });
           } else {
             // wait 3 seconds before trying again
             setTimeout(async () => {

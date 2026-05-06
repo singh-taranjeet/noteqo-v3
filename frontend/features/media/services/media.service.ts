@@ -286,7 +286,6 @@ export const mediaService = {
     const response = res.data;
     const localMedia = await db.media.get({ id: mediaId });
     if (localMedia) {
-
       await this.cacheDecryptMediaList(localMedia?.spaceId, [response]);
     }
     return response;

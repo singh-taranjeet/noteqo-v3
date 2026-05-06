@@ -4,7 +4,9 @@ import {
   SYNC_CONFIG,
   WORKSPACE_API_ROUTES,
 } from "../constants/workspace.constants";
-import type { RemoteNote } from "../types/workspace.types";
+import type { Note, RemoteNote } from "../types/workspace.types";
+import { noteService } from "./note.service";
+import { db } from "@/features/storage";
 
 // Create a local query client instance for caching API responses natively
 // inside the service layer, maintaining compatibility with existing consumers.
@@ -28,7 +30,7 @@ export const noteQueryKeys = {
 };
 
 export const noteApiService = {
-  getNote: async (id: string): Promise<RemoteNote> => {
+  getNote: async (id: string): Promise<Note> => {
     return queryClient.fetchQuery({
       queryKey: noteQueryKeys.detail(id),
       queryFn: async () => {
@@ -36,7 +38,12 @@ export const noteApiService = {
           `${WORKSPACE_API_ROUTES.NOTES}/${id}`,
           { auth: true },
         );
-        return response.data;
+
+        const decryptedNote = await noteService.decryptNote(response.data);
+        if (decryptedNote) {
+          await db.notes.put(decryptedNote);
+        }
+        return decryptedNote ?? undefined;
       },
       staleTime: SYNC_CONFIG.CACHE_STALE_TIME_MS,
     });

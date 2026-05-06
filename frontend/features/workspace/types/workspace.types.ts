@@ -13,7 +13,6 @@ export interface Note {
   emoji: string;
   coverImage: string;
   content: unknown;
-  syncStatus: SyncStatus;
   spaceId: string;
   parentId?: string;
   type: NoteType;
@@ -32,6 +31,7 @@ export interface SyncEvent {
   type: SyncEventType;
   entityId: string;
   payload: unknown;
+  syncStatus: SyncStatus;
   retryCount: number;
   createdAt: string;
 }
