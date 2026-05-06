@@ -286,7 +286,7 @@ export const mediaService = {
     const response = res.data;
     const localMedia = await db.media.get({ id: mediaId });
     if (localMedia) {
-      console.log("Local media fetched", localMedia);
+
       await this.cacheDecryptMediaList(localMedia?.spaceId, [response]);
     }
     return response;

@@ -26,7 +26,7 @@ interface CreateNoteDialogProps {
   defaultSpaceId?: string;
   spaceTypeLabel?: string;
 }
-
+// Create note on library page
 export function CreateNoteDialog({
   isOpen,
   onOpenChange,

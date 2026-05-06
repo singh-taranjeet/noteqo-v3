@@ -4,7 +4,6 @@ import { noteService } from "../services/note.service";
 import { NOTES_QUERY_KEY } from "./useLocalNotes";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/constants/routes";
-import { NOTE_DEFAULTS } from "../constants/workspace.constants";
 
 export function useCreateNote() {
   const queryClient = useQueryClient();
@@ -13,7 +12,7 @@ export function useCreateNote() {
   return useMutation({
     mutationFn: ({
       spaceId,
-      title = NOTE_DEFAULTS.TITLE,
+      title,
       parentId,
     }: {
       spaceId: string;

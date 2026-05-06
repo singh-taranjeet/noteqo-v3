@@ -98,6 +98,7 @@ const useLoadNoteContent = ({
             // Fetch decrypted note
             const remoteNote = await noteService.getRemoteNote(noteId);
             if (remoteNote) {
+
               setNote(remoteNote);
               setIsReady(true);
             }
@@ -303,12 +304,12 @@ export function NoteEditor({
       setNote((prev) =>
         prev
           ? {
-              ...prev,
-              title: detail.title ?? prev.title,
-              emoji: detail.emoji ?? prev.emoji,
-              coverImage: detail.coverImage ?? prev.coverImage,
-              content: detail.content ?? prev.content,
-            }
+            ...prev,
+            title: detail.title ?? prev.title,
+            emoji: detail.emoji ?? prev.emoji,
+            coverImage: detail.coverImage ?? prev.coverImage,
+            content: detail.content ?? prev.content,
+          }
           : prev,
       );
     };

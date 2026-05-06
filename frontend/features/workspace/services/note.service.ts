@@ -101,18 +101,18 @@ export const noteService = {
     id: string,
     updates: Partial<Omit<Note, "id" | "createdAt">>,
   ): Promise<void> {
+
+    const note = await this.getLocalNote(id);
     const patched = {
+      ...note,
       ...updates,
-      title: updates?.title || "",
       updatedAt: new Date().toISOString(),
       syncStatus: "pending" as const,
     };
-    console.log("Patched", patched);
     await db.notes.update(id, patched);
-
-    const note = await db.notes.get(id);
-    if (note) {
-      await syncQueueService.enqueue("UPDATE", id, note);
+    const updatedNote = await this.getLocalNote(id);
+    if (updatedNote) {
+      await syncQueueService.enqueue("UPDATE", id, updatedNote);
     }
   },
 
