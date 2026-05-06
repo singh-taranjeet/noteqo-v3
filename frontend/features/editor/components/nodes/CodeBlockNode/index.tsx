@@ -6,8 +6,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import React from "react";
+import React, { useState } from "react";
 import type { NodeViewProps } from "@tiptap/react";
+import { Check, Copy } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const LANGUAGES = [
   { value: "plaintext", label: "Plain Text" },
@@ -21,6 +23,15 @@ const LANGUAGES = [
 
 export const CodeBlockNodeView: React.FC<NodeViewProps> = (props) => {
   const language = props.node.attrs.language || "plaintext";
+  const [isCopied, setIsCopied] = useState(false);
+
+  const handleCopy = () => {
+    const text = props.node.textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+    });
+  };
 
   return (
     <NodeViewWrapper className="relative my-6 rounded-md border bg-muted">
@@ -44,6 +55,20 @@ export const CodeBlockNodeView: React.FC<NodeViewProps> = (props) => {
             ))}
           </SelectContent>
         </Select>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="h-7 w-7 text-muted-foreground hover:text-foreground"
+          onClick={handleCopy}
+          title={isCopied ? "Copied!" : "Copy code"}
+        >
+          {isCopied ? (
+            <Check className="h-4 w-4 text-green-500" />
+          ) : (
+            <Copy className="h-4 w-4" />
+          )}
+        </Button>
       </div>
       <pre className="overflow-x-auto p-4 text-sm font-mono text-foreground">
         <code>
