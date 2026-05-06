@@ -25,7 +25,10 @@ export const SYNC_API_ROUTES = {
   SYNC: "sync",
 } as const;
 
-export const SPACES_QUERY_KEY = ["spaces"] as const;
+export const SPACES_QUERY_KEY = {
+  LOCAL_SPACES: "LOCAL_SPACES",
+  REMOTE_SPACES: "REMOTE_SPACES",
+} as const;
 
 export const SPACES_MESSAGES = {
   INVITE_FAILED: "Failed to invite member",

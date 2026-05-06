@@ -61,3 +61,10 @@ export const WORKSPACE_API_ROUTES = {
 export const VERSION_API_ROUTES = {
   VERSIONS: (noteId: string) => `/notes/${noteId}/versions`,
 } as const;
+
+export const noteQueryKeys = {
+  all: ["notes"] as const,
+  lists: () => [...noteQueryKeys.all, "list"] as const,
+  detail: (id: string) => [...noteQueryKeys.all, "detail", id] as const,
+  localNote: (id: string) => [...noteQueryKeys.all, "local", id] as const,
+};

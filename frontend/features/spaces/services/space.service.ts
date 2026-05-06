@@ -7,10 +7,13 @@ import {
   SPACE_DEFAULTS,
   SPACE_TYPE,
   SPACES_MESSAGES,
+  SPACES_QUERY_KEY,
 } from "../constants/spaces.constants";
 import type { Space, SpaceType, RemoteSpace } from "../types/spaces.types";
 import type { Note } from "@/features/workspace";
 import { noteService } from "@/features/workspace";
+import { isOnline } from "@/lib/utils";
+import { getQueryClient } from "@/components/Providers/Providers";
 
 export const spaceService = {
   /**
@@ -63,59 +66,70 @@ export const spaceService = {
     return space;
   },
 
+  async getRemoteSpacesAndNotes() {
+    // if User is online
+
+    if (isOnline()) {
+      const fetchOnlyRecentlyUpdated = !!localStorage.getItem(
+        LOCAL_STORAGE_ALL_SPACES_INITIALLY_FETCHED,
+      );
+
+      const remoteSpaces = fetchOnlyRecentlyUpdated
+        ? await spaceApiService.getRecentlyUpdated()
+        : await spaceApiService.getAll();
+
+      // Decrypt all the spaces
+      const decryptedSpaces = await Promise.all(
+        remoteSpaces.map((rs) => spaceService.decryptRemoteSpace(rs)),
+      );
+
+      const validSpaces = decryptedSpaces.filter((s): s is Space => s !== null);
+
+      // Store all spaces in local db
+      await db.spaces.bulkPut(validSpaces);
+
+      // Decrypt all the notes
+      const decryptedNotes: Note[] = [];
+      const allRemoteNotes = remoteSpaces.flatMap((rs) => rs.notes || []);
+      for (const remoteNote of allRemoteNotes) {
+        const decryptedNote = await noteService.decryptNote(remoteNote);
+        const localNote = await db.notes.get(remoteNote.id);
+        const localTime = localNote?.updatedAt
+          ? new Date(localNote.updatedAt).getTime()
+          : 0;
+        const remoteTime = decryptedNote?.updatedAt
+          ? new Date(decryptedNote.updatedAt).getTime()
+          : 0;
+
+        const latestContent =
+          remoteTime >= localTime ? decryptedNote?.content : localNote?.content;
+
+        if (decryptedNote) {
+          decryptedNotes.push({
+            ...decryptedNote,
+            content: latestContent,
+          });
+        }
+      }
+
+      // Store all notesin local db
+      await db.notes.bulkPut(decryptedNotes);
+      localStorage.setItem(LOCAL_STORAGE_ALL_SPACES_INITIALLY_FETCHED, "done");
+      // invalidate the react query SPACES_QUERY_KEY
+      const queryClient = getQueryClient();
+      await queryClient.invalidateQueries({
+        queryKey: [SPACES_QUERY_KEY.LOCAL_SPACES],
+      });
+    }
+  },
+
   /**
    * Fetch spaces with notes and decrypt them and store them in the local db
    * If the local db is empty, fetch all spaces, else fetch only recently updated spaces
    */
-  async getSpaces(): Promise<{ spaces: Space[]; notes: Note[] }> {
-    const fetchOnlyRecentlyUpdated = !!localStorage.getItem(
-      LOCAL_STORAGE_ALL_SPACES_INITIALLY_FETCHED,
-    );
-
-    const remoteSpaces = fetchOnlyRecentlyUpdated
-      ? await spaceApiService.getRecentlyUpdated()
-      : await spaceApiService.getAll();
-
-    // Decrypt all the spaces
-    const decryptedSpaces = await Promise.all(
-      remoteSpaces.map((rs) => spaceService.decryptRemoteSpace(rs)),
-    );
-
-    const validSpaces = decryptedSpaces.filter((s): s is Space => s !== null);
-
-    // Store all spaces in local db
-    await db.spaces.bulkPut(validSpaces);
-
-    // Decrypt all the notes
-    const decryptedNotes: Note[] = [];
-    const allRemoteNotes = remoteSpaces.flatMap((rs) => rs.notes || []);
-    for (const remoteNote of allRemoteNotes) {
-      const decryptedNote = await noteService.decryptNote(remoteNote);
-      const localNote = await db.notes.get(remoteNote.id);
-      const localTime = localNote?.updatedAt
-        ? new Date(localNote.updatedAt).getTime()
-        : 0;
-      const remoteTime = decryptedNote?.updatedAt
-        ? new Date(decryptedNote.updatedAt).getTime()
-        : 0;
-
-      const latestContent =
-        remoteTime >= localTime ? decryptedNote?.content : localNote?.content;
-
-      if (decryptedNote) {
-        decryptedNotes.push({
-          ...decryptedNote,
-          content: latestContent,
-        });
-      }
-    }
-
-    // Store all notesin local db
-    await db.notes.bulkPut(decryptedNotes);
-
+  async getLocalSpacesAndNotes(): Promise<{ spaces: Space[]; notes: Note[] }> {
     const notes = await noteService.getAllLocalNotes();
     const spaces = await this.getLocalSpaces();
-    localStorage.setItem(LOCAL_STORAGE_ALL_SPACES_INITIALLY_FETCHED, "done");
 
     return { spaces, notes };
   },

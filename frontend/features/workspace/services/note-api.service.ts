@@ -1,33 +1,18 @@
-import { QueryClient } from "@tanstack/react-query";
+"use client";
 import { apiClient } from "@/services/api";
 import {
+  noteQueryKeys,
   SYNC_CONFIG,
   WORKSPACE_API_ROUTES,
 } from "../constants/workspace.constants";
 import type { Note, RemoteNote } from "../types/workspace.types";
 import { noteService } from "./note.service";
 import { db } from "@/features/storage";
+import { getQueryClient } from "@/components/Providers/Providers";
 
 // Create a local query client instance for caching API responses natively
 // inside the service layer, maintaining compatibility with existing consumers.
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: SYNC_CONFIG.MAX_RETRY_COUNT,
-      retryDelay: SYNC_CONFIG.BASE_BACKOFF_MS,
-    },
-    mutations: {
-      retry: SYNC_CONFIG.MAX_RETRY_COUNT,
-      retryDelay: SYNC_CONFIG.BASE_BACKOFF_MS,
-    },
-  },
-});
-
-export const noteQueryKeys = {
-  all: ["notes"] as const,
-  lists: () => [...noteQueryKeys.all, "list"] as const,
-  detail: (id: string) => [...noteQueryKeys.all, "detail", id] as const,
-};
+const queryClient = getQueryClient();
 
 export const noteApiService = {
   getNote: async (id: string): Promise<Note> => {

@@ -1,9 +1,11 @@
+"use client";
 import { db } from "@/features/storage";
 import type { Note, RemoteNote } from "../types/workspace.types";
 import {
   NOTE_DEFAULTS,
   NOTE_EMOJI_POOL,
   NOTE_COVER_POOL,
+  noteQueryKeys,
 } from "../constants/workspace.constants";
 import { syncQueueService } from "./sync-queue.service";
 import { noteApiService } from "./note-api.service";
@@ -11,10 +13,13 @@ import { logService } from "@/services/log.service";
 import { spaceService } from "@/features/spaces";
 import { NOTE_FALLBACKS } from "@/features/spaces";
 import { cryptoService } from "@/features/crypto";
+import { getQueryClient } from "@/components/Providers/Providers";
 
 function getRandomItem<T>(pool: readonly T[]): T {
   return pool[Math.floor(Math.random() * pool.length)];
 }
+
+const queryClient = getQueryClient();
 
 export const noteService = {
   /**
@@ -59,7 +64,6 @@ export const noteService = {
   async getAllLocalNotes(): Promise<Note[]> {
     return db.notes.orderBy("updatedAt").reverse().toArray();
   },
-
   /**
    * Returns all notes for a given space from local Dexie DB.
    */
@@ -75,14 +79,22 @@ export const noteService = {
    * Returns a single note by ID from the local Dexie DB.
    */
   async getLocalNote(id: string): Promise<Note | undefined> {
-    return db.notes.get(id);
+    return queryClient.fetchQuery({
+      queryKey: noteQueryKeys.localNote(id),
+      queryFn: async () => {
+        return db.notes.get(id);
+      },
+      staleTime: 0,
+    });
   },
 
   /**
    * Fetches a single note from remote.
    */
   async getRemoteNote(id: string): Promise<Note | undefined> {
-    return noteApiService.getNote(id);
+    const note = await noteApiService.getNote(id);
+    queryClient.invalidateQueries({ queryKey: noteQueryKeys.localNote(id) });
+    return note;
   },
 
   /**

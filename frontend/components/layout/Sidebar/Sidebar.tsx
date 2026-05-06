@@ -33,6 +33,7 @@ import { DynamicForm } from "@/components/ui/DynamicForm";
 import type { FormFieldConfig, FormValues } from "@/components/ui/DynamicForm";
 import type { ActiveTabType } from "../types";
 import Link from "next/link";
+import { useRemoteSpaces } from "@/features/spaces/hooks/useRemoteSpace";
 
 const CREATE_SPACE_FIELDS: FormFieldConfig[] = [
   {
@@ -59,6 +60,8 @@ export function AppSidebar() {
   useSyncQueue();
 
   const { data, isLoading: spacesLoading, spaceNoteTreesMap } = useSpaces();
+  useRemoteSpaces();
+
   const { spaces = [] } = data || {};
 
   // Prefetch media for all spaces so it's instantly available when opening the media picker

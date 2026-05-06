@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { noteService } from "../services/note.service";
-import { SPACES_QUERY_KEY } from "@/features/spaces/hooks/useSpaces";
 import { RECENT_NOTES_QUERY_KEY } from "./useRecentNotes";
+import { SPACES_QUERY_KEY } from "@/features/spaces";
 
 export function useDeleteNote() {
   const queryClient = useQueryClient();
@@ -11,7 +11,9 @@ export function useDeleteNote() {
       await noteService.deleteNote(noteId);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: SPACES_QUERY_KEY });
+      queryClient.invalidateQueries({
+        queryKey: [SPACES_QUERY_KEY.LOCAL_SPACES],
+      });
       queryClient.invalidateQueries({ queryKey: RECENT_NOTES_QUERY_KEY });
     },
   });

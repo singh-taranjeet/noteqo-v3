@@ -12,6 +12,7 @@ export { useSyncQueue } from "./hooks/useSyncQueue";
 export { useDeleteNote } from "./hooks/useDeleteNote";
 export { useRestoreNote } from "./hooks/useRestoreNote";
 export { usePermanentDeleteNote } from "./hooks/usePermanentDeleteNote";
+export { useNote } from "./hooks/useNote";
 export { noteService } from "./services/note.service";
 export { versionHistoryService } from "./services/version-history.service";
 export type {

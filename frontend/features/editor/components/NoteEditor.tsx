@@ -67,7 +67,7 @@ import { NoteEditorSurface } from "./NoteEditorSurface";
 import { NoteEditorSkeleton } from "./NoteEditorSkeleton";
 
 import DEFAULT_CONTENT from "@/features/editor/components/data/content.json";
-import { logService } from "@/services/log.service";
+import { useNote } from "@/features/workspace";
 
 interface NoteEditorProps {
   noteId: string;
@@ -86,36 +86,8 @@ const useLoadNoteContent = ({
   noteId,
   initialNote,
 }: Readonly<LoadNoteContentOptions>) => {
-  const [note, setNote] = useState<Note | null>(initialNote ?? null);
-  const [isReady, setIsReady] = useState<boolean>(Boolean(initialNote));
-
-  useEffect(() => {
-    async function loadContent() {
-      if (noteId && !initialNote) {
-        try {
-          // If ther user is online, then fetch the latest note from remote
-          if (navigator && navigator.onLine) {
-            // Fetch decrypted note
-            const remoteNote = await noteService.getRemoteNote(noteId);
-            if (remoteNote) {
-              setNote(remoteNote);
-              setIsReady(true);
-            }
-          } else {
-            const localNote = await noteService.getLocalNote(noteId);
-            if (localNote) {
-              setNote(localNote);
-              setIsReady(true);
-            }
-          }
-        } catch (error) {
-          logService.error(`Error in rendering this note`, error);
-        }
-        logService.log("Note with NoteId is ready to load", noteId);
-      }
-    }
-    loadContent();
-  }, [initialNote, noteId]);
+  const { note, setNote } = useNote(noteId || "", initialNote || null);
+  const [isReady, setIsReady] = useState(true);
 
   const [prevInitialNote, setPrevInitialNote] = useState<Note | undefined>(
     initialNote,

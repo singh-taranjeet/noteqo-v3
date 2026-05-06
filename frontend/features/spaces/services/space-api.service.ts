@@ -1,4 +1,4 @@
-import { QueryClient } from "@tanstack/react-query";
+"use client";
 import { apiClient } from "@/services/api";
 import { SPACES_API_ROUTES } from "../constants/spaces.constants";
 import { SYNC_CONFIG } from "../../workspace/constants/workspace.constants";
@@ -8,6 +8,7 @@ import type {
   SpaceNotesResponse,
   SpaceType,
 } from "../types/spaces.types";
+import { getQueryClient } from "@/components/Providers/Providers";
 
 export interface CreateSpacePayload {
   id: string;
@@ -29,18 +30,7 @@ export interface CreateSpaceNotePayload {
 
 // Create a local query client instance for caching API responses natively
 // inside the service layer, maintaining compatibility with existing consumers.
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: SYNC_CONFIG.MAX_RETRY_COUNT,
-      retryDelay: SYNC_CONFIG.BASE_BACKOFF_MS,
-    },
-    mutations: {
-      retry: SYNC_CONFIG.MAX_RETRY_COUNT,
-      retryDelay: SYNC_CONFIG.BASE_BACKOFF_MS,
-    },
-  },
-});
+const queryClient = getQueryClient();
 
 export const spaceQueryKeys = {
   all: ["spaces"] as const,
@@ -82,6 +72,7 @@ export const spaceApiService = {
         );
         return res.data;
       },
+      staleTime: 0,
     });
   },
 

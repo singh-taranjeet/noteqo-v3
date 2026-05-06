@@ -4,6 +4,7 @@ import type { SyncEvent, SyncEventType, Note } from "../types/workspace.types";
 import { SYNC_CONFIG } from "../constants/workspace.constants";
 import { noteApiService } from "./note-api.service";
 import { spaceService } from "@/features/spaces/services/space.service";
+import { isOnline } from "@/lib/utils";
 
 /**
  * Background sync queue that processes note events (CREATE, UPDATE, DELETE).
@@ -112,7 +113,7 @@ class SyncQueueService {
   private async processQueue(): Promise<void> {
     if (this.isProcessing) return;
     // Check if the application is online
-    if (typeof navigator !== "undefined" && !navigator.onLine) return;
+    if (isOnline()) return;
 
     this.isProcessing = true;
 
