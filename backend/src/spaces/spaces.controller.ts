@@ -28,11 +28,14 @@ import { SPACE_ROUTES } from './constants/spaces.constants';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { Space } from './types/spaces.types';
 import { Note } from '../notes/types/notes.types';
+import { SpaceRoleGuard } from '../auth/guards/space-role.guard';
+import { RequireSpaceRole } from '../shared/decorators/space-role.decorator';
+import { SPACE_ROLE } from './constants/spaces.constants';
 
 @Controller(SPACE_ROUTES.BASE)
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, SpaceRoleGuard)
 export class SpacesController {
-  constructor(private readonly spacesService: SpacesService) {}
+  constructor(private readonly spacesService: SpacesService) { }
 
   // ─── Spaces CRUD ─────────────────────────────────────────────────────────────
 
@@ -50,6 +53,7 @@ export class SpacesController {
   }
 
   @Get(SPACE_ROUTES.BY_ID)
+  @RequireSpaceRole({ resourceType: 'space' })
   async findOne(
     @Param('spaceId', ParseUUIDPipe) spaceId: string,
     @Req() req: { user: { id: string } },
@@ -59,6 +63,7 @@ export class SpacesController {
   }
 
   @Patch(SPACE_ROUTES.BY_ID)
+  @RequireSpaceRole({ resourceType: 'space', roles: [SPACE_ROLE.OWNER] })
   async update(
     @Param('spaceId', ParseUUIDPipe) spaceId: string,
     @Body() dto: UpdateSpaceDto,
@@ -69,6 +74,7 @@ export class SpacesController {
   }
 
   @Delete(SPACE_ROUTES.BY_ID)
+  @RequireSpaceRole({ resourceType: 'space', roles: [SPACE_ROLE.OWNER] })
   @HttpCode(HttpStatus.NO_CONTENT)
   async remove(
     @Param('spaceId', ParseUUIDPipe) spaceId: string,
@@ -86,6 +92,7 @@ export class SpacesController {
   // ─── Members ─────────────────────────────────────────────────────────────────
 
   @Post(SPACE_ROUTES.MEMBERS)
+  @RequireSpaceRole({ resourceType: 'space', roles: [SPACE_ROLE.OWNER] })
   @HttpCode(HttpStatus.CREATED)
   async addMember(
     @Param('spaceId', ParseUUIDPipe) spaceId: string,
@@ -96,6 +103,7 @@ export class SpacesController {
   }
 
   @Get(SPACE_ROUTES.MEMBERS)
+  @RequireSpaceRole({ resourceType: 'space' })
   async findMembers(
     @Param('spaceId', ParseUUIDPipe) spaceId: string,
     @Req() req: { user: { id: string } },
@@ -110,6 +118,7 @@ export class SpacesController {
   }
 
   @Delete(SPACE_ROUTES.MEMBER_BY_ID)
+  @RequireSpaceRole({ resourceType: 'space', roles: [SPACE_ROLE.OWNER] })
   @HttpCode(HttpStatus.NO_CONTENT)
   async removeMember(
     @Param('spaceId', ParseUUIDPipe) spaceId: string,

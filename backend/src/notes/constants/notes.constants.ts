@@ -34,4 +34,5 @@ export const NOTE_ROUTES = {
 export const NOTE_ERROR_MESSAGES = {
   NOT_FOUND: 'Note not found',
   PERMISSION_DENIED: 'Permission denied for this note.',
+  CONFLICT: 'Note has been modified by another user. Your version is stale.',
 } as const;

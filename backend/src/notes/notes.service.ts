@@ -4,17 +4,23 @@ import { Note, NoteVersion } from './types/notes.types';
 import { CreateNoteDto } from './dto/create-note.dto';
 import { UpdateNoteDto } from './dto/update-note.dto';
 import { NoteNotFoundException } from '../shared/exceptions/note.exception';
+import { NoteConflictException } from '../shared/exceptions/note.exception';
+import { EventsService } from '../events/events.service';
+import { getCurrentUserId } from '../shared/utils/cls.utils';
 
 @Injectable()
 export class NotesService {
   private readonly logger = new Logger(NotesService.name);
 
-  constructor(private readonly notesRepository: NotesRepository) {}
+  constructor(
+    private readonly notesRepository: NotesRepository,
+    private readonly eventsService: EventsService,
+  ) {}
 
   async create(dto: CreateNoteDto): Promise<Note> {
     this.logger.log(`Creating note in space ${dto.spaceId}`);
 
-    return this.notesRepository.create(
+    const note = await this.notesRepository.create(
       dto.id,
       Buffer.from(dto.ciphertext, 'utf8'),
       dto.spaceId,
@@ -23,6 +29,19 @@ export class NotesService {
       dto.updatedAt,
       dto.parentId,
     );
+
+    // Publish real-time event
+    await this.eventsService.publish({
+      entity: 'note',
+      type: 'NOTE_CREATED',
+      noteId: note.id,
+      spaceId: note.spaceId,
+      version: note.version,
+      updatedBy: getCurrentUserId() || '',
+      updatedAt: note.updatedAt,
+    });
+
+    return note;
   }
 
   async findAllForSpace(spaceId: string): Promise<Note[]> {
@@ -43,9 +62,17 @@ export class NotesService {
       throw new NoteNotFoundException();
     }
 
+    // Version guard: reject stale updates
+    if (note.version !== dto.baseVersion) {
+      this.logger.warn(
+        `Conflict on note ${id}: client baseVersion=${dto.baseVersion}, server version=${note.version}`,
+      );
+      throw new NoteConflictException(note);
+    }
+
     this.logger.log(`Saving new version for note ID ${id}`);
 
-    return this.notesRepository.saveNewVersion(
+    const updatedNote = await this.notesRepository.saveNewVersion(
       id,
       Buffer.from(dto.ciphertext, 'utf8'),
       note.version,
@@ -53,6 +80,19 @@ export class NotesService {
       dto.isFavorite,
       dto.parentId,
     );
+
+    // Publish real-time event
+    await this.eventsService.publish({
+      entity: 'note',
+      type: 'NOTE_UPDATED',
+      noteId: id,
+      spaceId: updatedNote.spaceId,
+      version: updatedNote.version,
+      updatedBy: getCurrentUserId() || '',
+      updatedAt: updatedNote.updatedAt,
+    });
+
+    return updatedNote;
   }
 
   async getVersions(noteId: string): Promise<NoteVersion[]> {
@@ -75,6 +115,17 @@ export class NotesService {
     for (const descendantId of descendantIds) {
       await this.notesRepository.delete(descendantId);
     }
+
+    // Publish real-time event
+    await this.eventsService.publish({
+      entity: 'note',
+      type: 'NOTE_DELETED',
+      noteId: id,
+      spaceId: note.spaceId,
+      version: note.version,
+      updatedBy: getCurrentUserId() || '',
+      updatedAt: new Date(),
+    });
   }
 
   async restore(id: string): Promise<void> {
@@ -88,6 +139,17 @@ export class NotesService {
     for (const descendantId of descendantIds) {
       await this.notesRepository.restore(descendantId);
     }
+
+    // Publish real-time event
+    await this.eventsService.publish({
+      entity: 'note',
+      type: 'NOTE_RESTORED',
+      noteId: id,
+      spaceId: note.spaceId,
+      version: note.version,
+      updatedBy: getCurrentUserId() || '',
+      updatedAt: new Date(),
+    });
   }
 
   async permanentDelete(id: string): Promise<void> {
