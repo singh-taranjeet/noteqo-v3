@@ -70,16 +70,20 @@ async function request<T>(url: string, init: ApiRequestInit): Promise<T> {
     logService.error(
       `${errorBody?.message} || HTTP error! status: ${response.status}`,
     );
-    throw new Error(`Please try agin`);
+    // throw new Error(`Please try agin`);
   }
 
   // Handle empty responses
-  const text = await response.text();
-  if (!text) {
+  try {
+    const text = await response?.text();
+    if (!text) {
+      return {} as T;
+    }
+
+    return JSON.parse(text) as T;
+  } catch {
     return {} as T;
   }
-
-  return JSON.parse(text) as T;
 }
 
 async function requestForm<T>(
@@ -114,13 +118,17 @@ async function requestForm<T>(
     logService.error(
       `${errorBody?.message} || HTTP error! status: ${response.status}`,
     );
-    throw new Error(`Please try agin`);
+    // throw new Error(`Please try agin`);
   }
 
-  const text = await response.text();
-  if (!text) {
+  try {
+    const text = await response.text();
+    if (!text) {
+      return {} as T;
+    }
+
+    return JSON.parse(text) as T;
+  } catch {
     return {} as T;
   }
-
-  return JSON.parse(text) as T;
 }

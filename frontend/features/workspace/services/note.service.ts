@@ -54,7 +54,10 @@ export const noteService = {
     await db.notes.put(note);
 
     await syncQueueService.enqueue({
-      type: "CREATE", entityId: note.id, payload: note, entity: 'note'
+      type: "CREATE",
+      entityId: note.id,
+      payload: note,
+      entity: "note",
     });
 
     return note;
@@ -94,11 +97,7 @@ export const noteService = {
    * Fetches a single note from remote.
    */
   async getRemoteNote(id: string): Promise<Note | undefined> {
-    const note = await noteApiService.getNote(id);
-    await queryClient.invalidateQueries({
-      queryKey: noteQueryKeys.localNoteId(id),
-    });
-    return note;
+    return noteApiService.getNote(id);
   },
 
   /**
@@ -117,11 +116,12 @@ export const noteService = {
     await db.notes.update(id, patched);
     const updatedNote = await this.getLocalNote(id);
     if (updatedNote) {
-
-      console.log("queued update")
-
+      console.log("queued update", patched);
       await syncQueueService.enqueue({
-        type: "UPDATE", entityId: id, payload: updatedNote, entity: 'note'
+        type: "UPDATE",
+        entityId: id,
+        payload: patched,
+        entity: "note",
       });
     }
   },
@@ -149,7 +149,10 @@ export const noteService = {
 
     await db.notes.put(duplicate);
     await syncQueueService.enqueue({
-      type: "CREATE", entityId: duplicate.id, payload: duplicate, entity: 'note'
+      type: "CREATE",
+      entityId: duplicate.id,
+      payload: duplicate,
+      entity: "note",
     });
 
     return duplicate;
@@ -188,7 +191,10 @@ export const noteService = {
     // Only enqueue DELETE for the parent; backend will cascade
 
     await syncQueueService.enqueue({
-      type: "DELETE", entityId: id, payload: { id }, entity: 'note'
+      type: "DELETE",
+      entityId: id,
+      payload: { id },
+      entity: "note",
     });
   },
 
@@ -210,7 +216,10 @@ export const noteService = {
     // Only enqueue RESTORE for the parent; backend will cascade
 
     await syncQueueService.enqueue({
-      type: "RESTORE", entityId: id, payload: { id }, entity: 'note'
+      type: "RESTORE",
+      entityId: id,
+      payload: { id },
+      entity: "note",
     });
   },
 
@@ -224,9 +233,11 @@ export const noteService = {
       await db.notes.delete(descendantId);
     }
 
-
     await syncQueueService.enqueue({
-      type: "PERMANENT_DELETE", entityId: id, payload: { id }, entity: 'note'
+      type: "PERMANENT_DELETE",
+      entityId: id,
+      payload: { id },
+      entity: "note",
     });
   },
 

@@ -27,6 +27,13 @@ export const noteApiService = {
         const decryptedNote = await noteService.decryptNote(response.data);
         if (decryptedNote) {
           await db.notes.put(decryptedNote);
+          // Invalidate queries
+          queryClient.invalidateQueries({
+            queryKey: noteQueryKeys.localNoteId(id),
+          });
+          queryClient.invalidateQueries({
+            queryKey: noteQueryKeys.remoteNoteId(id),
+          });
         }
         return decryptedNote ?? undefined;
       },
@@ -86,8 +93,13 @@ export const noteApiService = {
 
     // TODO: We need to invalidate the space and notes query
     await queryClient.invalidateQueries({
+      queryKey: noteQueryKeys.localNoteId(payload.id),
+    });
+
+    await queryClient.invalidateQueries({
       queryKey: noteQueryKeys.remoteNoteId(payload.id),
     });
+
     return response as RemoteNote;
   },
 
@@ -106,7 +118,9 @@ export const noteApiService = {
       .execute(id);
 
     // TODO: We need to invalidate the space and notes query
-    await queryClient.invalidateQueries({ queryKey: noteQueryKeys.remoteNoteId(id) });
+    await queryClient.invalidateQueries({
+      queryKey: noteQueryKeys.remoteNoteId(id),
+    });
     return response;
   },
 
@@ -126,7 +140,9 @@ export const noteApiService = {
       .execute(id);
 
     // TODO: We need to invalidate the space and notes query
-    await queryClient.invalidateQueries({ queryKey: noteQueryKeys.remoteNoteId(id) });
+    await queryClient.invalidateQueries({
+      queryKey: noteQueryKeys.remoteNoteId(id),
+    });
     return response;
   },
 
@@ -145,7 +161,9 @@ export const noteApiService = {
       .execute(id);
 
     // TODO: We need to invalidate the space and notes query
-    await queryClient.invalidateQueries({ queryKey: noteQueryKeys.remoteNoteId(id) });
+    await queryClient.invalidateQueries({
+      queryKey: noteQueryKeys.remoteNoteId(id),
+    });
     return response;
   },
 };

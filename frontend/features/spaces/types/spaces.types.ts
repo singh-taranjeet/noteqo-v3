@@ -65,7 +65,7 @@ export type SpaceSyncEventType =
 export interface SpaceSyncEvent {
   id: string;
   type: SpaceSyncEventType;
-  entity: "space"
+  entity: "space";
   entityId: string;
   payload: unknown;
   syncStatus: SpaceSyncStatus;

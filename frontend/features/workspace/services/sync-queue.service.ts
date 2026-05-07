@@ -2,7 +2,7 @@ import { cryptoService } from "@/features/crypto";
 import type { Note } from "../types/workspace.types";
 import { noteApiService } from "./note-api.service";
 import { spaceService } from "@/features/spaces/services/space.service";
-import type { SyncEvent } from '@/features/shared/types/index.shared';
+import type { SyncEvent } from "@/features/shared/types/index.shared";
 import { BaseSyncQueueService } from "@/features/shared/services/baseSync.shared.service";
 
 /**
@@ -15,7 +15,6 @@ import { BaseSyncQueueService } from "@/features/shared/services/baseSync.shared
  * - Retries with exponential backoff up to MAX_RETRY_COUNT.
  */
 class SyncQueueService extends BaseSyncQueueService {
-
   /**
    * Process a single sync event — encrypt and send to API.
    */
@@ -39,7 +38,7 @@ class SyncQueueService extends BaseSyncQueueService {
       }
 
       case "UPDATE": {
-        console.log("Queye updaate")
+        console.log("Queye updaate", event.payload);
         const note = event.payload as Note;
         const ciphertext = await this.encryptPayload(note);
         await noteApiService.updateNote({
@@ -77,7 +76,6 @@ class SyncQueueService extends BaseSyncQueueService {
    * 3. Encrypt with AES-GCM using cryptoService → "iv:ciphertext"
    */
   private async encryptPayload(note: Note): Promise<string> {
-
     const spaceKeyBytes = await spaceService.getSpaceKeyBytes(note.spaceId);
 
     const payloadToEncrypt = {

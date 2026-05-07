@@ -11,7 +11,9 @@ export function usePermanentDeleteNote() {
       await noteService.permanentDeleteNote(noteId);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [SPACES_QUERY_KEY.LOCAL_SPACES_NOTES] });
+      queryClient.invalidateQueries({
+        queryKey: [SPACES_QUERY_KEY.LOCAL_SPACES_NOTES],
+      });
       queryClient.invalidateQueries({ queryKey: RECENT_NOTES_QUERY_KEY });
     },
   });
