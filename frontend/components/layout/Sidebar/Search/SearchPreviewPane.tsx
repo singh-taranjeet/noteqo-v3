@@ -42,7 +42,7 @@ export function SearchPreviewPane({ item }: Readonly<SearchPreviewPaneProps>) {
       <NoteEditor
         noteId={previewNote.id}
         key={previewNote.id}
-        note={previewNote}
+        initialNote={previewNote}
         isReadOnly={true}
         className="h-full"
         contentWrapperClassName="mb-0 px-6 sm:px-8"

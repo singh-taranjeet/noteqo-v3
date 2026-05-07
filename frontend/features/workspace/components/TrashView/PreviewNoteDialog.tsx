@@ -32,7 +32,7 @@ export function PreviewNoteDialog({
           </DialogDescription>
         </VisuallyHidden>
         <div className="flex-1 overflow-y-auto">
-          <NoteEditor noteId={noteId} isReadOnly />
+          <NoteEditor noteId={noteId} isReadOnly={true} />
         </div>
       </DialogContent>
     </Dialog>

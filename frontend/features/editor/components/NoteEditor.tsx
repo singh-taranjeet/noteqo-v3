@@ -71,46 +71,15 @@ import { useNote } from "@/features/workspace";
 
 interface NoteEditorProps {
   noteId: string;
-  note?: Note;
+  initialNote?: Note;
   isReadOnly?: boolean;
   className?: string;
   contentWrapperClassName?: string;
 }
 
-interface LoadNoteContentOptions {
-  noteId?: string;
-  initialNote?: Note;
-}
-
-const useLoadNoteContent = ({
-  noteId,
-  initialNote,
-}: Readonly<LoadNoteContentOptions>) => {
-  const { note, setNote } = useNote(noteId || "", initialNote || null);
-  const [isReady, setIsReady] = useState(true);
-
-  const [prevInitialNote, setPrevInitialNote] = useState<Note | undefined>(
-    initialNote,
-  );
-
-  if (initialNote !== prevInitialNote) {
-    setPrevInitialNote(initialNote);
-    if (initialNote) {
-      setNote(initialNote);
-      setIsReady(true);
-    }
-  }
-
-  return {
-    note,
-    isReady,
-    setNote,
-  };
-};
-
 export function NoteEditor({
   noteId,
-  note: providedNote,
+  initialNote,
   isReadOnly = false,
   className,
   contentWrapperClassName,
@@ -128,9 +97,8 @@ export function NoteEditor({
     [],
   );
 
-  const { note, isReady, setNote } = useLoadNoteContent({
-    noteId,
-    initialNote: providedNote,
+  const { note, setNote, loading } = useNote({
+    id: noteId, initialNote, readonly: isReadOnly
   });
 
   const noteRef = useRef(note);
@@ -243,13 +211,13 @@ export function NoteEditor({
   );
 
   useEffect(() => {
-    if (editor && isReady && content) {
+    if (editor && !loading && content) {
       // Defer to the macrotask queue to prevent React 19 flushSync collision during initial render loop
       setTimeout(() => {
         editor.commands.setContent(content);
       }, EDITOR_CONFIG.EVENT_LOOP_DEFER_MS);
     }
-  }, [editor, isReady, content]);
+  }, [editor, loading, content]);
 
   // Listen for version-restore events to update editor content instantly
   useEffect(() => {
@@ -275,12 +243,12 @@ export function NoteEditor({
       setNote((prev) =>
         prev
           ? {
-              ...prev,
-              title: detail.title ?? prev.title,
-              emoji: detail.emoji ?? prev.emoji,
-              coverImage: detail.coverImage ?? prev.coverImage,
-              content: detail.content ?? prev.content,
-            }
+            ...prev,
+            title: detail.title ?? prev.title,
+            emoji: detail.emoji ?? prev.emoji,
+            coverImage: detail.coverImage ?? prev.coverImage,
+            content: detail.content ?? prev.content,
+          }
           : prev,
       );
     };
@@ -311,7 +279,7 @@ export function NoteEditor({
     };
   }, [editor, editorIsReadOnly, noteId, spaceId, createNoteMutation]);
 
-  if (!isReady) {
+  if (loading) {
     return <NoteEditorSkeleton />;
   }
 

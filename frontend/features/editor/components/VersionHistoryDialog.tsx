@@ -96,7 +96,7 @@ export function VersionHistoryDialog({
       }}
     >
       <DialogContent
-        className="sm:max-w-[92vw] sm:h-[88vh] w-full h-[100dvh] max-w-none rounded-none sm:rounded-4xl p-0 gap-0 overflow-hidden flex flex-col"
+        className="sm:max-w-[92vw] sm:h-[88vh] w-full h-dvh max-w-none rounded-none sm:rounded-4xl p-0 gap-0 overflow-hidden flex flex-col"
         showCloseButton={!isMobile}
       >
         {/* Visually hidden title for accessibility */}
@@ -140,8 +140,8 @@ export function VersionHistoryDialog({
                   <NoteEditor
                     key={selectedVersion.id}
                     noteId={selectedVersion.noteId}
-                    note={previewNote}
-                    isReadOnly
+                    initialNote={previewNote}
+                    isReadOnly={true}
                     className="h-full"
                     contentWrapperClassName="mb-24"
                   />

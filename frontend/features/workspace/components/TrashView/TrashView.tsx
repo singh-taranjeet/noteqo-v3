@@ -154,7 +154,7 @@ function TrashNodeItem({
 
 export function TrashView() {
   const { trashedNotes, isLoading } = useSpaces();
-  const [previewNoteId, setPreviewNoteId] = useState<string | null>(null);
+  const [previewNote, setPreviewNote] = useState<Note | null>(null);
 
   const { rootNotes, childrenMap } = useMemo(() => {
     if (!trashedNotes)
@@ -230,16 +230,18 @@ export function TrashView() {
               depth={0}
               childrenMap={childrenMap}
               isRoot={true}
-              onPreviewClick={setPreviewNoteId}
+              onPreviewClick={() => setPreviewNote(note)}
             />
           ))}
         </div>
       </ScrollArea>
-      <PreviewNoteDialog
-        noteId={previewNoteId}
-        isOpen={!!previewNoteId}
-        onClose={() => setPreviewNoteId(null)}
-      />
+      {
+        previewNote ? <PreviewNoteDialog
+          noteId={previewNote?.id}
+          isOpen={!!previewNote?.id}
+          onClose={() => setPreviewNote(null)}
+        /> : null
+      }
     </div>
   );
 }

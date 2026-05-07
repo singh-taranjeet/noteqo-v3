@@ -3,26 +3,48 @@
 import { useEffect, useState } from "react";
 import { noteService } from "../services/note.service";
 import type { Note } from "../types/workspace.types";
+import { isOnline } from "@/lib/utils";
 
-export function useNote(id: string, initialNote: Note | null) {
-  const [note, setNote] = useState<Note | null>(initialNote);
-  const [loading, setLoading] = useState(true);
+export function useNote(params: {
+    id?: string,
+    initialNote?: Note,
+    readonly?: boolean
+}) {
+    const { id, initialNote, readonly = false } = params;
+    const [note, setNote] = useState<Note | undefined>(initialNote);
+    const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function loadNote() {
-      const n = await noteService.getLocalNote(id);
-      if (n) {
-        setNote(n);
-        await noteService.getRemoteNote(id);
-        setLoading(false);
-      }
-    }
-    loadNote();
-  }, [id]);
+    useEffect(() => {
+        console.log("Initial Note", initialNote);
+        async function loadNote() {
+            if (id) {
+                // If the user is online and mode is not readonly then it will fetch the remote note
+                // GetRemoteNote will invalidate the loalNote query
+                if (isOnline() && !readonly) {
+                    setLoading(true);
+                    await noteService.getRemoteNote(id);
+                }
+                const localNote = await noteService.getLocalNote(id);
+                // console.log("Local Note", localNote);
+                setNote(localNote);
+                setLoading(false);
+            }
+        }
 
-  return {
-    note,
-    isReady: loading,
-    setNote,
-  };
+        if (initialNote) {
+            setNote(initialNote);
+            setLoading(false);
+        }
+        else {
+            loadNote();
+        }
+
+
+    }, [id, initialNote, readonly]);
+
+    return {
+        note,
+        loading,
+        setNote,
+    };
 }
