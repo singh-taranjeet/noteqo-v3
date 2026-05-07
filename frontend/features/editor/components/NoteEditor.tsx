@@ -4,7 +4,6 @@ import { useEditor } from "@tiptap/react";
 import type { Editor } from "@tiptap/react";
 import {
   useEffect,
-  useState,
   useMemo,
   type ChangeEvent,
   type FocusEvent,
@@ -245,12 +244,12 @@ export function NoteEditor({
       setNote((prev) =>
         prev
           ? {
-              ...prev,
-              title: detail.title ?? prev.title,
-              emoji: detail.emoji ?? prev.emoji,
-              coverImage: detail.coverImage ?? prev.coverImage,
-              content: detail.content ?? prev.content,
-            }
+            ...prev,
+            title: detail.title ?? prev.title,
+            emoji: detail.emoji ?? prev.emoji,
+            coverImage: detail.coverImage ?? prev.coverImage,
+            content: detail.content ?? prev.content,
+          }
           : prev,
       );
     };

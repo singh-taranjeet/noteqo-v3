@@ -1,8 +1,9 @@
 import Dexie from "dexie";
 import type { Table } from "dexie";
 import { STORAGE_CONFIG } from "../constants/storage.constants";
-import type { Note, SyncEvent } from "@/features/workspace";
+import type { Note } from "@/features/workspace";
 import type { Space } from "@/features/spaces";
+import type { SyncEvent } from "@/features/shared/types/index.shared";
 
 import type { DecryptedMedia } from "@/features/media";
 
@@ -44,7 +45,7 @@ class NoteqoDB extends Dexie {
     this.version(STORAGE_CONFIG.DB_VERSION).stores({
       keys: "key",
       notes: "id, spaceId, parentId, updatedAt, title, emoji",
-      syncQueue: "id, entityId, createdAt, syncStatus",
+      syncQueue: "id, entityId, createdAt, syncStatus, entity",
       spaces: "id, type",
       mediaBlobs: "url",
       media: "id, spaceId, createdAt",

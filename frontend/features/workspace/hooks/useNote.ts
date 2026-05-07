@@ -12,12 +12,20 @@ export function useNote(params: {
 }) {
   const { id, initialNote, readonly = false } = params;
   const [note, setNote] = useState<Note | undefined>(initialNote);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!initialNote);
+  const [prevInitialNote, setPrevInitialNote] = useState<Note | undefined>(
+    initialNote,
+  );
+
+  if (initialNote !== prevInitialNote) {
+    setPrevInitialNote(initialNote);
+    setNote(initialNote);
+    setLoading(false);
+  }
 
   useEffect(() => {
-    console.log("Initial Note", initialNote);
     async function loadNote() {
-      if (id) {
+      if (id && !initialNote) {
         // If the user is online and mode is not readonly then it will fetch the remote note
         // GetRemoteNote will invalidate the loalNote query
         if (isOnline() && !readonly) {
@@ -25,18 +33,13 @@ export function useNote(params: {
           await noteService.getRemoteNote(id);
         }
         const localNote = await noteService.getLocalNote(id);
-        // console.log("Local Note", localNote);
+
         setNote(localNote);
         setLoading(false);
       }
     }
 
-    if (initialNote) {
-      setNote(initialNote);
-      setLoading(false);
-    } else {
-      loadNote();
-    }
+    void loadNote();
   }, [id, initialNote, readonly]);
 
   return {

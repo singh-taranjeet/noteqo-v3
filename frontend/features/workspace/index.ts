@@ -18,9 +18,6 @@ export { versionHistoryService } from "./services/version-history.service";
 export type {
   Note,
   NoteType,
-  SyncStatus,
-  SyncEvent,
-  SyncEventType,
   RemoteNoteVersion,
   DecryptedNoteVersion,
 } from "./types/workspace.types";

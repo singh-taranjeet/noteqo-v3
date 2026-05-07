@@ -54,3 +54,21 @@ export interface RemoteSpaceNote {
   createdAt: string;
   updatedAt: string;
 }
+
+export type SpaceSyncStatus = "pending" | "synced" | "failed";
+export type SpaceSyncEventType =
+  | "CREATE"
+  | "UPDATE"
+  | "DELETE"
+  | "RESTORE"
+  | "PERMANENT_DELETE";
+export interface SpaceSyncEvent {
+  id: string;
+  type: SpaceSyncEventType;
+  entity: "space"
+  entityId: string;
+  payload: unknown;
+  syncStatus: SpaceSyncStatus;
+  retryCount: number;
+  createdAt: string;
+}

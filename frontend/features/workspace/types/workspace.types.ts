@@ -1,10 +1,3 @@
-export type SyncStatus = "pending" | "synced" | "failed";
-export type SyncEventType =
-  | "CREATE"
-  | "UPDATE"
-  | "DELETE"
-  | "RESTORE"
-  | "PERMANENT_DELETE";
 export type NoteType = "private" | "shared";
 
 export interface Note {
@@ -24,16 +17,6 @@ export interface Note {
 
 export interface NoteTreeNode extends Note {
   children: NoteTreeNode[];
-}
-
-export interface SyncEvent {
-  id: string;
-  type: SyncEventType;
-  entityId: string;
-  payload: unknown;
-  syncStatus: SyncStatus;
-  retryCount: number;
-  createdAt: string;
 }
 
 export interface RemoteNote {

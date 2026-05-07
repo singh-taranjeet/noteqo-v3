@@ -17,7 +17,7 @@ const queryClient = getQueryClient();
 export const noteApiService = {
   getNote: async (id: string): Promise<Note> => {
     return queryClient.fetchQuery({
-      queryKey: noteQueryKeys.detail(id),
+      queryKey: noteQueryKeys.remoteNoteId(id),
       queryFn: async () => {
         const response: { data: RemoteNote } = await apiClient.get(
           `${WORKSPACE_API_ROUTES.NOTES}/${id}`,
@@ -55,7 +55,7 @@ export const noteApiService = {
       })
       .execute(payload);
 
-    await queryClient.invalidateQueries({ queryKey: noteQueryKeys.lists() });
+    // TODO: We need to invalidate the space and notes query
   },
 
   updateNote: async (payload: {
@@ -84,9 +84,9 @@ export const noteApiService = {
       })
       .execute(payload);
 
-    await queryClient.invalidateQueries({ queryKey: noteQueryKeys.lists() });
+    // TODO: We need to invalidate the space and notes query
     await queryClient.invalidateQueries({
-      queryKey: noteQueryKeys.detail(payload.id),
+      queryKey: noteQueryKeys.remoteNoteId(payload.id),
     });
     return response as RemoteNote;
   },
@@ -105,8 +105,8 @@ export const noteApiService = {
       })
       .execute(id);
 
-    await queryClient.invalidateQueries({ queryKey: noteQueryKeys.lists() });
-    await queryClient.invalidateQueries({ queryKey: noteQueryKeys.detail(id) });
+    // TODO: We need to invalidate the space and notes query
+    await queryClient.invalidateQueries({ queryKey: noteQueryKeys.remoteNoteId(id) });
     return response;
   },
 
@@ -125,8 +125,8 @@ export const noteApiService = {
       })
       .execute(id);
 
-    await queryClient.invalidateQueries({ queryKey: noteQueryKeys.lists() });
-    await queryClient.invalidateQueries({ queryKey: noteQueryKeys.detail(id) });
+    // TODO: We need to invalidate the space and notes query
+    await queryClient.invalidateQueries({ queryKey: noteQueryKeys.remoteNoteId(id) });
     return response;
   },
 
@@ -144,8 +144,8 @@ export const noteApiService = {
       })
       .execute(id);
 
-    await queryClient.invalidateQueries({ queryKey: noteQueryKeys.lists() });
-    await queryClient.invalidateQueries({ queryKey: noteQueryKeys.detail(id) });
+    // TODO: We need to invalidate the space and notes query
+    await queryClient.invalidateQueries({ queryKey: noteQueryKeys.remoteNoteId(id) });
     return response;
   },
 };
