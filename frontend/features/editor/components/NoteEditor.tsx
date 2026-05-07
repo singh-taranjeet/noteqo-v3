@@ -98,7 +98,9 @@ export function NoteEditor({
   );
 
   const { note, setNote, loading } = useNote({
-    id: noteId, initialNote, readonly: isReadOnly
+    id: noteId,
+    initialNote,
+    readonly: isReadOnly,
   });
 
   const noteRef = useRef(note);
@@ -243,12 +245,12 @@ export function NoteEditor({
       setNote((prev) =>
         prev
           ? {
-            ...prev,
-            title: detail.title ?? prev.title,
-            emoji: detail.emoji ?? prev.emoji,
-            coverImage: detail.coverImage ?? prev.coverImage,
-            content: detail.content ?? prev.content,
-          }
+              ...prev,
+              title: detail.title ?? prev.title,
+              emoji: detail.emoji ?? prev.emoji,
+              coverImage: detail.coverImage ?? prev.coverImage,
+              content: detail.content ?? prev.content,
+            }
           : prev,
       );
     };

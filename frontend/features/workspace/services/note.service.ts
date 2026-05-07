@@ -83,7 +83,7 @@ export const noteService = {
       queryKey: noteQueryKeys.localNote(id),
       queryFn: async () => {
         return db.notes.get(id);
-      }
+      },
     });
   },
 
@@ -92,7 +92,9 @@ export const noteService = {
    */
   async getRemoteNote(id: string): Promise<Note | undefined> {
     const note = await noteApiService.getNote(id);
-    await queryClient.invalidateQueries({ queryKey: noteQueryKeys.localNote(id) });
+    await queryClient.invalidateQueries({
+      queryKey: noteQueryKeys.localNote(id),
+    });
     return note;
   },
 

@@ -20,11 +20,11 @@ export function useCreateSpace() {
     onSuccess: async () => {
       // Invalidate spaces query to automatically refresh the list
       void queryClient.invalidateQueries({
-        queryKey: [SPACES_QUERY_KEY.LOCAL_SPACES],
+        queryKey: [SPACES_QUERY_KEY.LOCAL_SPACES_NOTES],
       });
       // refetch the SPACES_QUERY_KEY query as well
       await queryClient.refetchQueries({
-        queryKey: [SPACES_QUERY_KEY.LOCAL_SPACES],
+        queryKey: [SPACES_QUERY_KEY.LOCAL_SPACES_NOTES],
       });
     },
     onError: (err) => {

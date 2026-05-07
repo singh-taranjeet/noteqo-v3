@@ -10,6 +10,6 @@ export function useRemoteSpaces() {
       await spaceService.getRemoteSpacesAndNotes();
       return null;
     },
-    refetchInterval: 1000 * 3,
+    refetchInterval: 1000 * 60,
   });
 }

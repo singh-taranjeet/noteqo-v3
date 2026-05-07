@@ -11,7 +11,7 @@ export function useRestoreNote() {
       await noteService.restoreNote(noteId);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [SPACES_QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: [LOCAL_SPACES_NOTES] });
       queryClient.invalidateQueries({ queryKey: RECENT_NOTES_QUERY_KEY });
     },
   });

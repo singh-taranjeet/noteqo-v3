@@ -6,7 +6,7 @@ import { SPACES_QUERY_KEY } from "../constants/spaces.constants";
 
 export function useSpaces() {
   const query = useQuery({
-    queryKey: [SPACES_QUERY_KEY.LOCAL_SPACES],
+    queryKey: [SPACES_QUERY_KEY.LOCAL_SPACES_NOTES],
     queryFn: async () => {
       return spaceService.getLocalSpacesAndNotes();
     },

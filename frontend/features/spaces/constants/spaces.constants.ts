@@ -26,7 +26,7 @@ export const SYNC_API_ROUTES = {
 } as const;
 
 export const SPACES_QUERY_KEY = {
-  LOCAL_SPACES: "LOCAL_SPACES",
+  LOCAL_SPACES_NOTES: "LOCAL_SPACES_NOTES",
   REMOTE_SPACES: "REMOTE_SPACES",
 } as const;
 

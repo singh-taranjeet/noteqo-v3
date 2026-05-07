@@ -235,13 +235,13 @@ export function TrashView() {
           ))}
         </div>
       </ScrollArea>
-      {
-        previewNote ? <PreviewNoteDialog
+      {previewNote ? (
+        <PreviewNoteDialog
           noteId={previewNote?.id}
           isOpen={!!previewNote?.id}
           onClose={() => setPreviewNote(null)}
-        /> : null
-      }
+        />
+      ) : null}
     </div>
   );
 }

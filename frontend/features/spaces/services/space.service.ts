@@ -118,7 +118,7 @@ export const spaceService = {
       // invalidate the react query SPACES_QUERY_KEY
       const queryClient = getQueryClient();
       await queryClient.invalidateQueries({
-        queryKey: [SPACES_QUERY_KEY.LOCAL_SPACES],
+        queryKey: [SPACES_QUERY_KEY.LOCAL_SPACES_NOTES],
       });
     }
   },
