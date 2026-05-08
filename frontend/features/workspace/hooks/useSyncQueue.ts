@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { syncQueueService } from "../services/sync-queue.service";
+import { noteSyncQueueService } from "../services/note-sync-queue.service";
 
 /**
  * Starts the background sync queue on mount, stops on unmount.
@@ -9,7 +9,7 @@ import { syncQueueService } from "../services/sync-queue.service";
  */
 export function useSyncQueue(): void {
   useEffect(() => {
-    syncQueueService.start();
-    return () => syncQueueService.stop();
+    noteSyncQueueService.start();
+    return () => noteSyncQueueService.stop();
   }, []);
 }

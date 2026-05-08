@@ -7,7 +7,7 @@ import {
   NOTE_COVER_POOL,
   noteQueryKeys,
 } from "../constants/workspace.constants";
-import { syncQueueService } from "./sync-queue.service";
+import { noteSyncQueueService } from "./note-sync-queue.service";
 import { noteApiService } from "./note-api.service";
 import { logService } from "@/services/log.service";
 import { spaceService } from "@/features/spaces";
@@ -53,7 +53,7 @@ export const noteService = {
 
     await db.notes.put(note);
 
-    await syncQueueService.enqueue({
+    await noteSyncQueueService.enqueue({
       type: "CREATE",
       entityId: note.id,
       payload: note,
@@ -116,8 +116,8 @@ export const noteService = {
     await db.notes.update(id, patched);
     const updatedNote = await this.getLocalNote(id);
     if (updatedNote) {
-      console.log("queued update", patched);
-      await syncQueueService.enqueue({
+
+      await noteSyncQueueService.enqueue({
         type: "UPDATE",
         entityId: id,
         payload: patched,
@@ -148,7 +148,7 @@ export const noteService = {
     };
 
     await db.notes.put(duplicate);
-    await syncQueueService.enqueue({
+    await noteSyncQueueService.enqueue({
       type: "CREATE",
       entityId: duplicate.id,
       payload: duplicate,
@@ -190,7 +190,7 @@ export const noteService = {
 
     // Only enqueue DELETE for the parent; backend will cascade
 
-    await syncQueueService.enqueue({
+    await noteSyncQueueService.enqueue({
       type: "DELETE",
       entityId: id,
       payload: { id },
@@ -215,7 +215,7 @@ export const noteService = {
 
     // Only enqueue RESTORE for the parent; backend will cascade
 
-    await syncQueueService.enqueue({
+    await noteSyncQueueService.enqueue({
       type: "RESTORE",
       entityId: id,
       payload: { id },
@@ -233,7 +233,7 @@ export const noteService = {
       await db.notes.delete(descendantId);
     }
 
-    await syncQueueService.enqueue({
+    await noteSyncQueueService.enqueue({
       type: "PERMANENT_DELETE",
       entityId: id,
       payload: { id },

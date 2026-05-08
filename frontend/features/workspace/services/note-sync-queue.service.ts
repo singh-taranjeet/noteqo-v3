@@ -5,22 +5,12 @@ import { spaceService } from "@/features/spaces/services/space.service";
 import type { SyncEvent } from "@/features/shared/types/index.shared";
 import { BaseSyncQueueService } from "@/features/shared/services/baseSync.shared.service";
 
-/**
- * Background sync queue that processes note events (CREATE, UPDATE, DELETE).
- *
- * - Coalesces events: if a pending event for the same entity exists, it merges
- *   instead of creating duplicates.
- * - Encrypts note content via the space key before sending to the API.
- * - Deletes events from queue after successful sync.
- * - Retries with exponential backoff up to MAX_RETRY_COUNT.
- */
-class SyncQueueService extends BaseSyncQueueService {
-  /**
-   * Process a single sync event — encrypt and send to API.
-   */
+class NoteSyncQueueService extends BaseSyncQueueService {
+
   async processEvent(event: SyncEvent): Promise<void> {
     switch (event.type) {
       case "CREATE": {
+
         const note = event.payload as Note;
         const ciphertext = await this.encryptPayload(note);
 
@@ -38,7 +28,7 @@ class SyncQueueService extends BaseSyncQueueService {
       }
 
       case "UPDATE": {
-        console.log("Queye updaate", event.payload);
+
         const note = event.payload as Note;
         const ciphertext = await this.encryptPayload(note);
         await noteApiService.updateNote({
@@ -92,4 +82,4 @@ class SyncQueueService extends BaseSyncQueueService {
   }
 }
 
-export const syncQueueService = new SyncQueueService();
+export const noteSyncQueueService = new NoteSyncQueueService();
