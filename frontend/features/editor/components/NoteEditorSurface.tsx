@@ -319,7 +319,7 @@ export function NoteEditorSurface({
 
           <Input
             type="text"
-            className={`w-full rounded-none! px-0! border-none bg-transparent text-4xl! font-bold text-foreground shadow-none outline-none placeholder:text-muted-foreground focus-visible:ring-0 !sm:text-5xl ${isReadOnly ? "!pointer-events-none" : ""}`}
+            className={`w-full rounded-none! px-0! border-none bg-transparent text-4xl! font-bold text-foreground shadow-none outline-none placeholder:text-muted-foreground focus-visible:ring-0 sm:!text-5xl ${isReadOnly ? "!pointer-events-none" : ""}`}
             value={title}
             onChange={onTitleChange}
             onBlur={onTitleBlur}

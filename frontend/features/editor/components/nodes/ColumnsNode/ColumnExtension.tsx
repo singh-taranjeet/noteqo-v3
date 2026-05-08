@@ -8,7 +8,10 @@ import {
 // ─── Column Item View ─────────────────────────────
 function ColumnItemView() {
   return (
-    <NodeViewWrapper data-column-item="true" className="column-item-hover">
+    <NodeViewWrapper
+      data-column-item="true"
+      className="column-item-hover" /* eslint-disable-line tailwindcss/no-custom-classname -- custom editor CSS hook class for column hover styling */
+    >
       <NodeViewContent className="min-h-[1.5em] prose dark:prose-invert max-w-none w-full [&>p]:m-0 rounded-md p-2 border border-transparent transition-colors" />
     </NodeViewWrapper>
   );

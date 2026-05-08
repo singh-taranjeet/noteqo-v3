@@ -10,6 +10,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
   return (
     <Sonner
       theme={theme as ToasterProps["theme"]}
+      // eslint-disable-next-line tailwindcss/no-custom-classname -- `toaster` is a sonner library hook class, not a custom class
       className="toaster group"
       icons={{
         success: <CircleCheck strokeWidth={2} className="size-4" />,

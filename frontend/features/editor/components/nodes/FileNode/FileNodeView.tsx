@@ -70,6 +70,7 @@ export const FileNodeView: React.FC<NodeViewProps> = (props) => {
   };
 
   return (
+    // eslint-disable-next-line tailwindcss/no-custom-classname -- semantic hook class for drag-handle targeting, not a Tailwind class
     <NodeViewWrapper className="file-attachment-node my-4" data-drag-handle>
       <div
         className={cn(
