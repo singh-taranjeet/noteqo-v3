@@ -126,7 +126,7 @@ export function DynamicForm({
       >
         {isLoading ? (
           <>
-            <Loader2 className="animate-spin mr-2 h-4 w-4 animate-spin" />
+            <Loader2 className="animate-spin mr-2 h-4 w-4" />
             {loadingLabel}
           </>
         ) : (

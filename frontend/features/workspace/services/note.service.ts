@@ -116,7 +116,6 @@ export const noteService = {
     await db.notes.update(id, patched);
     const updatedNote = await this.getLocalNote(id);
     if (updatedNote) {
-
       await noteSyncQueueService.enqueue({
         type: "UPDATE",
         entityId: id,

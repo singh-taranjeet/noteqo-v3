@@ -6,11 +6,9 @@ import type { SyncEvent } from "@/features/shared/types/index.shared";
 import { BaseSyncQueueService } from "@/features/shared/services/baseSync.shared.service";
 
 class NoteSyncQueueService extends BaseSyncQueueService {
-
   async processEvent(event: SyncEvent): Promise<void> {
     switch (event.type) {
       case "CREATE": {
-
         const note = event.payload as Note;
         const ciphertext = await this.encryptPayload(note);
 
@@ -28,7 +26,6 @@ class NoteSyncQueueService extends BaseSyncQueueService {
       }
 
       case "UPDATE": {
-
         const note = event.payload as Note;
         const ciphertext = await this.encryptPayload(note);
         await noteApiService.updateNote({
