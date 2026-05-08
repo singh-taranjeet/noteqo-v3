@@ -15,7 +15,7 @@ interface MentionListProps {
   closeMenu: () => void;
 }
 
-export const MentionList = forwardRef((props: MentionListProps, ref) => {
+const MentionListInner = (props: MentionListProps, ref: React.ForwardedRef<any>) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [prevQuery, setPrevQuery] = useState(props.query);
 
@@ -96,6 +96,7 @@ export const MentionList = forwardRef((props: MentionListProps, ref) => {
       </Command>
     </div>
   );
-});
+};
 
-MentionList.displayName = "MentionList";
+MentionListInner.displayName = "MentionList";
+export const MentionList = forwardRef(MentionListInner);

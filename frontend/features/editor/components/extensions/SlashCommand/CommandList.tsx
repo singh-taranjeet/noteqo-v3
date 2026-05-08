@@ -9,7 +9,7 @@ import {
   CommandShortcut,
   CommandSeparator,
 } from "@/components/ui/command";
-import type { SuggestionItem } from "@/features/editor";
+import type { SuggestionItem } from "@/features/editor/constants/slashCommands";
 import { AI_SLASH_COMMANDS } from "@/features/editor/constants/slashCommands";
 
 interface CommandListProps {
@@ -19,7 +19,7 @@ interface CommandListProps {
   closeMenu: () => void;
 }
 
-export const CommandList = forwardRef((props: CommandListProps, ref) => {
+const CommandListInner = (props: CommandListProps, ref: React.ForwardedRef<any>) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [prevQuery, setPrevQuery] = useState(props.query);
 
@@ -131,6 +131,7 @@ export const CommandList = forwardRef((props: CommandListProps, ref) => {
       </Command>
     </div>
   );
-});
+};
 
-CommandList.displayName = "CommandList";
+CommandListInner.displayName = "CommandList";
+export const CommandList = forwardRef(CommandListInner);
