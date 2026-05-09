@@ -220,6 +220,7 @@ export function HeaderActions() {
                   Duplicate page
                 </DropdownMenuItem>
                 <DropdownMenuItem
+                  variant="destructive"
                   className="text-destructive focus:text-destructive"
                   disabled={deleteNoteMutation.isPending}
                   onClick={() => {
