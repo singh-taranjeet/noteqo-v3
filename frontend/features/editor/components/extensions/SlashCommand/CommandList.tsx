@@ -21,6 +21,7 @@ interface CommandListProps {
 
 const CommandListInner = (
   props: CommandListProps,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ref: React.ForwardedRef<any>,
 ) => {
   const [selectedIndex, setSelectedIndex] = useState(0);

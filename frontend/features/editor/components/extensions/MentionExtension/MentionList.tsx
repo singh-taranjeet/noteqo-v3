@@ -17,6 +17,7 @@ interface MentionListProps {
 
 const MentionListInner = (
   props: MentionListProps,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ref: React.ForwardedRef<any>,
 ) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
