@@ -1,13 +1,11 @@
 "use client";
 import { apiClient } from "@/services/api";
-import {
-  noteQueryKeys,
-  WORKSPACE_API_ROUTES,
-} from "../constants/workspace.constants";
+import { WORKSPACE_API_ROUTES } from "@/features/workspace/constants/workspace.constants";
 import type { Note, RemoteNote } from "../types/workspace.types";
 import { noteService } from "./note.service";
 import { getQueryClient } from "@/components/Providers/Providers";
 import { NoteLocalService } from "./note-local.service";
+import { QueryKeys } from "@/features/shared/constants/index.shared.constants";
 
 export const noteApiService = {
   client: () => {
@@ -16,7 +14,7 @@ export const noteApiService = {
   },
   getNote: async (id: string): Promise<Note> => {
     return noteApiService.client().fetchQuery({
-      queryKey: noteQueryKeys.remoteNoteId(id),
+      queryKey: QueryKeys.notes.remoteNoteId(id),
       queryFn: async () => {
         const response: { data: RemoteNote } = await apiClient.get(
           `${WORKSPACE_API_ROUTES.NOTES}/${id}`,
@@ -29,7 +27,7 @@ export const noteApiService = {
         }
         // Invalidate queries
         noteApiService.client().invalidateQueries({
-          queryKey: noteQueryKeys.localNoteId(id),
+          queryKey: QueryKeys.notes.localNoteId(id),
         });
         return decryptedNote ?? undefined;
       },
@@ -88,12 +86,12 @@ export const noteApiService = {
       .execute(payload);
 
     // TODO: We need to invalidate the space and notes query
-    await queryClient.invalidateQueries({
-      queryKey: noteQueryKeys.localNoteId(payload.id),
+    await noteApiService.client().invalidateQueries({
+      queryKey: QueryKeys.notes.localNoteId(payload.id),
     });
 
-    await queryClient.invalidateQueries({
-      queryKey: noteQueryKeys.remoteNoteId(payload.id),
+    await noteApiService.client().invalidateQueries({
+      queryKey: QueryKeys.notes.remoteNoteId(payload.id),
     });
 
     return response as RemoteNote;
@@ -115,10 +113,10 @@ export const noteApiService = {
       .execute(id);
 
     await noteApiService.client().invalidateQueries({
-      queryKey: noteQueryKeys.localNoteId(id),
+      queryKey: QueryKeys.notes.localNoteId(id),
     });
     await noteApiService.client().invalidateQueries({
-      queryKey: noteQueryKeys.remoteNoteId(id),
+      queryKey: QueryKeys.notes.remoteNoteId(id),
     });
     return response;
   },
@@ -140,10 +138,10 @@ export const noteApiService = {
       .execute(id);
 
     await noteApiService.client().invalidateQueries({
-      queryKey: noteQueryKeys.localNoteId(id),
+      queryKey: QueryKeys.notes.localNoteId(id),
     });
     await noteApiService.client().invalidateQueries({
-      queryKey: noteQueryKeys.remoteNoteId(id),
+      queryKey: QueryKeys.notes.remoteNoteId(id),
     });
     return response;
   },
@@ -165,10 +163,10 @@ export const noteApiService = {
 
     // TODO: We need to invalidate the space and notes query
     await noteApiService.client().invalidateQueries({
-      queryKey: noteQueryKeys.remoteNoteId(id),
+      queryKey: QueryKeys.notes.remoteNoteId(id),
     });
     await noteApiService.client().invalidateQueries({
-      queryKey: noteQueryKeys.localNoteId(id),
+      queryKey: QueryKeys.notes.localNoteId(id),
     });
     return response;
   },

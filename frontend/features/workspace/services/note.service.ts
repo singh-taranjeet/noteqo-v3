@@ -5,8 +5,7 @@ import {
   NOTE_DEFAULTS,
   NOTE_EMOJI_POOL,
   NOTE_COVER_POOL,
-  noteQueryKeys,
-} from "../constants/workspace.constants";
+} from "@/features/workspace/constants/workspace.constants";
 import { noteSyncQueueService } from "./note-sync-queue.service";
 import { noteApiService } from "./note-api.service";
 import { logService } from "@/services/log.service";

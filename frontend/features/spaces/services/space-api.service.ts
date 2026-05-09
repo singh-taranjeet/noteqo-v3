@@ -9,6 +9,7 @@ import type {
   SpaceType,
 } from "../types/spaces.types";
 import { getQueryClient } from "@/components/Providers/Providers";
+import { QueryKeys } from "@/features/shared/constants/index.shared.constants";
 
 export interface CreateSpacePayload {
   id: string;
@@ -28,29 +29,15 @@ export interface CreateSpaceNotePayload {
   createdAt: string;
 }
 
-// Create a local query client instance for caching API responses natively
-// inside the service layer, maintaining compatibility with existing consumers.
-const queryClient = getQueryClient();
-
-export const spaceQueryKeys = {
-  all: ["spaces"] as const,
-  lists: () => [...spaceQueryKeys.all, "list"] as const,
-  detail: (id: string) => [...spaceQueryKeys.all, "detail", id] as const,
-  notes: (spaceId: string) =>
-    [...spaceQueryKeys.detail(spaceId), "notes"] as const,
-  members: (spaceId: string) =>
-    [...spaceQueryKeys.detail(spaceId), "members"] as const,
-  allRecentlyUpdated: ["allRecentlyUpdated"] as const,
-};
-
 export const spaceApiService = {
-  /**
-   * This fetches all the spaces this user is assigned to.
-   * @returns Resolves to an array of remote spaces
-   */
+  client: () => {
+    const queryClient = getQueryClient();
+    return queryClient;
+  },
+
   getAll: async (): Promise<RemoteSpace[]> => {
-    return queryClient.fetchQuery({
-      queryKey: spaceQueryKeys.lists(),
+    return spaceApiService.client().fetchQuery({
+      queryKey: QueryKeys.space.lists(),
       queryFn: async () => {
         const res = await apiClient.get<{ data: RemoteSpace[] }>(
           SPACES_API_ROUTES.SPACES,
@@ -63,8 +50,8 @@ export const spaceApiService = {
   },
 
   getRecentlyUpdated: async (): Promise<RemoteSpace[]> => {
-    return queryClient.fetchQuery({
-      queryKey: spaceQueryKeys.allRecentlyUpdated,
+    return spaceApiService.client().fetchQuery({
+      queryKey: QueryKeys.space.allRecentlyUpdated,
       queryFn: async () => {
         const res = await apiClient.get<{ data: RemoteSpace[] }>(
           SPACES_API_ROUTES.ALL_RECENTLY_UPDATED_NOTES,
@@ -76,15 +63,11 @@ export const spaceApiService = {
     });
   },
 
-  /**
-   * This creates a new space.
-   * @param payload - The payload for creating a new space
-   * @returns Resolves to the created remote space
-   */
   create: async (payload: CreateSpacePayload): Promise<RemoteSpace> => {
-    const response = await queryClient
+    const response = await spaceApiService
+      .client()
       .getMutationCache()
-      .build(queryClient, {
+      .build(spaceApiService.client(), {
         mutationFn: async (vars: typeof payload) => {
           const res = await apiClient.post<{ data: RemoteSpace }>(
             SPACES_API_ROUTES.SPACES,
@@ -96,18 +79,15 @@ export const spaceApiService = {
       })
       .execute(payload);
 
-    await queryClient.invalidateQueries({ queryKey: spaceQueryKeys.lists() });
+    await spaceApiService
+      .client()
+      .invalidateQueries({ queryKey: QueryKeys.space.lists() });
     return response as RemoteSpace;
   },
 
-  /**
-   * This fetches all notes belonging to a particular space
-   * @param spaceId - The ID of the space
-   * @returns Resolves to an array of remote notes in the specified space
-   */
   getNotes: async (spaceId: string): Promise<SpaceNotesResponse> => {
-    return queryClient.fetchQuery({
-      queryKey: spaceQueryKeys.notes(spaceId),
+    return spaceApiService.client().fetchQuery({
+      queryKey: QueryKeys.space.notes(spaceId),
       queryFn: async () => {
         const res = await apiClient.get<{ data: SpaceNotesResponse }>(
           SPACES_API_ROUTES.SPACE_NOTES(spaceId),
@@ -119,14 +99,9 @@ export const spaceApiService = {
     });
   },
 
-  /**
-   * This fetches all members of a particular space
-   * @param spaceId - The ID of the space
-   * @returns Resolves to an array of remote space members
-   */
   getMembers: async (spaceId: string): Promise<RemoteSpaceMember[]> => {
-    return queryClient.fetchQuery({
-      queryKey: spaceQueryKeys.members(spaceId),
+    return spaceApiService.client().fetchQuery({
+      queryKey: QueryKeys.space.members(spaceId),
       queryFn: async () => {
         const res = await apiClient.get<{ data: RemoteSpaceMember[] }>(
           SPACES_API_ROUTES.MEMBERS(spaceId),
@@ -134,23 +109,18 @@ export const spaceApiService = {
         );
         return res.data;
       },
-      staleTime: SYNC_CONFIG.CACHE_STALE_TIME_MS,
+      staleTime: 10 * 60 * 1000,
     });
   },
 
-  /**
-   * This adds a new member to a particular space
-   * @param spaceId - The ID of the space
-   * @param payload - The payload for adding a new member
-   * @returns Resolves to void
-   */
   addMember: async (
     spaceId: string,
     payload: { email: string; encryptedSpaceKey: string; role: string },
   ): Promise<void> => {
-    const response = await queryClient
+    const response = await spaceApiService
+      .client()
       .getMutationCache()
-      .build(queryClient, {
+      .build(spaceApiService.client(), {
         mutationFn: async (vars: typeof payload) => {
           await apiClient.post(SPACES_API_ROUTES.MEMBERS(spaceId), vars, {
             auth: true,
@@ -159,22 +129,17 @@ export const spaceApiService = {
       })
       .execute(payload);
 
-    await queryClient.invalidateQueries({
-      queryKey: spaceQueryKeys.members(spaceId),
+    await spaceApiService.client().invalidateQueries({
+      queryKey: QueryKeys.space.members(spaceId),
     });
     return response;
   },
 
-  /**
-   * This removes a member from a particular space
-   * @param spaceId - The ID of the space
-   * @param userId - The ID of the member to remove
-   * @returns Resolves to void
-   */
   removeMember: async (spaceId: string, userId: string): Promise<void> => {
-    const response = await queryClient
+    const response = await spaceApiService
+      .client()
       .getMutationCache()
-      .build(queryClient, {
+      .build(spaceApiService.client(), {
         mutationFn: async (vars: { spaceId: string; userId: string }) => {
           await apiClient.delete(
             SPACES_API_ROUTES.MEMBER(vars.spaceId, vars.userId),
@@ -184,8 +149,8 @@ export const spaceApiService = {
       })
       .execute({ spaceId, userId });
 
-    await queryClient.invalidateQueries({
-      queryKey: spaceQueryKeys.members(spaceId),
+    await spaceApiService.client().invalidateQueries({
+      queryKey: QueryKeys.space.members(spaceId),
     });
     return response;
   },

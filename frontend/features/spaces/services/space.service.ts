@@ -16,9 +16,6 @@ import { isOnline } from "@/lib/utils";
 import { getQueryClient } from "@/components/Providers/Providers";
 
 export const spaceService = {
-  /**
-   * Creates a space: generates space key, encrypts name, RSA-wraps key, calls API, caches locally.
-   */
   async createSpace(
     name: string = SPACE_DEFAULTS.NAME,
     type: SpaceType = SPACE_TYPE.PERSONAL,
@@ -123,10 +120,6 @@ export const spaceService = {
     }
   },
 
-  /**
-   * Fetch spaces with notes and decrypt them and store them in the local db
-   * If the local db is empty, fetch all spaces, else fetch only recently updated spaces
-   */
   async getLocalSpacesAndNotes(): Promise<{ spaces: Space[]; notes: Note[] }> {
     const notes = await noteService.getAllLocalNotes();
     const spaces = await this.getLocalSpaces();
@@ -134,25 +127,15 @@ export const spaceService = {
     return { spaces, notes };
   },
 
-  /**
-   * Returns locally cached spaces from Dexie.
-   */
   async getLocalSpaces(): Promise<Space[]> {
     return db.spaces.toArray();
   },
 
-  /**
-   * Returns the cached space key for a given spaceId.
-   */
   async getCachedSpaceKey(spaceId: string): Promise<string | null> {
     const space = await db.spaces.get(spaceId);
     return space?.spaceKey ?? null;
   },
 
-  /**
-   * Returns the space key as a Uint8Array for a given spaceId.
-   * Throws if no cached key is found.
-   */
   async getSpaceKeyBytes(spaceId: string): Promise<Uint8Array> {
     const spaceKeyBase64 = await spaceService.getCachedSpaceKey(spaceId);
     if (!spaceKeyBase64) {
@@ -161,9 +144,6 @@ export const spaceService = {
     return new Uint8Array(cryptoService.decodeBase64(spaceKeyBase64));
   },
 
-  /**
-   * Decrypts a remote space response into a local Space object.
-   */
   async decryptRemoteSpace(remote: RemoteSpace): Promise<Space | null> {
     try {
       // Find the user's key slot
@@ -202,9 +182,6 @@ export const spaceService = {
     }
   },
 
-  /**
-   * Encrypts a plaintext string with the AES space key. Returns base64 "iv:ciphertext".
-   */
   async encryptWithSpaceKey(
     plaintext: string,
     spaceKeyBytes: Uint8Array,
@@ -212,9 +189,6 @@ export const spaceService = {
     return cryptoService.encryptString(plaintext, spaceKeyBytes);
   },
 
-  /**
-   * Decrypt the space parameters.
-   */
   async decryptWithSpaceKey(
     ciphertext: string,
     spaceKeyBytes: Uint8Array,
@@ -237,9 +211,6 @@ export const spaceService = {
     }
   },
 
-  /**
-   * RSA-encrypts the space key bytes with the user's public key.
-   */
   async rsaEncryptSpaceKey(spaceKeyBytes: Uint8Array): Promise<string> {
     const publicKeyJwk = await storageService.get<string>(
       STORAGE_KEYS.PUBLIC_KEY,
