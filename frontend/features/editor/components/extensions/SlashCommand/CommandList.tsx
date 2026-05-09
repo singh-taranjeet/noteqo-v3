@@ -19,7 +19,10 @@ interface CommandListProps {
   closeMenu: () => void;
 }
 
-const CommandListInner = (props: CommandListProps, ref: React.ForwardedRef<any>) => {
+const CommandListInner = (
+  props: CommandListProps,
+  ref: React.ForwardedRef<any>,
+) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [prevQuery, setPrevQuery] = useState(props.query);
 

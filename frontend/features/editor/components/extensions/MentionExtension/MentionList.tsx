@@ -15,7 +15,10 @@ interface MentionListProps {
   closeMenu: () => void;
 }
 
-const MentionListInner = (props: MentionListProps, ref: React.ForwardedRef<any>) => {
+const MentionListInner = (
+  props: MentionListProps,
+  ref: React.ForwardedRef<any>,
+) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [prevQuery, setPrevQuery] = useState(props.query);
 

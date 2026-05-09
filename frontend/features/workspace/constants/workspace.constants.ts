@@ -65,4 +65,6 @@ export const VERSION_API_ROUTES = {
 export const noteQueryKeys = {
   remoteNoteId: (id: string) => ["remoteNoteId", id] as const,
   localNoteId: (id: string) => ["localNoteId", id] as const,
+  allLocalNotes: ["allLocalNotes"] as const,
+  allNotesOfSpace: (spaceId: string) => ["allNotesOfSpace", spaceId] as const,
 };
