@@ -14,51 +14,59 @@ import type { Note } from "@/features/workspace";
 import { noteService } from "@/features/workspace";
 import { isOnline } from "@/lib/utils";
 import { getQueryClient } from "@/components/Providers/Providers";
+import { spaceSyncQueueService } from "./space-sync-queue.service";
 
 export const spaceService = {
-  async createSpace(
-    name: string = SPACE_DEFAULTS.NAME,
-    type: SpaceType = SPACE_TYPE.PERSONAL,
-  ): Promise<Space> {
-    const now = new Date().toISOString();
-    // 1. Generate a random AES-256 space key
+  async generateKeys() {
     const spaceKeyBytes = globalThis.crypto.getRandomValues(
       new Uint8Array(CRYPTO_CONFIG.MASTER_KEY_BYTES_LENGTH),
     );
     const spaceKeyBase64 = cryptoService.encodeBase64(spaceKeyBytes.buffer);
 
-    // 2. Encrypt the space name with the space key
-    const encryptedName = await spaceService.encryptWithSpaceKey(
-      name,
-      spaceKeyBytes,
-    );
-
-    // 3. RSA-encrypt the space key with the user's public key
     const ownerKeySlot = await spaceService.rsaEncryptSpaceKey(spaceKeyBytes);
-
-    // 4. Call API
-    const spaceId = crypto.randomUUID();
-    const remoteSpace = await spaceApiService.create({
-      id: spaceId,
-      encryptedName,
-      type,
+    return {
+      spaceKeyBase64,
       ownerKeySlot,
+      spaceKeyBytes,
+    };
+  },
+
+  async createSpace(
+    name: string = SPACE_DEFAULTS.NAME,
+    type: SpaceType = SPACE_TYPE.PERSONAL,
+  ): Promise<Space> {
+    const now = new Date().toISOString();
+
+    const { ownerKeySlot, spaceKeyBase64, spaceKeyBytes } =
+      await spaceService.generateKeys();
+
+    const spaceId = crypto.randomUUID();
+
+    const space: Space = {
+      id: spaceId,
+      name,
+      type,
+      isDefault: false,
+      spaceKey: spaceKeyBase64,
       createdAt: now,
       updatedAt: now,
-    });
-
-    // 5. Cache locally in Dexie
-    const space: Space = {
-      id: remoteSpace.id,
-      name,
-      type,
-      isDefault: remoteSpace.isDefault,
-      spaceKey: spaceKeyBase64,
-      createdAt: remoteSpace.createdAt ?? now,
-      updatedAt: remoteSpace.updatedAt ?? now,
     };
 
     await db.spaces.put(space);
+
+    await spaceSyncQueueService.enqueue({
+      type: "CREATE",
+      entityId: space.id,
+      payload: {
+        name,
+        type,
+        id: space.id,
+        now,
+        ownerKeySlot,
+        spaceKeyBytes,
+      },
+      entity: "space",
+    });
 
     return space;
   },
