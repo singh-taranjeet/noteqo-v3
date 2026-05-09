@@ -14,6 +14,7 @@ import { spaceService } from "@/features/spaces";
 import { NOTE_FALLBACKS } from "@/features/spaces";
 import { cryptoService } from "@/features/crypto";
 import { getQueryClient } from "@/components/Providers/Providers";
+import { NoteLocalService } from "./note-local.service";
 
 function getRandomItem<T>(pool: readonly T[]): T {
   return pool[Math.floor(Math.random() * pool.length)];
@@ -51,7 +52,7 @@ export const noteService = {
       updatedAt: now,
     };
 
-    await db.notes.put(note);
+    await NoteLocalService.createNote(note);
 
     await noteSyncQueueService.enqueue({
       type: "CREATE",
@@ -68,29 +69,20 @@ export const noteService = {
    * @returns
    */
   async getAllLocalNotes(): Promise<Note[]> {
-    return db.notes.orderBy("updatedAt").reverse().toArray();
+    return NoteLocalService.getAllNotes();
   },
   /**
    * Returns all notes for a given space from local Dexie DB.
    */
   async getLocalNotesForSpace(spaceId: string): Promise<Note[]> {
-    return db.notes
-      .where("spaceId")
-      .equals(spaceId)
-      .reverse()
-      .sortBy("updatedAt");
+    return NoteLocalService.getNoteOfSpace(spaceId);
   },
 
   /**
    * Returns a single note by ID from the local Dexie DB.
    */
   async getLocalNote(id: string): Promise<Note | undefined> {
-    return queryClient.fetchQuery({
-      queryKey: noteQueryKeys.localNoteId(id),
-      queryFn: async () => {
-        return db.notes.get(id);
-      },
-    });
+    return NoteLocalService.getNote(id);
   },
 
   /**
@@ -113,7 +105,8 @@ export const noteService = {
       ...updates,
       updatedAt: new Date().toISOString(),
     };
-    await db.notes.update(id, patched);
+    await NoteLocalService.updateNote(id, patched);
+
     const updatedNote = await this.getLocalNote(id);
     if (updatedNote) {
       await noteSyncQueueService.enqueue({
@@ -130,7 +123,7 @@ export const noteService = {
    * Appends " (Copy)" to the title of the duplicated note.
    */
   async duplicateNote(noteId: string): Promise<Note> {
-    const existingNote = await db.notes.get(noteId);
+    const existingNote = await NoteLocalService.getNote(noteId);
     if (!existingNote) {
       throw new Error(`Note not found: ${noteId}`);
     }
@@ -146,7 +139,8 @@ export const noteService = {
       updatedAt: now,
     };
 
-    await db.notes.put(duplicate);
+    await NoteLocalService.createNote(duplicate);
+
     await noteSyncQueueService.enqueue({
       type: "CREATE",
       entityId: duplicate.id,
@@ -158,7 +152,7 @@ export const noteService = {
   },
 
   async getDescendantIdsLocally(id: string): Promise<string[]> {
-    const allNotes = await db.notes.toArray();
+    const allNotes = await NoteLocalService.getAllNotes();
     const descendants: string[] = [id];
 
     const queue = [id];
@@ -182,7 +176,7 @@ export const noteService = {
     const now = new Date().toISOString();
 
     for (const descendantId of descendantIds) {
-      await db.notes.update(descendantId, {
+      await NoteLocalService.updateNote(descendantId, {
         deletedAt: now,
       });
     }
@@ -205,10 +199,11 @@ export const noteService = {
 
     for (const descendantId of descendantIds) {
       // Use Dexie's modify to unset deletedAt if it exists
-      const note = await db.notes.get(descendantId);
+      const note = await NoteLocalService.getNote(descendantId);
+
       if (note) {
         delete note.deletedAt;
-        await db.notes.put(note);
+        await NoteLocalService.updateNote(note.id, note);
       }
     }
 
@@ -229,7 +224,7 @@ export const noteService = {
     const descendantIds = await this.getDescendantIdsLocally(id);
 
     for (const descendantId of descendantIds) {
-      await db.notes.delete(descendantId);
+      await NoteLocalService.deleteNote(descendantId);
     }
 
     await noteSyncQueueService.enqueue({

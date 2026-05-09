@@ -2,21 +2,20 @@
 import { apiClient } from "@/services/api";
 import {
   noteQueryKeys,
-  SYNC_CONFIG,
   WORKSPACE_API_ROUTES,
 } from "../constants/workspace.constants";
 import type { Note, RemoteNote } from "../types/workspace.types";
 import { noteService } from "./note.service";
-import { db } from "@/features/storage";
 import { getQueryClient } from "@/components/Providers/Providers";
-
-// Create a local query client instance for caching API responses natively
-// inside the service layer, maintaining compatibility with existing consumers.
-const queryClient = getQueryClient();
+import { NoteLocalService } from "./note-local.service";
 
 export const noteApiService = {
+  client: () => {
+    const queryClient = getQueryClient();
+    return queryClient;
+  },
   getNote: async (id: string): Promise<Note> => {
-    return queryClient.fetchQuery({
+    return noteApiService.client().fetchQuery({
       queryKey: noteQueryKeys.remoteNoteId(id),
       queryFn: async () => {
         const response: { data: RemoteNote } = await apiClient.get(
@@ -26,18 +25,15 @@ export const noteApiService = {
 
         const decryptedNote = await noteService.decryptNote(response.data);
         if (decryptedNote) {
-          await db.notes.put(decryptedNote);
-          // Invalidate queries
-          queryClient.invalidateQueries({
-            queryKey: noteQueryKeys.localNoteId(id),
-          });
-          queryClient.invalidateQueries({
-            queryKey: noteQueryKeys.remoteNoteId(id),
-          });
+          await NoteLocalService.updateNote(decryptedNote.id, decryptedNote);
         }
+        // Invalidate queries
+        noteApiService.client().invalidateQueries({
+          queryKey: noteQueryKeys.localNoteId(id),
+        });
         return decryptedNote ?? undefined;
       },
-      staleTime: SYNC_CONFIG.CACHE_STALE_TIME_MS,
+      staleTime: 10 * 60 * 1000,
     });
   },
 
@@ -51,9 +47,10 @@ export const noteApiService = {
     createdAt: string;
     updatedAt: string;
   }) => {
-    await queryClient
+    await noteApiService
+      .client()
       .getMutationCache()
-      .build(queryClient, {
+      .build(noteApiService.client(), {
         mutationFn: async (vars: typeof payload) => {
           await apiClient.post(WORKSPACE_API_ROUTES.NOTES, vars, {
             auth: true,
@@ -61,8 +58,6 @@ export const noteApiService = {
         },
       })
       .execute(payload);
-
-    // TODO: We need to invalidate the space and notes query
   },
 
   updateNote: async (payload: {
@@ -72,9 +67,10 @@ export const noteApiService = {
     parentId?: string | null;
     updatedAt: string;
   }) => {
-    const response = await queryClient
+    const response = await noteApiService
+      .client()
       .getMutationCache()
-      .build(queryClient, {
+      .build(noteApiService.client(), {
         mutationFn: async (vars: typeof payload) => {
           const res: { data: RemoteNote } = await apiClient.patch(
             `${WORKSPACE_API_ROUTES.NOTES}/${vars.id}`,
@@ -104,9 +100,10 @@ export const noteApiService = {
   },
 
   deleteNote: async (id: string) => {
-    const response = await queryClient
+    const response = await noteApiService
+      .client()
       .getMutationCache()
-      .build(queryClient, {
+      .build(noteApiService.client(), {
         mutationFn: async (noteId: string) => {
           const res: { data: unknown } = await apiClient.delete(
             `${WORKSPACE_API_ROUTES.NOTES}/${noteId}`,
@@ -117,17 +114,20 @@ export const noteApiService = {
       })
       .execute(id);
 
-    // TODO: We need to invalidate the space and notes query
-    await queryClient.invalidateQueries({
+    await noteApiService.client().invalidateQueries({
+      queryKey: noteQueryKeys.localNoteId(id),
+    });
+    await noteApiService.client().invalidateQueries({
       queryKey: noteQueryKeys.remoteNoteId(id),
     });
     return response;
   },
 
   restoreNote: async (id: string) => {
-    const response = await queryClient
+    const response = await noteApiService
+      .client()
       .getMutationCache()
-      .build(queryClient, {
+      .build(noteApiService.client(), {
         mutationFn: async (noteId: string) => {
           const res: { data: unknown } = await apiClient.post(
             `${WORKSPACE_API_ROUTES.NOTES}/${noteId}/restore`,
@@ -139,17 +139,20 @@ export const noteApiService = {
       })
       .execute(id);
 
-    // TODO: We need to invalidate the space and notes query
-    await queryClient.invalidateQueries({
+    await noteApiService.client().invalidateQueries({
+      queryKey: noteQueryKeys.localNoteId(id),
+    });
+    await noteApiService.client().invalidateQueries({
       queryKey: noteQueryKeys.remoteNoteId(id),
     });
     return response;
   },
 
   permanentDeleteNote: async (id: string) => {
-    const response = await queryClient
+    const response = await noteApiService
+      .client()
       .getMutationCache()
-      .build(queryClient, {
+      .build(noteApiService.client(), {
         mutationFn: async (noteId: string) => {
           const res: { data: unknown } = await apiClient.delete(
             `${WORKSPACE_API_ROUTES.NOTES}/${noteId}/permanent-delete`,
@@ -161,8 +164,11 @@ export const noteApiService = {
       .execute(id);
 
     // TODO: We need to invalidate the space and notes query
-    await queryClient.invalidateQueries({
+    await noteApiService.client().invalidateQueries({
       queryKey: noteQueryKeys.remoteNoteId(id),
+    });
+    await noteApiService.client().invalidateQueries({
+      queryKey: noteQueryKeys.localNoteId(id),
     });
     return response;
   },
