@@ -2,7 +2,7 @@
 import { getQueryClient } from "@/components/Providers/Providers";
 import { QueryKeys } from "@/features/shared/constants/index.shared.constants";
 import { db } from "@/features/storage";
-import { Note } from "@/features/workspace/types/workspace.types";
+import type { Note } from "@/features/workspace/types/workspace.types";
 
 export const NoteLocalService = {
   client: () => {
@@ -69,6 +69,10 @@ export const NoteLocalService = {
   deleteNote: async (noteId: string) => {
     await db.notes.delete(noteId);
     await NoteLocalService.invalidateLocalNote(noteId);
+    await NoteLocalService.invalidateGetNotes();
+  },
+  bulkPut: async (notes: Note[]) => {
+    await db.notes.bulkPut(notes);
     await NoteLocalService.invalidateGetNotes();
   },
 };

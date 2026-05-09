@@ -12,14 +12,11 @@ import { logService } from "@/services/log.service";
 import { spaceService } from "@/features/spaces";
 import { NOTE_FALLBACKS } from "@/features/spaces";
 import { cryptoService } from "@/features/crypto";
-import { getQueryClient } from "@/components/Providers/Providers";
 import { NoteLocalService } from "./note-local.service";
 
 function getRandomItem<T>(pool: readonly T[]): T {
   return pool[Math.floor(Math.random() * pool.length)];
 }
-
-const queryClient = getQueryClient();
 
 export const noteService = {
   /**

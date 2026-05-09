@@ -6,6 +6,10 @@ export const QueryKeys = {
     allNotesOfSpace: (spaceId: string) => ["allNotesOfSpace", spaceId] as const,
   },
   space: {
+    local: {
+      getAllLocal: () => ["space", "list", "local"] as const,
+      getLocal: (id: string) => ["space", "detail", "local", id] as const,
+    },
     lists: () => ["space", "list"] as const,
     detail: (id: string) => ["space", "detail", id] as const,
     notes: (spaceId: string) =>

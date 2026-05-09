@@ -1,9 +1,8 @@
-import { CRYPTO_CONFIG, cryptoService } from "@/features/crypto";
 import { spaceService } from "@/features/spaces/services/space.service";
 import type { SyncEvent } from "@/features/shared/types/index.shared";
 import { BaseSyncQueueService } from "@/features/shared/services/baseSync.shared.service";
-import { CreateSpacePayload, spaceApiService } from "./space-api.service";
-import { SpaceType } from "../types/spaces.types";
+import { spaceApiService } from "./space-api.service";
+import type { SpaceType } from "../types/spaces.types";
 
 class SpaceSyncQueueService extends BaseSyncQueueService {
   async processEvent(event: SyncEvent): Promise<void> {

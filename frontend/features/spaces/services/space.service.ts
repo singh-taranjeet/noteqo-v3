@@ -1,5 +1,5 @@
 import { cryptoService, CRYPTO_CONFIG } from "@/features/crypto";
-import { storageService, STORAGE_KEYS, db } from "@/features/storage";
+import { storageService, STORAGE_KEYS } from "@/features/storage";
 import { logService } from "@/services/log.service";
 import { spaceApiService } from "./space-api.service";
 import {
@@ -7,14 +7,18 @@ import {
   SPACE_DEFAULTS,
   SPACE_TYPE,
   SPACES_MESSAGES,
-  SPACES_QUERY_KEY,
-} from "../constants/spaces.constants";
-import type { Space, SpaceType, RemoteSpace } from "../types/spaces.types";
+} from "@/features/spaces/constants/spaces.constants";
+import type {
+  Space,
+  SpaceType,
+  RemoteSpace,
+} from "@/features/spaces/types/spaces.types";
 import type { Note } from "@/features/workspace";
 import { noteService } from "@/features/workspace";
 import { isOnline } from "@/lib/utils";
-import { getQueryClient } from "@/components/Providers/Providers";
 import { spaceSyncQueueService } from "./space-sync-queue.service";
+import { SpaceLocalService } from "./space-local.service";
+import { NoteLocalService } from "@/features/workspace/services/note-local.service";
 
 export const spaceService = {
   async generateKeys() {
@@ -52,7 +56,7 @@ export const spaceService = {
       updatedAt: now,
     };
 
-    await db.spaces.put(space);
+    await SpaceLocalService.create(space);
 
     await spaceSyncQueueService.enqueue({
       type: "CREATE",
@@ -90,15 +94,14 @@ export const spaceService = {
 
       const validSpaces = decryptedSpaces.filter((s): s is Space => s !== null);
 
-      // Store all spaces in local db
-      await db.spaces.bulkPut(validSpaces);
+      await SpaceLocalService.bulkPut(validSpaces);
 
       // Decrypt all the notes
       const decryptedNotes: Note[] = [];
       const allRemoteNotes = remoteSpaces.flatMap((rs) => rs.notes || []);
       for (const remoteNote of allRemoteNotes) {
         const decryptedNote = await noteService.decryptNote(remoteNote);
-        const localNote = await db.notes.get(remoteNote.id);
+        const localNote = await NoteLocalService.getNote(remoteNote.id);
         const localTime = localNote?.updatedAt
           ? new Date(localNote.updatedAt).getTime()
           : 0;
@@ -117,14 +120,9 @@ export const spaceService = {
         }
       }
 
-      // Store all notesin local db
-      await db.notes.bulkPut(decryptedNotes);
+      await NoteLocalService.bulkPut(decryptedNotes);
+
       localStorage.setItem(LOCAL_STORAGE_ALL_SPACES_INITIALLY_FETCHED, "done");
-      // invalidate the react query SPACES_QUERY_KEY
-      const queryClient = getQueryClient();
-      await queryClient.invalidateQueries({
-        queryKey: [SPACES_QUERY_KEY.LOCAL_SPACES_NOTES],
-      });
     }
   },
 
@@ -136,11 +134,11 @@ export const spaceService = {
   },
 
   async getLocalSpaces(): Promise<Space[]> {
-    return db.spaces.toArray();
+    return SpaceLocalService.getAll();
   },
 
   async getCachedSpaceKey(spaceId: string): Promise<string | null> {
-    const space = await db.spaces.get(spaceId);
+    const space = await SpaceLocalService.get(spaceId);
     return space?.spaceKey ?? null;
   },
 
