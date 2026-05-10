@@ -15,7 +15,7 @@ export const SpaceLocalService = {
   },
   getAll: async () => {
     return SpaceLocalService.client().fetchQuery({
-      queryKey: [QueryKeys.space.local.getAllLocal],
+      queryKey: [QueryKeys.space.local.all],
       queryFn: async () => {
         return db.spaces.toArray();
       },
@@ -23,7 +23,7 @@ export const SpaceLocalService = {
   },
   get: async (id: string) => {
     return SpaceLocalService.client().fetchQuery({
-      queryKey: [QueryKeys.space.local.getLocal(id)],
+      queryKey: [QueryKeys.space.local.get(id)],
       queryFn: async () => {
         return db.spaces.get(id);
       },

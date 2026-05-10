@@ -37,7 +37,7 @@ export const spaceApiService = {
 
   getAll: async (): Promise<RemoteSpace[]> => {
     return spaceApiService.client().fetchQuery({
-      queryKey: QueryKeys.space.lists(),
+      queryKey: QueryKeys.space.remote.all(),
       queryFn: async () => {
         const res = await apiClient.get<{ data: RemoteSpace[] }>(
           SPACES_API_ROUTES.SPACES,
@@ -51,7 +51,7 @@ export const spaceApiService = {
 
   getRecentlyUpdated: async (): Promise<RemoteSpace[]> => {
     return spaceApiService.client().fetchQuery({
-      queryKey: QueryKeys.space.allRecentlyUpdated,
+      queryKey: QueryKeys.space.remote.allRecentlyUpdated,
       queryFn: async () => {
         const res = await apiClient.get<{ data: RemoteSpace[] }>(
           SPACES_API_ROUTES.ALL_RECENTLY_UPDATED_NOTES,
@@ -79,15 +79,12 @@ export const spaceApiService = {
       })
       .execute(payload);
 
-    await spaceApiService
-      .client()
-      .invalidateQueries({ queryKey: QueryKeys.space.lists() });
     return response as RemoteSpace;
   },
 
   getNotes: async (spaceId: string): Promise<SpaceNotesResponse> => {
     return spaceApiService.client().fetchQuery({
-      queryKey: QueryKeys.space.notes(spaceId),
+      queryKey: QueryKeys.space.remote.notes(spaceId),
       queryFn: async () => {
         const res = await apiClient.get<{ data: SpaceNotesResponse }>(
           SPACES_API_ROUTES.SPACE_NOTES(spaceId),
@@ -101,7 +98,7 @@ export const spaceApiService = {
 
   getMembers: async (spaceId: string): Promise<RemoteSpaceMember[]> => {
     return spaceApiService.client().fetchQuery({
-      queryKey: QueryKeys.space.members(spaceId),
+      queryKey: QueryKeys.space.remote.members(spaceId),
       queryFn: async () => {
         const res = await apiClient.get<{ data: RemoteSpaceMember[] }>(
           SPACES_API_ROUTES.MEMBERS(spaceId),
@@ -130,7 +127,7 @@ export const spaceApiService = {
       .execute(payload);
 
     await spaceApiService.client().invalidateQueries({
-      queryKey: QueryKeys.space.members(spaceId),
+      queryKey: QueryKeys.space.remote.members(spaceId),
     });
     return response;
   },
@@ -150,7 +147,7 @@ export const spaceApiService = {
       .execute({ spaceId, userId });
 
     await spaceApiService.client().invalidateQueries({
-      queryKey: QueryKeys.space.members(spaceId),
+      queryKey: QueryKeys.space.remote.members(spaceId),
     });
     return response;
   },

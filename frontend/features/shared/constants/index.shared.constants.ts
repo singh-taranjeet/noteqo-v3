@@ -1,29 +1,30 @@
 export const QueryKeys = {
   notes: {
     remote: {
-      get: (id: string) => ["remoteNoteId", id] as const,
+      get: (id: string) => ["notes", "remote", id] as const,
     },
     local: {
-      get: (id: string) => ["localNoteId", id] as const,
-      all: ["allLocalNotes"] as const,
-      allOfSpace: (spaceId: string) => ["allNotesOfSpace", spaceId] as const,
+      all: ["notes", "local"] as const,
+      get: (id: string) => [...QueryKeys.notes.local.all, id] as const,
+      allOfSpace: (spaceId: string) =>
+        ["notes", "local", "allOfSpace", spaceId] as const,
     },
   },
   space: {
     local: {
-      getAllLocal: () => ["space", "list", "local"] as const,
-      getLocal: (id: string) => ["space", "detail", "local", id] as const,
-      spacesAndNote: () => ["space", "note", "list", "local"] as const,
+      all: ["space", "local"] as const,
+      get: (id: string) => ["space", "local", id] as const,
+      spacesAndNote: ["space", "local", "spaceAndNote"] as const,
     },
     remote: {
-      spacesAndNote: () => ["space", "note", "list", "remote"] as const,
+      all: ["space", "remote"] as const,
+      spacesAndNote: ["space", "remote", "spaceAndNote"] as const,
+      get: (id: string) => ["space", "remote", id] as const,
+      notes: (spaceId: string) =>
+        ["space", "remote", "notes", spaceId] as const,
+      members: (spaceId: string) =>
+        ["space", "remote", "members", spaceId] as const,
+      allRecentlyUpdated: ["space", "remote", "allRecentlyUpdated"] as const,
     },
-    lists: () => ["space", "list"] as const,
-    detail: (id: string) => ["space", "detail", id] as const,
-    notes: (spaceId: string) =>
-      [...QueryKeys.space.detail(spaceId), "notes"] as const,
-    members: (spaceId: string) =>
-      [...QueryKeys.space.detail(spaceId), "members"] as const,
-    allRecentlyUpdated: ["allRecentlyUpdated"] as const,
   },
 };
