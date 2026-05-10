@@ -16,20 +16,24 @@ export const noteApiService = {
     return noteApiService.client().fetchQuery({
       queryKey: QueryKeys.notes.remote.get(id),
       queryFn: async () => {
-        const response: { data: RemoteNote } = await apiClient.get(
-          `${WORKSPACE_API_ROUTES.NOTES}/${id}`,
-          { auth: true },
-        );
+        try {
+          const response: { data: RemoteNote } = await apiClient.get(
+            `${WORKSPACE_API_ROUTES.NOTES}/${id}`,
+            { auth: true },
+          );
 
-        const decryptedNote = await noteService.decryptNote(response.data);
-        if (decryptedNote) {
-          await NoteLocalService.updateNote(decryptedNote.id, decryptedNote);
+          const decryptedNote = await noteService.decryptNote(response.data);
+          if (decryptedNote) {
+            await NoteLocalService.updateNote(decryptedNote.id, decryptedNote);
+          }
+          // Invalidate queries
+          noteApiService.client().invalidateQueries({
+            queryKey: QueryKeys.notes.local.get(id),
+          });
+          return decryptedNote ?? undefined;
+        } catch {
+          return undefined
         }
-        // Invalidate queries
-        noteApiService.client().invalidateQueries({
-          queryKey: QueryKeys.notes.local.get(id),
-        });
-        return decryptedNote ?? undefined;
       },
       staleTime: 10 * 60 * 1000,
     });

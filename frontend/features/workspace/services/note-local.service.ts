@@ -16,7 +16,13 @@ export const NoteLocalService = {
   },
   invalidateGetNotes: async () => {
     await NoteLocalService.client().invalidateQueries({
-      queryKey: [QueryKeys.notes.local.all, QueryKeys.notes.local.allOfSpace],
+      queryKey: [QueryKeys.notes.local.all],
+    });
+    // await NoteLocalService.client().invalidateQueries({
+    //   queryKey: [QueryKeys.notes.local.allOfSpace],
+    // });
+    await NoteLocalService.client().invalidateQueries({
+      queryKey: [QueryKeys.space.local.spacesAndNote],
     });
   },
   updateNote: async (
@@ -24,6 +30,7 @@ export const NoteLocalService = {
     updates: Partial<Omit<Note, "id" | "createdAt">>,
   ) => {
     await db.notes.update(id, updates);
+    console.log("Updated in local db")
     await NoteLocalService.invalidateLocalNote(id);
     await NoteLocalService.invalidateGetNotes();
   },
@@ -36,9 +43,10 @@ export const NoteLocalService = {
     return NoteLocalService.client().fetchQuery({
       queryKey: QueryKeys.notes.local.all,
       queryFn: async () => {
+        alert("fetching all notes");
         return db.notes.orderBy("updatedAt").reverse().toArray();
       },
-      staleTime: 10 * 60 * 1000,
+      staleTime: Infinity,
     });
   },
   getNoteOfSpace: async (spaceId: string) => {
@@ -51,7 +59,7 @@ export const NoteLocalService = {
           .reverse()
           .sortBy("updatedAt");
       },
-      staleTime: 10 * 60 * 1000,
+      staleTime: Infinity,
     });
   },
   getNote: async (noteId: string) => {
@@ -59,8 +67,7 @@ export const NoteLocalService = {
       queryKey: QueryKeys.notes.local.get(noteId),
       queryFn: async () => {
         return db.notes.get(noteId);
-      },
-      staleTime: 10 * 60 * 1000,
+      }
     });
   },
   deleteNote: async (noteId: string) => {
