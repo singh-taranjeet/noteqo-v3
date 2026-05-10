@@ -19,10 +19,7 @@ import { MediaEntity } from '../../media/entities/media.entity';
 export class SpaceRoleGuard implements CanActivate {
   private readonly logger = new Logger(SpaceRoleGuard.name);
 
-  constructor(
-    private reflector: Reflector,
-    private dataSource: DataSource,
-  ) {}
+  constructor(private reflector: Reflector, private dataSource: DataSource) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const options = this.reflector.getAllAndOverride<SpaceRoleOptions>(
@@ -52,7 +49,9 @@ export class SpaceRoleGuard implements CanActivate {
       if (options.resourceType === 'media' && request.method === 'GET') {
         return true;
       }
-      this.logger.warn(`SpaceRoleGuard: Could not determine spaceId from request`);
+      this.logger.warn(
+        `SpaceRoleGuard: Could not determine spaceId from request`,
+      );
       throw new ForbiddenException('Could not determine space context');
     }
 
@@ -70,7 +69,11 @@ export class SpaceRoleGuard implements CanActivate {
       if (options.roles && options.roles.length > 0) {
         if (!options.roles.includes(member.role as any)) {
           this.logger.warn(
-            `User ${user.id} has role ${member.role} which is not sufficient for space ${spaceId}. Required: ${options.roles.join(',')}`,
+            `User ${user.id} has role ${
+              member.role
+            } which is not sufficient for space ${spaceId}. Required: ${options.roles.join(
+              ',',
+            )}`,
           );
           throw new ForbiddenException(
             `Insufficient permissions in space ${spaceId}`,
@@ -87,7 +90,8 @@ export class SpaceRoleGuard implements CanActivate {
     resourceType: SpaceRoleOptions['resourceType'],
   ): Promise<string[]> {
     if (resourceType === 'space') {
-      const id = request.params.spaceId || request.body.spaceId || request.query.spaceId;
+      const id =
+        request.params.spaceId || request.body.spaceId || request.query.spaceId;
       return id ? [id] : [];
     }
 
@@ -100,7 +104,7 @@ export class SpaceRoleGuard implements CanActivate {
     if (resourceType === 'note') {
       // Creating a note
       if (request.body.spaceId) return [request.body.spaceId];
-      
+
       // Updating/Deleting a note
       if (request.params.noteId) {
         const note = await this.dataSource.manager.findOne(NoteEntity, {

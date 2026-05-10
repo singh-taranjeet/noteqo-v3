@@ -34,7 +34,7 @@ export class EventsController {
   constructor(
     private readonly eventsService: EventsService,
     private readonly spacesRepository: SpacesRepository,
-  ) { }
+  ) {}
 
   @Get(EVENTS_ROUTES.STREAM)
   @RequireSpaceRole({ resourceType: 'events' })
@@ -43,7 +43,6 @@ export class EventsController {
     @Query('spaceIds') spaceIdsParam: string,
     @Res() res: Response,
   ): Promise<void> {
-
     const userId: string = getCurrentUserId();
 
     // 2. Parse and validate space IDs
@@ -66,7 +65,9 @@ export class EventsController {
     res.flushHeaders();
 
     this.logger.log(
-      `SSE connection opened for user ${userId}, spaces: ${spaceIds.join(', ')}`,
+      `SSE connection opened for user ${userId}, spaces: ${spaceIds.join(
+        ', ',
+      )}`,
     );
 
     // 5. Subscribe to Redis channels for each space

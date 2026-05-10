@@ -29,7 +29,10 @@ export class NotesController {
   constructor(private readonly notesService: NotesService) {}
 
   @Post()
-  @RequireSpaceRole({ resourceType: 'note', roles: [SPACE_ROLE.OWNER, SPACE_ROLE.EDITOR] })
+  @RequireSpaceRole({
+    resourceType: 'note',
+    roles: [SPACE_ROLE.OWNER, SPACE_ROLE.EDITOR],
+  })
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() dto: CreateNoteDto): Promise<NoteResponseDto> {
     const note = await this.notesService.create(dto);
@@ -46,7 +49,10 @@ export class NotesController {
   }
 
   @Patch(NOTE_ROUTES.BY_ID)
-  @RequireSpaceRole({ resourceType: 'note', roles: [SPACE_ROLE.OWNER, SPACE_ROLE.EDITOR] })
+  @RequireSpaceRole({
+    resourceType: 'note',
+    roles: [SPACE_ROLE.OWNER, SPACE_ROLE.EDITOR],
+  })
   async update(
     @Param('noteId', ParseUUIDPipe) id: string,
     @Body() dto: UpdateNoteDto,
@@ -56,7 +62,10 @@ export class NotesController {
   }
 
   @Delete(NOTE_ROUTES.BY_ID)
-  @RequireSpaceRole({ resourceType: 'note', roles: [SPACE_ROLE.OWNER, SPACE_ROLE.EDITOR] })
+  @RequireSpaceRole({
+    resourceType: 'note',
+    roles: [SPACE_ROLE.OWNER, SPACE_ROLE.EDITOR],
+  })
   @HttpCode(HttpStatus.NO_CONTENT)
   async remove(@Param('noteId', ParseUUIDPipe) id: string): Promise<void> {
     await this.notesService.remove(id);
@@ -72,14 +81,20 @@ export class NotesController {
   }
 
   @Post(NOTE_ROUTES.RESTORE)
-  @RequireSpaceRole({ resourceType: 'note', roles: [SPACE_ROLE.OWNER, SPACE_ROLE.EDITOR] })
+  @RequireSpaceRole({
+    resourceType: 'note',
+    roles: [SPACE_ROLE.OWNER, SPACE_ROLE.EDITOR],
+  })
   @HttpCode(HttpStatus.OK)
   async restore(@Param('noteId', ParseUUIDPipe) id: string): Promise<void> {
     await this.notesService.restore(id);
   }
 
   @Delete(NOTE_ROUTES.PERMANENT)
-  @RequireSpaceRole({ resourceType: 'note', roles: [SPACE_ROLE.OWNER, SPACE_ROLE.EDITOR] })
+  @RequireSpaceRole({
+    resourceType: 'note',
+    roles: [SPACE_ROLE.OWNER, SPACE_ROLE.EDITOR],
+  })
   @HttpCode(HttpStatus.NO_CONTENT)
   async permanentDelete(
     @Param('noteId', ParseUUIDPipe) id: string,

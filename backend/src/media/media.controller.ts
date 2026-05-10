@@ -68,7 +68,10 @@ export class MediaController {
    */
   @Post('register')
   @UseGuards(JwtAuthGuard, SpaceRoleGuard)
-  @RequireSpaceRole({ resourceType: 'media', roles: [SPACE_ROLE.OWNER, SPACE_ROLE.EDITOR] })
+  @RequireSpaceRole({
+    resourceType: 'media',
+    roles: [SPACE_ROLE.OWNER, SPACE_ROLE.EDITOR],
+  })
   @HttpCode(HttpStatus.OK)
   async register(
     @Body() dto: UploadMediaDto & { url: string },
@@ -79,7 +82,10 @@ export class MediaController {
 
   @Patch(MEDIA_ROUTES.BY_ID)
   @UseGuards(JwtAuthGuard, SpaceRoleGuard)
-  @RequireSpaceRole({ resourceType: 'media', roles: [SPACE_ROLE.OWNER, SPACE_ROLE.EDITOR] })
+  @RequireSpaceRole({
+    resourceType: 'media',
+    roles: [SPACE_ROLE.OWNER, SPACE_ROLE.EDITOR],
+  })
   async update(
     @Param('mediaId', ParseUUIDPipe) mediaId: string,
     @Body() dto: UpdateMediaDto,
@@ -93,7 +99,10 @@ export class MediaController {
    */
   @Delete(MEDIA_ROUTES.BY_ID)
   @UseGuards(JwtAuthGuard, SpaceRoleGuard)
-  @RequireSpaceRole({ resourceType: 'media', roles: [SPACE_ROLE.OWNER, SPACE_ROLE.EDITOR] })
+  @RequireSpaceRole({
+    resourceType: 'media',
+    roles: [SPACE_ROLE.OWNER, SPACE_ROLE.EDITOR],
+  })
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(
     @Param('mediaId', ParseUUIDPipe) mediaId: string,

@@ -19,7 +19,10 @@ export class EventsService implements OnModuleDestroy {
   private readonly subscriber: Redis;
 
   /** Map of channel → Set of listener callbacks */
-  private readonly listeners = new Map<string, Set<(event: RealtimeEvent) => void>>();
+  private readonly listeners = new Map<
+    string,
+    Set<(event: RealtimeEvent) => void>
+  >();
 
   constructor(private readonly configService: ConfigService) {
     const redisUrl = this.configService.get(`${CONFIG_KEYS.REDIS}.url`);
