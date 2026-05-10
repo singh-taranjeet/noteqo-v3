@@ -19,46 +19,15 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import type { Note } from "@/features/workspace/types/workspace.types";
+import { EmojiOrImage } from "@/features/media/components/EmojiOrImage";
 
-interface BreadcrumbEntry {
-  emoji: string;
-  label: string;
-}
-
-interface HeaderBreadcrumbProps {
-  items?: BreadcrumbEntry[];
-}
-
-export function HeaderBreadcrumb({ items }: HeaderBreadcrumbProps) {
+export function HeaderBreadcrumb() {
   const params = useParams();
   const navigate = useNavigate();
   const noteId = params?.note_id as string | undefined;
 
   const { data, spaceNotesMap } = useSpaces();
   const { spaces = [] } = data || {};
-
-  // If items are passed explicitly, use them (for fallback/static routes)
-  if (items && items.length > 0) {
-    return (
-      <Breadcrumb className="min-w-0 flex-1">
-        <BreadcrumbList className="flex-nowrap overflow-x-auto scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-          {items.map((item, index) => (
-            <React.Fragment key={item.label}>
-              {index > 0 && <BreadcrumbSeparator className="shrink-0" />}
-              <BreadcrumbItem className="shrink-0">
-                <BreadcrumbLink className="flex items-center gap-1 text-sm cursor-pointer whitespace-nowrap">
-                  <span role="img" aria-hidden="true" className="shrink-0">
-                    {item.emoji}
-                  </span>
-                  <span className="truncate">{item.label}</span>
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-            </React.Fragment>
-          ))}
-        </BreadcrumbList>
-      </Breadcrumb>
-    );
-  }
 
   // Find the note and its corresponding space
   let activeSpace = null;
@@ -109,9 +78,7 @@ export function HeaderBreadcrumb({ items }: HeaderBreadcrumbProps) {
     const NoteTriggerContent = () => (
       <>
         {note.emoji ? (
-          <span role="img" aria-hidden="true" className="shrink-0 text-sm">
-            {note.emoji}
-          </span>
+          <EmojiOrImage emoji={note.emoji} spaceId={note.spaceId} />
         ) : (
           <FileText
             size={14}
@@ -156,7 +123,7 @@ export function HeaderBreadcrumb({ items }: HeaderBreadcrumbProps) {
               }`}
             >
               {sibling.emoji ? (
-                <span className="mr-2 shrink-0">{sibling.emoji}</span>
+                <EmojiOrImage emoji={note.emoji} spaceId={note.spaceId} />
               ) : (
                 <FileText
                   size={14}
@@ -177,7 +144,7 @@ export function HeaderBreadcrumb({ items }: HeaderBreadcrumbProps) {
         <BreadcrumbPage className="flex items-center gap-1.5 text-sm  whitespace-nowrap px-1.5 py-0.5">
           {note.emoji ? (
             <span role="img" aria-hidden="true" className="shrink-0 text-sm">
-              {note.emoji}
+              <EmojiOrImage emoji={note.emoji} spaceId={note.spaceId} />
             </span>
           ) : (
             <FileText
@@ -199,7 +166,7 @@ export function HeaderBreadcrumb({ items }: HeaderBreadcrumbProps) {
         <Link to={ROUTES.NOTE(note.id)}>
           {note.emoji ? (
             <span role="img" aria-hidden="true" className="shrink-0 text-sm">
-              {note.emoji}
+              <EmojiOrImage emoji={note.emoji} spaceId={note.spaceId} />
             </span>
           ) : (
             <FileText
@@ -256,7 +223,12 @@ export function HeaderBreadcrumb({ items }: HeaderBreadcrumbProps) {
                   className="flex items-center w-full px-2 py-1.5 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground cursor-pointer transition-colors"
                 >
                   {hiddenNode.emoji ? (
-                    <span className="mr-2 shrink-0">{hiddenNode.emoji}</span>
+                    <span className="mr-2 shrink-0">
+                      <EmojiOrImage
+                        emoji={hiddenNode.emoji}
+                        spaceId={hiddenNode.spaceId}
+                      />
+                    </span>
                   ) : (
                     <FileText
                       size={14}

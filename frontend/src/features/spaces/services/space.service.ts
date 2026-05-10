@@ -143,6 +143,7 @@ export const spaceService = {
       const allRemoteNotes = remoteSpaces.flatMap((rs) => rs.notes || []);
       for (const remoteNote of allRemoteNotes) {
         const decryptedNote = await noteService.decryptNote(remoteNote);
+        console.log("Decrypted Note", decryptedNote);
         const localNote = await NoteLocalService.get(remoteNote.id);
         const localTime = localNote?.updatedAt
           ? new Date(localNote.updatedAt).getTime()

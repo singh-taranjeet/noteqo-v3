@@ -324,6 +324,12 @@ export function NoteEditorSurface({
             value={title}
             onChange={onTitleChange}
             onBlur={onTitleBlur}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                editor?.commands.focus();
+              }
+            }}
             placeholder={"Note title"}
             readOnly={isReadOnly}
             maxLength={50}

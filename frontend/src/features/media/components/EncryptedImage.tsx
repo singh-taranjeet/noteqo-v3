@@ -48,7 +48,7 @@ export function EncryptedImage({
       <div
         className={cn("flex items-center justify-center bg-muted", className)}
       >
-        <Loader2 className="animate-spin h-6 w-6 animate-spin text-muted-foreground" />
+        <Loader2 className="animate-spin h-6 w-6 text-muted-foreground" />
       </div>
     );
   }
