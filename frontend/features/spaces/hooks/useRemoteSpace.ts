@@ -1,11 +1,11 @@
 "use client";
 import { useQuery } from "@tanstack/react-query";
 import { spaceService } from "../services/space.service";
-import { SPACES_QUERY_KEY } from "../constants/spaces.constants";
+import { QueryKeys } from "@/features/shared/constants/index.shared.constants";
 
 export function useRemoteSpaces() {
   useQuery({
-    queryKey: [SPACES_QUERY_KEY.REMOTE_SPACES],
+    queryKey: [QueryKeys.space.remote.spacesAndNote],
     queryFn: async () => {
       await spaceService.getRemoteSpacesAndNotes();
       return null;

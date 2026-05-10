@@ -11,15 +11,12 @@ export const NoteLocalService = {
   },
   invalidateLocalNote: async (id: string) => {
     await NoteLocalService.client().invalidateQueries({
-      queryKey: QueryKeys.notes.localNoteId(id),
+      queryKey: QueryKeys.notes.local.get(id),
     });
   },
   invalidateGetNotes: async () => {
     await NoteLocalService.client().invalidateQueries({
-      queryKey: [
-        QueryKeys.notes.allLocalNotes,
-        QueryKeys.notes.allNotesOfSpace,
-      ],
+      queryKey: [QueryKeys.notes.local.all, QueryKeys.notes.local.allOfSpace],
     });
   },
   updateNote: async (
@@ -37,7 +34,7 @@ export const NoteLocalService = {
   },
   getAllNotes: async () => {
     return NoteLocalService.client().fetchQuery({
-      queryKey: QueryKeys.notes.allLocalNotes,
+      queryKey: QueryKeys.notes.local.all,
       queryFn: async () => {
         return db.notes.orderBy("updatedAt").reverse().toArray();
       },
@@ -46,7 +43,7 @@ export const NoteLocalService = {
   },
   getNoteOfSpace: async (spaceId: string) => {
     return NoteLocalService.client().fetchQuery({
-      queryKey: QueryKeys.notes.allNotesOfSpace(spaceId),
+      queryKey: QueryKeys.notes.local.allOfSpace(spaceId),
       queryFn: async () => {
         return db.notes
           .where("spaceId")
@@ -59,7 +56,7 @@ export const NoteLocalService = {
   },
   getNote: async (noteId: string) => {
     return NoteLocalService.client().fetchQuery({
-      queryKey: QueryKeys.notes.localNoteId(noteId),
+      queryKey: QueryKeys.notes.local.get(noteId),
       queryFn: async () => {
         return db.notes.get(noteId);
       },

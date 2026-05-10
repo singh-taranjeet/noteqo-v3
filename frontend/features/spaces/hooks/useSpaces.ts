@@ -2,11 +2,11 @@ import { useQuery } from "@tanstack/react-query";
 import { spaceService } from "../services/space.service";
 import { useMemo } from "react";
 import type { NoteTreeNode } from "@/features/workspace/types/workspace.types";
-import { SPACES_QUERY_KEY } from "../constants/spaces.constants";
+import { QueryKeys } from "@/features/shared/constants/index.shared.constants";
 
 export function useSpaces() {
   const query = useQuery({
-    queryKey: [SPACES_QUERY_KEY.LOCAL_SPACES_NOTES],
+    queryKey: [QueryKeys.space.remote.spacesAndNote],
     queryFn: async () => {
       return spaceService.getLocalSpacesAndNotes();
     },

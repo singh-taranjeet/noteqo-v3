@@ -60,10 +60,6 @@ export const noteService = {
     return note;
   },
 
-  /**
-   * Get all notes from local db
-   * @returns
-   */
   async getAllLocalNotes(): Promise<Note[]> {
     return NoteLocalService.getAllNotes();
   },

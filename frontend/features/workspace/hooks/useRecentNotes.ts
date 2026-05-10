@@ -1,9 +1,7 @@
 "use client";
-import { useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { noteService } from "../services/note.service";
-import type { Note } from "../types/workspace.types";
-import { SEARCH_CONFIG } from "@/components/layout/Sidebar/constants/search.constants";
+import { useEffect, useMemo, useState } from "react";
+import { noteService } from "@/features/workspace/services/note.service";
+import type { Note } from "@/features/workspace/types/workspace.types";
 
 export const RECENT_NOTES_QUERY_KEY = ["recent-notes"] as const;
 
@@ -21,15 +19,18 @@ function sortByRecent(lhs: Note, rhs: Note): number {
 }
 
 export function useRecentNotes() {
-  const {
-    data: notes = [],
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: RECENT_NOTES_QUERY_KEY,
-    queryFn: () => noteService.getAllLocalNotes(),
-    refetchInterval: SEARCH_CONFIG.LOCAL_REFRESH_INTERVAL_MS,
-  });
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadNotes() {
+      setIsLoading(true);
+      const data = await noteService.getAllLocalNotes();
+      setNotes(data);
+      setIsLoading(false);
+    }
+    loadNotes();
+  }, []);
 
   const recentNotes = useMemo(() => {
     return [...notes].filter((n) => !n.deletedAt).sort(sortByRecent);
@@ -38,6 +39,5 @@ export function useRecentNotes() {
   return {
     notes: recentNotes,
     isLoading,
-    error,
   };
 }

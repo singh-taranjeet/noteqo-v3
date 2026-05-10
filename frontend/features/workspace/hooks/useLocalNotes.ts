@@ -1,12 +1,11 @@
 "use client";
 import { useQuery } from "@tanstack/react-query";
 import { noteService } from "../services/note.service";
-
-export const NOTES_QUERY_KEY = ["local-notes"] as const;
+import { QueryKeys } from "@/features/shared/constants/index.shared.constants";
 
 export function useLocalNotes() {
   return useQuery({
-    queryKey: NOTES_QUERY_KEY,
+    queryKey: QueryKeys.notes.local.all,
     queryFn: () => noteService.getAllLocalNotes(),
   });
 }
