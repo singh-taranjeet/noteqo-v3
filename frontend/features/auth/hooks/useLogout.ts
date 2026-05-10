@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { ROUTES } from "@/constants/routes";
 import { KeysService } from "../services/keys.service";
-import { LOCAL_STORAGE_ALL_SPACES_INITIALLY_FETCHED } from "@/features/spaces";
+import { SpaceLocalStorageService } from "@/features/spaces/services/space-local-storage.service";
 
 /**
  * Hook that handles full client-side logout:
@@ -26,7 +26,7 @@ export const useLogout = () => {
       queryClient.clear();
 
       // Clear the inti localstorage option as well
-      localStorage.removeItem(LOCAL_STORAGE_ALL_SPACES_INITIALLY_FETCHED);
+      SpaceLocalStorageService.resetFetched();
 
       if (autoRedirect) {
         // 3. Redirect to auth page

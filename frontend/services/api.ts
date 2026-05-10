@@ -2,8 +2,8 @@ import { API_BASE_URL } from "@/constants/config";
 import { ROUTES } from "@/constants/routes";
 import { KeysService } from "@/features/auth";
 import { storageService, STORAGE_KEYS } from "@/features/storage";
-import { LOCAL_STORAGE_ALL_SPACES_INITIALLY_FETCHED } from "@/features/spaces";
 import { logService } from "./log.service";
+import { SpaceLocalStorageService } from "@/features/spaces/services/space-local-storage.service";
 
 export interface ApiRequestInit extends RequestInit {
   auth?: boolean;
@@ -46,8 +46,7 @@ async function request<T>(url: string, init: ApiRequestInit): Promise<T> {
       headers["Authorization"] = `Bearer ${token}`;
     } else {
       KeysService.clear(false).then(() => {
-        // Clear the inti localstorage option as well
-        localStorage.removeItem(LOCAL_STORAGE_ALL_SPACES_INITIALLY_FETCHED);
+        SpaceLocalStorageService.resetFetched();
       });
       window.location.href = ROUTES.LOGIN;
     }
@@ -61,8 +60,7 @@ async function request<T>(url: string, init: ApiRequestInit): Promise<T> {
   if (!response.ok) {
     if (response.status === 401 && typeof window !== "undefined") {
       await KeysService.clear(false);
-      // Clear the inti localstorage option as well
-      localStorage.removeItem(LOCAL_STORAGE_ALL_SPACES_INITIALLY_FETCHED);
+      SpaceLocalStorageService.resetFetched();
       window.location.href = ROUTES.LOGIN;
     }
 

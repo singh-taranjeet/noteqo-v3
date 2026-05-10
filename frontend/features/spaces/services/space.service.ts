@@ -3,7 +3,6 @@ import { storageService, STORAGE_KEYS } from "@/features/storage";
 import { logService } from "@/services/log.service";
 import { spaceApiService } from "./space-api.service";
 import {
-  LOCAL_STORAGE_ALL_SPACES_INITIALLY_FETCHED,
   SPACE_DEFAULTS,
   SPACE_TYPE,
   SPACES_MESSAGES,
@@ -19,6 +18,7 @@ import { isOnline } from "@/lib/utils";
 import { spaceSyncQueueService } from "./space-sync-queue.service";
 import { SpaceLocalService } from "./space-local.service";
 import { NoteLocalService } from "@/features/workspace/services/note-local.service";
+import { SpaceLocalStorageService } from "./space-local-storage.service";
 
 export const spaceService = {
   async generateKeys() {
@@ -79,9 +79,7 @@ export const spaceService = {
     // if User is online
 
     if (isOnline()) {
-      const fetchOnlyRecentlyUpdated = !!localStorage.getItem(
-        LOCAL_STORAGE_ALL_SPACES_INITIALLY_FETCHED,
-      );
+      const fetchOnlyRecentlyUpdated = SpaceLocalStorageService.isFetched();
 
       const remoteSpaces = fetchOnlyRecentlyUpdated
         ? await spaceApiService.getRecentlyUpdated()
@@ -122,7 +120,7 @@ export const spaceService = {
 
       await NoteLocalService.bulkPut(decryptedNotes);
 
-      localStorage.setItem(LOCAL_STORAGE_ALL_SPACES_INITIALLY_FETCHED, "done");
+      SpaceLocalStorageService.setFetched();
     }
   },
 

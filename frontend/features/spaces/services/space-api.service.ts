@@ -37,7 +37,7 @@ export const spaceApiService = {
 
   getAll: async (): Promise<RemoteSpace[]> => {
     return spaceApiService.client().fetchQuery({
-      queryKey: QueryKeys.space.remote.all(),
+      queryKey: QueryKeys.space.remote.all,
       queryFn: async () => {
         const res = await apiClient.get<{ data: RemoteSpace[] }>(
           SPACES_API_ROUTES.SPACES,
