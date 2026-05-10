@@ -79,6 +79,13 @@ export const spaceApiService = {
       })
       .execute(payload);
 
+    spaceApiService.client().invalidateQueries({
+      queryKey: [
+        QueryKeys.space.remote.all,
+        QueryKeys.space.remote.allRecentlyUpdated,
+      ],
+    });
+
     return response as RemoteSpace;
   },
 
@@ -147,7 +154,10 @@ export const spaceApiService = {
       .execute({ spaceId, userId });
 
     await spaceApiService.client().invalidateQueries({
-      queryKey: QueryKeys.space.remote.members(spaceId),
+      queryKey: [
+        QueryKeys.space.remote.members(spaceId),
+        QueryKeys.space.remote.members,
+      ],
     });
     return response;
   },

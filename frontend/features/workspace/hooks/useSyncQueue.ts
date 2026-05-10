@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { noteSyncQueueService } from "../services/note-sync-queue.service";
+import { spaceSyncQueueService } from "@/features/spaces/services/space-sync-queue.service";
 
 /**
  * Starts the background sync queue on mount, stops on unmount.
@@ -10,6 +11,10 @@ import { noteSyncQueueService } from "../services/note-sync-queue.service";
 export function useSyncQueue(): void {
   useEffect(() => {
     noteSyncQueueService.start();
-    return () => noteSyncQueueService.stop();
+    spaceSyncQueueService.start();
+    return () => {
+      noteSyncQueueService.stop();
+      spaceSyncQueueService.stop();
+    };
   }, []);
 }
