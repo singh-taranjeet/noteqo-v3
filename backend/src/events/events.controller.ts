@@ -12,8 +12,8 @@ import { EventsService } from './events.service';
 import { EVENTS_ROUTES, EVENTS_CONFIG } from './constants/events.constants';
 import { SpacesRepository } from '../spaces/spaces.repository';
 import type { RealtimeEvent } from './types/events.types';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { getCurrentUserId } from 'src/shared/utils/cls.utils';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { getCurrentUserId } from '../shared/utils/cls.utils';
 import { SpaceRoleGuard } from '../auth/guards/space-role.guard';
 import { RequireSpaceRole } from '../shared/decorators/space-role.decorator';
 
