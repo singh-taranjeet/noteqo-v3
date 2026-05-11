@@ -19,6 +19,7 @@ export const metadata: Metadata = {
 };
 
 import { SerwistProvider } from "./serwist";
+import { AxeCore } from "@/components/AxeCore";
 
 export default function RootLayout({
   children,
@@ -42,6 +43,7 @@ export default function RootLayout({
           swUrl="/sw.js"
           disable={process.env.NODE_ENV === "development"}
         >
+          <AxeCore />
           <Providers>
             <TooltipProvider>{children}</TooltipProvider>
           </Providers>
