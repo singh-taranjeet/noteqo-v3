@@ -215,7 +215,9 @@ export function NoteEditor({
     if (editor && !loading && content) {
       // Defer to the macrotask queue to prevent React 19 flushSync collision during initial render loop
       setTimeout(() => {
-        editor.commands.setContent(content);
+        if (!editor.isDestroyed) {
+          editor.commands.setContent(content);
+        }
       }, EDITOR_CONFIG.EVENT_LOOP_DEFER_MS);
     }
   }, [editor, loading, content]);
@@ -236,7 +238,7 @@ export function NoteEditor({
       if (detail.noteId !== noteId) return;
 
       // Update the Tiptap editor content
-      if (detail.content) {
+      if (detail.content && !editor.isDestroyed) {
         editor.commands.setContent(detail.content);
       }
 
