@@ -18,7 +18,6 @@ export const noteApiService = {
 
       const decryptedNote = await noteService.decryptNote(response.data);
       if (decryptedNote) {
-        // Direct Dexie write — useLiveQuery picks this up automatically
         await db.notes.put(decryptedNote);
       }
       return decryptedNote ?? undefined;

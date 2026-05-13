@@ -1,6 +1,9 @@
 import { useLiveQuery } from "dexie-react-hooks";
+import { useQuery } from "@tanstack/react-query";
 import { db } from "@/features/storage";
 import type { Note } from "../types/workspace.types";
+import { noteApiService } from "../services/note-api.service";
+import { QueryKeys } from "@/features/shared/constants/index.shared.constants";
 
 /**
  * Live query for a single note by ID.
@@ -15,7 +18,18 @@ export function useNote(params: {
   initialNote?: Note;
   readonly?: boolean;
 }): { note: Note | undefined; loading: boolean } {
-  const { id } = params;
+  const { id = '' } = params;
+
+  // This will fetch remote note and also update in the local db
+  useQuery({
+    queryKey: QueryKeys.notes.remote.get(id),
+    queryFn: async () => {
+      if (!id) return null;
+      await noteApiService.getNote(id);
+      return { syncedAt: new Date().toISOString() };
+    },
+    enabled: !!id
+  });
 
   const note = useLiveQuery(() => (id ? db.notes.get(id) : undefined), [id]);
 
