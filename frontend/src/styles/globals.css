@@ -39,9 +39,9 @@
   --sidebar-accent-foreground: oklch(0.1649 0.0352 281.8285);
   --sidebar-border: oklch(0.9205 0.0086 225.0878);
   --sidebar-ring: oklch(0.6726 0.2904 341.4084);
-  --font-sans: Outfit, sans-serif;
-  --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
-  --font-mono: Fira Code, monospace;
+  --font-sans: "Roboto", ui-sans-serif, sans-serif, system-ui;
+  --font-serif: "Roboto Serif", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-mono: "Geist Mono", ui-monospace, monospace;
   --radius: 0.5rem;
   --shadow-x: 0px;
   --shadow-y: 4px;
@@ -99,9 +99,9 @@
   --sidebar-accent-foreground: oklch(0.1649 0.0352 281.8285);
   --sidebar-border: oklch(0.3279 0.0832 280.789);
   --sidebar-ring: oklch(0.6726 0.2904 341.4084);
-  --font-sans: Outfit, sans-serif;
-  --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
-  --font-mono: Fira Code, monospace;
+  --font-sans: "Roboto", ui-sans-serif, sans-serif, system-ui;
+  --font-serif: "Roboto Serif", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-mono: "Geist Mono", ui-monospace, monospace;
   --radius: 0.5rem;
   --shadow-x: 0px;
   --shadow-y: 4px;
