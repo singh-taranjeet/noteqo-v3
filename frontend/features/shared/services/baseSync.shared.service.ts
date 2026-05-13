@@ -12,6 +12,9 @@ export abstract class BaseSyncQueueService {
   private isProcessing = false;
   private onlineHandler: (() => void) | null = null;
 
+  /** Each subclass declares which entity type it handles. */
+  protected abstract readonly entityType: SyncEntity;
+
   /**
    * Start background polling + listen for online events.
    */
@@ -20,12 +23,11 @@ export abstract class BaseSyncQueueService {
 
     this.intervalId = setInterval(() => {
       void this.processQueue();
-    }, SYNC_CONFIG.INTERVAL_MS);
+    }, SYNC_CONFIG.AUTO_PROCESS_MS);
 
     this.onlineHandler = () => void this.processQueue();
     globalThis.addEventListener("online", this.onlineHandler);
   }
-
   /**
    * Stop background polling.
    */
@@ -70,6 +72,12 @@ export abstract class BaseSyncQueueService {
         return;
       }
 
+      if (existing.type === "CREATE" && type === "DELETE") {
+        // Net zero — the entity was created then deleted before syncing
+        await db.syncQueue.delete(existing.id);
+        return;
+      }
+
       if (existing.type === "UPDATE" && type === "UPDATE") {
         // Update payload of existing UPDATE event
         await db.syncQueue.update(existing.id, { payload });
@@ -96,24 +104,34 @@ export abstract class BaseSyncQueueService {
     };
 
     await db.syncQueue.put(event);
+
+    // Attempt to flush immediately if online (don't wait for next interval)
+    if (isOnline()) {
+      void this.prepare();
+    }
   }
 
-  getUpdatedAt() {
+  getUpdatedAt(): string {
     return new Date().toISOString();
   }
 
   /**
-   * Process all pending events in FIFO order.
+   * Process all pending events for THIS entity type in FIFO order.
+   * Each subclass only processes its own entity type, so a failing
+   * space sync doesn't block note syncs and vice versa.
    */
   private async processQueue(): Promise<void> {
     if (this.isProcessing) return;
-    // Check if the application is online
     if (!isOnline()) return;
 
     this.isProcessing = true;
 
     try {
-      const events = await db.syncQueue.orderBy("createdAt").toArray();
+      // Only process events for this subclass's entity type
+      const events = await db.syncQueue
+        .where("entity")
+        .equals(this.entityType)
+        .sortBy("createdAt");
 
       for (const event of events) {
         try {
@@ -124,15 +142,18 @@ export abstract class BaseSyncQueueService {
           const newRetryCount = event.retryCount + 1;
 
           if (newRetryCount >= SYNC_CONFIG.MAX_RETRY_COUNT) {
-            // Max retries exceeded — delete event, mark note as failed
+            // Max retries exceeded — mark as failed
             await db.syncQueue.update(event.id, { syncStatus: "failed" });
           } else {
-            // wait 3 seconds before trying again
-            setTimeout(async () => {
-              await db.syncQueue.update(event.id, {
+            // Exponential backoff: 3s → 6s → 12s → 24s → ...
+            const backoffMs =
+              SYNC_CONFIG.BASE_BACKOFF_MS * Math.pow(2, event.retryCount);
+
+            setTimeout(() => {
+              void db.syncQueue.update(event.id, {
                 retryCount: newRetryCount,
               });
-            }, SYNC_CONFIG.BASE_BACKOFF_MS);
+            }, backoffMs);
           }
 
           // Stop processing remaining events on failure (preserve ordering)
@@ -146,78 +167,15 @@ export abstract class BaseSyncQueueService {
 
   /**
    * Process a single sync event — encrypt and send to API.
+   * Implemented by each entity-specific subclass.
    */
-  // private async processEvent(event: SyncEvent): Promise<void> {
-  //     switch (event.type) {
-  //         case "CREATE": {
-  //             const note = event.payload as Note;
-  //             const ciphertext = await this.encryptPayload(note);
-
-  //             await noteApiService.createNote({
-  //                 id: event.entityId,
-  //                 ciphertext,
-  //                 spaceId: note.spaceId,
-  //                 type: note.type,
-  //                 isFavorite: note.isFavorite,
-  //                 parentId: note.parentId,
-  //                 createdAt: note.createdAt,
-  //                 updatedAt: this.getUpdatedAt(),
-  //             });
-  //             break;
-  //         }
-
-  //         case "UPDATE": {
-  //             const note = event.payload as Note;
-  //             const ciphertext = await this.encryptPayload(note);
-  //             await noteApiService.updateNote({
-  //                 id: event.entityId,
-  //                 ciphertext,
-  //                 isFavorite: note.isFavorite,
-  //                 parentId: note.parentId,
-  //                 updatedAt: this.getUpdatedAt(),
-  //             });
-  //             break;
-  //         }
-
-  //         case "DELETE": {
-  //             await noteApiService.deleteNote(event.entityId);
-  //             break;
-  //         }
-
-  //         case "RESTORE": {
-  //             await noteApiService.restoreNote(event.entityId);
-  //             break;
-  //         }
-
-  //         case "PERMANENT_DELETE": {
-  //             await noteApiService.permanentDeleteNote(event.entityId);
-  //             break;
-  //         }
-  //     }
-  // }
-
   protected abstract processEvent(event: SyncEvent): Promise<void>;
 
-  /**
-   * Encrypt a note payload using the space key.
-   *
-   * 1. Resolve the space key bytes via spaceService
-   * 2. Serialize the payload (title, emoji, coverImage, content) to JSON
-   * 3. Encrypt with AES-GCM using cryptoService → "iv:ciphertext"
-   */
-  // private async encryptPayload(note: Note): Promise<string> {
-  //     const spaceKeyBytes = await spaceService.getSpaceKeyBytes(note.spaceId);
+  protected prepare() {
+    if (this.isProcessing) return;
 
-  //     const payloadToEncrypt = {
-  //         title: note.title?.slice(0, 50) || "",
-  //         emoji: note.emoji,
-  //         coverImage: note.coverImage,
-  //         content: note.content,
-  //     };
-
-  //     return cryptoService.encryptString(
-  //         JSON.stringify(payloadToEncrypt),
-  //         spaceKeyBytes,
-  //     );
-  // }
+    setTimeout(() => {
+      this.processQueue();
+    }, SYNC_CONFIG.NEXT_INTERVAL_MS);
+  }
 }

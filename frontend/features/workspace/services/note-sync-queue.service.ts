@@ -2,10 +2,15 @@ import { cryptoService } from "@/features/crypto";
 import type { Note } from "../types/workspace.types";
 import { noteApiService } from "./note-api.service";
 import { spaceService } from "@/features/spaces/services/space.service";
-import type { SyncEvent } from "@/features/shared/types/index.shared";
+import type {
+  SyncEvent,
+  SyncEntity,
+} from "@/features/shared/types/index.shared";
 import { BaseSyncQueueService } from "@/features/shared/services/baseSync.shared.service";
 
 class NoteSyncQueueService extends BaseSyncQueueService {
+  protected readonly entityType: SyncEntity = "note";
+
   async processEvent(event: SyncEvent): Promise<void> {
     switch (event.type) {
       case "CREATE": {

@@ -28,6 +28,29 @@ export interface MediaBlobEntry {
 }
 
 /**
+ * Shape of a pending media upload queued for offline-first sync.
+ * The encrypted blob is stored locally until connectivity returns.
+ */
+export interface PendingMediaEntry {
+  /** Unique ID for this pending upload (matches the media record ID) */
+  id: string;
+  /** The encrypted blob data awaiting upload */
+  encryptedBlob: Blob;
+  /** Original file for write-through cache after upload */
+  originalBlob: Blob;
+  /** MIME type of the original file */
+  mimeType: string;
+  /** Original file size in bytes */
+  sizeBytes: number;
+  /** Associated note ID */
+  noteId: string;
+  /** Associated space ID */
+  spaceId: string;
+  /** Timestamp when the upload was queued */
+  createdAt: string;
+}
+
+/**
  * Single Dexie database for the entire Noteqo app.
  * Replaces the raw IndexedDB wrapper — all tables in one DB.
  */
@@ -38,6 +61,7 @@ class NoteqoDB extends Dexie {
   spaces!: Table<Space, string>;
   mediaBlobs!: Table<MediaBlobEntry, string>;
   media!: Table<DecryptedMedia, string>;
+  pendingMediaBlobs!: Table<PendingMediaEntry, string>;
 
   constructor() {
     super(STORAGE_CONFIG.DB_NAME);
@@ -49,6 +73,7 @@ class NoteqoDB extends Dexie {
       spaces: "id, type",
       mediaBlobs: "url",
       media: "id, spaceId, createdAt",
+      pendingMediaBlobs: "id, spaceId, noteId, createdAt",
     });
   }
 }

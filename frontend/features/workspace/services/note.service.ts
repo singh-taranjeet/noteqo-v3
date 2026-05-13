@@ -7,12 +7,10 @@ import {
   NOTE_COVER_POOL,
 } from "@/features/workspace/constants/workspace.constants";
 import { noteSyncQueueService } from "./note-sync-queue.service";
-import { noteApiService } from "./note-api.service";
 import { logService } from "@/services/log.service";
 import { spaceService } from "@/features/spaces";
 import { NOTE_FALLBACKS } from "@/features/spaces";
 import { cryptoService } from "@/features/crypto";
-import { NoteLocalService } from "./note-local.service";
 
 function getRandomItem<T>(pool: readonly T[]): T {
   return pool[Math.floor(Math.random() * pool.length)];
@@ -22,6 +20,7 @@ export const noteService = {
   /**
    * Creates a new note locally in Dexie and enqueues a CREATE sync event.
    * Returns the note immediately — no network call.
+   * useLiveQuery subscribers are notified automatically by the Dexie write.
    */
   async createNote(
     spaceId: string,
@@ -48,7 +47,8 @@ export const noteService = {
       updatedAt: now,
     };
 
-    await NoteLocalService.createNote(note);
+    // Direct Dexie write — useLiveQuery picks this up automatically
+    await db.notes.put(note);
 
     await noteSyncQueueService.enqueue({
       type: "CREATE",
@@ -60,51 +60,51 @@ export const noteService = {
     return note;
   },
 
+  /**
+   * Returns all notes from local Dexie DB, sorted by updatedAt desc.
+   */
   async getAllLocalNotes(): Promise<Note[]> {
-    return NoteLocalService.getAllNotes();
+    return db.notes.orderBy("updatedAt").reverse().toArray();
   },
+
   /**
    * Returns all notes for a given space from local Dexie DB.
    */
   async getLocalNotesForSpace(spaceId: string): Promise<Note[]> {
-    return NoteLocalService.getNoteOfSpace(spaceId);
+    return db.notes
+      .where("spaceId")
+      .equals(spaceId)
+      .reverse()
+      .sortBy("updatedAt");
   },
 
   /**
    * Returns a single note by ID from the local Dexie DB.
    */
   async getLocalNote(id: string): Promise<Note | undefined> {
-    return NoteLocalService.getNote(id);
-  },
-
-  /**
-   * Fetches a single note from remote.
-   */
-  async getRemoteNote(id: string): Promise<Note | undefined> {
-    return noteApiService.getNote(id);
+    return db.notes.get(id);
   },
 
   /**
    * Updates a note locally and enqueues an UPDATE sync event.
+   * useLiveQuery subscribers are notified automatically by the Dexie write.
    */
   async updateNote(
     id: string,
     updates: Partial<Omit<Note, "id" | "createdAt">>,
   ): Promise<void> {
-    const note = await this.getLocalNote(id);
-    const patched = {
-      ...note,
-      ...updates,
-      updatedAt: new Date().toISOString(),
-    };
-    await NoteLocalService.updateNote(id, patched);
+    const updatedAt = new Date().toISOString();
 
-    const updatedNote = await this.getLocalNote(id);
+    // Direct Dexie write
+    await db.notes.update(id, { ...updates, updatedAt });
+
+    // Read back the full note for the sync payload
+    const updatedNote = await db.notes.get(id);
     if (updatedNote) {
       await noteSyncQueueService.enqueue({
         type: "UPDATE",
         entityId: id,
-        payload: patched,
+        payload: updatedNote,
         entity: "note",
       });
     }
@@ -115,7 +115,7 @@ export const noteService = {
    * Appends " (Copy)" to the title of the duplicated note.
    */
   async duplicateNote(noteId: string): Promise<Note> {
-    const existingNote = await NoteLocalService.getNote(noteId);
+    const existingNote = await db.notes.get(noteId);
     if (!existingNote) {
       throw new Error(`Note not found: ${noteId}`);
     }
@@ -131,7 +131,7 @@ export const noteService = {
       updatedAt: now,
     };
 
-    await NoteLocalService.createNote(duplicate);
+    await db.notes.put(duplicate);
 
     await noteSyncQueueService.enqueue({
       type: "CREATE",
@@ -144,7 +144,7 @@ export const noteService = {
   },
 
   async getDescendantIdsLocally(id: string): Promise<string[]> {
-    const allNotes = await NoteLocalService.getAllNotes();
+    const allNotes = await db.notes.toArray();
     const descendants: string[] = [id];
 
     const queue = [id];
@@ -168,13 +168,10 @@ export const noteService = {
     const now = new Date().toISOString();
 
     for (const descendantId of descendantIds) {
-      await NoteLocalService.updateNote(descendantId, {
-        deletedAt: now,
-      });
+      await db.notes.update(descendantId, { deletedAt: now });
     }
 
     // Only enqueue DELETE for the parent; backend will cascade
-
     await noteSyncQueueService.enqueue({
       type: "DELETE",
       entityId: id,
@@ -190,17 +187,14 @@ export const noteService = {
     const descendantIds = await this.getDescendantIdsLocally(id);
 
     for (const descendantId of descendantIds) {
-      // Use Dexie's modify to unset deletedAt if it exists
-      const note = await NoteLocalService.getNote(descendantId);
-
+      const note = await db.notes.get(descendantId);
       if (note) {
         delete note.deletedAt;
-        await NoteLocalService.updateNote(note.id, note);
+        await db.notes.put(note);
       }
     }
 
     // Only enqueue RESTORE for the parent; backend will cascade
-
     await noteSyncQueueService.enqueue({
       type: "RESTORE",
       entityId: id,
@@ -216,7 +210,7 @@ export const noteService = {
     const descendantIds = await this.getDescendantIdsLocally(id);
 
     for (const descendantId of descendantIds) {
-      await NoteLocalService.deleteNote(descendantId);
+      await db.notes.delete(descendantId);
     }
 
     await noteSyncQueueService.enqueue({
@@ -225,6 +219,14 @@ export const noteService = {
       payload: { id },
       entity: "note",
     });
+  },
+
+  /**
+   * Bulk puts notes into local Dexie DB.
+   * Used by remote sync to merge decrypted notes.
+   */
+  async bulkPutNotes(notes: Note[]): Promise<void> {
+    await db.notes.bulkPut(notes);
   },
 
   /**

@@ -89,6 +89,21 @@ export const spaceApiService = {
     return response as RemoteSpace;
   },
 
+  update: async (
+    spaceId: string,
+    payload: { encryptedName: string; updatedAt: string },
+  ): Promise<void> => {
+    await apiClient.patch(`${SPACES_API_ROUTES.SPACES}/${spaceId}`, payload, {
+      auth: true,
+    });
+  },
+
+  deleteSpace: async (spaceId: string): Promise<void> => {
+    await apiClient.delete(`${SPACES_API_ROUTES.SPACES}/${spaceId}`, {
+      auth: true,
+    });
+  },
+
   getNotes: async (spaceId: string): Promise<SpaceNotesResponse> => {
     return spaceApiService.client().fetchQuery({
       queryKey: QueryKeys.space.remote.notes(spaceId),

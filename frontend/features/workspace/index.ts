@@ -8,7 +8,6 @@ export { useRecentNotes } from "./hooks/useRecentNotes";
 export { useCreateNote } from "./hooks/useCreateNote";
 export { useDuplicateNote } from "./hooks/useDuplicateNote";
 export { useToggleFavoriteNote } from "./hooks/useToggleFavoriteNote";
-export { useSyncQueue } from "./hooks/useSyncQueue";
 export { useDeleteNote } from "./hooks/useDeleteNote";
 export { useRestoreNote } from "./hooks/useRestoreNote";
 export { usePermanentDeleteNote } from "./hooks/usePermanentDeleteNote";

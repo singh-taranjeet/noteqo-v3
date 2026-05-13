@@ -1,8 +1,7 @@
 "use client";
 import { useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { noteService } from "../services/note.service";
-import { spaceService } from "@/features/spaces/services/space.service";
+import { useLiveQuery } from "dexie-react-hooks";
+import { db } from "@/features/storage";
 import { SEARCH_CONFIG } from "@/components/layout/Sidebar/constants/search.constants";
 import type { SidebarSearchResultItem } from "../types/sidebar-search.types";
 import type { Note } from "../types/workspace.types";
@@ -83,33 +82,23 @@ function sortByRecent(lhs: Note, rhs: Note): number {
 export function useSidebarSearchNotes() {
   const { data: userProfile } = useUserProfile();
 
-  const {
-    data: notes = [],
-    isLoading: isNotesLoading,
-    error: notesError,
-  } = useQuery({
-    queryKey: SIDEBAR_SEARCH_NOTES_QUERY_KEY,
-    queryFn: () => noteService.getAllLocalNotes(),
-    refetchInterval: SEARCH_CONFIG.LOCAL_REFRESH_INTERVAL_MS,
-  });
+  const notes = useLiveQuery(
+    () => db.notes.orderBy("updatedAt").reverse().toArray(),
+    [],
+  );
 
-  const {
-    data: spaces = [],
-    isLoading: isSpacesLoading,
-    error: spacesError,
-  } = useQuery({
-    queryKey: SIDEBAR_SEARCH_SPACES_QUERY_KEY,
-    queryFn: () => spaceService.getLocalSpaces(),
-    refetchInterval: SEARCH_CONFIG.LOCAL_REFRESH_INTERVAL_MS,
-  });
+  const spaces = useLiveQuery(() => db.spaces.toArray(), []);
 
   const items = useMemo<SidebarSearchResultItem[]>(() => {
     const spaceNameById = new Map(
-      spaces.map((space) => [space.id, space.name]),
+      (spaces || []).map((space) => [space.id, space.name]),
     );
-    const noteTitleById = new Map(notes.map((note) => [note.id, note.title]));
+    const noteList = notes || [];
+    const noteTitleById = new Map(
+      noteList.map((note) => [note.id, note.title]),
+    );
 
-    return [...notes].sort(sortByRecent).map((note) => {
+    return [...noteList].sort(sortByRecent).map((note) => {
       const bodyText = getBodyTextFromNote(note);
       const previewText = truncateText(
         bodyText,
@@ -141,7 +130,7 @@ export function useSidebarSearchNotes() {
 
   return {
     items,
-    isLoading: isNotesLoading || isSpacesLoading,
-    error: notesError ?? spacesError ?? null,
+    isLoading: notes === undefined || spaces === undefined,
+    error: null,
   };
 }

@@ -1,24 +1,24 @@
-import { useQuery } from "@tanstack/react-query";
-import { spaceService } from "../services/space.service";
+"use client";
+
 import { useMemo } from "react";
+import { useLiveQuery } from "dexie-react-hooks";
+import { db } from "@/features/storage";
 import type { NoteTreeNode } from "@/features/workspace/types/workspace.types";
-import { QueryKeys } from "@/features/shared/constants/index.shared.constants";
 
 export function useSpaces() {
-  const query = useQuery({
-    queryKey: [QueryKeys.space.remote.spacesAndNote],
-    queryFn: async () => {
-      return spaceService.getLocalSpacesAndNotes();
-    },
-  });
+  const spaces = useLiveQuery(() => db.spaces.toArray(), []);
+  const notes = useLiveQuery(
+    () => db.notes.orderBy("updatedAt").reverse().toArray(),
+    [],
+  );
 
   const activeNotes = useMemo(() => {
-    return (query.data?.notes || []).filter((n) => !n.deletedAt);
-  }, [query.data?.notes]);
+    return (notes || []).filter((n) => !n.deletedAt);
+  }, [notes]);
 
   const trashedNotes = useMemo(() => {
-    return (query.data?.notes || []).filter((n) => !!n.deletedAt);
-  }, [query.data?.notes]);
+    return (notes || []).filter((n) => !!n.deletedAt);
+  }, [notes]);
 
   const spaceNotesMap = useMemo(() => {
     // Sort notes by updatedAt desc globally
@@ -66,12 +66,11 @@ export function useSpaces() {
 
   return {
     data: {
-      notes: query.data?.notes,
-      spaces: query.data?.spaces,
+      notes,
+      spaces,
     },
-    isLoading: query.isLoading,
-    error: query.error,
-    refetchSpacesQuery: query.refetch,
+    isLoading: spaces === undefined || notes === undefined,
+    error: null,
     spaceNotesMap,
     spaceNoteTreesMap,
     trashedNotes,

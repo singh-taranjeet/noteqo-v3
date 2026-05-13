@@ -9,6 +9,7 @@ import {
   type FocusEvent,
   useRef,
 } from "react";
+import debounce from "lodash.debounce";
 
 // --- Tiptap Core Extensions ---
 import { StarterKit } from "@tiptap/starter-kit";
@@ -86,17 +87,18 @@ export function NoteEditor({
   const { mutate: createNoteMutation } = useCreateNote();
 
   const queueNoteUpdate = useMemo(
-    () => (props: { editor: Editor; id: string }) => {
-      const { editor, id } = props;
-      const json = editor.getJSON();
-      if (id) {
-        void noteService.updateNote(id, { content: json });
-      }
-    },
+    () =>
+      debounce((props: { editor: Editor; id: string }) => {
+        const { editor, id } = props;
+        const json = editor.getJSON();
+        if (id) {
+          void noteService.updateNote(id, { content: json });
+        }
+      }, EDITOR_CONFIG.AUTOSAVE_DEBOUNCE_MS),
     [],
   );
 
-  const { note, setNote, loading } = useNote({
+  const { note, loading } = useNote({
     id: noteId,
     initialNote,
     readonly: isReadOnly,
@@ -240,25 +242,20 @@ export function NoteEditor({
         editor.commands.setContent(detail.content);
       }
 
-      // Update the note metadata (title, emoji, cover)
-      setNote((prev) =>
-        prev
-          ? {
-              ...prev,
-              title: detail.title ?? prev.title,
-              emoji: detail.emoji ?? prev.emoji,
-              coverImage: detail.coverImage ?? prev.coverImage,
-              content: detail.content ?? prev.content,
-            }
-          : prev,
-      );
+      // Write restored metadata to Dexie — useLiveQuery picks it up automatically
+      void noteService.updateNote(noteId, {
+        title: detail.title,
+        emoji: detail.emoji,
+        coverImage: detail.coverImage,
+        content: detail.content,
+      });
     };
 
     window.addEventListener(VERSION_RESTORED_EVENT, handleVersionRestored);
     return () => {
       window.removeEventListener(VERSION_RESTORED_EVENT, handleVersionRestored);
     };
-  }, [editor, editorIsReadOnly, noteId, setNote]);
+  }, [editor, editorIsReadOnly, noteId]);
 
   // Listen for slash command to create child note
   useEffect(() => {
@@ -290,7 +287,7 @@ export function NoteEditor({
     if (editorIsReadOnly) return;
     if (!note) return;
 
-    setNote({ ...note, title: e.target.value });
+    // Write to Dexie — useLiveQuery picks up the change automatically
     void noteService.updateNote(noteId, { title: e.target.value });
   };
 
@@ -310,12 +307,10 @@ export function NoteEditor({
       noteId={noteId}
       onUpdateCoverImage={(url) => {
         if (!noteId) return;
-        setNote((prev) => (prev ? { ...prev, coverImage: url } : prev));
         void noteService.updateNote(noteId, { coverImage: url });
       }}
       onUpdateEmoji={(emoji) => {
         if (!noteId) return;
-        setNote((prev) => (prev ? { ...prev, emoji } : prev));
         void noteService.updateNote(noteId, { emoji });
       }}
       onTitleChange={handleTitleChange}

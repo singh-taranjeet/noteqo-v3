@@ -16,7 +16,6 @@ import {
   SidebarRail,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { useAllMediaList } from "@/features/media";
 import { SidebarUserProfile } from "./SidebarUserProfile";
 import { SidebarNavTabs } from "./SidebarNavTabs";
 import { SidebarSpaceCategory } from "./SidebarSpaceCategory";
@@ -24,7 +23,7 @@ import { RecentSection } from "./RecentSection";
 import { SidebarThemeToggle } from "./SidebarThemeToggle";
 import { SharedSpaceSettingsDialog } from "./SharedSpaceSettingsDialog";
 import { useSpaces, useCreateSpace } from "@/features/spaces";
-import { useCreateNote, useSyncQueue } from "@/features/workspace";
+import { useCreateNote } from "@/features/workspace";
 import { MOCK_USER, useUserProfile } from "@/features/auth";
 import { SPACE_TYPE } from "@/features/spaces";
 import type { Space, SpaceType } from "@/features/spaces";
@@ -56,16 +55,10 @@ export function AppSidebar() {
     }
   }, [pathname, isMobile, setOpenMobile]);
 
-  // Start background sync queue
-  useSyncQueue();
-
   const { data, isLoading: spacesLoading, spaceNoteTreesMap } = useSpaces();
   useRemoteSpaces();
 
   const { spaces = [] } = data || {};
-
-  // Prefetch media for all spaces so it's instantly available when opening the media picker
-  useAllMediaList(spaces.map((s) => s.id));
 
   const { mutate: createNote } = useCreateNote();
   const { createSpace, isLoading: isCreatingSpace } = useCreateSpace();

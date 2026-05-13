@@ -1,21 +1,11 @@
+/**
+ * Query keys for React Query.
+ *
+ * With the switch to Dexie useLiveQuery for local reads,
+ * these keys are only used for remote API operations.
+ */
 export const QueryKeys = {
-  notes: {
-    remote: {
-      get: (id: string) => ["notes", "remote", id] as const,
-    },
-    local: {
-      all: ["notes", "local"] as const,
-      get: (id: string) => [...QueryKeys.notes.local.all, id] as const,
-      allOfSpace: (spaceId: string) =>
-        ["notes", "local", "allOfSpace", spaceId] as const,
-    },
-  },
   space: {
-    local: {
-      all: ["space", "local"] as const,
-      get: (id: string) => ["space", "local", id] as const,
-      spacesAndNote: ["space", "local", "spaceAndNote"] as const,
-    },
     remote: {
       all: ["space", "remote"] as const,
       spacesAndNote: ["space", "remote", "spaceAndNote"] as const,
@@ -27,4 +17,10 @@ export const QueryKeys = {
       allRecentlyUpdated: ["space", "remote", "allRecentlyUpdated"] as const,
     },
   },
+  notes: {
+    remote: {
+      get: (id: string) => ["notes", "remote", id] as const,
+    },
+  },
+  remoteSync: ["remote-sync"] as const,
 };

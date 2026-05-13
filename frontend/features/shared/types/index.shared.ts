@@ -20,7 +20,8 @@ export interface SyncEvent {
 }
 
 export const SYNC_CONFIG = {
-  INTERVAL_MS: 3000,
+  AUTO_PROCESS_MS: 30 * 1000, // 30 Seconds
+  NEXT_INTERVAL_MS: 3 * 1000, // 3 seconds
   MAX_RETRY_COUNT: 5,
   BASE_BACKOFF_MS: 3000,
   CACHE_STALE_TIME_MS: 10 * 1000,

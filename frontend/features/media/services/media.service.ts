@@ -6,12 +6,19 @@ import { upload } from "@vercel/blob/client";
 import { storageService, STORAGE_KEYS, db } from "@/features/storage";
 import { API_BASE_URL } from "@/constants/config";
 import { logService } from "@/services/log.service";
+import { mediaSyncQueueService } from "./media-sync-queue.service";
+import { isOnline } from "@/lib/utils";
 
 export const mediaService = {
   /**
-   * Encrypts and uploads a file directly to Vercel Blob using a secure token.
-   * After a successful upload, the original (unencrypted) file is cached
-   * locally in IndexedDB so the first render is instant.
+   * Encrypts and queues a media file for upload.
+   *
+   * - If online: uploads immediately via Vercel Blob
+   * - If offline: stores encrypted blob in Dexie pendingMediaBlobs table
+   *   and enqueues a CREATE event in the sync queue
+   *
+   * In both cases, the original (unencrypted) file is cached locally
+   * so the first render is instant.
    */
   async uploadMedia(
     file: File,
@@ -31,10 +38,73 @@ export const mediaService = {
 
     const id = globalThis.crypto.randomUUID();
     const mimeType = file.type || "application/octet-stream";
-    const sizeBytes = file.size.toString();
+    const sizeBytes = file.size;
+    const now = new Date().toISOString();
+
+    if (isOnline()) {
+      // Online path — upload immediately
+      return this.uploadMediaDirect(
+        id,
+        encryptedBlob,
+        arrayBuffer,
+        mimeType,
+        sizeBytes,
+        noteId,
+        spaceId,
+        now,
+      );
+    }
+
+    // Offline path — queue for later upload
+    const originalBlob = new Blob([arrayBuffer], { type: mimeType });
+
+    await db.pendingMediaBlobs.put({
+      id,
+      encryptedBlob,
+      originalBlob,
+      mimeType,
+      sizeBytes,
+      noteId,
+      spaceId,
+      createdAt: now,
+    });
+
+    await mediaSyncQueueService.enqueue({
+      type: "CREATE",
+      entityId: id,
+      entity: "media",
+      payload: { id, noteId, spaceId, mimeType, sizeBytes },
+    });
+
+    // Return a placeholder record (URL will be filled after sync)
+    return {
+      id,
+      noteId,
+      spaceId,
+      mimeType,
+      sizeBytes,
+      url: `pending:${id}`,
+      meta: null,
+      createdAt: now,
+    };
+  },
+
+  /**
+   * Direct upload path (when online). Encrypts and uploads to Vercel Blob,
+   * caches locally, and registers with backend.
+   */
+  async uploadMediaDirect(
+    id: string,
+    encryptedBlob: Blob,
+    originalBuffer: ArrayBuffer,
+    mimeType: string,
+    sizeBytes: number,
+    noteId: string,
+    spaceId: string,
+    createdAt: string,
+  ): Promise<MediaResponseDto> {
     const token = await storageService.get<string>(STORAGE_KEYS.JWT_KEY);
 
-    // Vercel Blob client requires a File or Blob.
     const encryptedFile = new File([encryptedBlob], id, { type: mimeType });
 
     const blob = await upload(id, encryptedFile, {
@@ -47,23 +117,21 @@ export const mediaService = {
         noteId,
         spaceId,
         mimeType,
-        sizeBytes,
+        sizeBytes: sizeBytes.toString(),
       }),
     });
 
     // Write-through cache: store the original decrypted file in IndexedDB
-    // so the first render after upload is instant (no fetch + decrypt needed).
     try {
-      const decryptedBlob = new Blob([arrayBuffer], { type: mimeType });
+      const decryptedBlob = new Blob([originalBuffer], { type: mimeType });
       await db.mediaBlobs.put({
         url: blob.url,
         blob: decryptedBlob,
         mimeType,
-        sizeBytes: file.size,
+        sizeBytes,
         accessedAt: Date.now(),
       });
     } catch (cacheErr) {
-      // Cache write failure is non-fatal — media will still load from network
       logService.warn("Failed to cache uploaded media blob locally", cacheErr);
     }
 
@@ -72,14 +140,13 @@ export const mediaService = {
       noteId,
       spaceId,
       mimeType,
-      sizeBytes: parseInt(sizeBytes, 10),
+      sizeBytes,
       url: blob.url,
       meta: null,
-      createdAt: new Date().toISOString(),
+      createdAt,
     };
 
-    // Fallback: Manually register the media record with the backend
-    // Since Vercel Blob webhook can't reach localhost during local dev, this ensures the DB record exists.
+    // Register the media record with the backend
     try {
       await apiClient.post("/media/register", mediaRecord, { auth: true });
     } catch (err) {
@@ -292,18 +359,31 @@ export const mediaService = {
   },
 
   /**
-   * Delete a media blob from remote and local cache.
+   * Delete a media blob from remote (via sync queue) and local cache.
    */
   async deleteMedia(mediaId: string, url?: string): Promise<void> {
-    await apiClient.delete(`/media/${mediaId}`, { auth: true });
+    // Enqueue a DELETE event for the media sync queue
+    await mediaSyncQueueService.enqueue({
+      type: "DELETE",
+      entityId: mediaId,
+      entity: "media",
+      payload: { id: mediaId, url },
+    });
 
-    // Also remove from local cache if URL is known
+    // Immediately clean up local cache
     if (url) {
       try {
         await db.mediaBlobs.delete(url);
       } catch {
         // Non-fatal
       }
+    }
+
+    // Remove from local media metadata
+    try {
+      await db.media.delete(mediaId);
+    } catch {
+      // Non-fatal
     }
   },
 

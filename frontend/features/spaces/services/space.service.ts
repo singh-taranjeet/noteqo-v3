@@ -1,5 +1,5 @@
 import { cryptoService, CRYPTO_CONFIG } from "@/features/crypto";
-import { storageService, STORAGE_KEYS } from "@/features/storage";
+import { storageService, STORAGE_KEYS, db } from "@/features/storage";
 import { logService } from "@/services/log.service";
 import { spaceApiService } from "./space-api.service";
 import {
@@ -16,8 +16,6 @@ import type { Note } from "@/features/workspace";
 import { noteService } from "@/features/workspace";
 import { isOnline } from "@/lib/utils";
 import { spaceSyncQueueService } from "./space-sync-queue.service";
-import { SpaceLocalService } from "./space-local.service";
-import { NoteLocalService } from "@/features/workspace/services/note-local.service";
 import { SpaceLocalStorageService } from "./space-local-storage.service";
 
 export const spaceService = {
@@ -56,7 +54,8 @@ export const spaceService = {
       updatedAt: now,
     };
 
-    await SpaceLocalService.create(space);
+    // Direct Dexie write — useLiveQuery picks this up automatically
+    await db.spaces.put(space);
 
     await spaceSyncQueueService.enqueue({
       type: "CREATE",
@@ -92,14 +91,15 @@ export const spaceService = {
 
       const validSpaces = decryptedSpaces.filter((s): s is Space => s !== null);
 
-      await SpaceLocalService.bulkPut(validSpaces);
+      // Direct Dexie write
+      await db.spaces.bulkPut(validSpaces);
 
       // Decrypt all the notes
       const decryptedNotes: Note[] = [];
       const allRemoteNotes = remoteSpaces.flatMap((rs) => rs.notes || []);
       for (const remoteNote of allRemoteNotes) {
         const decryptedNote = await noteService.decryptNote(remoteNote);
-        const localNote = await NoteLocalService.getNote(remoteNote.id);
+        const localNote = await db.notes.get(remoteNote.id);
         const localTime = localNote?.updatedAt
           ? new Date(localNote.updatedAt).getTime()
           : 0;
@@ -107,6 +107,7 @@ export const spaceService = {
           ? new Date(decryptedNote.updatedAt).getTime()
           : 0;
 
+        // Last-write-wins merge
         const latestContent =
           remoteTime >= localTime ? decryptedNote?.content : localNote?.content;
 
@@ -118,7 +119,8 @@ export const spaceService = {
         }
       }
 
-      await NoteLocalService.bulkPut(decryptedNotes);
+      // Direct Dexie write — useLiveQuery picks this up automatically
+      await db.notes.bulkPut(decryptedNotes);
 
       SpaceLocalStorageService.setFetched();
     }
@@ -132,11 +134,11 @@ export const spaceService = {
   },
 
   async getLocalSpaces(): Promise<Space[]> {
-    return SpaceLocalService.getAll();
+    return db.spaces.toArray();
   },
 
   async getCachedSpaceKey(spaceId: string): Promise<string | null> {
-    const space = await SpaceLocalService.get(spaceId);
+    const space = await db.spaces.get(spaceId);
     return space?.spaceKey ?? null;
   },
 

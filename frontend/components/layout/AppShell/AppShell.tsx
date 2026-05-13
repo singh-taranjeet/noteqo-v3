@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useCallback } from "react";
 import type { ReactNode } from "react";
+import { Boot } from "./Boot";
 
 export type SecondarySidebarType = "recent" | "shared" | "private" | null;
 
@@ -45,7 +46,7 @@ export function AppShell({ children }: AppShellProps) {
         closeSecondarySidebar,
       }}
     >
-      {children}
+      <Boot>{children}</Boot>
     </AppShellContext.Provider>
   );
 }
