@@ -1,0 +1,5 @@
+node_modules
+.next
+public
+src/components/ui/**/*.tsx
+src/components/ui/**/*.ts
