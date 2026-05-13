@@ -224,11 +224,8 @@ export function HeaderActions() {
                   className="text-destructive focus:text-destructive"
                   disabled={deleteNoteMutation.isPending}
                   onClick={() => {
-                    deleteNoteMutation.mutate(noteId, {
-                      onSuccess: () => {
-                        router.push(ROUTES.NOTES);
-                      },
-                    });
+                    router.push(ROUTES.NOTES);
+                    deleteNoteMutation.mutate(noteId);
                   }}
                 >
                   {deleteNoteMutation.isPending ? (
