@@ -1,11 +1,47 @@
 import { defineConfig } from 'vite'
-import react, { reactCompilerPreset } from '@vitejs/plugin-react'
-import babel from '@rolldown/plugin-babel'
+import react from '@vitejs/plugin-react'
+import { VitePWA } from 'vite-plugin-pwa'
+import path from 'path'
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
     react(),
-    babel({ presets: [reactCompilerPreset()] })
+    VitePWA({
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.ts',
+      registerType: 'autoUpdate',
+      injectRegister: false,
+      manifest: {
+        name: 'Noteqo',
+        short_name: 'Noteqo',
+        description: 'A local-first, privacy-focused knowledge base with AI.',
+        start_url: '/',
+        display: 'standalone',
+        background_color: '#ffffff',
+        theme_color: '#000000',
+        icons: [
+          {
+            src: '/icon-192x192.png',
+            sizes: '192x192',
+            type: 'image/png',
+          },
+          {
+            src: '/icon-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+          },
+        ],
+      },
+      devOptions: {
+        enabled: false,
+      },
+    }),
   ],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
 })
