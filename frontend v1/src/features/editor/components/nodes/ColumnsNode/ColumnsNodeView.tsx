@@ -1,5 +1,4 @@
-
-import React, { useRef, useEffect } from "react";
+import { useRef, useEffect } from "react";
 import { NodeViewWrapper, NodeViewContent } from "@tiptap/react";
 import type { NodeViewProps } from "@tiptap/react";
 import {

@@ -1,4 +1,3 @@
-
 import { useState, useCallback, useRef } from "react";
 import type { Editor } from "@tiptap/react";
 import type { AiActionType, AccordionItem } from "@/features/ai/types/ai.types";

@@ -1,4 +1,3 @@
-
 import { useState, useCallback, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -38,7 +37,7 @@ export function LoginForm() {
     function redirectNotesPage() {
       navigate(ROUTES.NOTES);
     },
-    [router],
+    [navigate],
   );
 
   const handleSubmit = useCallback(
@@ -158,7 +157,7 @@ export function LoginForm() {
         <div className="text-center text-sm">
           Don&apos;t have an account?{" "}
           <Link
-            href={ROUTES.REGISTER}
+            to={ROUTES.REGISTER}
             className="underline underline-offset-4 hover:text-primary"
           >
             Sign up

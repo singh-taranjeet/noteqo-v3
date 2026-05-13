@@ -105,8 +105,9 @@ export const SlashCommandExtension = Extension.create({
                 popup[0].hide();
                 return true;
               }
-              return (component.ref as CommandListHandle | null)?.onKeyDown(
-                props,
+              return (
+                (component.ref as CommandListHandle | null)?.onKeyDown(props) ??
+                false
               );
             },
 

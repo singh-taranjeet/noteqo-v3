@@ -89,7 +89,7 @@ export function DashboardView() {
                   className="basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/4"
                 >
                   <Link
-                    href={ROUTES.NOTE(note.id)}
+                    to={ROUTES.NOTE(note.id)}
                     className="block h-full !no-underline group"
                   >
                     <Card className="h-full flex flex-col hover:border-primary/50 transition-all duration-200 group-hover:shadow-md cursor-pointer">

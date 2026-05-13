@@ -1,3 +1,4 @@
+import { upload } from "@vercel/blob/client";
 import type {
   SyncEvent,
   SyncEntity,
@@ -5,7 +6,6 @@ import type {
 import { BaseSyncQueueService } from "@/features/shared/services/baseSync.shared.service";
 import { db } from "@/features/storage";
 import type { PendingMediaEntry } from "@/features/storage/services/db.service";
-import { upload } from "@vercel/blob/client";
 import { storageService, STORAGE_KEYS } from "@/features/storage";
 import { API_BASE_URL } from "@/constants/config";
 import { apiClient } from "@/services/api";

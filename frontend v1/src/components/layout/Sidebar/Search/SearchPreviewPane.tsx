@@ -1,4 +1,3 @@
-
 import { NoteEditor } from "@/features/editor";
 import { SEARCH_LABELS } from "../constants/search.constants";
 import type { SidebarSearchResultItem } from "@/features/workspace";

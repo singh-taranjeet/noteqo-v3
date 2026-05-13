@@ -1,6 +1,5 @@
-
 import { Monitor, Moon, Sun } from "lucide-react";
-import { useTheme } from "next-themes";
+import { useTheme } from "@/components/Providers/ThemeProvider";
 import { SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
 import {
   DropdownMenu,

@@ -6,7 +6,6 @@ import {
   Trash2,
 } from "lucide-react";
 
-import React from "react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";

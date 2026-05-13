@@ -39,7 +39,7 @@ export function EncryptedImage({
 
   if (!isEncrypted) {
     // Plain external URL — render directly
-    // eslint-disable-next-line @next/next/no-img-element
+
     return <img src={src} alt={alt} className={className} />;
   }
 
@@ -66,6 +66,5 @@ export function EncryptedImage({
     );
   }
 
-  // eslint-disable-next-line @next/next/no-img-element
   return <img src={objectUrl} alt={alt} className={className} />;
 }

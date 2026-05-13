@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Spinner } from "@/components/ui/spinner";
@@ -20,9 +19,9 @@ export function AuthGuard({ children }: Readonly<AuthGuardProps>) {
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      router.replace(ROUTES.LOGIN);
+      navigate(ROUTES.LOGIN);
     }
-  }, [isLoading, isAuthenticated, router]);
+  }, [isLoading, isAuthenticated, navigate]);
 
   if (isLoading) {
     return (

@@ -141,7 +141,7 @@ export function NoteEditorSurface({
   }, []);
 
   const handleAttachmentSelect = useCallback(
-    (url: string, asset?: DecryptedMedia) => {
+    (_url: string, asset?: DecryptedMedia) => {
       if (!asset) return; // Handled by onFileSelect if uploaded directly
 
       const isVideo = asset.mimeType?.startsWith("video/");

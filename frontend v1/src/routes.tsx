@@ -1,0 +1,45 @@
+import { createBrowserRouter } from "react-router-dom";
+
+// Layouts
+import { RootLayout } from "./layouts/RootLayout";
+import { RootError } from "./layouts/RootError";
+import { AuthLayout } from "./layouts/AuthLayout";
+import { WorkspaceLayout } from "./layouts/WorkspaceLayout";
+
+// Pages — all eagerly loaded for offline-first
+import { PublicLandingView } from "./features/landing";
+import { LoginForm, RegisterForm } from "./features/auth";
+import { DashboardView, LibraryView, TrashView } from "./features/workspace";
+import { AssetsView } from "./features/media/components/AssetsView";
+import { OfflineView } from "./features/pwa";
+
+// Note page wrapper (extracts noteId from URL params)
+import { NotePageWrapper } from "./layouts/NotePageWrapper";
+
+export const router = createBrowserRouter([
+  {
+    element: <RootLayout />,
+    errorElement: <RootError />,
+    children: [
+      { path: "/", element: <PublicLandingView /> },
+      {
+        element: <AuthLayout />,
+        children: [
+          { path: "/login", element: <LoginForm /> },
+          { path: "/register", element: <RegisterForm /> },
+        ],
+      },
+      {
+        element: <WorkspaceLayout />,
+        children: [
+          { path: "/notes", element: <DashboardView /> },
+          { path: "/notes/:note_id", element: <NotePageWrapper /> },
+          { path: "/library", element: <LibraryView /> },
+          { path: "/trash", element: <TrashView /> },
+          { path: "/assets", element: <AssetsView /> },
+        ],
+      },
+      { path: "/offline", element: <OfflineView /> },
+    ],
+  },
+]);

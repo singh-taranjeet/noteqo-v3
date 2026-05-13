@@ -1,4 +1,3 @@
-
 import { useState, useCallback, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -79,7 +78,7 @@ export function RegisterForm() {
   const handleDialogClose = useCallback(() => {
     // Acknowledged, we can seamlessly push to dashboard
     navigate(ROUTES.NOTES);
-  }, [router]);
+  }, [navigate]);
 
   return (
     <>
@@ -174,7 +173,7 @@ export function RegisterForm() {
         <div className="text-center text-sm">
           Already have an account?{" "}
           <Link
-            href={ROUTES.LOGIN}
+            to={ROUTES.LOGIN}
             className="underline underline-offset-4 hover:text-primary"
           >
             Log in

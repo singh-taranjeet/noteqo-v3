@@ -1,5 +1,3 @@
-
-import React from "react";
 import { NodeViewWrapper, NodeViewContent } from "@tiptap/react";
 import type { NodeViewProps } from "@tiptap/react";
 import { Card, CardContent } from "@/components/ui/card";

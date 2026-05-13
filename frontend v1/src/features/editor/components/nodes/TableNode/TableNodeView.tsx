@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useRef } from "react";
 import { NodeViewWrapper } from "@tiptap/react";
 import type { NodeViewProps } from "@tiptap/react";

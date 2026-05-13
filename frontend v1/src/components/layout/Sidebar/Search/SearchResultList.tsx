@@ -1,4 +1,3 @@
-
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { SEARCH_LABELS } from "../constants/search.constants";
 import type { SidebarSearchSection } from "@/features/workspace";

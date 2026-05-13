@@ -1,4 +1,3 @@
-
 import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
@@ -29,10 +28,10 @@ export const useLogout = () => {
 
       if (autoRedirect) {
         // 3. Redirect to auth page
-        router.replace(ROUTES.LOGIN);
+        navigate(ROUTES.LOGIN);
       }
     },
-    [router, queryClient],
+    [navigate, queryClient],
   );
 
   return { logout };

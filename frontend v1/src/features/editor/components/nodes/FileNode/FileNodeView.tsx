@@ -70,75 +70,77 @@ export const FileNodeView: React.FC<NodeViewProps> = (props) => {
   };
 
   return (
-    // eslint-disable-next-line tailwindcss/no-custom-classname -- semantic hook class for drag-handle targeting, not a Tailwind class
-    <NodeViewWrapper className="file-attachment-node my-4" data-drag-handle>
-      <div
-        className={cn(
-          "flex items-center justify-between p-3 border rounded-md bg-card shadow-sm transition-all duration-200",
-          uploading ? "opacity-70 animate-pulse" : "",
-        )}
-        contentEditable={false}
-      >
-        <div className="flex items-center gap-3 overflow-hidden">
-          <div className="p-2 rounded-lg bg-primary/10 text-primary">
-            {uploading ? (
-              <Spinner className="w-6 h-6" />
-            ) : (
-              <FileText size={24} />
-            )}
-          </div>
-          <div className="flex flex-col min-w-0">
-            <span className="text-sm font-medium truncate max-w-48 sm:max-w-72">
-              {fileName || "Unknown File"}
-            </span>
-            <span className="text-xs text-muted-foreground">
-              {uploading
-                ? "Encrypting and uploading..."
-                : sizeBytes
-                  ? formatBytes(sizeBytes)
-                  : "Unknown size"}
-            </span>
-          </div>
-        </div>
-
-        {!uploading && (
-          <div className="flex items-center gap-1">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-              onClick={() => props.deleteNode()}
-              title="Remove from note"
-            >
-              <Trash2 size={16} />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8"
-              onClick={() => handleAction("open")}
-              disabled={isDecrypting}
-              title="Open in new tab"
-            >
-              <Link size={16} />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8"
-              onClick={() => handleAction("download")}
-              disabled={isDecrypting}
-              title="Download file"
-            >
-              {isDecrypting ? (
-                <Spinner className="h-4 w-4" />
+    <>
+      {/* semantic hook class for drag-handle targeting, not a Tailwind class */}
+      <NodeViewWrapper className="file-attachment-node my-4" data-drag-handle>
+        <div
+          className={cn(
+            "flex items-center justify-between p-3 border rounded-md bg-card shadow-sm transition-all duration-200",
+            uploading ? "opacity-70 animate-pulse" : "",
+          )}
+          contentEditable={false}
+        >
+          <div className="flex items-center gap-3 overflow-hidden">
+            <div className="p-2 rounded-lg bg-primary/10 text-primary">
+              {uploading ? (
+                <Spinner className="w-6 h-6" />
               ) : (
-                <Download size={16} />
+                <FileText size={24} />
               )}
-            </Button>
+            </div>
+            <div className="flex flex-col min-w-0">
+              <span className="text-sm font-medium truncate max-w-48 sm:max-w-72">
+                {fileName || "Unknown File"}
+              </span>
+              <span className="text-xs text-muted-foreground">
+                {uploading
+                  ? "Encrypting and uploading..."
+                  : sizeBytes
+                    ? formatBytes(sizeBytes)
+                    : "Unknown size"}
+              </span>
+            </div>
           </div>
-        )}
-      </div>
-    </NodeViewWrapper>
+
+          {!uploading && (
+            <div className="flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                onClick={() => props.deleteNode()}
+                title="Remove from note"
+              >
+                <Trash2 size={16} />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => handleAction("open")}
+                disabled={isDecrypting}
+                title="Open in new tab"
+              >
+                <Link size={16} />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => handleAction("download")}
+                disabled={isDecrypting}
+                title="Download file"
+              >
+                {isDecrypting ? (
+                  <Spinner className="h-4 w-4" />
+                ) : (
+                  <Download size={16} />
+                )}
+              </Button>
+            </div>
+          )}
+        </div>
+      </NodeViewWrapper>
+    </>
   );
 };

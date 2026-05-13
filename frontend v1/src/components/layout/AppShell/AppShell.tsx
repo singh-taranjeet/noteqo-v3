@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useState, useCallback } from "react";
 import type { ReactNode } from "react";
 import { Boot } from "./Boot";

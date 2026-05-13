@@ -1,6 +1,3 @@
-
-import React from "react";
-
 import { Spinner } from "@/components/ui/spinner";
 
 interface MediaLoadingPlaceholderProps {

@@ -1,6 +1,6 @@
 import { CircleAlert, CircleCheck, CircleX, Info, Loader2 } from "lucide-react";
 
-import { useTheme } from "next-themes";
+import { useTheme } from "@/components/Providers/ThemeProvider";
 import { Toaster as Sonner, type ToasterProps } from "sonner";
 
 const Toaster = ({ ...props }: ToasterProps) => {
@@ -9,7 +9,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
   return (
     <Sonner
       theme={theme as ToasterProps["theme"]}
-      // eslint-disable-next-line tailwindcss/no-custom-classname -- `toaster` is a sonner library hook class, not a custom class
+      // `toaster` is a sonner library hook class, not a custom class
       className="toaster group"
       icons={{
         success: <CircleCheck strokeWidth={2} className="size-4" />,

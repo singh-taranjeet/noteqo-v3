@@ -1,4 +1,3 @@
-
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "@/features/storage";
 import type { Note } from "@/features/workspace/types/workspace.types";

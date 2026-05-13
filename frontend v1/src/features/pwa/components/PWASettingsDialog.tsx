@@ -1,4 +1,3 @@
-
 import {
   Dialog,
   DialogContent,
@@ -6,7 +5,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { InstallPrompt } from "./InstallPrompt";
-import { PushNotificationManager } from "./PushNotificationManager";
 
 interface PWASettingsDialogProps {
   open: boolean;
@@ -25,7 +23,6 @@ export function PWASettingsDialog({
         </DialogHeader>
         <div className="flex flex-col gap-4 py-4">
           <InstallPrompt />
-          <PushNotificationManager />
         </div>
       </DialogContent>
     </Dialog>

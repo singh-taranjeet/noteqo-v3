@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 import { noteSyncQueueService } from "@/features/workspace/services/note-sync-queue.service";
 import { spaceSyncQueueService } from "@/features/spaces/services/space-sync-queue.service";
