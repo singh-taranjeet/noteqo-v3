@@ -37,7 +37,10 @@ class SyncOrchestrator {
     }
 
     if (this.triggerHandler) {
-      globalThis.removeEventListener("noteqo:trigger-sync", this.triggerHandler);
+      globalThis.removeEventListener(
+        "noteqo:trigger-sync",
+        this.triggerHandler,
+      );
       this.triggerHandler = null;
     }
   }
@@ -56,7 +59,6 @@ class SyncOrchestrator {
 
     this.isProcessing = true;
 
-
     try {
       // Fetch all pending events, strictly ordered by createdAt
       let events = await db.syncQueue.orderBy("createdAt").toArray();
@@ -65,6 +67,9 @@ class SyncOrchestrator {
 
       for (const event of events) {
         try {
+          // Mark as processing so new local updates don't coalesce into it
+          await db.syncQueue.update(event.id, { syncStatus: "processing" });
+
           switch (event.entity) {
             case "note":
               await noteSyncQueueService.processEvent(event);
@@ -90,6 +95,9 @@ class SyncOrchestrator {
             // Exponential backoff: 3s → 6s → 12s → 24s → ...
             const backoffMs =
               SYNC_CONFIG.BASE_BACKOFF_MS * Math.pow(2, event.retryCount);
+
+            // Revert to pending while waiting
+            await db.syncQueue.update(event.id, { syncStatus: "pending" });
 
             setTimeout(() => {
               void db.syncQueue.update(event.id, {

@@ -9,6 +9,23 @@ export interface ApiRequestInit extends RequestInit {
   auth?: boolean;
 }
 
+/**
+ * Custom error for API responses with non-OK status.
+ * Carries the HTTP status and parsed response body for caller inspection
+ * (e.g., 409 Conflict with the current server note attached).
+ */
+export class ApiError extends Error {
+  public readonly status: number;
+  public readonly body: Record<string, unknown> | null;
+
+  constructor(status: number, body: Record<string, unknown> | null) {
+    super((body?.message as string) || `HTTP error ${status}`);
+    this.name = "ApiError";
+    this.status = status;
+    this.body = body;
+  }
+}
+
 export const apiClient = {
   get: async <T>(url: string, init?: ApiRequestInit): Promise<T> =>
     request<T>(url, { ...init, method: "GET" }),
@@ -68,7 +85,7 @@ async function request<T>(url: string, init: ApiRequestInit): Promise<T> {
     logService.error(
       `${errorBody?.message} || HTTP error! status: ${response.status}`,
     );
-    // throw new Error(`Please try agin`);
+    throw new ApiError(response.status, errorBody);
   }
 
   // Handle empty responses

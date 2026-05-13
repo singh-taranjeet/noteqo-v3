@@ -130,7 +130,6 @@ export function MediaPicker({
                     className="relative h-20 cursor-pointer overflow-hidden rounded-md border hover:opacity-80"
                     onClick={() => onSelect(url)}
                   >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={url}
                       alt="Cover"

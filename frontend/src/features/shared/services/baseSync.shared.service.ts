@@ -32,7 +32,8 @@ export abstract class BaseSyncQueueService {
       .equals(entityId)
       .first();
 
-    if (existing) {
+    // If an event exists and isn't actively being sent to the server, we can coalesce
+    if (existing && existing.syncStatus !== "processing") {
       if (existing.type === "CREATE" && type === "UPDATE") {
         // Merge into the existing CREATE — will still POST on sync
         await db.syncQueue.update(existing.id, { payload });

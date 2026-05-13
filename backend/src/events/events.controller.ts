@@ -1,0 +1,119 @@
+import {
+  Controller,
+  Get,
+  Query,
+  Res,
+  Logger,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { Response } from 'express';
+import { JwtService } from '@nestjs/jwt';
+import { EventsService } from './events.service';
+import { EVENTS_ROUTES, EVENTS_CONFIG } from './constants/events.constants';
+import { SpacesRepository } from '../spaces/spaces.repository';
+import type { RealtimeEvent } from './types/events.types';
+
+/**
+ * SSE controller for real-time note events.
+ *
+ * Clients connect via:
+ *   GET /events/stream?token=<jwt>&spaceIds=<uuid1,uuid2>
+ *
+ * The endpoint validates the JWT, verifies space membership,
+ * subscribes to Redis channels, and streams events as SSE.
+ *
+ * Note: SSE is used instead of WebSockets because we only need
+ * unidirectional server→client push. EventSource natively reconnects.
+ */
+@Controller(EVENTS_ROUTES.BASE)
+export class EventsController {
+  private readonly logger = new Logger(EventsController.name);
+
+  constructor(
+    private readonly eventsService: EventsService,
+    private readonly jwtService: JwtService,
+    private readonly spacesRepository: SpacesRepository,
+  ) {}
+
+  @Get(EVENTS_ROUTES.STREAM)
+  async stream(
+    @Query('token') token: string,
+    @Query('spaceIds') spaceIdsParam: string,
+    @Res() res: Response,
+  ): Promise<void> {
+    // 1. Authenticate via query param JWT (EventSource can't send headers)
+    if (!token) {
+      throw new UnauthorizedException('Token is required');
+    }
+
+    let userId: string;
+    try {
+      const decoded = this.jwtService.verify(token);
+      userId = decoded.sub;
+    } catch {
+      throw new UnauthorizedException('Invalid token');
+    }
+
+    // 2. Parse and validate space IDs
+    if (!spaceIdsParam) {
+      throw new UnauthorizedException('spaceIds query param is required');
+    }
+    const spaceIds = spaceIdsParam.split(',').filter(Boolean);
+    if (spaceIds.length === 0) {
+      throw new UnauthorizedException('At least one spaceId is required');
+    }
+
+    // 3. Verify the user is a member of each space
+    for (const spaceId of spaceIds) {
+      const member = await this.spacesRepository.findMember(spaceId, userId);
+      if (!member) {
+        this.logger.warn(`User ${userId} not a member of space ${spaceId}`);
+        throw new UnauthorizedException(
+          `Not a member of space ${spaceId}`,
+        );
+      }
+    }
+
+    // 4. Set up SSE response headers
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('X-Accel-Buffering', 'no'); // Disable nginx buffering
+    res.flushHeaders();
+
+    this.logger.log(
+      `SSE connection opened for user ${userId}, spaces: ${spaceIds.join(', ')}`,
+    );
+
+    // 5. Subscribe to Redis channels for each space
+    const unsubscribers: Array<() => void> = [];
+
+    const onEvent = (event: RealtimeEvent) => {
+      // Don't echo back events to the user who triggered them
+      if (event.updatedBy === userId) return;
+
+      const data = JSON.stringify(event);
+      res.write(`event: ${event.type}\ndata: ${data}\n\n`);
+    };
+
+    for (const spaceId of spaceIds) {
+      const unsub = await this.eventsService.subscribe(spaceId, onEvent);
+      unsubscribers.push(unsub);
+    }
+
+    // 6. Keep-alive heartbeat to prevent proxy timeouts
+    const keepAlive = setInterval(() => {
+      res.write(':keepalive\n\n');
+    }, EVENTS_CONFIG.SSE_KEEPALIVE_MS);
+
+    // 7. Cleanup on client disconnect
+    res.on('close', () => {
+      this.logger.log(`SSE connection closed for user ${userId}`);
+      clearInterval(keepAlive);
+      for (const unsub of unsubscribers) {
+        unsub();
+      }
+      res.end();
+    });
+  }
+}

@@ -31,11 +31,8 @@ export function useThrottledCallback<T extends (...args: unknown[]) => unknown>(
   cancel: () => void;
   flush: () => void;
 } {
-  const handler = useMemo(
-    () => throttle<T>(fn, wait, options),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    dependencies,
-  );
+  // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/use-memo
+  const handler = useMemo(() => throttle<T>(fn, wait, options), dependencies);
 
   useUnmount(() => {
     handler.cancel();

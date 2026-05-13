@@ -35,15 +35,19 @@ export const noteApiService = {
     parentId?: string | null;
     createdAt: string;
     updatedAt: string;
-  }): Promise<void> => {
-    await apiClient.post(WORKSPACE_API_ROUTES.NOTES, payload, {
-      auth: true,
-    });
+  }): Promise<RemoteNote> => {
+    const res: { data: RemoteNote } = await apiClient.post(
+      WORKSPACE_API_ROUTES.NOTES,
+      payload,
+      { auth: true },
+    );
+    return res.data;
   },
 
   updateNote: async (payload: {
     id: string;
     ciphertext: string;
+    baseVersion: number;
     isFavorite?: boolean;
     parentId?: string | null;
     updatedAt: string;
@@ -52,6 +56,7 @@ export const noteApiService = {
       `${WORKSPACE_API_ROUTES.NOTES}/${payload.id}`,
       {
         ciphertext: payload.ciphertext,
+        baseVersion: payload.baseVersion,
         updatedAt: payload.updatedAt,
         isFavorite: payload.isFavorite,
         parentId: payload.parentId,

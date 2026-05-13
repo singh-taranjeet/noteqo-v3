@@ -5,9 +5,13 @@ import { NotesService } from './notes.service';
 import { NotesRepository } from './notes.repository';
 import { NoteEntity } from './entities/note.entity';
 import { NoteVersionEntity } from './entities/note-version.entity';
+import { EventsModule } from '../events/events.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([NoteEntity, NoteVersionEntity])],
+  imports: [
+    TypeOrmModule.forFeature([NoteEntity, NoteVersionEntity]),
+    EventsModule,
+  ],
   controllers: [NotesController],
   providers: [NotesService, NotesRepository],
   exports: [NotesService],

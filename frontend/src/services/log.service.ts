@@ -8,4 +8,7 @@ export const logService = {
   warn: (...args: unknown[]) => {
     console.warn(...args);
   },
+  info: (...args: unknown[]) => {
+    console.info(...args);
+  },
 };

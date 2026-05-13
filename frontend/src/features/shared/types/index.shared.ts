@@ -1,12 +1,23 @@
-export type SyncStatus = "pending" | "synced" | "failed";
-export type SyncEventType =
-  | "CREATE"
-  | "UPDATE"
-  | "DELETE"
-  | "RESTORE"
-  | "PERMANENT_DELETE";
+export type SyncStatus = "pending" | "processing" | "synced" | "failed";
 
-export type SyncEntity = "note" | "space" | "media";
+export const SYNC_EVENT_TYPE = {
+  CREATE: "CREATE",
+  UPDATE: "UPDATE",
+  DELETE: "DELETE",
+  RESTORE: "RESTORE",
+  PERMANENT_DELETE: "PERMANENT_DELETE",
+} as const;
+
+export type SyncEventType =
+  (typeof SYNC_EVENT_TYPE)[keyof typeof SYNC_EVENT_TYPE];
+
+export const SYNC_ENTITY = {
+  NOTE: "note",
+  SPACE: "space",
+  MEDIA: "media",
+} as const;
+
+export type SyncEntity = (typeof SYNC_ENTITY)[keyof typeof SYNC_ENTITY];
 
 export interface SyncEvent {
   id: string;

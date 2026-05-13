@@ -11,6 +11,7 @@ import {
   appConfig,
   jwtConfig,
   vercelBlobConfig,
+  redisConfig,
   CONFIG_KEYS,
 } from './config';
 import { UsersModule } from './users';
@@ -21,6 +22,7 @@ import { ClsModule } from 'nestjs-cls';
 import { SharedModule } from './shared/shared.module';
 import { MediaModule } from './media';
 import { SyncModule } from './sync/sync.module';
+import { EventsModule } from './events/events.module';
 
 @Module({
   imports: [
@@ -36,7 +38,7 @@ import { SyncModule } from './sync/sync.module';
       isGlobal: true,
       envFilePath: ['.env.local', '.env'],
       validationSchema: configValidationSchema,
-      load: [databaseConfig, appConfig, jwtConfig, vercelBlobConfig],
+      load: [databaseConfig, appConfig, jwtConfig, vercelBlobConfig, redisConfig],
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
@@ -68,6 +70,7 @@ import { SyncModule } from './sync/sync.module';
     SharedModule,
     MediaModule,
     SyncModule,
+    EventsModule,
   ],
   controllers: [AppController],
   providers: [

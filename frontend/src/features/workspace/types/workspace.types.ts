@@ -9,6 +9,7 @@ export interface Note {
   spaceId: string;
   parentId?: string;
   type: NoteType;
+  version: number;
   isFavorite?: boolean;
   createdAt: string;
   updatedAt: string;

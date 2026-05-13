@@ -10,6 +10,10 @@ import { logService } from "@/services/log.service";
 import { spaceService } from "@/features/spaces";
 import { NOTE_FALLBACKS } from "@/features/spaces";
 import { cryptoService } from "@/features/crypto";
+import {
+  SYNC_EVENT_TYPE,
+  SYNC_ENTITY,
+} from "@/features/shared/types/index.shared";
 
 function getRandomItem<T>(pool: readonly T[]): T {
   return pool[Math.floor(Math.random() * pool.length)];
@@ -41,6 +45,7 @@ export const noteService = {
       spaceId,
       parentId,
       type: noteType,
+      version: 1,
       isFavorite: false,
       createdAt: now,
       updatedAt: now,
@@ -50,10 +55,10 @@ export const noteService = {
     await db.notes.put(note);
 
     await noteSyncQueueService.enqueue({
-      type: "CREATE",
+      type: SYNC_EVENT_TYPE.CREATE,
       entityId: note.id,
       payload: note,
-      entity: "note",
+      entity: SYNC_ENTITY.NOTE,
     });
 
     return note;
@@ -101,10 +106,10 @@ export const noteService = {
     const updatedNote = await db.notes.get(id);
     if (updatedNote) {
       await noteSyncQueueService.enqueue({
-        type: "UPDATE",
+        type: SYNC_EVENT_TYPE.UPDATE,
         entityId: id,
         payload: updatedNote,
-        entity: "note",
+        entity: SYNC_ENTITY.NOTE,
       });
     }
   },
@@ -133,10 +138,10 @@ export const noteService = {
     await db.notes.put(duplicate);
 
     await noteSyncQueueService.enqueue({
-      type: "CREATE",
+      type: SYNC_EVENT_TYPE.CREATE,
       entityId: duplicate.id,
       payload: duplicate,
-      entity: "note",
+      entity: SYNC_ENTITY.NOTE,
     });
 
     return duplicate;
@@ -172,10 +177,10 @@ export const noteService = {
 
     // Only enqueue DELETE for the parent; backend will cascade
     await noteSyncQueueService.enqueue({
-      type: "DELETE",
+      type: SYNC_EVENT_TYPE.DELETE,
       entityId: id,
       payload: { id },
-      entity: "note",
+      entity: SYNC_ENTITY.NOTE,
     });
   },
 
@@ -195,10 +200,10 @@ export const noteService = {
 
     // Only enqueue RESTORE for the parent; backend will cascade
     await noteSyncQueueService.enqueue({
-      type: "RESTORE",
+      type: SYNC_EVENT_TYPE.RESTORE,
       entityId: id,
       payload: { id },
-      entity: "note",
+      entity: SYNC_ENTITY.NOTE,
     });
   },
 
@@ -213,10 +218,10 @@ export const noteService = {
     }
 
     await noteSyncQueueService.enqueue({
-      type: "PERMANENT_DELETE",
+      type: SYNC_EVENT_TYPE.PERMANENT_DELETE,
       entityId: id,
       payload: { id },
-      entity: "note",
+      entity: SYNC_ENTITY.NOTE,
     });
   },
 
@@ -263,6 +268,7 @@ export const noteService = {
         parentId: note.parentId ?? payload.parentId ?? undefined,
         spaceId: note.spaceId,
         type: note.type as "private" | "shared",
+        version: note.version,
         isFavorite: note.isFavorite ?? false,
         createdAt: note.createdAt,
         updatedAt: note.updatedAt,

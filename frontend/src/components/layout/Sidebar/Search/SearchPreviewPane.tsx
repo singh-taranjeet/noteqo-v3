@@ -18,6 +18,7 @@ function toPreviewNote(item: SidebarSearchResultItem): Note {
     type: "private",
     createdAt: item.createdAt,
     updatedAt: item.updatedAt,
+    version: 1,
   };
 }
 
