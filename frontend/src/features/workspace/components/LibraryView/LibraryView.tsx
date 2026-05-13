@@ -1,5 +1,4 @@
 import { Book, Plus } from "lucide-react";
-
 import { useState, useMemo } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -8,6 +7,7 @@ import { useRecentNotes } from "@/features/workspace/hooks/useRecentNotes";
 import { NoteTable } from "../NoteTable";
 import { CreateNoteDialog } from "./CreateNoteDialog";
 import { Spinner } from "@/components/ui/spinner";
+import { ContainerLayout } from "@/layouts/ContainerLayout";
 
 type TabType = "private" | "shared" | "recent" | "favorite";
 
@@ -61,37 +61,32 @@ export function LibraryView() {
   const isLoading = spacesLoading || recentLoading;
 
   return (
-    <div className="flex flex-col h-full max-w-5xl mx-auto w-full px-4 py-8 md:px-8">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-3">
-            <Book size={32} className="text-primary" />
-            Library
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Manage your spaces and notes
-          </p>
-        </div>
-        <Button
-          onClick={() => setIsDialogOpen(true)}
-          className="w-full sm:w-auto"
-        >
-          <Plus size={18} className="mr-2" />
-          New Page
-        </Button>
-      </div>
-
+    <ContainerLayout.Spacer>
+      <ContainerLayout.Heading
+        title="Library"
+        subTitle="Manage your spaces, notes and assets"
+        Icon={Book}
+      />
       <Tabs
         value={activeTab}
         onValueChange={(val) => setActiveTab(val as TabType)}
         className="flex-1 flex flex-col"
       >
-        <TabsList className="mb-6">
-          <TabsTrigger value="private">Private</TabsTrigger>
-          <TabsTrigger value="shared">Shared</TabsTrigger>
-          <TabsTrigger value="recent">Recent</TabsTrigger>
-          <TabsTrigger value="favorite">Favorite</TabsTrigger>
-        </TabsList>
+        <div className="flex w-full justify-between">
+          <TabsList className="mb-6">
+            <TabsTrigger value="private">Private</TabsTrigger>
+            <TabsTrigger value="shared">Shared</TabsTrigger>
+            <TabsTrigger value="recent">Recent</TabsTrigger>
+            <TabsTrigger value="favorite">Favorite</TabsTrigger>
+          </TabsList>
+          <Button
+            onClick={() => setIsDialogOpen(true)}
+            className="w-full sm:w-auto"
+          >
+            <Plus size={18} className="mr-2" />
+            New Page
+          </Button>
+        </div>
 
         {isLoading ? (
           <div className="flex flex-col items-center justify-center flex-1">
@@ -155,6 +150,6 @@ export function LibraryView() {
           dialogSpaces.length > 0 ? dialogSpaces[0].id : undefined
         }
       />
-    </div>
+    </ContainerLayout.Spacer>
   );
 }

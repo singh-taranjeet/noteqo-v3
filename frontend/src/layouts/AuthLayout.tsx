@@ -10,7 +10,7 @@ export function AuthLayout() {
             alt="Authentication Background"
             className="w-full h-full object-cover opacity-80"
           />
-          <div className="absolute inset-0 bg-zinc-950/40 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-transparent via-zinc-950/80 to-zinc-950/90" />
+          <div className="absolute inset-0 bg-zinc-950/40 bg-[radial-gradient(ellipse_at_top_right,var(--tw-gradient-stops))] from-transparent via-zinc-950/80 to-zinc-950/90" />
         </div>
         <div className="relative z-20 flex items-center text-xl font-bold gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary overflow-hidden">

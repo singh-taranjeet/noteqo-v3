@@ -3,12 +3,13 @@ import { db } from "@/features/storage";
 import type { Note } from "@/features/workspace/types/workspace.types";
 import type { Space } from "@/features/spaces/types/spaces.types";
 import { NoteLocalService } from "@/features/workspace/services/note-local.service";
+import { SpaceLocalService } from "@/features/spaces/services/space-local.service";
 
 /**
  * Live query for all spaces. Auto-re-renders on any Dexie write to the spaces table.
  */
 export function useLiveSpaces(): Space[] | undefined {
-  return useLiveQuery(() => db.spaces.toArray(), []);
+  return useLiveQuery(() => SpaceLocalService.all(), []);
 }
 
 /**
@@ -16,7 +17,7 @@ export function useLiveSpaces(): Space[] | undefined {
  */
 export function useLiveSpace(spaceId: string | undefined): Space | undefined {
   return useLiveQuery(
-    () => (spaceId ? db.spaces.get(spaceId) : undefined),
+    () => (spaceId ? SpaceLocalService.get(spaceId) : undefined),
     [spaceId],
   );
 }
