@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { eventSourceService } from "../services/event-source.service";
 
 /**
@@ -14,7 +14,6 @@ export function useRealtimeConnection(spaceIds: string[]): void {
 
   useEffect(() => {
     if (!spaceIdsStr) {
-      console.log("Space ids length = 0; disconnecting");
       eventSourceService.disconnect();
       return;
     }
@@ -23,7 +22,6 @@ export function useRealtimeConnection(spaceIds: string[]): void {
     void eventSourceService.connect(ids);
 
     return () => {
-      console.log("Space ids changed; disconnecting", ids);
       eventSourceService.disconnect();
     };
   }, [spaceIdsStr]);

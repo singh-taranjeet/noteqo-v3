@@ -5,13 +5,15 @@ import {
   Res,
   Logger,
   UnauthorizedException,
+  UseGuards,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { JwtService } from '@nestjs/jwt';
 import { EventsService } from './events.service';
 import { EVENTS_ROUTES, EVENTS_CONFIG } from './constants/events.constants';
 import { SpacesRepository } from '../spaces/spaces.repository';
 import type { RealtimeEvent } from './types/events.types';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { getCurrentUserId } from 'src/shared/utils/cls.utils';
 
 /**
  * SSE controller for real-time note events.
@@ -26,14 +28,14 @@ import type { RealtimeEvent } from './types/events.types';
  * unidirectional server→client push. EventSource natively reconnects.
  */
 @Controller(EVENTS_ROUTES.BASE)
+@UseGuards(JwtAuthGuard)
 export class EventsController {
   private readonly logger = new Logger(EventsController.name);
 
   constructor(
     private readonly eventsService: EventsService,
-    private readonly jwtService: JwtService,
     private readonly spacesRepository: SpacesRepository,
-  ) {}
+  ) { }
 
   @Get(EVENTS_ROUTES.STREAM)
   async stream(
@@ -41,18 +43,8 @@ export class EventsController {
     @Query('spaceIds') spaceIdsParam: string,
     @Res() res: Response,
   ): Promise<void> {
-    // 1. Authenticate via query param JWT (EventSource can't send headers)
-    if (!token) {
-      throw new UnauthorizedException('Token is required');
-    }
 
-    let userId: string;
-    try {
-      const decoded = this.jwtService.verify(token);
-      userId = decoded.sub;
-    } catch {
-      throw new UnauthorizedException('Invalid token');
-    }
+    const userId: string = getCurrentUserId();
 
     // 2. Parse and validate space IDs
     if (!spaceIdsParam) {
