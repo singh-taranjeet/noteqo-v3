@@ -18,10 +18,7 @@ import { getCurrentUserId } from 'src/shared/utils/cls.utils';
 /**
  * SSE controller for real-time note events.
  *
- * Clients connect via:
- *   GET /events/stream?token=<jwt>&spaceIds=<uuid1,uuid2>
- *
- * The endpoint validates the JWT, verifies space membership,
+ * The endpoint verifies space membership,
  * subscribes to Redis channels, and streams events as SSE.
  *
  * Note: SSE is used instead of WebSockets because we only need
