@@ -1,8 +1,8 @@
-import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
-import * as React from "react";
+import * as React from "react"
 
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
+import { ChevronLeftIcon, ChevronRightIcon, MoreHorizontalIcon } from "lucide-react"
 
 function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
   return (
@@ -13,7 +13,7 @@ function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
       className={cn("mx-auto flex w-full justify-center", className)}
       {...props}
     />
-  );
+  )
 }
 
 function PaginationContent({
@@ -26,17 +26,17 @@ function PaginationContent({
       className={cn("flex items-center gap-1", className)}
       {...props}
     />
-  );
+  )
 }
 
 function PaginationItem({ ...props }: React.ComponentProps<"li">) {
-  return <li data-slot="pagination-item" {...props} />;
+  return <li data-slot="pagination-item" {...props} />
 }
 
 type PaginationLinkProps = {
-  isActive?: boolean;
+  isActive?: boolean
 } & Pick<React.ComponentProps<typeof Button>, "size"> &
-  React.ComponentProps<"a">;
+  React.ComponentProps<"a">
 
 function PaginationLink({
   className,
@@ -58,7 +58,7 @@ function PaginationLink({
         {...props}
       />
     </Button>
-  );
+  )
 }
 
 function PaginationPrevious({
@@ -73,10 +73,10 @@ function PaginationPrevious({
       className={cn("pl-2!", className)}
       {...props}
     >
-      <ChevronLeft strokeWidth={2} data-icon="inline-start" />
+      <ChevronLeftIcon data-icon="inline-start" />
       <span className="hidden sm:block">{text}</span>
     </PaginationLink>
-  );
+  )
 }
 
 function PaginationNext({
@@ -92,9 +92,9 @@ function PaginationNext({
       {...props}
     >
       <span className="hidden sm:block">{text}</span>
-      <ChevronRight strokeWidth={2} data-icon="inline-end" />
+      <ChevronRightIcon data-icon="inline-end" />
     </PaginationLink>
-  );
+  )
 }
 
 function PaginationEllipsis({
@@ -107,14 +107,15 @@ function PaginationEllipsis({
       data-slot="pagination-ellipsis"
       className={cn(
         "flex size-9 items-center justify-center [&_svg:not([class*='size-'])]:size-4",
-        className,
+        className
       )}
       {...props}
     >
-      <MoreHorizontal strokeWidth={2} />
+      <MoreHorizontalIcon
+      />
       <span className="sr-only">More pages</span>
     </span>
-  );
+  )
 }
 
 export {
@@ -125,4 +126,4 @@ export {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-};
+}
