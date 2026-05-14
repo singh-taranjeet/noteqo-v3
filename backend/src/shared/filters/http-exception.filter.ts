@@ -21,7 +21,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const { status, code, message, details } = this.resolveException(exception);
 
     this.logger.error(
-      `[${code}] ${message}`,
+      `[${code}] ${message} ${JSON.stringify(details)}`,
       exception instanceof Error ? exception.stack : '',
     );
 
@@ -80,7 +80,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
         status,
         code: domainCode,
         message: exception.message,
-        details: null,
+        details: (raw as any)?.details,
       };
     }
 

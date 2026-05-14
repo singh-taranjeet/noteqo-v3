@@ -11,6 +11,7 @@ import {
 import { BaseSyncQueueService } from "@/features/shared/services/baseSync.shared.service";
 import { ApiError } from "@/services/api";
 import { logService } from "@/services/log.service";
+import { SYNC_EVENTS } from "@/features/shared/constants/sync-events.constants";
 import { NoteLocalService } from "./note-local.service";
 
 /** HTTP status code for version conflict */
@@ -41,44 +42,9 @@ class NoteSyncQueueService extends BaseSyncQueueService {
 
         // Update local Dexie note with definitive server version
         await NoteLocalService.update(event.entityId, {
-          version: remoteNote.version,
+          remoteVersion: remoteNote.version,
           updatedAt: remoteNote.updatedAt,
         });
-        break;
-      }
-
-      case SYNC_EVENT_TYPE.UPDATE: {
-        const fallbackNote = event.payload as Note;
-        const localNote =
-          (await NoteLocalService.get(event.entityId)) || fallbackNote;
-
-        if (localNote.deletedAt) break; // Don't send updates for deleted notes
-
-        const ciphertext = await this.encryptPayload(localNote);
-
-        try {
-          const remoteNote = await noteApiService.updateNote({
-            id: event.entityId,
-            ciphertext,
-            baseVersion: localNote.version,
-            isFavorite: localNote.isFavorite,
-            parentId: localNote.parentId,
-            updatedAt: this.getUpdatedAt(),
-          });
-
-          // Safely update local Dexie note with new definitive server version
-          // This prevents self-conflicts for subsequent updates queued for this note
-          await NoteLocalService.update(event.entityId, {
-            version: remoteNote.version,
-            updatedAt: remoteNote.updatedAt,
-          });
-        } catch (err) {
-          if (err instanceof ApiError && err.status === HTTP_CONFLICT) {
-            await this.handleConflict(event.entityId, localNote);
-            return; // Conflict handled — don't rethrow
-          }
-          throw err;
-        }
         break;
       }
 
@@ -107,21 +73,11 @@ class NoteSyncQueueService extends BaseSyncQueueService {
    */
   private async handleConflict(noteId: string, localNote: Note): Promise<void> {
     logService.warn(
-      `Conflict detected on note ${noteId} (local v${localNote.version}). Creating conflict copy.`,
+      `Conflict detected on note ${noteId} (local v${localNote.remoteVersion}). Creating conflict copy.`,
     );
 
-    const now = new Date().toISOString();
-
     // 1. Save the user's local changes as a conflict copy
-    const conflictCopy: Note = {
-      ...localNote,
-      id: crypto.randomUUID(),
-      title: `${localNote.title} (Conflict Copy – ${new Date().toLocaleDateString()})`,
-      version: 1,
-      createdAt: now,
-      updatedAt: now,
-    };
-    await NoteLocalService.create(conflictCopy);
+    const conflictCopy = await NoteLocalService.createConflictCopy(localNote);
 
     // Enqueue the conflict copy for creation on the server
     await this.enqueue({
@@ -132,14 +88,56 @@ class NoteSyncQueueService extends BaseSyncQueueService {
     });
 
     // 2. Pull the server's latest version into the original note
-    await noteApiService.getNote(noteId);
+    // This uses the unified handleInboundNote which handles Dexie writes safely
+    await noteApiService.handleInboundNote({ noteId, version: Infinity });
 
     // 3. Notify the UI
     globalThis.dispatchEvent(
-      new CustomEvent("noteqo:conflict-detected", {
+      new CustomEvent(SYNC_EVENTS.CONFLICT_DETECTED, {
         detail: { noteId, conflictCopyId: conflictCopy.id },
       }),
     );
+  }
+
+  async syncDirtyNotes(): Promise<void> {
+    if (!navigator.onLine) return; // Skip when offline — isDirty persists in Dexie
+
+    const dirtyNotes = await NoteLocalService.getDirtyNotes();
+
+    for (const note of dirtyNotes) {
+      if (note.deletedAt) continue;
+
+      const ciphertext = await this.encryptPayload(note);
+
+      try {
+        const remoteNote = await noteApiService.updateNote({
+          id: note.id,
+          ciphertext,
+          baseVersion: note.remoteVersion,
+          updatedAt: note.updatedAt,
+          isFavorite: note.isFavorite,
+          parentId: note.parentId,
+        });
+
+        // Success — update sync metadata
+        const updates: Partial<Note> = {
+          remoteVersion: remoteNote.version,
+        };
+
+        // Only clear dirty flag if note wasn't modified during sync
+        const currentNote = await NoteLocalService.get(note.id);
+        if (currentNote && currentNote.updatedAt === note.updatedAt) {
+          updates.isDirty = 0;
+        }
+
+        await NoteLocalService.update(note.id, updates);
+      } catch (err) {
+        if (err instanceof ApiError && err.status === HTTP_CONFLICT) {
+          await this.handleConflict(note.id, note);
+        }
+        // On other errors: isDirty stays true, will retry next cycle
+      }
+    }
   }
 
   /**

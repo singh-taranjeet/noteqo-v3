@@ -21,7 +21,7 @@ export class NoteConflictException extends ConflictException {
   constructor(currentNote: Note) {
     super({
       message: NOTE_ERROR_MESSAGES.CONFLICT,
-      currentNote,
+      details: currentNote,
     });
   }
 }

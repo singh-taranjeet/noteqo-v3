@@ -10,7 +10,7 @@ export function EmojiOrImage(props: { emoji: string; spaceId: string }) {
           src={emoji}
           alt="Icon"
           spaceId={spaceId}
-          className={cn("size-5 object-cover rounded-md")}
+          className={cn("size-5 object-cover rounded")}
         />
       ) : (
         emoji

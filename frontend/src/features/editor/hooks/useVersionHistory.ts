@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import type { DecryptedNoteVersion, Note } from "@/features/workspace";
 import { versionHistoryService, noteService } from "@/features/workspace";
 import { logService } from "@/services/log.service";
-import { VERSION_RESTORED_EVENT } from "../constants/editor.constants";
+import { SYNC_EVENTS } from "@/features/shared/constants/sync-events.constants";
 
 interface UseVersionHistoryOptions {
   noteId: string;
@@ -108,7 +108,7 @@ export function useVersionHistory({
 
       // Notify the active editor to refresh its content instantly
       window.dispatchEvent(
-        new CustomEvent(VERSION_RESTORED_EVENT, {
+        new CustomEvent(SYNC_EVENTS.RESTORE_VERSION, {
           detail: { noteId, ...updates },
         }),
       );

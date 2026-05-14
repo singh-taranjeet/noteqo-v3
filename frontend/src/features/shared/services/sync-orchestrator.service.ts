@@ -1,6 +1,7 @@
 import { db } from "@/features/storage";
 import { isOnline } from "@/lib/utils";
 import { SYNC_CONFIG } from "@/features/shared/types/index.shared";
+import { SYNC_EVENTS } from "@/features/shared/constants/sync-events.constants";
 import { noteSyncQueueService } from "@/features/workspace/services/note-sync-queue.service";
 import { spaceSyncQueueService } from "@/features/spaces/services/space-sync-queue.service";
 import { mediaSyncQueueService } from "@/features/media/services/media-sync-queue.service";
@@ -22,7 +23,7 @@ class SyncOrchestrator {
     globalThis.addEventListener("online", this.onlineHandler);
 
     this.triggerHandler = () => void this.prepare();
-    globalThis.addEventListener("noteqo:trigger-sync", this.triggerHandler);
+    globalThis.addEventListener(SYNC_EVENTS.TRIGGER_SYNC, this.triggerHandler);
   }
 
   stop(): void {
@@ -38,7 +39,7 @@ class SyncOrchestrator {
 
     if (this.triggerHandler) {
       globalThis.removeEventListener(
-        "noteqo:trigger-sync",
+        SYNC_EVENTS.TRIGGER_SYNC,
         this.triggerHandler,
       );
       this.triggerHandler = null;
@@ -60,7 +61,10 @@ class SyncOrchestrator {
     this.isProcessing = true;
 
     try {
-      // Fetch all pending events, strictly ordered by createdAt
+      // 1. Sync dirty notes first
+      await noteSyncQueueService.syncDirtyNotes();
+
+      // 2. Fetch all pending events, strictly ordered by createdAt
       let events = await db.syncQueue.orderBy("createdAt").toArray();
       // Skip permanently failed events to avoid blocking the queue forever
       events = events.filter((e) => e.syncStatus !== "failed");

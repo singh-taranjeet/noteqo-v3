@@ -15,6 +15,7 @@ import {
 } from "@/features/shared/types/index.shared";
 import { NoteLocalService } from "@/features/workspace/services/note-local.service";
 import { SpaceLocalService } from "@/features/spaces/services/space-local.service";
+import { SYNC_EVENTS } from "@/features/shared/constants/sync-events.constants";
 
 function getRandomItem<T>(pool: readonly T[]): T {
   return pool[Math.floor(Math.random() * pool.length)];
@@ -45,7 +46,7 @@ export const noteService = {
       spaceId,
       parentId,
       type: noteType,
-      version: 1,
+      remoteVersion: 1,
       isFavorite: false,
       createdAt: now,
       updatedAt: now,
@@ -96,18 +97,20 @@ export const noteService = {
     const updatedAt = new Date().toISOString();
 
     // Direct Dexie write
-    await NoteLocalService.update(id, { ...updates, updatedAt });
+    await NoteLocalService.update(id, { ...updates, updatedAt, isDirty: 1 });
 
-    // Read back the full note for the sync payload
-    const updatedNote = await NoteLocalService.get(id);
-    if (updatedNote) {
-      await noteSyncQueueService.enqueue({
-        type: SYNC_EVENT_TYPE.UPDATE,
-        entityId: id,
-        payload: updatedNote,
-        entity: SYNC_ENTITY.NOTE,
-      });
-    }
+    // Wake the sync engine
+    dispatchEvent(new CustomEvent(SYNC_EVENTS.TRIGGER_SYNC));
+  },
+
+  /**
+   * Fast local save used by the editor during debounced input.
+   */
+  async saveContentLocally(id: string, content: unknown): Promise<void> {
+    const updatedAt = new Date().toISOString();
+    await NoteLocalService.update(id, { content, updatedAt });
+    // Note: isDirty is expected to be set immediately on keystroke by the editor hooks
+    dispatchEvent(new CustomEvent(SYNC_EVENTS.TRIGGER_SYNC));
   },
 
   /**
@@ -264,7 +267,7 @@ export const noteService = {
         parentId: note.parentId ?? payload.parentId ?? undefined,
         spaceId: note.spaceId,
         type: note.type as "private" | "shared",
-        version: note.version,
+        remoteVersion: note.version,
         isFavorite: note.isFavorite ?? false,
         createdAt: note.createdAt,
         updatedAt: note.updatedAt,

@@ -5,6 +5,7 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { toast } from "sonner";
 import { useRealtimeConnection } from "@/features/realtime";
 import { SpaceLocalService } from "@/features/spaces/services/space-local.service";
+import { SYNC_EVENTS } from "@/features/shared/constants/sync-events.constants";
 
 /**
  * Wires up the SSE connection for real-time collaboration
@@ -45,10 +46,10 @@ export function RealtimeProvider({
       });
     };
 
-    globalThis.addEventListener("noteqo:conflict-detected", handleConflict);
+    globalThis.addEventListener(SYNC_EVENTS.CONFLICT_DETECTED, handleConflict);
     return () => {
       globalThis.removeEventListener(
-        "noteqo:conflict-detected",
+        SYNC_EVENTS.CONFLICT_DETECTED,
         handleConflict,
       );
     };

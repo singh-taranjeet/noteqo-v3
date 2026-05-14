@@ -10,8 +10,9 @@ import {
 import type { ReactNode } from "react";
 import type { Space } from "../types/spaces.types";
 import { useSpaces } from "../hooks/useSpaces";
+import { SPACES_EVENTS } from "../constants/spaces.constants";
 
-const STORAGE_KEY = "noteqo_active_space_id";
+export const ACTIVE_SPACE_STORAGE_KEY = "noteqo_active_space_id";
 
 /** A null activeSpaceId means "All Spaces" */
 interface ActiveSpaceContextValue {
@@ -42,7 +43,7 @@ export function ActiveSpaceProvider({ children }: ActiveSpaceProviderProps) {
 
   const [activeSpaceId, setActiveSpaceIdRaw] = useState<string | null>(() => {
     try {
-      return localStorage.getItem(STORAGE_KEY) || null;
+      return localStorage.getItem(ACTIVE_SPACE_STORAGE_KEY) || null;
     } catch {
       return null;
     }
@@ -52,13 +53,35 @@ export function ActiveSpaceProvider({ children }: ActiveSpaceProviderProps) {
     setActiveSpaceIdRaw(spaceId);
     try {
       if (spaceId) {
-        localStorage.setItem(STORAGE_KEY, spaceId);
+        localStorage.setItem(ACTIVE_SPACE_STORAGE_KEY, spaceId);
       } else {
-        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(ACTIVE_SPACE_STORAGE_KEY);
       }
+      window.dispatchEvent(new Event(SPACES_EVENTS.ACTIVE_SPACE_CHANGED));
     } catch {
       // localStorage may be unavailable
     }
+  }, []);
+
+  // Listen to external changes from outside React tree (e.g. space.service.ts)
+  useEffect(() => {
+    const handleExternalChange = () => {
+      try {
+        const id = localStorage.getItem(ACTIVE_SPACE_STORAGE_KEY);
+        setActiveSpaceIdRaw(id || null);
+      } catch {
+        // ignore
+      }
+    };
+    window.addEventListener(
+      SPACES_EVENTS.ACTIVE_SPACE_CHANGED,
+      handleExternalChange,
+    );
+    return () =>
+      window.removeEventListener(
+        SPACES_EVENTS.ACTIVE_SPACE_CHANGED,
+        handleExternalChange,
+      );
   }, []);
 
   // If the stored space no longer exists, fall back to null (All Spaces)
