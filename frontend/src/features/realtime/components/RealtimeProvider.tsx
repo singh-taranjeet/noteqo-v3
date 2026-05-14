@@ -15,13 +15,19 @@ import { useRealtimeConnection } from "@/features/realtime";
 export function RealtimeProvider({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  // Get all space IDs from local Dexie
-  const spaces = useLiveQuery(() => db.spaces.toArray(), []);
+  // Get shared spaces directly from local Dexie using the 'type' index
+  const sharedSpaces = useLiveQuery(
+    () => db.spaces.where("type").equals("shared").toArray(),
+    [],
+  );
 
-  const spaceIds = useMemo(() => (spaces || []).map((s) => s.id), [spaces]);
+  const sharedSpaceIds = useMemo(
+    () => (sharedSpaces || []).map((s) => s.id),
+    [sharedSpaces],
+  );
 
   // Open/close the SSE connection based on available spaces
-  useRealtimeConnection(spaceIds);
+  useRealtimeConnection(sharedSpaceIds);
 
   // Listen for conflict detection events from the sync queue
   useEffect(() => {

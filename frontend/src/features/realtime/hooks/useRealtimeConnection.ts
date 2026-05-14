@@ -9,24 +9,22 @@ import { eventSourceService } from "../services/event-source.service";
  * Mount this once at the app shell level (e.g., in a layout component).
  */
 export function useRealtimeConnection(spaceIds: string[]): void {
-  const prevIdsRef = useRef<string>("");
+  // Use a string representation to avoid re-triggering effect on referential equality changes
+  const spaceIdsStr = [...spaceIds].sort().join(",");
 
   useEffect(() => {
-    const key = spaceIds.sort().join(",");
-
-    // Only reconnect if the set of spaces actually changed
-    if (key === prevIdsRef.current) return;
-    prevIdsRef.current = key;
-
-    if (spaceIds.length === 0) {
+    if (!spaceIdsStr) {
+      console.log("Space ids length = 0; disconnecting");
       eventSourceService.disconnect();
       return;
     }
 
-    void eventSourceService.connect(spaceIds);
+    const ids = spaceIdsStr.split(",");
+    void eventSourceService.connect(ids);
 
     return () => {
+      console.log("Space ids changed; disconnecting", ids);
       eventSourceService.disconnect();
     };
-  }, [spaceIds]);
+  }, [spaceIdsStr]);
 }
