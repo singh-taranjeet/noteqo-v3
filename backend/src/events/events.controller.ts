@@ -14,6 +14,8 @@ import { SpacesRepository } from '../spaces/spaces.repository';
 import type { RealtimeEvent } from './types/events.types';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { getCurrentUserId } from 'src/shared/utils/cls.utils';
+import { SpaceRoleGuard } from '../auth/guards/space-role.guard';
+import { RequireSpaceRole } from '../shared/decorators/space-role.decorator';
 
 /**
  * SSE controller for real-time note events.
@@ -25,7 +27,7 @@ import { getCurrentUserId } from 'src/shared/utils/cls.utils';
  * unidirectional server→client push. EventSource natively reconnects.
  */
 @Controller(EVENTS_ROUTES.BASE)
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, SpaceRoleGuard)
 export class EventsController {
   private readonly logger = new Logger(EventsController.name);
 
@@ -35,6 +37,7 @@ export class EventsController {
   ) { }
 
   @Get(EVENTS_ROUTES.STREAM)
+  @RequireSpaceRole({ resourceType: 'events' })
   async stream(
     @Query('token') token: string,
     @Query('spaceIds') spaceIdsParam: string,
@@ -52,16 +55,8 @@ export class EventsController {
       throw new UnauthorizedException('At least one spaceId is required');
     }
 
-    // 3. Verify the user is a member of each space
-    for (const spaceId of spaceIds) {
-      const member = await this.spacesRepository.findMember(spaceId, userId);
-      if (!member) {
-        this.logger.warn(`User ${userId} not a member of space ${spaceId}`);
-        throw new UnauthorizedException(
-          `Not a member of space ${spaceId}`,
-        );
-      }
-    }
+    // Space membership is now verified by SpaceRoleGuard automatically!
+    // 3. Track connection for lifecycle hooks
 
     // 4. Set up SSE response headers
     res.setHeader('Content-Type', 'text/event-stream');
