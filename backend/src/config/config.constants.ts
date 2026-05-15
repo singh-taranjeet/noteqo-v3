@@ -3,4 +3,5 @@ export const CONFIG_KEYS = {
   DATABASE: 'database',
   JWT: 'jwt',
   VERCEL_BLOB: 'vercel_blob',
+  REDIS: 'redis',
 } as const;

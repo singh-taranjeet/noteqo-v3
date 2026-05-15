@@ -23,6 +23,9 @@ import {
   CurrentUser,
   AuthenticatedUser,
 } from '../shared/decorators/current-user.decorator';
+import { SpaceRoleGuard } from '../auth/guards/space-role.guard';
+import { RequireSpaceRole } from '../shared/decorators/space-role.decorator';
+import { SPACE_ROLE } from '../spaces/constants/spaces.constants';
 
 @Controller(MEDIA_ROUTES.BASE)
 export class MediaController {
@@ -42,7 +45,8 @@ export class MediaController {
   }
 
   @Get()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, SpaceRoleGuard)
+  @RequireSpaceRole({ resourceType: 'media' })
   async findAll(
     @CurrentUser() user: AuthenticatedUser,
     @Query('spaceId') spaceId?: string,
@@ -63,7 +67,8 @@ export class MediaController {
    * If the record already exists, it is returned as-is.
    */
   @Post('register')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, SpaceRoleGuard)
+  @RequireSpaceRole({ resourceType: 'media', roles: [SPACE_ROLE.OWNER, SPACE_ROLE.EDITOR] })
   @HttpCode(HttpStatus.OK)
   async register(
     @Body() dto: UploadMediaDto & { url: string },
@@ -73,7 +78,8 @@ export class MediaController {
   }
 
   @Patch(MEDIA_ROUTES.BY_ID)
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, SpaceRoleGuard)
+  @RequireSpaceRole({ resourceType: 'media', roles: [SPACE_ROLE.OWNER, SPACE_ROLE.EDITOR] })
   async update(
     @Param('mediaId', ParseUUIDPipe) mediaId: string,
     @Body() dto: UpdateMediaDto,
@@ -86,7 +92,8 @@ export class MediaController {
    * Delete a media blob (Vercel Blob + Postgres).
    */
   @Delete(MEDIA_ROUTES.BY_ID)
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, SpaceRoleGuard)
+  @RequireSpaceRole({ resourceType: 'media', roles: [SPACE_ROLE.OWNER, SPACE_ROLE.EDITOR] })
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(
     @Param('mediaId', ParseUUIDPipe) mediaId: string,
