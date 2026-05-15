@@ -176,7 +176,7 @@ export function SearchDialog({ trigger }: Readonly<SearchDialogProps>) {
               hasAnyNotes={items.length > 0}
             />
           </div>
-          <div className="hidden md:flex md:flex-col md:flex-none min-h-0 pl-2 ml-2 border-l border-border/50 md:w-96 overflow-hidden">
+          <div className="hidden md:flex md:flex-col md:flex-none min-h-0 border rounded-xl shadow-2xl border-border/50 md:w-96 overflow-hidden">
             <SearchPreviewPane item={isLoading ? undefined : previewItem} />
           </div>
         </div>
