@@ -82,10 +82,7 @@ function sortByRecent(lhs: Note, rhs: Note): number {
 export function useSidebarSearchNotes() {
   const { data: userProfile } = useUserProfile();
 
-  const notes = useLiveQuery(
-    () => NoteLocalService.all(),
-    [],
-  );
+  const notes = useLiveQuery(() => NoteLocalService.all(), []);
 
   const spaces = useLiveQuery(() => db.spaces.toArray(), []);
 

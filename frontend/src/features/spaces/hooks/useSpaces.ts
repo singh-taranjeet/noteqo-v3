@@ -6,10 +6,7 @@ import { NoteLocalService } from "@/features/workspace/services/note-local.servi
 
 export function useSpaces() {
   const spaces = useLiveQuery(() => db.spaces.toArray(), []);
-  const notes = useLiveQuery(
-    () => NoteLocalService.all(),
-    [],
-  );
+  const notes = useLiveQuery(() => NoteLocalService.all(), []);
 
   const activeNotes = useMemo(() => {
     return (notes || []).filter((n) => !n.deletedAt);

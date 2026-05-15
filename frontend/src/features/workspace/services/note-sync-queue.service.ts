@@ -25,7 +25,8 @@ class NoteSyncQueueService extends BaseSyncQueueService {
       case SYNC_EVENT_TYPE.CREATE: {
         const fallbackNote = event.payload as Note;
         // Dynamically fetch absolute latest state
-        const localNote = (await NoteLocalService.get(event.entityId)) || fallbackNote;
+        const localNote =
+          (await NoteLocalService.get(event.entityId)) || fallbackNote;
         const ciphertext = await this.encryptPayload(localNote);
 
         const remoteNote = await noteApiService.createNote({
@@ -49,7 +50,8 @@ class NoteSyncQueueService extends BaseSyncQueueService {
 
       case SYNC_EVENT_TYPE.UPDATE: {
         const fallbackNote = event.payload as Note;
-        const localNote = (await NoteLocalService.get(event.entityId)) || fallbackNote;
+        const localNote =
+          (await NoteLocalService.get(event.entityId)) || fallbackNote;
 
         if (localNote.deletedAt) break; // Don't send updates for deleted notes
 

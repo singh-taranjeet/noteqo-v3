@@ -25,10 +25,7 @@ export function useLiveSpace(spaceId: string | undefined): Space | undefined {
  * Live query for all notes (no filter). Auto-re-renders on any Dexie write to the notes table.
  */
 export function useLiveAllNotes(): Note[] | undefined {
-  return useLiveQuery(
-    () => NoteLocalService.all(),
-    [],
-  );
+  return useLiveQuery(() => NoteLocalService.all(), []);
 }
 
 /**
@@ -38,10 +35,7 @@ export function useLiveNotesForSpace(
   spaceId: string | undefined,
 ): Note[] | undefined {
   return useLiveQuery(
-    () =>
-      spaceId
-        ? NoteLocalService.ofSpace(spaceId)
-        : [],
+    () => (spaceId ? NoteLocalService.ofSpace(spaceId) : []),
     [spaceId],
   );
 }

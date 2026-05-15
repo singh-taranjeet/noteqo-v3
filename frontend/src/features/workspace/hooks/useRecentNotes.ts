@@ -20,10 +20,7 @@ function sortByRecent(lhs: Note, rhs: Note): number {
 }
 
 export function useRecentNotes() {
-  const notes = useLiveQuery(
-    () => NoteLocalService.all(),
-    [],
-  );
+  const notes = useLiveQuery(() => NoteLocalService.all(), []);
 
   const recentNotes = useMemo(() => {
     return [...(notes || [])].filter((n) => !n.deletedAt).sort(sortByRecent);

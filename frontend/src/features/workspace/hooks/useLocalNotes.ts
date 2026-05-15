@@ -11,10 +11,7 @@ export function useLocalNotes(): {
   data: Note[] | undefined;
   isLoading: boolean;
 } {
-  const data = useLiveQuery(
-    () => NoteLocalService.all(),
-    [],
-  );
+  const data = useLiveQuery(() => NoteLocalService.all(), []);
 
   return {
     data,

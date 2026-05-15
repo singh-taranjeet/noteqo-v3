@@ -2,7 +2,6 @@ import { apiClient } from "@/services/api";
 import { WORKSPACE_API_ROUTES } from "@/features/workspace/constants/workspace.constants";
 import type { Note, RemoteNote } from "../types/workspace.types";
 import { noteService } from "./note.service";
-import { db } from "@/features/storage";
 import { NoteLocalService } from "./note-local.service";
 
 export const noteApiService = {

@@ -45,7 +45,10 @@ export function useNote(params: {
   }, [id]);
   useRealtimeNoteUpdate(id || undefined, handleRealtimeUpdate);
 
-  const note = useLiveQuery(() => (id ? NoteLocalService.get(id) : undefined), [id]);
+  const note = useLiveQuery(
+    () => (id ? NoteLocalService.get(id) : undefined),
+    [id],
+  );
 
   return {
     note,
