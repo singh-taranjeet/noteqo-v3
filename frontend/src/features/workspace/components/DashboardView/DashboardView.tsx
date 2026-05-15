@@ -102,7 +102,11 @@ export function DashboardView() {
                           />
                         ) : (
                           <div className="w-full h-full bg-gradient-to-br from-primary/5 to-primary/10 flex items-center justify-center transition-transform duration-500 group-hover:scale-105">
-                            <span className="text-5xl opacity-80" role="img" aria-hidden="true">
+                            <span
+                              className="text-5xl opacity-80"
+                              role="img"
+                              aria-hidden="true"
+                            >
                               {note.emoji || "📄"}
                             </span>
                           </div>
@@ -110,7 +114,11 @@ export function DashboardView() {
                         {/* Floating Emoji if cover image is present */}
                         {note.coverImage && (
                           <div className="absolute bottom-3 left-4 bg-background/80 backdrop-blur-md rounded-full w-10 h-10 shadow-sm border flex items-center justify-center">
-                            <span className="text-xl leading-none block" role="img" aria-hidden="true">
+                            <span
+                              className="text-xl leading-none block"
+                              role="img"
+                              aria-hidden="true"
+                            >
                               {note.emoji || "📄"}
                             </span>
                           </div>
@@ -125,11 +133,12 @@ export function DashboardView() {
                         <h3 className="text-base font-semibold leading-tight line-clamp-1 group-hover:text-primary transition-colors mb-1">
                           {note.title || "Untitled"}
                         </h3>
-                        
+
                         <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-auto pt-2">
                           <Clock size={12} />
                           <span className="truncate">
-                            Updated {formatDistanceToNow(new Date(note.updatedAt), {
+                            Updated{" "}
+                            {formatDistanceToNow(new Date(note.updatedAt), {
                               addSuffix: true,
                             })}
                           </span>

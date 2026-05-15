@@ -172,7 +172,7 @@ function MembersSettingsTab({ spaceId }: { spaceId: string }) {
     return members.filter(
       (m) =>
         m.email?.toLowerCase().includes(query) ||
-        m.name?.toLowerCase().includes(query)
+        m.name?.toLowerCase().includes(query),
     );
   }, [members, searchQuery]);
 
@@ -235,7 +235,7 @@ function MembersSettingsTab({ spaceId }: { spaceId: string }) {
     setSelectedMembers((prev) =>
       prev.includes(userId)
         ? prev.filter((id) => id !== userId)
-        : [...prev, userId]
+        : [...prev, userId],
     );
   };
 
@@ -312,7 +312,10 @@ function MembersSettingsTab({ spaceId }: { spaceId: string }) {
               {selectedMembers.length} selected
             </span>
             <div className="flex items-center gap-2">
-              <Select value={bulkRole || ""} onValueChange={handleBulkRoleChange}>
+              <Select
+                value={bulkRole || ""}
+                onValueChange={handleBulkRoleChange}
+              >
                 <SelectTrigger className="h-8 w-32 bg-background">
                   <SelectValue placeholder="Change Role" />
                 </SelectTrigger>
@@ -350,7 +353,9 @@ function MembersSettingsTab({ spaceId }: { spaceId: string }) {
               onCheckedChange={toggleSelectAll}
               className="mr-3"
             />
-            <span className="text-xs text-muted-foreground ml-1">Select All</span>
+            <span className="text-xs text-muted-foreground ml-1">
+              Select All
+            </span>
           </div>
         )}
 
