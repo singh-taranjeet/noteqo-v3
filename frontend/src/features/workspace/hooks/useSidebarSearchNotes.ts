@@ -6,6 +6,7 @@ import type { SidebarSearchResultItem } from "../types/sidebar-search.types";
 import type { Note } from "../types/workspace.types";
 
 import { useUserProfile } from "@/features/auth";
+import { NoteLocalService } from "../services/note-local.service";
 
 export const SIDEBAR_SEARCH_NOTES_QUERY_KEY = ["sidebar-search-notes"] as const;
 export const SIDEBAR_SEARCH_SPACES_QUERY_KEY = [
@@ -82,7 +83,7 @@ export function useSidebarSearchNotes() {
   const { data: userProfile } = useUserProfile();
 
   const notes = useLiveQuery(
-    () => db.notes.orderBy("updatedAt").reverse().toArray(),
+    () => NoteLocalService.all(),
     [],
   );
 

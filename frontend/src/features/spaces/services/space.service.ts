@@ -17,6 +17,7 @@ import { noteService } from "@/features/workspace";
 import { isOnline } from "@/lib/utils";
 import { spaceSyncQueueService } from "./space-sync-queue.service";
 import { SpaceLocalStorageService } from "./space-local-storage.service";
+import { NoteLocalService } from "@/features/workspace/services/note-local.service";
 
 export const spaceService = {
   async generateKeys() {
@@ -99,7 +100,7 @@ export const spaceService = {
       const allRemoteNotes = remoteSpaces.flatMap((rs) => rs.notes || []);
       for (const remoteNote of allRemoteNotes) {
         const decryptedNote = await noteService.decryptNote(remoteNote);
-        const localNote = await db.notes.get(remoteNote.id);
+        const localNote = await NoteLocalService.get(remoteNote.id);
         const localTime = localNote?.updatedAt
           ? new Date(localNote.updatedAt).getTime()
           : 0;
@@ -120,7 +121,7 @@ export const spaceService = {
       }
 
       // Direct Dexie write — useLiveQuery picks this up automatically
-      await db.notes.bulkPut(decryptedNotes);
+      await NoteLocalService.bulkUpdate(decryptedNotes);
 
       SpaceLocalStorageService.setFetched();
     }

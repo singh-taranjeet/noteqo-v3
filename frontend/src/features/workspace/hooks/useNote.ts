@@ -6,6 +6,7 @@ import type { Note } from "../types/workspace.types";
 import { noteApiService } from "../services/note-api.service";
 import { QueryKeys } from "@/features/shared/constants/index.shared.constants";
 import { useRealtimeNoteUpdate } from "@/features/realtime";
+import { NoteLocalService } from "../services/note-local.service";
 
 /**
  * Live query for a single note by ID.
@@ -44,7 +45,7 @@ export function useNote(params: {
   }, [id]);
   useRealtimeNoteUpdate(id || undefined, handleRealtimeUpdate);
 
-  const note = useLiveQuery(() => (id ? db.notes.get(id) : undefined), [id]);
+  const note = useLiveQuery(() => (id ? NoteLocalService.get(id) : undefined), [id]);
 
   return {
     note,

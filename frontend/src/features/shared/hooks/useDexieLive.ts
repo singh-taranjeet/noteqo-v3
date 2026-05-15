@@ -2,6 +2,7 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "@/features/storage";
 import type { Note } from "@/features/workspace/types/workspace.types";
 import type { Space } from "@/features/spaces/types/spaces.types";
+import { NoteLocalService } from "@/features/workspace/services/note-local.service";
 
 /**
  * Live query for all spaces. Auto-re-renders on any Dexie write to the spaces table.
@@ -25,7 +26,7 @@ export function useLiveSpace(spaceId: string | undefined): Space | undefined {
  */
 export function useLiveAllNotes(): Note[] | undefined {
   return useLiveQuery(
-    () => db.notes.orderBy("updatedAt").reverse().toArray(),
+    () => NoteLocalService.all(),
     [],
   );
 }
@@ -39,12 +40,7 @@ export function useLiveNotesForSpace(
   return useLiveQuery(
     () =>
       spaceId
-        ? db.notes
-            .where("spaceId")
-            .equals(spaceId)
-            .filter((n) => !n.deletedAt)
-            .reverse()
-            .sortBy("updatedAt")
+        ? NoteLocalService.ofSpace(spaceId)
         : [],
     [spaceId],
   );
@@ -55,7 +51,7 @@ export function useLiveNotesForSpace(
  */
 export function useLiveNote(noteId: string | undefined): Note | undefined {
   return useLiveQuery(
-    () => (noteId ? db.notes.get(noteId) : undefined),
+    () => (noteId ? NoteLocalService.get(noteId) : undefined),
     [noteId],
   );
 }

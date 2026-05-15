@@ -3,6 +3,7 @@ import { WORKSPACE_API_ROUTES } from "@/features/workspace/constants/workspace.c
 import type { Note, RemoteNote } from "../types/workspace.types";
 import { noteService } from "./note.service";
 import { db } from "@/features/storage";
+import { NoteLocalService } from "./note-local.service";
 
 export const noteApiService = {
   /**
@@ -18,7 +19,7 @@ export const noteApiService = {
 
       const decryptedNote = await noteService.decryptNote(response.data);
       if (decryptedNote) {
-        await db.notes.put(decryptedNote);
+        await NoteLocalService.update(decryptedNote.id, decryptedNote);
       }
       return decryptedNote ?? undefined;
     } catch {

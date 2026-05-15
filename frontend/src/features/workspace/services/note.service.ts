@@ -14,6 +14,7 @@ import {
   SYNC_EVENT_TYPE,
   SYNC_ENTITY,
 } from "@/features/shared/types/index.shared";
+import { NoteLocalService } from "@/features/workspace/services/note-local.service";
 
 function getRandomItem<T>(pool: readonly T[]): T {
   return pool[Math.floor(Math.random() * pool.length)];
@@ -52,7 +53,7 @@ export const noteService = {
     };
 
     // Direct Dexie write — useLiveQuery picks this up automatically
-    await db.notes.put(note);
+    await NoteLocalService.create(note);
 
     await noteSyncQueueService.enqueue({
       type: SYNC_EVENT_TYPE.CREATE,
@@ -68,25 +69,21 @@ export const noteService = {
    * Returns all notes from local Dexie DB, sorted by updatedAt desc.
    */
   async getAllLocalNotes(): Promise<Note[]> {
-    return db.notes.orderBy("updatedAt").reverse().toArray();
+    return NoteLocalService.all();
   },
 
   /**
    * Returns all notes for a given space from local Dexie DB.
    */
   async getLocalNotesForSpace(spaceId: string): Promise<Note[]> {
-    return db.notes
-      .where("spaceId")
-      .equals(spaceId)
-      .reverse()
-      .sortBy("updatedAt");
+    return NoteLocalService.ofSpace(spaceId);
   },
 
   /**
    * Returns a single note by ID from the local Dexie DB.
    */
   async getLocalNote(id: string): Promise<Note | undefined> {
-    return db.notes.get(id);
+    return NoteLocalService.get(id);
   },
 
   /**
@@ -100,10 +97,10 @@ export const noteService = {
     const updatedAt = new Date().toISOString();
 
     // Direct Dexie write
-    await db.notes.update(id, { ...updates, updatedAt });
+    await NoteLocalService.update(id, { ...updates, updatedAt });
 
     // Read back the full note for the sync payload
-    const updatedNote = await db.notes.get(id);
+    const updatedNote = await NoteLocalService.get(id);
     if (updatedNote) {
       await noteSyncQueueService.enqueue({
         type: SYNC_EVENT_TYPE.UPDATE,
@@ -119,7 +116,7 @@ export const noteService = {
    * Appends " (Copy)" to the title of the duplicated note.
    */
   async duplicateNote(noteId: string): Promise<Note> {
-    const existingNote = await db.notes.get(noteId);
+    const existingNote = await NoteLocalService.get(noteId);
     if (!existingNote) {
       throw new Error(`Note not found: ${noteId}`);
     }
@@ -135,7 +132,7 @@ export const noteService = {
       updatedAt: now,
     };
 
-    await db.notes.put(duplicate);
+    await NoteLocalService.create(duplicate);
 
     await noteSyncQueueService.enqueue({
       type: SYNC_EVENT_TYPE.CREATE,
@@ -148,7 +145,7 @@ export const noteService = {
   },
 
   async getDescendantIdsLocally(id: string): Promise<string[]> {
-    const allNotes = await db.notes.toArray();
+    const allNotes = await NoteLocalService.all();
     const descendants: string[] = [id];
 
     const queue = [id];
@@ -172,7 +169,7 @@ export const noteService = {
     const now = new Date().toISOString();
 
     for (const descendantId of descendantIds) {
-      await db.notes.update(descendantId, { deletedAt: now });
+      await NoteLocalService.update(descendantId, { deletedAt: now });
     }
 
     // Only enqueue DELETE for the parent; backend will cascade
@@ -191,10 +188,10 @@ export const noteService = {
     const descendantIds = await this.getDescendantIdsLocally(id);
 
     for (const descendantId of descendantIds) {
-      const note = await db.notes.get(descendantId);
+      const note = await NoteLocalService.get(descendantId);
       if (note) {
         delete note.deletedAt;
-        await db.notes.put(note);
+        await NoteLocalService.create(note);
       }
     }
 
@@ -214,7 +211,7 @@ export const noteService = {
     const descendantIds = await this.getDescendantIdsLocally(id);
 
     for (const descendantId of descendantIds) {
-      await db.notes.delete(descendantId);
+      await NoteLocalService.delete(descendantId);
     }
 
     await noteSyncQueueService.enqueue({
@@ -230,7 +227,7 @@ export const noteService = {
    * Used by remote sync to merge decrypted notes.
    */
   async bulkPutNotes(notes: Note[]): Promise<void> {
-    await db.notes.bulkPut(notes);
+    await NoteLocalService.bulkUpdate(notes);
   },
 
   /**

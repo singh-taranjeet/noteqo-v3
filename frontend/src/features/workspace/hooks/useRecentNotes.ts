@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "@/features/storage";
 import type { Note } from "@/features/workspace/types/workspace.types";
+import { NoteLocalService } from "../services/note-local.service";
 
 export const RECENT_NOTES_QUERY_KEY = ["recent-notes"] as const;
 
@@ -20,7 +21,7 @@ function sortByRecent(lhs: Note, rhs: Note): number {
 
 export function useRecentNotes() {
   const notes = useLiveQuery(
-    () => db.notes.orderBy("updatedAt").reverse().toArray(),
+    () => NoteLocalService.all(),
     [],
   );
 

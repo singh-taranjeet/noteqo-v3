@@ -12,6 +12,7 @@ import { BaseSyncQueueService } from "@/features/shared/services/baseSync.shared
 import { ApiError } from "@/services/api";
 import { db } from "@/features/storage";
 import { logService } from "@/services/log.service";
+import { NoteLocalService } from "./note-local.service";
 
 /** HTTP status code for version conflict */
 const HTTP_CONFLICT = 409;
@@ -24,7 +25,7 @@ class NoteSyncQueueService extends BaseSyncQueueService {
       case SYNC_EVENT_TYPE.CREATE: {
         const fallbackNote = event.payload as Note;
         // Dynamically fetch absolute latest state
-        const localNote = (await db.notes.get(event.entityId)) || fallbackNote;
+        const localNote = (await NoteLocalService.get(event.entityId)) || fallbackNote;
         const ciphertext = await this.encryptPayload(localNote);
 
         const remoteNote = await noteApiService.createNote({
@@ -39,7 +40,7 @@ class NoteSyncQueueService extends BaseSyncQueueService {
         });
 
         // Update local Dexie note with definitive server version
-        await db.notes.update(event.entityId, {
+        await NoteLocalService.update(event.entityId, {
           version: remoteNote.version,
           updatedAt: remoteNote.updatedAt,
         });
@@ -48,7 +49,7 @@ class NoteSyncQueueService extends BaseSyncQueueService {
 
       case SYNC_EVENT_TYPE.UPDATE: {
         const fallbackNote = event.payload as Note;
-        const localNote = (await db.notes.get(event.entityId)) || fallbackNote;
+        const localNote = (await NoteLocalService.get(event.entityId)) || fallbackNote;
 
         if (localNote.deletedAt) break; // Don't send updates for deleted notes
 
@@ -66,7 +67,7 @@ class NoteSyncQueueService extends BaseSyncQueueService {
 
           // Safely update local Dexie note with new definitive server version
           // This prevents self-conflicts for subsequent updates queued for this note
-          await db.notes.update(event.entityId, {
+          await NoteLocalService.update(event.entityId, {
             version: remoteNote.version,
             updatedAt: remoteNote.updatedAt,
           });
@@ -119,7 +120,7 @@ class NoteSyncQueueService extends BaseSyncQueueService {
       createdAt: now,
       updatedAt: now,
     };
-    await db.notes.put(conflictCopy);
+    await NoteLocalService.create(conflictCopy);
 
     // Enqueue the conflict copy for creation on the server
     await this.enqueue({

@@ -1,6 +1,7 @@
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "@/features/storage";
 import type { Note } from "../types/workspace.types";
+import { NoteLocalService } from "../services/note-local.service";
 
 /**
  * Live query for all local notes, sorted by updatedAt desc.
@@ -11,7 +12,7 @@ export function useLocalNotes(): {
   isLoading: boolean;
 } {
   const data = useLiveQuery(
-    () => db.notes.orderBy("updatedAt").reverse().toArray(),
+    () => NoteLocalService.all(),
     [],
   );
 

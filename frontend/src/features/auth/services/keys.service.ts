@@ -1,5 +1,6 @@
 import { cryptoService } from "@/features/crypto";
 import { storageService, STORAGE_KEYS, db } from "@/features/storage";
+import { NoteLocalService } from "@/features/workspace/services/note-local.service";
 import { logService } from "@/services/log.service";
 
 const TEMP_KEYS_LOCAL_STORAGE = "TEMP_KEYS_LOCAL_STORAGE";
@@ -105,7 +106,7 @@ export const KeysService = {
     }
 
     await Promise.all([
-      db.notes.clear(),
+      NoteLocalService.clear(),
       db.syncQueue.clear(),
       db.spaces.clear(),
       db.media.clear(),

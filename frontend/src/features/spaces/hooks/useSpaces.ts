@@ -2,11 +2,12 @@ import { useMemo } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "@/features/storage";
 import type { NoteTreeNode } from "@/features/workspace/types/workspace.types";
+import { NoteLocalService } from "@/features/workspace/services/note-local.service";
 
 export function useSpaces() {
   const spaces = useLiveQuery(() => db.spaces.toArray(), []);
   const notes = useLiveQuery(
-    () => db.notes.orderBy("updatedAt").reverse().toArray(),
+    () => NoteLocalService.all(),
     [],
   );
 
