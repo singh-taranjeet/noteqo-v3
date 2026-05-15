@@ -252,7 +252,7 @@ function SpaceGroupItem({
               className="transition-transform duration-200 data-[state=open]:rotate-90"
               data-state={isOpen ? "open" : "closed"}
             />
-            <span className="text-sm ">📁 {space.name}</span>
+            <span className="text-sm capitalize">{space.name}</span>
           </SidebarMenuButton>
         </CollapsibleTrigger>
 

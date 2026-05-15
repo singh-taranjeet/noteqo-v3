@@ -121,7 +121,7 @@ export function AppSidebar() {
 
         {/* Shared Spaces Section */}
         <SidebarSpaceCategory
-          label="Shared"
+          label="Shared space"
           spaces={sharedSpaces}
           isLoading={isLoading}
           emptyMessage="No shared spaces"
@@ -134,7 +134,7 @@ export function AppSidebar() {
 
         {/* Private Spaces Section */}
         <SidebarSpaceCategory
-          label="Private"
+          label="Private space"
           spaces={personalSpaces}
           isLoading={isLoading}
           emptyMessage="No spaces yet"
