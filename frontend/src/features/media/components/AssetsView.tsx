@@ -90,22 +90,28 @@ function MediaEditPopover({
   );
 }
 
-export function AssetsView() {
+export function AssetsView({ spaceId }: { spaceId?: string } = {}) {
   const { data: spacesData } = useSpaces();
-  const spaceIds = (spacesData?.spaces || []).map((s) => s.id);
+  const spaceIds = spaceId
+    ? [spaceId]
+    : (spacesData?.spaces || []).map((s) => s.id);
   const { data: mediaList, isLoading } = useAllMediaList(spaceIds);
   const { mutate: updateMedia } = useUpdateMedia();
   const [previewMedia, setPreviewMedia] = useState<DecryptedMedia | null>(null);
 
   return (
-    <div className="flex-1 overflow-auto bg-background p-4 md:p-8">
-      <div className="mx-auto max-w-7xl space-y-8">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Assets</h1>
-          <p className="text-muted-foreground">
-            Manage your uploaded media across all your spaces.
-          </p>
-        </div>
+    <div
+      className={`flex-1 overflow-auto bg-background ${spaceId ? "" : "p-4 md:p-8"}`}
+    >
+      <div className={`mx-auto max-w-7xl space-y-8 ${spaceId ? "py-4" : ""}`}>
+        {!spaceId && (
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Assets</h1>
+            <p className="text-muted-foreground">
+              Manage your uploaded media across all your spaces.
+            </p>
+          </div>
+        )}
 
         {isLoading ? (
           <div className="flex h-64 items-center justify-center">

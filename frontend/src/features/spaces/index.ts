@@ -1,5 +1,5 @@
 // Components
-// (none yet)
+export { SpaceHomeView } from "./components/SpaceHomeView/SpaceHomeView";
 
 // Constants
 export * from "./constants/spaces.constants";

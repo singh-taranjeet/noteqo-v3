@@ -5,6 +5,7 @@ export type SpaceType = "personal" | "shared";
 export interface Space {
   id: string;
   name: string; // decrypted client-side
+  description?: string; // decrypted client-side
   type: SpaceType;
   isDefault: boolean;
   spaceKey: string; // base64 AES key — cached locally, never sent to server
@@ -15,6 +16,7 @@ export interface Space {
 export interface RemoteSpace {
   id: string;
   encryptedName: string; // base64 from server
+  encryptedDescription?: string; // base64 from server
   type: SpaceType;
   isDefault: boolean;
   createdBy: string;

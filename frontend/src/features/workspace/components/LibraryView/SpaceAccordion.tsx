@@ -1,4 +1,5 @@
 import { Book } from "lucide-react";
+import { Link } from "react-router-dom";
 import {
   Accordion,
   AccordionContent,
@@ -62,6 +63,15 @@ export function SpaceAccordion({
               </div>
             </AccordionTrigger>
             <AccordionContent className="pb-4">
+              <div className="flex justify-end mb-4 pr-2">
+                <Link
+                  to={`/spaces/${space.id}`}
+                  className="text-sm text-primary hover:underline flex items-center gap-1"
+                >
+                  <Book size={14} />
+                  Open Space Home
+                </Link>
+              </div>
               <NoteList
                 notes={notes}
                 emptyMessage="This space has no notes yet."

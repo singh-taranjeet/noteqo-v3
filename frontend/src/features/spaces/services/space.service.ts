@@ -75,6 +75,49 @@ export const spaceService = {
     return space;
   },
 
+  async updateSpace(
+    spaceId: string,
+    updates: { name?: string; description?: string },
+  ): Promise<Space> {
+    const space = await db.spaces.get(spaceId);
+    if (!space) throw new Error("Space not found");
+
+    const now = new Date().toISOString();
+    const updatedSpace = {
+      ...space,
+      ...updates,
+      updatedAt: now,
+    };
+
+    await db.spaces.put(updatedSpace);
+
+    // We get the space key to encrypt the payload for sync
+    const spaceKeyBytes = await spaceService.getSpaceKeyBytes(spaceId);
+
+    const payload: Record<string, string> = { id: spaceId, updatedAt: now };
+    if (updates.name !== undefined) {
+      payload.encryptedName = await spaceService.encryptWithSpaceKey(
+        updates.name,
+        spaceKeyBytes,
+      );
+    }
+    if (updates.description !== undefined) {
+      payload.encryptedDescription = await spaceService.encryptWithSpaceKey(
+        updates.description,
+        spaceKeyBytes,
+      );
+    }
+
+    await spaceSyncQueueService.enqueue({
+      type: "UPDATE",
+      entityId: spaceId,
+      payload,
+      entity: "space",
+    });
+
+    return updatedSpace;
+  },
+
   async getRemoteSpacesAndNotes() {
     // if User is online
 

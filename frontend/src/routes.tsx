@@ -11,6 +11,7 @@ import { PublicLandingView } from "./features/landing";
 import { LoginForm, RegisterForm } from "./features/auth";
 import { DashboardView, LibraryView, TrashView } from "./features/workspace";
 import { AssetsView } from "./features/media/components/AssetsView";
+import { SpaceHomeView } from "./features/spaces";
 import { OfflineView } from "./features/pwa";
 
 // Note page wrapper (extracts noteId from URL params)
@@ -34,6 +35,7 @@ export const router = createBrowserRouter([
         children: [
           { path: "/notes", element: <DashboardView /> },
           { path: "/notes/:note_id", element: <NotePageWrapper /> },
+          { path: "/spaces/:space_id", element: <SpaceHomeView /> },
           { path: "/library", element: <LibraryView /> },
           { path: "/trash", element: <TrashView /> },
           { path: "/assets", element: <AssetsView /> },
