@@ -35,7 +35,7 @@ import { SPACE_ROLE } from './constants/spaces.constants';
 @Controller(SPACE_ROUTES.BASE)
 @UseGuards(JwtAuthGuard, SpaceRoleGuard)
 export class SpacesController {
-  constructor(private readonly spacesService: SpacesService) { }
+  constructor(private readonly spacesService: SpacesService) {}
 
   // ─── Spaces CRUD ─────────────────────────────────────────────────────────────
 

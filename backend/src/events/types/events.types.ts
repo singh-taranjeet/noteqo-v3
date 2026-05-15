@@ -13,9 +13,7 @@ export type SpaceEventType =
   | 'SPACE_MEMBER_ADDED'
   | 'SPACE_MEMBER_REMOVED';
 
-export type MediaEventType =
-  | 'MEDIA_UPLOADED'
-  | 'MEDIA_DELETED';
+export type MediaEventType = 'MEDIA_UPLOADED' | 'MEDIA_DELETED';
 
 /**
  * Base event published to Redis Pub/Sub.

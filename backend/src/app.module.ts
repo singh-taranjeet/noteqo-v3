@@ -38,7 +38,13 @@ import { EventsModule } from './events/events.module';
       isGlobal: true,
       envFilePath: ['.env.local', '.env'],
       validationSchema: configValidationSchema,
-      load: [databaseConfig, appConfig, jwtConfig, vercelBlobConfig, redisConfig],
+      load: [
+        databaseConfig,
+        appConfig,
+        jwtConfig,
+        vercelBlobConfig,
+        redisConfig,
+      ],
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
