@@ -21,5 +21,16 @@ module.exports = {
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
+    'no-restricted-imports': [
+      'error',
+      {
+        patterns: [
+          {
+            group: ['src/*'],
+            message: 'Usage of absolute paths starting with "src/" is not allowed in the backend. Please use relative paths instead to prevent production deployment errors.',
+          },
+        ],
+      },
+    ],
   },
 };
