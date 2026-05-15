@@ -24,7 +24,7 @@ export function SearchHeaderInput({
       />
       <Input
         id="search-sheet-input"
-        className="h-12 rounded-md border-0 bg-transparent pr-4 pl-10 text-base font-medium shadow-none focus-visible:border-0 focus-visible:ring-0"
+        className="h-12 rounded-md border-0 bg-transparent pr-4 pl-10 text-base  shadow-none focus-visible:border-0 focus-visible:ring-0"
         placeholder={SEARCH_LABELS.SEARCH_PLACEHOLDER}
         value={value}
         onChange={(event) => onChange(event.target.value)}

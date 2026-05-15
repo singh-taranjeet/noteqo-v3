@@ -75,14 +75,13 @@ export const ColorPickerPopover: React.FC<ColorPickerPopoverProps> = ({
                 variant="outline"
                 onClick={() => setTextColor(swatch.color)}
                 title={swatch.name}
-                className={`w-8 h-8 p-0 rounded-full flex items-center justify-center transition-transform hover:scale-110 ${
-                  currentColor === swatch.color
+                className={`w-8 h-8 p-0 rounded-full flex items-center justify-center transition-transform hover:scale-110 ${currentColor === swatch.color
                     ? "ring-2 ring-foreground/40 ring-offset-2"
                     : ""
-                }`}
+                  }`}
                 style={{ color: swatch.color || "inherit" }}
               >
-                <span className="font-serif font-medium text-sm">A</span>
+                <span className="font-serif  text-sm">A</span>
               </Button>
             ))}
           </div>
@@ -99,11 +98,10 @@ export const ColorPickerPopover: React.FC<ColorPickerPopoverProps> = ({
                 variant="outline"
                 onClick={() => setHighlightColor(swatch.color)}
                 title={swatch.name}
-                className={`w-8 h-8 p-0 rounded-full transition-transform hover:scale-110 ${
-                  currentHighlight === swatch.color
+                className={`w-8 h-8 p-0 rounded-full transition-transform hover:scale-110 ${currentHighlight === swatch.color
                     ? "ring-2 ring-foreground/40 ring-offset-2"
                     : ""
-                }`}
+                  }`}
                 style={{ backgroundColor: swatch.color || "transparent" }}
               />
             ))}

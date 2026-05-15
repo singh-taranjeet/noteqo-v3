@@ -50,7 +50,7 @@ export function SearchFilterBar({
       <Button
         variant={titleOnly ? "secondary" : "ghost"}
         size="sm"
-        className="h-7 gap-1.5 text-xs font-medium"
+        className="h-7 gap-1.5 text-xs "
         onClick={onToggleTitleOnly}
       >
         <span className="text-xs font-semibold tracking-wide">
@@ -62,7 +62,7 @@ export function SearchFilterBar({
       {/* <Button
         variant="ghost"
         size="sm"
-        className="h-7 gap-1.5 text-xs font-medium text-muted-foreground"
+        className="h-7 gap-1.5 text-xs  text-muted-foreground"
         disabled
         title={SEARCH_LABELS.FILTER_CREATED_BY_UNAVAILABLE}
       >
@@ -75,7 +75,7 @@ export function SearchFilterBar({
           <Button
             variant="ghost"
             size="sm"
-            className="h-7 gap-1.5 text-xs font-medium text-muted-foreground"
+            className="h-7 gap-1.5 text-xs  text-muted-foreground"
           >
             <FileText size={14} strokeWidth={1.5} />
             {inFilterLabel}
@@ -112,7 +112,7 @@ export function SearchFilterBar({
       {/* <Button
         variant="ghost"
         size="sm"
-        className="h-7 gap-1 text-xs font-medium text-muted-foreground"
+        className="h-7 gap-1 text-xs  text-muted-foreground"
       >
         <FilterIcon size={14} strokeWidth={1.5} />
         {SEARCH_LABELS.FILTER_ADD}

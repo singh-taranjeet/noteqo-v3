@@ -50,7 +50,7 @@ export function NoteList({
             <span className="text-xl shrink-0" role="img" aria-hidden="true">
               {note.emoji || "📄"}
             </span>
-            <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
+            <span className="text-sm  text-foreground group-hover:text-primary transition-colors">
               {note.title || "Untitled"}
             </span>
           </div>

@@ -114,7 +114,7 @@ export function SidebarSpaceCategory({
               strokeWidth={2}
               className="transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90"
             />
-            <span className="text-sm font-medium">{label}</span>
+            <span className="text-sm ">{label}</span>
           </CollapsibleTrigger>
         </SidebarGroupLabel>
 
@@ -252,7 +252,7 @@ function SpaceGroupItem({
               className="transition-transform duration-200 data-[state=open]:rotate-90"
               data-state={isOpen ? "open" : "closed"}
             />
-            <span className="text-sm font-medium">📁 {space.name}</span>
+            <span className="text-sm ">📁 {space.name}</span>
           </SidebarMenuButton>
         </CollapsibleTrigger>
 

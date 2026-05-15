@@ -127,7 +127,7 @@ export function HeaderBreadcrumb({ items }: HeaderBreadcrumbProps) {
       <HoverCard openDelay={200} closeDelay={200}>
         <HoverCardTrigger asChild>
           {isLast ? (
-            <BreadcrumbPage className="flex items-center gap-1.5 text-sm font-medium hover:bg-accent hover:text-accent-foreground px-1.5 py-0.5 rounded-md cursor-pointer whitespace-nowrap focus:outline-none focus:ring-0">
+            <BreadcrumbPage className="flex items-center gap-1.5 text-sm  hover:bg-accent hover:text-accent-foreground px-1.5 py-0.5 rounded-md cursor-pointer whitespace-nowrap focus:outline-none focus:ring-0">
               <NoteTriggerContent />
             </BreadcrumbPage>
           ) : (
@@ -149,11 +149,10 @@ export function HeaderBreadcrumb({ items }: HeaderBreadcrumbProps) {
               onClick={() => {
                 navigate(ROUTES.NOTE(sibling.id));
               }}
-              className={`flex items-center w-full px-2 py-1.5 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground cursor-pointer transition-colors ${
-                sibling.id === note.id
-                  ? "bg-accent/50 text-accent-foreground font-medium"
+              className={`flex items-center w-full px-2 py-1.5 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground cursor-pointer transition-colors ${sibling.id === note.id
+                  ? "bg-accent/50 text-accent-foreground "
                   : ""
-              }`}
+                }`}
             >
               {sibling.emoji ? (
                 <span className="mr-2 shrink-0">{sibling.emoji}</span>
@@ -174,7 +173,7 @@ export function HeaderBreadcrumb({ items }: HeaderBreadcrumbProps) {
   const renderNoteLink = (note: Note, isLast: boolean = false) => {
     if (isLast) {
       return (
-        <BreadcrumbPage className="flex items-center gap-1.5 text-sm font-medium whitespace-nowrap px-1.5 py-0.5">
+        <BreadcrumbPage className="flex items-center gap-1.5 text-sm  whitespace-nowrap px-1.5 py-0.5">
           {note.emoji ? (
             <span role="img" aria-hidden="true" className="shrink-0 text-sm">
               {note.emoji}
@@ -311,11 +310,10 @@ export function HeaderBreadcrumb({ items }: HeaderBreadcrumbProps) {
                   onClick={() => {
                     navigate(ROUTES.NOTES);
                   }}
-                  className={`flex items-center w-full px-2 py-1.5 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground cursor-pointer transition-colors ${
-                    space.id === activeSpace.id
-                      ? "bg-accent/50 text-accent-foreground font-medium"
+                  className={`flex items-center w-full px-2 py-1.5 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground cursor-pointer transition-colors ${space.id === activeSpace.id
+                      ? "bg-accent/50 text-accent-foreground "
                       : ""
-                  }`}
+                    }`}
                 >
                   <Folder size={14} className="mr-2 shrink-0" />
                   <span className="truncate">{space.name}</span>

@@ -97,7 +97,7 @@ export function SharedSpaceSettingsDialog({
       <div className="flex flex-col gap-6 py-2">
         {/* Members List */}
         <div>
-          <h4 className="text-sm font-medium mb-3">Members</h4>
+          <h4 className="text-sm  mb-3">Members</h4>
           {isMembersLoading ? (
             <p className="text-xs text-muted-foreground animate-pulse">
               Loading members...
@@ -140,7 +140,7 @@ export function SharedSpaceSettingsDialog({
 
         {/* Invite Form */}
         <div>
-          <h4 className="text-sm font-medium mb-3">Invite Member</h4>
+          <h4 className="text-sm  mb-3">Invite Member</h4>
           {error && <p className="text-xs text-destructive mb-3">{error}</p>}
           <DynamicForm
             fields={INVITE_FIELDS}

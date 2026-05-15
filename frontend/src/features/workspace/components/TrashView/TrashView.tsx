@@ -76,7 +76,7 @@ function TrashNodeItem({
               <span className="text-lg">{note.emoji}</span>
             </div>
             <div className="flex flex-col min-w-0">
-              <span className="font-medium text-sm truncate group-hover:underline decoration-muted-foreground underline-offset-2">
+              <span className=" text-sm truncate group-hover:underline decoration-muted-foreground underline-offset-2">
                 {note.title}
               </span>
               <span className="text-xs text-muted-foreground truncate">

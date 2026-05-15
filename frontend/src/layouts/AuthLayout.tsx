@@ -29,7 +29,7 @@ export function AuthLayout() {
               thoughts. The end-to-end encryption gives me complete peace of
               mind.&rdquo;
             </p>
-            <footer className="text-sm font-medium text-muted-foreground">
+            <footer className="text-sm  text-muted-foreground">
               — Secure Workspace User
             </footer>
           </blockquote>

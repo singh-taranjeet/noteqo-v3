@@ -95,7 +95,7 @@ export function AiMenu({
           onMouseDown={(e) => e.preventDefault()}
         >
           <Sparkles className="text-purple-500" size={14} />
-          <span className="text-xs font-medium">Ask AI</span>
+          <span className="text-xs ">Ask AI</span>
         </Button>
       </PopoverTrigger>
       <PopoverContent

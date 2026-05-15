@@ -13,7 +13,7 @@ export function AiSetupPanel({
   return (
     <div className="flex flex-col gap-3 p-1">
       <div className="flex flex-col gap-1">
-        <p className="text-sm font-medium text-foreground">
+        <p className="text-sm  text-foreground">
           Setting up AI assistant
         </p>
         <p className="text-xs text-muted-foreground leading-relaxed">

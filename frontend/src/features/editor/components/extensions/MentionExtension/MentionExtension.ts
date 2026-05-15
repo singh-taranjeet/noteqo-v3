@@ -190,7 +190,7 @@ export const MentionExtension = BaseMention.extend<CustomMentionOptions>({
       {
         href: `/notes/${id}`,
         class:
-          "inline-flex items-center gap-1 rounded-md bg-muted px-1.5 py-0.5 text-sm font-medium text-foreground no-underline hover:bg-muted/80 cursor-pointer",
+          "inline-flex items-center gap-1 rounded-md bg-muted px-1.5 py-0.5 text-sm  text-foreground no-underline hover:bg-muted/80 cursor-pointer",
         "data-type": "mention",
         "data-id": id,
         "data-label": label,

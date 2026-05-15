@@ -136,11 +136,10 @@ export const TurnIntoDropdown: React.FC<TurnIntoDropdownProps> = ({
                   option.command(editor);
                   onOpenChange(false);
                 }}
-                className={`w-full justify-between font-normal cursor-pointer rounded-xl px-3 py-2 h-auto text-sm outline-hidden transition-colors hover:bg-accent hover:text-accent-foreground ${
-                  isActive
-                    ? "bg-accent/50 text-accent-foreground font-medium"
+                className={`w-full justify-between font-normal cursor-pointer rounded-xl px-3 py-2 h-auto text-sm outline-hidden transition-colors hover:bg-accent hover:text-accent-foreground ${isActive
+                    ? "bg-accent/50 text-accent-foreground "
                     : "text-foreground"
-                }`}
+                  }`}
               >
                 <div className="flex items-center gap-2.5">
                   <Icon className="text-muted-foreground shrink-0" size={16} />

@@ -65,7 +65,7 @@ export function SidebarUserProfile({
                   >
                     {avatarEmoji}
                   </span>
-                  <span className="text-sm font-medium truncate text-left">
+                  <span className="text-sm  truncate text-left">
                     {username}
                   </span>
                 </div>

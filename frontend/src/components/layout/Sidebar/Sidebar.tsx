@@ -188,7 +188,7 @@ export function AppSidebar() {
               className="justify-center bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90 hover:text-sidebar-primary-foreground"
             >
               <PenLine size={16} strokeWidth={1.5} />
-              <span className="text-sm font-medium">Quick Create</span>
+              <span className="text-sm ">Quick Create</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

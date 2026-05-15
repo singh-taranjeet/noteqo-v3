@@ -89,7 +89,7 @@ export const FileNodeView: React.FC<NodeViewProps> = (props) => {
               )}
             </div>
             <div className="flex flex-col min-w-0">
-              <span className="text-sm font-medium truncate max-w-48 sm:max-w-72">
+              <span className="text-sm  truncate max-w-48 sm:max-w-72">
                 {fileName || "Unknown File"}
               </span>
               <span className="text-xs text-muted-foreground">

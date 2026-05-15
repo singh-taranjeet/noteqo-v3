@@ -34,7 +34,7 @@ export function SidebarNavTabs({
           className="justify-center"
         >
           <Home size={18} strokeWidth={1.5} />
-          <span className="text-sm font-medium">Notes</span>
+          <span className="text-sm ">Notes</span>
         </SidebarMenuButton>
       </SidebarMenuItem>
       <SidebarMenuItem className="flex-[1_1_45%]">
@@ -46,7 +46,7 @@ export function SidebarNavTabs({
               className="justify-center"
             >
               <Search size={18} strokeWidth={1.5} />
-              <span className="text-sm font-medium">Search</span>
+              <span className="text-sm ">Search</span>
             </SidebarMenuButton>
           }
         />

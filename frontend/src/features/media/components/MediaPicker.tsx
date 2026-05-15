@@ -150,7 +150,7 @@ export function MediaPicker({
                 <div className="rounded-full bg-primary/20 p-3 animate-pulse">
                   <Loader2 className="animate-spin h-6 w-6 text-primary" />
                 </div>
-                <p className="text-sm font-medium text-primary">Uploading...</p>
+                <p className="text-sm  text-primary">Uploading...</p>
               </div>
             ) : (
               <div className="flex flex-col items-center gap-3 z-10 pointer-events-none">
@@ -158,7 +158,7 @@ export function MediaPicker({
                   <UploadCloud className="h-6 w-6 text-muted-foreground group-hover:text-primary transition-colors" />
                 </div>
                 <div className="text-center space-y-1">
-                  <p className="text-sm font-medium text-foreground">
+                  <p className="text-sm  text-foreground">
                     Click to browse files
                   </p>
                   <p className="text-xs text-muted-foreground px-4">
@@ -220,7 +220,7 @@ export function MediaPicker({
                       )}
                     </div>
                     <div className="p-2 border-t border-border/50 bg-muted/10">
-                      <p className="truncate text-xs font-medium text-foreground">
+                      <p className="truncate text-xs  text-foreground">
                         {asset.title ||
                           asset.url.split("/").pop()?.split("?")[0]}
                       </p>

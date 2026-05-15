@@ -102,7 +102,7 @@ export function DashboardView() {
                           >
                             {note.emoji || "📄"}
                           </span>
-                          <h3 className="font-medium text-base leading-tight line-clamp-2 group-hover:text-primary transition-colors">
+                          <h3 className=" text-base leading-tight line-clamp-2 group-hover:text-primary transition-colors">
                             {note.title || "Untitled"}
                           </h3>
                         </div>

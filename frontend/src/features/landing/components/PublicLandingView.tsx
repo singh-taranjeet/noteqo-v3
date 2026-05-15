@@ -95,7 +95,7 @@ export function PublicLandingView() {
           <div className="container relative z-10 mx-auto px-4 lg:px-8 flex flex-col items-center text-center">
             <Badge
               variant="outline"
-              className="px-4 py-1.5 text-sm font-medium bg-background/50 backdrop-blur-sm mb-8 shadow-sm rounded-full"
+              className="px-4 py-1.5 text-sm  bg-background/50 backdrop-blur-sm mb-8 shadow-sm rounded-full"
             >
               <Sparkles className="size-4 mr-2 text-primary" />
               <span className="text-muted-foreground">

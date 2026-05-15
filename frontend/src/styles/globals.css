@@ -41,7 +41,8 @@
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
   --font-sans: "Roboto", ui-sans-serif, sans-serif, system-ui;
-  --font-serif: "Roboto Serif", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-serif:
+    "Roboto Serif", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
   --font-mono: "Geist Mono", ui-monospace, monospace;
   --radius: 0.625rem;
   --shadow-x: 0px;
@@ -101,7 +102,8 @@
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
   --font-sans: "Roboto", ui-sans-serif, sans-serif, system-ui;
-  --font-serif: "Roboto Serif", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-serif:
+    "Roboto Serif", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
   --font-mono: "Geist Mono", ui-monospace, monospace;
   --radius: 0.5rem;
   --shadow-x: 0px;
@@ -204,7 +206,9 @@
     outline: 2px solid var(--ring);
     outline-offset: 2px;
   }
-  button:not(:disabled), [role="button"]:not(:disabled) {
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
     cursor: pointer;
   }
 }

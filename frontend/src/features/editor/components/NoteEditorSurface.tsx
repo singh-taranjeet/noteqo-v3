@@ -192,7 +192,7 @@ export function NoteEditorSurface({
       )}
     >
       {isTrashed && (
-        <div className="w-full bg-destructive/10 text-destructive text-sm font-medium p-3 text-center border-b border-destructive/20 shrink-0">
+        <div className="w-full bg-destructive/10 text-destructive text-sm  p-3 text-center border-b border-destructive/20 shrink-0">
           This note is in the Trash and is currently read-only.
         </div>
       )}

@@ -61,7 +61,7 @@ function MediaEditPopover({
       </PopoverTrigger>
       <PopoverContent className="w-80" onClick={(e) => e.stopPropagation()}>
         <div className="space-y-4">
-          <h4 className="font-medium leading-none">Edit Details</h4>
+          <h4 className=" leading-none">Edit Details</h4>
           <div className="space-y-2">
             <Label>Title</Label>
             <Input
@@ -115,7 +115,7 @@ export function AssetsView() {
           <div className="flex flex-col items-center justify-center space-y-4 rounded-lg border border-dashed py-24 text-center">
             <ImageIcon className="h-12 w-12 text-muted-foreground" />
             <div className="space-y-1">
-              <h3 className="font-medium text-lg">No assets yet</h3>
+              <h3 className=" text-lg">No assets yet</h3>
               <p className="text-muted-foreground">
                 Upload images from the Note Editor to see them here.
               </p>
@@ -213,12 +213,12 @@ export function AssetsView() {
 
                 {/* Info footer */}
                 <div className="flex flex-col gap-1 p-3 bg-card border-t border-border/50">
-                  <p className="truncate text-sm font-medium text-foreground">
+                  <p className="truncate text-sm  text-foreground">
                     {media.title ||
                       media.url.split("/").pop()?.split("?")[0] ||
                       "Unnamed Asset"}
                   </p>
-                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium uppercase tracking-wider">
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground  uppercase tracking-wider">
                     <span>
                       {media.mimeType
                         ? media.mimeType.split("/")[1] || "FILE"
