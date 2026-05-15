@@ -220,13 +220,15 @@ export function AppSidebar() {
         </div>
       </DynamicDialog>
 
-      <SpaceSettingsDialog
-        space={settingsSpace}
-        isOpen={settingsSpace !== null}
-        onOpenChange={(isOpen) => {
-          if (!isOpen) setSettingsSpace(null);
-        }}
-      />
+      {settingsSpace ? (
+        <SpaceSettingsDialog
+          space={settingsSpace}
+          isOpen={settingsSpace !== null}
+          onOpenChange={(isOpen) => {
+            if (!isOpen) setSettingsSpace(null);
+          }}
+        />
+      ) : null}
     </Sidebar>
   );
 }
