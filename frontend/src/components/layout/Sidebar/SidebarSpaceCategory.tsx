@@ -25,9 +25,15 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 import type { Space } from "@/features/spaces";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import type { NoteTreeNode } from "@/features/workspace/types/workspace.types";
 import { SidebarNoteTreeItem } from "./SidebarNoteTreeItem";
 
@@ -227,6 +233,7 @@ function SpaceGroupItem({
   const [isOpen, setIsOpen] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const params = useParams();
+  const navigate = useNavigate();
   const activeNoteId = params?.note_id as string | undefined;
 
   const visibleNotes = noteTrees.slice(0, 5);
@@ -258,14 +265,35 @@ function SpaceGroupItem({
         </CollapsibleTrigger>
 
         {onSettingsClick && (
-          <SidebarMenuAction
-            showOnHover
-            onClick={onSettingsClick}
-            aria-label={`Settings for ${space.name}`}
-            className="right-7"
-          >
-            <MoreHorizontal size={14} strokeWidth={2} />
-          </SidebarMenuAction>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <SidebarMenuAction
+                showOnHover
+                aria-label={`Actions for ${space.name}`}
+                className="right-7"
+              >
+                <MoreHorizontal size={14} strokeWidth={2} />
+              </SidebarMenuAction>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" side="right">
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(`/spaces/${space.id}`);
+                }}
+              >
+                Manage
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSettingsClick();
+                }}
+              >
+                Settings
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         )}
 
         <SidebarMenuAction
