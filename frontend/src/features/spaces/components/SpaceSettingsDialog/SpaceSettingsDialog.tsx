@@ -42,6 +42,10 @@ export function SpaceSettingsDialog({
 }: SpaceSettingsDialogProps) {
   const [activeTab, setActiveTab] = useState("general");
 
+  if (!space) {
+    return null;
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
@@ -52,28 +56,28 @@ export function SpaceSettingsDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="general">General</TabsTrigger>
-            <TabsTrigger
-              value="members"
-              disabled={space.type !== SPACE_TYPE.SHARED}
-            >
-              Members
-            </TabsTrigger>
-          </TabsList>
-          <TabsContent value="general">
-            <GeneralSettingsTab
-              space={space}
-              onComplete={() => onOpenChange(false)}
-            />
-          </TabsContent>
-          {space.type === SPACE_TYPE.SHARED && (
+        {space.type === SPACE_TYPE.SHARED ? (
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="general">General</TabsTrigger>
+              <TabsTrigger value="members">Members</TabsTrigger>
+            </TabsList>
+            <TabsContent value="general">
+              <GeneralSettingsTab
+                space={space}
+                onComplete={() => onOpenChange(false)}
+              />
+            </TabsContent>
             <TabsContent value="members">
               <MembersSettingsTab spaceId={space.id} />
             </TabsContent>
-          )}
-        </Tabs>
+          </Tabs>
+        ) : (
+          <GeneralSettingsTab
+            space={space}
+            onComplete={() => onOpenChange(false)}
+          />
+        )}
       </DialogContent>
     </Dialog>
   );

@@ -20,7 +20,7 @@ import { SidebarNavTabs } from "./SidebarNavTabs";
 import { SidebarSpaceCategory } from "./SidebarSpaceCategory";
 import { RecentSection } from "./RecentSection";
 import { SidebarThemeToggle } from "./SidebarThemeToggle";
-import { SharedSpaceSettingsDialog } from "./SharedSpaceSettingsDialog";
+import { SpaceSettingsDialog } from "@/features/spaces/components/SpaceSettingsDialog/SpaceSettingsDialog";
 import { useSpaces, useCreateSpace } from "@/features/spaces";
 import { useCreateNote } from "@/features/workspace";
 import { MOCK_USER, useUserProfile } from "@/features/auth";
@@ -142,6 +142,7 @@ export function AppSidebar() {
           onAddSpaceClick={() => setCreateSpaceType(SPACE_TYPE.PERSONAL)}
           addSpaceTooltip="Create private space"
           onCreateNote={handleCreateNote}
+          onSettingsClick={(space) => setSettingsSpace(space)}
         />
 
         {/* Utilities Section */}
@@ -219,7 +220,7 @@ export function AppSidebar() {
         </div>
       </DynamicDialog>
 
-      <SharedSpaceSettingsDialog
+      <SpaceSettingsDialog
         space={settingsSpace}
         isOpen={settingsSpace !== null}
         onOpenChange={(isOpen) => {
