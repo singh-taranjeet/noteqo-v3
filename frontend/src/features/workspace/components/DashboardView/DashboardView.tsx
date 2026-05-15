@@ -47,15 +47,14 @@ export function DashboardView() {
             {Array.from({ length: 4 }).map((_, i) => (
               <div
                 key={i}
-                className="basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/4 shrink-0"
+                className="basis-full sm:basis-1/2 md:basis-1/2 lg:basis-1/3 shrink-0"
               >
-                <Card className="h-40 flex flex-col">
-                  <CardContent className="flex-1 p-5 flex flex-col justify-between">
-                    <div className="flex flex-col gap-2">
-                      <Skeleton className="h-8 w-8 rounded-md mb-1" />
-                      <Skeleton className="h-5 w-3/4 rounded-md" />
-                    </div>
-                    <Skeleton className="h-4 w-1/2 rounded-md mt-3" />
+                <Card className="h-64 flex flex-col overflow-hidden border shadow-sm p-0 gap-0">
+                  <div className="h-36 w-full bg-muted/50 flex-shrink-0" />
+                  <CardContent className="flex-1 p-4 pt-4 flex flex-col justify-start">
+                    <Skeleton className="h-3 w-20 mb-2" />
+                    <Skeleton className="h-5 w-3/4 mb-3" />
+                    <Skeleton className="h-3 w-1/2 mt-auto" />
                   </CardContent>
                 </Card>
               </div>
@@ -86,30 +85,51 @@ export function DashboardView() {
               {recentNotes.map((note) => (
                 <CarouselItem
                   key={note.id}
-                  className="basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/4"
+                  className="basis-full sm:basis-1/2 md:basis-1/2 lg:basis-1/3"
                 >
                   <Link
                     to={ROUTES.NOTE(note.id)}
                     className="block h-full !no-underline group"
                   >
-                    <Card className="h-full flex flex-col hover:border-primary/50 transition-all duration-200 group-hover:shadow-md cursor-pointer">
-                      <CardContent className="flex-1 p-5 flex flex-col justify-between h-40">
-                        <div className="flex flex-col gap-2">
-                          <span
-                            className="text-3xl mb-1"
-                            role="img"
-                            aria-hidden="true"
-                          >
-                            {note.emoji || "📄"}
-                          </span>
-                          <h3 className=" text-base leading-tight line-clamp-2 group-hover:text-primary transition-colors">
-                            {note.title || "Untitled"}
-                          </h3>
+                    <Card className="h-64 flex flex-col overflow-hidden hover:border-primary/50 transition-all duration-300 group-hover:shadow-md cursor-pointer border bg-card p-0 gap-0">
+                      {/* Image / Background Section */}
+                      <div className="relative h-36 w-full overflow-hidden bg-muted/30 flex-shrink-0 border-b">
+                        {note.coverImage ? (
+                          <img
+                            src={note.coverImage}
+                            alt=""
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-primary/5 to-primary/10 flex items-center justify-center transition-transform duration-500 group-hover:scale-105">
+                            <span className="text-5xl opacity-80" role="img" aria-hidden="true">
+                              {note.emoji || "📄"}
+                            </span>
+                          </div>
+                        )}
+                        {/* Floating Emoji if cover image is present */}
+                        {note.coverImage && (
+                          <div className="absolute bottom-3 left-4 bg-background/80 backdrop-blur-md rounded-full w-10 h-10 shadow-sm border flex items-center justify-center">
+                            <span className="text-xl leading-none block" role="img" aria-hidden="true">
+                              {note.emoji || "📄"}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Content Section */}
+                      <CardContent className="flex-1 p-4 flex flex-col">
+                        <div className="text-[10px] font-bold tracking-wider text-muted-foreground uppercase mb-1.5">
+                          Recent Note
                         </div>
-                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-3">
+                        <h3 className="text-base font-semibold leading-tight line-clamp-1 group-hover:text-primary transition-colors mb-1">
+                          {note.title || "Untitled"}
+                        </h3>
+                        
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-auto pt-2">
                           <Clock size={12} />
                           <span className="truncate">
-                            {formatDistanceToNow(new Date(note.updatedAt), {
+                            Updated {formatDistanceToNow(new Date(note.updatedAt), {
                               addSuffix: true,
                             })}
                           </span>

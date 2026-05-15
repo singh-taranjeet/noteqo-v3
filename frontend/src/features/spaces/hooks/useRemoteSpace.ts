@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { spaceService } from "../services/space.service";
+import { QueryKeys } from "@/features/shared/constants/index.shared.constants";
 
 /**
  * Remote sync hook — fetches remote spaces & notes, decrypts, and merges into Dexie.
@@ -12,7 +13,7 @@ import { spaceService } from "../services/space.service";
  */
 export function useRemoteSpaces() {
   useQuery({
-    queryKey: ["remote-sync"],
+    queryKey: QueryKeys.space.remote.spacesAndNote,
     queryFn: async () => {
       await spaceService.getRemoteSpacesAndNotes();
       return { syncedAt: new Date().toISOString() };

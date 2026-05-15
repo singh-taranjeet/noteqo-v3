@@ -15,3 +15,9 @@ export const SpaceLocalStorageService = {
     localStorage.removeItem(LOCAL_STORAGE_ALL_SPACES_INITIALLY_FETCHED);
   },
 };
+
+function init() {
+  SpaceLocalStorageService.resetFetched();
+}
+
+init();

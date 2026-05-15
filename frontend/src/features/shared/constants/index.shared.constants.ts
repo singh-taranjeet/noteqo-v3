@@ -22,5 +22,4 @@ export const QueryKeys = {
       get: (id: string) => ["notes", "remote", id] as const,
     },
   },
-  remoteSync: ["remote-sync"] as const,
 };
