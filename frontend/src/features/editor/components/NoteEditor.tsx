@@ -82,16 +82,23 @@ export function NoteEditor({
   className,
   contentWrapperClassName,
 }: Readonly<NoteEditorProps>) {
+
   const { mutate: createNoteMutation } = useCreateNote();
+
+  const isInitialized = useRef(false);
+  const lastSavedContent = useRef<string | null>(null);
+  const hasPendingChanges = useRef(false);
 
   const queueNoteUpdate = useMemo(
     () =>
       debounce((props: { editor: Editor; id: string }) => {
         const { editor, id } = props;
         const json = editor.getJSON();
+        lastSavedContent.current = JSON.stringify(json);
         if (id) {
           void noteService.updateNote(id, { content: json });
         }
+        hasPendingChanges.current = false;
       }, EDITOR_CONFIG.AUTOSAVE_DEBOUNCE_MS),
     [],
   );
@@ -205,6 +212,7 @@ export function NoteEditor({
         if (editorIsReadOnly || !noteId) {
           return;
         }
+        hasPendingChanges.current = true;
         queueNoteUpdate({ id: noteId, editor });
       },
     },
@@ -213,6 +221,41 @@ export function NoteEditor({
 
   useEffect(() => {
     if (editor && !loading && content) {
+      if (!isInitialized.current) {
+        isInitialized.current = true;
+        lastSavedContent.current = JSON.stringify(content);
+        setTimeout(() => {
+          if (!editor.isDestroyed) {
+            editor.commands.setContent(content);
+          }
+        }, EDITOR_CONFIG.EVENT_LOOP_DEFER_MS);
+        return;
+      }
+
+      // If the user is actively typing or has pending un-debounced changes,
+      // DO NOT overwrite their content. This prevents their active typing from
+      // being erased by remote updates or slightly modified local saves echoing back.
+      if (editor.isFocused || hasPendingChanges.current) {
+        return;
+      }
+
+      const contentStr = JSON.stringify(content);
+      
+      // Prevent resetting the editor to an older state if useLiveQuery 
+      // triggers after a local debounced save.
+      if (lastSavedContent.current === contentStr) {
+        return;
+      }
+
+      // Also ensure we don't unnecessarily overwrite if the editor already has this exact content.
+      const currentEditorContent = JSON.stringify(editor.getJSON());
+      if (currentEditorContent === contentStr) {
+        lastSavedContent.current = contentStr;
+        return;
+      }
+
+      lastSavedContent.current = contentStr;
+
       // Defer to the macrotask queue to prevent React 19 flushSync collision during initial render loop
       setTimeout(() => {
         if (!editor.isDestroyed) {
@@ -240,6 +283,7 @@ export function NoteEditor({
       // Update the Tiptap editor content
       if (detail.content && !editor.isDestroyed) {
         editor.commands.setContent(detail.content);
+        lastSavedContent.current = JSON.stringify(detail.content);
       }
 
       // Write restored metadata to Dexie — useLiveQuery picks it up automatically
