@@ -58,9 +58,7 @@ export function SidebarNoteTreeItem({
                 >
                   {note.emoji}
                 </span>
-                <span className="text-sm ">
-                  {note.title || "Untitled"}
-                </span>
+                <span className="text-sm ">{note.title || "Untitled"}</span>
               </Link>
             </SidebarMenuSubButton>
           </div>
@@ -87,9 +85,7 @@ export function SidebarNoteTreeItem({
           <span className="shrink-0 text-base" role="img" aria-hidden="true">
             {note.emoji}
           </span>
-          <span className="text-sm ">
-            {note.title || "Untitled"}
-          </span>
+          <span className="text-sm ">{note.title || "Untitled"}</span>
         </Link>
       </SidebarMenuSubButton>
     </SidebarMenuSubItem>

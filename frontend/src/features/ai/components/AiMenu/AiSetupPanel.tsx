@@ -13,9 +13,7 @@ export function AiSetupPanel({
   return (
     <div className="flex flex-col gap-3 p-1">
       <div className="flex flex-col gap-1">
-        <p className="text-sm  text-foreground">
-          Setting up AI assistant
-        </p>
+        <p className="text-sm  text-foreground">Setting up AI assistant</p>
         <p className="text-xs text-muted-foreground leading-relaxed">
           Downloading the AI model ({AI_CONFIG.MODEL_DOWNLOAD_SIZE_LABEL}) for
           the first time. This only happens once — it will be cached on your

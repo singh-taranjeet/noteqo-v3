@@ -26,9 +26,7 @@ export function SidebarNoteItem({
         <span className="shrink-0 text-base" role="img" aria-hidden="true">
           {emoji}
         </span>
-        <span className="text-sm  truncate">
-          {title || "Untitled"}
-        </span>
+        <span className="text-sm  truncate">{title || "Untitled"}</span>
       </Link>
     </SidebarMenuButton>
   );
