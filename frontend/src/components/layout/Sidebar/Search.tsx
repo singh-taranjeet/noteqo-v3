@@ -121,7 +121,7 @@ export function SearchDialog({ trigger }: Readonly<SearchDialogProps>) {
   const selectedIdForView =
     selectedId !== null && filteredItems.some((item) => item.id === selectedId)
       ? selectedId
-      : (filteredItems[0]?.id ?? null);
+      : null;
 
   const hoveredIdForView =
     hoveredId !== null && filteredItems.some((item) => item.id === hoveredId)

@@ -142,6 +142,7 @@ export function SidebarSpaceCategory({
               {filteredNotes.map((note) => (
                 <SidebarMenuItem key={note.id}>
                   <SidebarNoteItem
+                    spaceId={note.spaceId}
                     noteId={note.id}
                     emoji={note.emoji}
                     title={note.title}
@@ -285,6 +286,7 @@ function SpaceGroupItem({
               <>
                 {visibleNotes.map((note) => (
                   <SidebarNoteTreeItem
+                    spaceId={note.spaceId}
                     key={note.id}
                     note={note}
                     activeNoteId={activeNoteId}
@@ -318,6 +320,7 @@ function SpaceGroupItem({
                         <SidebarMenuSub className="mr-0 pr-0 border-none">
                           {filteredExtraNotes.map((note) => (
                             <SidebarNoteTreeItem
+                              spaceId={note.spaceId}
                               key={note.id}
                               note={note}
                               activeNoteId={activeNoteId}

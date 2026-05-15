@@ -14,15 +14,18 @@ import {
 } from "@/components/ui/collapsible";
 import { ROUTES } from "@/constants/routes";
 import type { NoteTreeNode } from "@/features/workspace/types/workspace.types";
+import { EmojiOrImage } from "@/features/media/components/EmojiOrImage";
 
 interface SidebarNoteTreeItemProps {
   note: NoteTreeNode;
   activeNoteId?: string;
+  spaceId: string;
 }
 
 export function SidebarNoteTreeItem({
   note,
   activeNoteId,
+  spaceId,
 }: Readonly<SidebarNoteTreeItemProps>) {
   const hasChildren = note.children && note.children.length > 0;
   const [isOpen, setIsOpen] = useState(false);
@@ -56,7 +59,7 @@ export function SidebarNoteTreeItem({
                   role="img"
                   aria-hidden="true"
                 >
-                  {note.emoji}
+                  <EmojiOrImage emoji={note.emoji} spaceId={note.spaceId} />
                 </span>
                 <span className="text-sm ">{note.title || "Untitled"}</span>
               </Link>
@@ -66,6 +69,7 @@ export function SidebarNoteTreeItem({
             <SidebarMenuSub className="mr-0 pr-0">
               {note.children.map((child) => (
                 <SidebarNoteTreeItem
+                  spaceId={spaceId}
                   key={child.id}
                   note={child}
                   activeNoteId={activeNoteId}
@@ -83,7 +87,7 @@ export function SidebarNoteTreeItem({
       <SidebarMenuSubButton asChild isActive={isActive} className="pl-6 w-full">
         <Link to={ROUTES.NOTE(note.id)}>
           <span className="shrink-0 text-base" role="img" aria-hidden="true">
-            {note.emoji}
+            <EmojiOrImage emoji={note.emoji} spaceId={note.spaceId} />
           </span>
           <span className="text-sm ">{note.title || "Untitled"}</span>
         </Link>
