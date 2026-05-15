@@ -3,14 +3,13 @@ import { useParams, useNavigate } from "react-router-dom";
 import {
   Book,
   Settings,
-  ArrowLeft,
   Loader2,
   Image as ImageIcon,
 } from "lucide-react";
 import { useSpaces } from "@/features/spaces/hooks/useSpaces";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { SpaceNotesTree } from "./SpaceNotesTree";
+import { NoteTable } from "@/features/workspace";
 import { SpaceSettingsDialog } from "../SpaceSettingsDialog/SpaceSettingsDialog";
 import { AssetsView } from "@/features/media/components/AssetsView";
 
@@ -55,14 +54,6 @@ export function SpaceHomeView() {
     <div className="flex flex-col h-full w-full">
       <header className="flex items-center justify-between border-b px-6 py-4 bg-background">
         <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate("/library")}
-            className="text-muted-foreground hover:text-foreground"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
           <div>
             <h1 className="text-2xl font-bold tracking-tight">
               {space.name || "Untitled Space"}
@@ -102,7 +93,7 @@ export function SpaceHomeView() {
 
           <div className="flex-1 overflow-y-auto px-6 py-4">
             <TabsContent value="notes" className="m-0 h-full">
-              <SpaceNotesTree notes={notesTree} spaceId={space.id} />
+              <NoteTable notes={notesTree} spaces={data?.spaces || []} emptyMessage="This space has no pages yet." />
             </TabsContent>
 
             <TabsContent value="assets" className="m-0 h-full">

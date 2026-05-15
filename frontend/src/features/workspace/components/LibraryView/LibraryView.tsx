@@ -5,8 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { useSpaces, SPACE_TYPE } from "@/features/spaces";
 import { useRecentNotes } from "@/features/workspace/hooks/useRecentNotes";
-import { SpaceAccordion } from "./SpaceAccordion";
-import { NoteList } from "./NoteList";
+import { NoteTable } from "../NoteTable";
 import { CreateNoteDialog } from "./CreateNoteDialog";
 import { Spinner } from "@/components/ui/spinner";
 
@@ -18,7 +17,7 @@ export function LibraryView() {
 
   const {
     data: spacesData,
-    spaceNotesMap,
+    spaceNoteTreesMap,
     isLoading: spacesLoading,
   } = useSpaces();
   const { notes: recentNotes, isLoading: recentLoading } = useRecentNotes();
@@ -38,6 +37,16 @@ export function LibraryView() {
   const favoriteNotes = useMemo(
     () => recentNotes.filter((n) => n.isFavorite),
     [recentNotes],
+  );
+
+  const privateNotes = useMemo(
+    () => privateSpaces.flatMap((s) => spaceNoteTreesMap[s.id] || []),
+    [privateSpaces, spaceNoteTreesMap],
+  );
+
+  const sharedNotes = useMemo(
+    () => sharedSpaces.flatMap((s) => spaceNoteTreesMap[s.id] || []),
+    [sharedSpaces, spaceNoteTreesMap],
   );
 
   // Determine spaces to show in Create Dialog based on active tab
@@ -94,10 +103,10 @@ export function LibraryView() {
               value="private"
               className="m-0 focus-visible:outline-none"
             >
-              <SpaceAccordion
+              <NoteTable
+                notes={privateNotes}
                 spaces={privateSpaces}
-                spaceNotesMap={spaceNotesMap}
-                emptyMessage="You don't have any private spaces yet."
+                emptyMessage="You don't have any private pages yet."
               />
             </TabsContent>
 
@@ -105,10 +114,10 @@ export function LibraryView() {
               value="shared"
               className="m-0 focus-visible:outline-none"
             >
-              <SpaceAccordion
+              <NoteTable
+                notes={sharedNotes}
                 spaces={sharedSpaces}
-                spaceNotesMap={spaceNotesMap}
-                emptyMessage="You don't have any shared spaces yet."
+                emptyMessage="You don't have any shared pages yet."
               />
             </TabsContent>
 
@@ -116,9 +125,10 @@ export function LibraryView() {
               value="recent"
               className="m-0 focus-visible:outline-none"
             >
-              <NoteList
+              <NoteTable
                 notes={recentNotes}
-                emptyMessage="You haven't viewed or edited any notes recently."
+                spaces={spacesData?.spaces || []}
+                emptyMessage="You haven't viewed or edited any pages recently."
               />
             </TabsContent>
 
@@ -126,9 +136,10 @@ export function LibraryView() {
               value="favorite"
               className="m-0 focus-visible:outline-none"
             >
-              <NoteList
+              <NoteTable
                 notes={favoriteNotes}
-                emptyMessage="You don't have any favorite notes yet."
+                spaces={spacesData?.spaces || []}
+                emptyMessage="You don't have any favorite pages yet."
               />
             </TabsContent>
           </div>

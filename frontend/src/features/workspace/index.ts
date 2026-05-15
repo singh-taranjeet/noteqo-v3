@@ -1,5 +1,6 @@
 // Public API for the Workspace feature
 export { LibraryView } from "./components/LibraryView/LibraryView";
+export { NoteTable } from "./components/NoteTable";
 export { DashboardView } from "./components/DashboardView/DashboardView";
 export { TrashView } from "./components/TrashView/TrashView";
 export { useLocalNotes } from "./hooks/useLocalNotes";
