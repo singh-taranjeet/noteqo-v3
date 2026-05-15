@@ -77,6 +77,7 @@ export function RecentSection() {
                 {recentNotes.map((note) => (
                   <SidebarMenuItem key={note.id}>
                     <SidebarNoteItem
+                      spaceId={note.spaceId}
                       noteId={note.id}
                       emoji={note.emoji}
                       title={note.title}
@@ -112,6 +113,7 @@ export function RecentSection() {
                           {filteredExtraNotes.map((note) => (
                             <SidebarMenuItem key={note.id}>
                               <SidebarNoteItem
+                                spaceId={note.spaceId}
                                 noteId={note.id}
                                 emoji={note.emoji}
                                 title={note.title}

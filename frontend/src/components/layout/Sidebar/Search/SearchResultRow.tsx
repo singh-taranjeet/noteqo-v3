@@ -9,6 +9,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import type { SidebarSearchResultItem } from "@/features/workspace";
+import { EmojiOrImage } from "@/features/media/components/EmojiOrImage";
 
 interface SearchResultRowProps {
   item: SidebarSearchResultItem;
@@ -38,7 +39,10 @@ export function SearchResultRow({
     <Button
       type="button"
       variant="ghost"
-      className={cn("w-full rounded-md px-2 h-auto", isSelected && "bg-accent")}
+      className={cn(
+        "w-full rounded-md px-2 h-auto hover:bg-accent",
+        isSelected && "bg-accent",
+      )}
       onClick={() => onSelect(item.id)}
       onMouseEnter={() => onHover(item.id)}
       onFocus={() => onHover(item.id)}
@@ -46,12 +50,12 @@ export function SearchResultRow({
       <Item
         size="xs"
         className={cn(
-          "cursor-pointer border-transparent text-left hover:bg-accent/50",
+          "cursor-pointer border-transparent text-left",
           isSelected && "bg-accent",
         )}
       >
         <ItemMedia className="text-base" role="img" aria-hidden="true">
-          {item.emoji}
+          <EmojiOrImage emoji={item.emoji} spaceId={item.spaceId} />
         </ItemMedia>
         <ItemContent>
           <ItemTitle className="max-w-full truncate">{item.title}</ItemTitle>
