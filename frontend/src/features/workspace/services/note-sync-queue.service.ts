@@ -10,7 +10,6 @@ import {
 } from "@/features/shared/types/index.shared";
 import { BaseSyncQueueService } from "@/features/shared/services/baseSync.shared.service";
 import { ApiError } from "@/services/api";
-import { db } from "@/features/storage";
 import { logService } from "@/services/log.service";
 import { NoteLocalService } from "./note-local.service";
 

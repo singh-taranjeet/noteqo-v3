@@ -1,7 +1,6 @@
 import { useCallback } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useQuery } from "@tanstack/react-query";
-import { db } from "@/features/storage";
 import type { Note } from "../types/workspace.types";
 import { noteApiService } from "../services/note-api.service";
 import { QueryKeys } from "@/features/shared/constants/index.shared.constants";

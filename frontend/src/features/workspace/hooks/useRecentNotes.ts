@@ -1,6 +1,5 @@
 import { useMemo } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
-import { db } from "@/features/storage";
 import type { Note } from "@/features/workspace/types/workspace.types";
 import { NoteLocalService } from "../services/note-local.service";
 
