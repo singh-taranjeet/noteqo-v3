@@ -57,7 +57,11 @@ export function SpaceSettingsDialog({
         </DialogHeader>
 
         {space.type === SPACE_TYPE.SHARED ? (
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <Tabs
+            value={activeTab}
+            onValueChange={setActiveTab}
+            className="w-full"
+          >
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="general">General</TabsTrigger>
               <TabsTrigger value="members">Members</TabsTrigger>

@@ -1,11 +1,6 @@
 import { useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import {
-  Book,
-  Settings,
-  Loader2,
-  Image as ImageIcon,
-} from "lucide-react";
+import { Book, Settings, Loader2, Image as ImageIcon } from "lucide-react";
 import { useSpaces } from "@/features/spaces/hooks/useSpaces";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -93,7 +88,11 @@ export function SpaceHomeView() {
 
           <div className="flex-1 overflow-y-auto px-6 py-4">
             <TabsContent value="notes" className="m-0 h-full">
-              <NoteTable notes={notesTree} spaces={data?.spaces || []} emptyMessage="This space has no pages yet." />
+              <NoteTable
+                notes={notesTree}
+                spaces={data?.spaces || []}
+                emptyMessage="This space has no pages yet."
+              />
             </TabsContent>
 
             <TabsContent value="assets" className="m-0 h-full">

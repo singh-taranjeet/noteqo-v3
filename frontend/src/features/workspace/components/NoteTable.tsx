@@ -1,10 +1,18 @@
 import { useState, useMemo } from "react";
-import { Book, Clock, ChevronRight, ChevronDown, Search, Filter, ArrowUpDown } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import {
+  Book,
+  Clock,
+  ChevronRight,
+  ChevronDown,
+  Search,
+  Filter,
+  ArrowUpDown,
+} from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns";
 import { ROUTES } from "@/constants/routes";
 import { cn } from "@/lib/utils";
-import type { Note, NoteTreeNode } from "@/features/workspace/types/workspace.types";
+import type { Note } from "@/features/workspace/types/workspace.types";
 import type { Space } from "@/features/spaces/types/spaces.types";
 import type { UserProfile } from "@/features/auth";
 import { useUserProfile } from "@/features/auth";
@@ -162,8 +170,7 @@ export function NoteTable({
   const [filterSpace, setFilterSpace] = useState<string>("all");
   const [filterUser, setFilterUser] = useState<string>("all");
   const [sortBy, setSortBy] = useState<string>("updatedAt_desc");
-  
-  const navigate = useNavigate();
+
   const { data: userProfile } = useUserProfile();
 
   const filteredNotes = useMemo(() => {
@@ -172,51 +179,60 @@ export function NoteTable({
     function filterTree(treeNotes: TableNote[]): TableNote[] {
       return treeNotes.reduce((acc, note) => {
         const title = note.title || "Untitled";
-        const matchesQuery = !searchQuery.trim() || title.toLowerCase().includes(lowerQuery);
-        const matchesSpace = filterSpace === "all" || note.spaceId === filterSpace;
+        const matchesQuery =
+          !searchQuery.trim() || title.toLowerCase().includes(lowerQuery);
+        const matchesSpace =
+          filterSpace === "all" || note.spaceId === filterSpace;
         const matchesUser = filterUser === "all" || true; // Currently all local notes belong to the user
-        
+
         const matchesAll = matchesQuery && matchesSpace && matchesUser;
-        
+
         let filteredChildren: TableNote[] = [];
         if (note.children) {
-          filteredChildren = matchesAll ? filterTree(note.children) : filterTree(note.children);
+          filteredChildren = matchesAll
+            ? filterTree(note.children)
+            : filterTree(note.children);
         }
 
         if (matchesAll || filteredChildren.length > 0) {
-          acc.push({ ...note, children: filteredChildren.length > 0 ? filteredChildren : note.children });
+          acc.push({
+            ...note,
+            children:
+              filteredChildren.length > 0 ? filteredChildren : note.children,
+          });
         }
-        
+
         return acc;
       }, [] as TableNote[]);
     }
 
     function sortTree(treeNotes: TableNote[]): TableNote[] {
       const sorted = [...treeNotes].sort((a, b) => {
-        const dateA = sortBy.startsWith("updatedAt") ? new Date(a.updatedAt).getTime() : new Date(a.createdAt).getTime();
-        const dateB = sortBy.startsWith("updatedAt") ? new Date(b.updatedAt).getTime() : new Date(b.createdAt).getTime();
-        
+        const dateA = sortBy.startsWith("updatedAt")
+          ? new Date(a.updatedAt).getTime()
+          : new Date(a.createdAt).getTime();
+        const dateB = sortBy.startsWith("updatedAt")
+          ? new Date(b.updatedAt).getTime()
+          : new Date(b.createdAt).getTime();
+
         if (sortBy.endsWith("_desc")) {
           return dateB - dateA;
         }
         return dateA - dateB;
       });
-      
-      return sorted.map(note => ({
+
+      return sorted.map((note) => ({
         ...note,
-        children: note.children && note.children.length > 0 ? sortTree(note.children) : note.children
+        children:
+          note.children && note.children.length > 0
+            ? sortTree(note.children)
+            : note.children,
       }));
     }
 
     const filtered = filterTree(notes);
     return sortTree(filtered);
   }, [notes, searchQuery, filterSpace, filterUser, sortBy]);
-
-  // Helper to find space name
-  const getSpaceName = (spaceId: string) => {
-    const space = spaces.find((s) => s.id === spaceId);
-    return space ? space.name : "Unknown Space";
-  };
 
   return (
     <div className="flex flex-col gap-4">
@@ -255,7 +271,9 @@ export function NoteTable({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Any User</SelectItem>
-                <SelectItem value="me">Me ({userProfile?.name || "You"})</SelectItem>
+                <SelectItem value="me">
+                  Me ({userProfile?.name || "You"})
+                </SelectItem>
               </SelectContent>
             </Select>
 
@@ -267,8 +285,12 @@ export function NoteTable({
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="updatedAt_desc">Last edited (newest)</SelectItem>
-                <SelectItem value="updatedAt_asc">Last edited (oldest)</SelectItem>
+                <SelectItem value="updatedAt_desc">
+                  Last edited (newest)
+                </SelectItem>
+                <SelectItem value="updatedAt_asc">
+                  Last edited (oldest)
+                </SelectItem>
                 <SelectItem value="createdAt_desc">Created (newest)</SelectItem>
                 <SelectItem value="createdAt_asc">Created (oldest)</SelectItem>
               </SelectContent>
