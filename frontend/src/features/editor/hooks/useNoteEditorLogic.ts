@@ -1,11 +1,5 @@
 import { useEditor, type Editor } from "@tiptap/react";
-import {
-  useEffect,
-  useMemo,
-  type ChangeEvent,
-  type FocusEvent,
-  useRef,
-} from "react";
+import { useEffect, type ChangeEvent, type FocusEvent, useRef } from "react";
 import debounce from "lodash.debounce";
 
 // --- Tiptap Core Extensions ---
@@ -77,9 +71,11 @@ export function useNoteEditorLogic({
   const lastSavedContent = useRef<string | null>(null);
   const hasPendingChanges = useRef(false);
 
-  const queueNoteUpdate = useMemo(
-    () =>
-      debounce((props: { editor: Editor; id: string }) => {
+  const queueNoteUpdateRef = useRef<ReturnType<typeof debounce> | null>(null);
+
+  useEffect(() => {
+    queueNoteUpdateRef.current = debounce(
+      (props: { editor: Editor; id: string }) => {
         const { editor, id } = props;
         const json = editor.getJSON();
         lastSavedContent.current = JSON.stringify(json);
@@ -87,9 +83,14 @@ export function useNoteEditorLogic({
           void noteService.updateNote(id, { content: json });
         }
         hasPendingChanges.current = false;
-      }, EDITOR_CONFIG.AUTOSAVE_DEBOUNCE_MS),
-    [],
-  );
+      },
+      EDITOR_CONFIG.AUTOSAVE_DEBOUNCE_MS,
+    );
+
+    return () => {
+      queueNoteUpdateRef.current?.cancel();
+    };
+  }, []);
 
   const { note, loading } = useNote({
     id: noteId,
@@ -201,7 +202,7 @@ export function useNoteEditorLogic({
           return;
         }
         hasPendingChanges.current = true;
-        queueNoteUpdate({ id: noteId, editor });
+        queueNoteUpdateRef.current?.({ id: noteId, editor });
       },
     },
     [spaceId],
@@ -228,8 +229,8 @@ export function useNoteEditorLogic({
       }
 
       const contentStr = JSON.stringify(content);
-      
-      // Prevent resetting the editor to an older state if useLiveQuery 
+
+      // Prevent resetting the editor to an older state if useLiveQuery
       // triggers after a local debounced save.
       if (lastSavedContent.current === contentStr) {
         return;

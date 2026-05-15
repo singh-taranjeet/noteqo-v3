@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 // Since QueryClientProvider relies on useContext under the hood, we have to put  on top
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "./ThemeProvider";
