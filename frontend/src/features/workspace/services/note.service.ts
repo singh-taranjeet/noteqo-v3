@@ -1,4 +1,3 @@
-import { db } from "@/features/storage";
 import type { Note, RemoteNote } from "../types/workspace.types";
 import {
   NOTE_DEFAULTS,
