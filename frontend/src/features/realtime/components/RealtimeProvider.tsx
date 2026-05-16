@@ -16,10 +16,7 @@ export function RealtimeProvider({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   // Get shared spaces directly from local Dexie using the 'type' index
-  const sharedSpaces = useLiveQuery(
-    () => SpaceLocalService.allShared(),
-    [],
-  );
+  const sharedSpaces = useLiveQuery(() => SpaceLocalService.allShared(), []);
 
   const sharedSpaceIds = useMemo(
     () => (sharedSpaces || []).map((s) => s.id),

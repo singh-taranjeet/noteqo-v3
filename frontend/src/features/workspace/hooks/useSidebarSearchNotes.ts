@@ -1,10 +1,8 @@
 import { useMemo } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
-import { db } from "@/features/storage";
 import { SEARCH_CONFIG } from "@/components/layout/Sidebar/constants/search.constants";
 import type { SidebarSearchResultItem } from "../types/sidebar-search.types";
 import type { Note } from "../types/workspace.types";
-
 import { useUserProfile } from "@/features/auth";
 import { NoteLocalService } from "../services/note-local.service";
 import { SpaceLocalService } from "@/features/spaces/services/space-local.service";
