@@ -7,49 +7,42 @@ import {
 } from "@/components/ui/sidebar";
 import type { ActiveTabType } from "../types";
 import { SearchDialog } from "./Search";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { ROUTES } from "@/constants/routes";
 
 interface SidebarNavTabsProps {
   activeTab?: ActiveTabType;
-  setActiveTab: (activeTab: ActiveTabType) => void;
 }
 
 export function SidebarNavTabs({
-  activeTab = "home",
-  setActiveTab,
+  activeTab = "",
 }: Readonly<SidebarNavTabsProps>) {
-  const navigate = useNavigate();
-
   return (
-    <SidebarMenu className="flex-row gap-2 px-2 flex-wrap">
-      <SidebarMenuItem className="flex-[1_1_45%]">
-        <SidebarMenuButton
-          isActive={activeTab === "home"}
-          onClick={() => {
-            setActiveTab("home");
-            navigate(ROUTES.NOTES);
-          }}
-          tooltip="Notes"
-          className="justify-center"
-        >
-          <Home size={18} strokeWidth={1.5} />
-          <span className="text-sm ">Notes</span>
-        </SidebarMenuButton>
-      </SidebarMenuItem>
-      <SidebarMenuItem className="flex-[1_1_45%]">
+    <SidebarMenu className="gap-1">
+      <SidebarMenuItem>
         <SearchDialog
           trigger={
             <SidebarMenuButton
               isActive={activeTab === "search"}
               tooltip="Search"
-              className="justify-center"
             >
               <Search size={18} strokeWidth={1.5} />
-              <span className="text-sm ">Search</span>
+              <span className="text-sm">Search</span>
             </SidebarMenuButton>
           }
         />
+      </SidebarMenuItem>
+      <SidebarMenuItem>
+        <SidebarMenuButton
+          asChild
+          isActive={activeTab === "home"}
+          tooltip="Home"
+        >
+          <Link to={ROUTES.NOTES}>
+            <Home size={18} strokeWidth={1.5} />
+            <span className="text-sm">Home</span>
+          </Link>
+        </SidebarMenuButton>
       </SidebarMenuItem>
     </SidebarMenu>
   );

@@ -1,6 +1,6 @@
-import { BookOpen, Image as ImageIcon, PenLine, Trash2 } from "lucide-react";
+import { BookOpen, Image as ImageIcon, PenLine, Trash2, Layers } from "lucide-react";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 import {
   Sidebar,
@@ -8,6 +8,7 @@ import {
   SidebarFooter,
   SidebarHeader,
   SidebarGroup,
+  SidebarGroupLabel,
   SidebarGroupContent,
   SidebarMenu,
   SidebarMenuItem,
@@ -30,6 +31,13 @@ import { DynamicDialog } from "@/components/ui/DynamicDialog";
 import { DynamicForm } from "@/components/ui/DynamicForm";
 import type { FormFieldConfig, FormValues } from "@/components/ui/DynamicForm";
 import type { ActiveTabType } from "../types";
+
+const ACTIVE_TAB_MAP: Record<string, ActiveTabType> = {
+  "/notes": "home",
+  "/library": "library",
+  "/assets": "assets",
+  "/trash": "trash",
+};
 import { Link } from "react-router-dom";
 import { useRemoteSpaces } from "@/features/spaces/hooks/useRemoteSpace";
 
@@ -76,7 +84,12 @@ export function AppSidebar() {
   const personalSpaces = spaces.filter((s) => s.type === SPACE_TYPE.PERSONAL);
   const sharedSpaces = spaces.filter((s) => s.type === SPACE_TYPE.SHARED);
 
-  const [activeTab, setActiveTab] = useState<ActiveTabType>("home");
+  const activeTab = useMemo<ActiveTabType>(() => {
+    const match = Object.entries(ACTIVE_TAB_MAP).find(([prefix]) =>
+      pathname.startsWith(prefix),
+    );
+    return match ? match[1] : "";
+  }, [pathname]);
 
   const defaultPersonalSpace = personalSpaces.find(
     (personalSpace) => personalSpace.isDefault,
@@ -110,7 +123,7 @@ export function AppSidebar() {
         />
         <SidebarGroup className="py-0">
           <SidebarGroupContent>
-            <SidebarNavTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+            <SidebarNavTabs activeTab={activeTab} />
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarHeader>
@@ -119,37 +132,46 @@ export function AppSidebar() {
         {/* Recent Section */}
         <RecentSection />
 
-        {/* Shared Spaces Section */}
-        <SidebarSpaceCategory
-          label="Shared space"
-          spaces={sharedSpaces}
-          isLoading={isLoading}
-          emptyMessage="No shared spaces"
-          spaceNoteTreesMap={spaceNoteTreesMap}
-          onAddSpaceClick={() => setCreateSpaceType(SPACE_TYPE.SHARED)}
-          addSpaceTooltip="Create shared space"
-          onCreateNote={handleCreateNote}
-          onSettingsClick={(space) => setSettingsSpace(space)}
-        />
+        {/* Space Section */}
+        <SidebarGroup>
+          <SidebarGroupLabel>
+            <Layers size={12} strokeWidth={2} />
+            <span className="text-sm">Space</span>
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            {/* Shared Spaces */}
+            <SidebarSpaceCategory
+              label="Shared space"
+              spaces={sharedSpaces}
+              isLoading={isLoading}
+              emptyMessage="No shared spaces"
+              spaceNoteTreesMap={spaceNoteTreesMap}
+              onAddSpaceClick={() => setCreateSpaceType(SPACE_TYPE.SHARED)}
+              addSpaceTooltip="Create shared space"
+              onCreateNote={handleCreateNote}
+              onSettingsClick={(space) => setSettingsSpace(space)}
+            />
 
-        {/* Private Spaces Section */}
-        <SidebarSpaceCategory
-          label="Private space"
-          spaces={personalSpaces}
-          isLoading={isLoading}
-          emptyMessage="No spaces yet"
-          spaceNoteTreesMap={spaceNoteTreesMap}
-          onAddSpaceClick={() => setCreateSpaceType(SPACE_TYPE.PERSONAL)}
-          addSpaceTooltip="Create private space"
-          onCreateNote={handleCreateNote}
-          onSettingsClick={(space) => setSettingsSpace(space)}
-        />
+            {/* Private Spaces */}
+            <SidebarSpaceCategory
+              label="Private space"
+              spaces={personalSpaces}
+              isLoading={isLoading}
+              emptyMessage="No spaces yet"
+              spaceNoteTreesMap={spaceNoteTreesMap}
+              onAddSpaceClick={() => setCreateSpaceType(SPACE_TYPE.PERSONAL)}
+              addSpaceTooltip="Create private space"
+              onCreateNote={handleCreateNote}
+              onSettingsClick={(space) => setSettingsSpace(space)}
+            />
+          </SidebarGroupContent>
+        </SidebarGroup>
 
         {/* Utilities Section */}
         <SidebarGroup className="mt-auto pt-4">
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild>
+              <SidebarMenuButton asChild isActive={activeTab === "library"}>
                 <Link to="/library">
                   <BookOpen size={16} strokeWidth={1.5} />
                   <span>Library</span>
@@ -157,7 +179,7 @@ export function AppSidebar() {
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild>
+              <SidebarMenuButton asChild isActive={activeTab === "assets"}>
                 <Link to="/assets">
                   <ImageIcon size={16} strokeWidth={1.5} />
                   <span>Assets</span>
@@ -165,7 +187,7 @@ export function AppSidebar() {
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild>
+              <SidebarMenuButton asChild isActive={activeTab === "trash"}>
                 <Link to="/trash">
                   <Trash2 size={16} strokeWidth={1.5} />
                   <span>Trash</span>
