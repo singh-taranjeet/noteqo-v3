@@ -1,6 +1,11 @@
 import { Extension } from "@tiptap/core";
+import type { Editor, Range } from "@tiptap/core";
 import Suggestion from "@tiptap/suggestion";
-import type { SuggestionOptions } from "@tiptap/suggestion";
+import type {
+  SuggestionOptions,
+  SuggestionProps,
+  SuggestionKeyDownProps,
+} from "@tiptap/suggestion";
 import { PluginKey } from "@tiptap/pm/state";
 import { searchEmojis } from "./emojiUtils";
 import type { EmojiItem } from "./emojiUtils";
@@ -20,8 +25,16 @@ export const EmojiExtension = Extension.create({
       suggestion: {
         char: ":",
         pluginKey: EmojiPluginKey,
-        command: ({ editor, range, props }: any) => {
-          const item = props as EmojiItem;
+        command: ({
+          editor,
+          range,
+          props,
+        }: {
+          editor: Editor;
+          range: Range;
+          props: EmojiItem;
+        }) => {
+          const item = props;
           // Increase range.to by one when the next node is a space
           // This ensures that the colon is completely removed
           const nodeAfter = editor.view.state.selection.$to.nodeAfter;
@@ -45,7 +58,7 @@ export const EmojiExtension = Extension.create({
           let popup: TippyInstance[];
 
           return {
-            onStart: (props: any) => {
+            onStart: (props: SuggestionProps<EmojiItem>) => {
               component = new ReactRenderer(EmojiList, {
                 props,
                 editor: props.editor,
@@ -56,7 +69,7 @@ export const EmojiExtension = Extension.create({
               }
 
               popup = tippy("body", {
-                getReferenceClientRect: props.clientRect,
+                getReferenceClientRect: props.clientRect as () => DOMRect,
                 appendTo: () => document.body,
                 content: component.element,
                 showOnCreate: true,
@@ -65,7 +78,7 @@ export const EmojiExtension = Extension.create({
                 placement: "bottom-start",
               });
             },
-            onUpdate(props: any) {
+            onUpdate(props: SuggestionProps<EmojiItem>) {
               component.updateProps(props);
 
               if (!props.clientRect) {
@@ -73,10 +86,10 @@ export const EmojiExtension = Extension.create({
               }
 
               popup[0].setProps({
-                getReferenceClientRect: props.clientRect,
+                getReferenceClientRect: props.clientRect as () => DOMRect,
               });
             },
-            onKeyDown(props: any) {
+            onKeyDown(props: SuggestionKeyDownProps) {
               if (props.event.key === "Escape") {
                 popup[0].hide();
                 return true;
@@ -85,8 +98,8 @@ export const EmojiExtension = Extension.create({
               return component.ref?.onKeyDown(props) || false;
             },
             onExit() {
-              popup[0].destroy();
-              component.destroy();
+              if (popup && popup[0]) popup[0].destroy();
+              if (component) component.destroy();
             },
           };
         },
