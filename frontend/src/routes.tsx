@@ -4,7 +4,6 @@ import { createBrowserRouter } from "react-router-dom";
 import { RootLayout } from "./layouts/RootLayout";
 import { RootError } from "./layouts/RootError";
 import { AuthLayout } from "./layouts/AuthLayout";
-import { WorkspaceLayout } from "./layouts/WorkspaceLayout";
 
 // Pages — all eagerly loaded for offline-first
 import { PublicLandingView } from "./features/landing";
@@ -16,6 +15,7 @@ import { OfflineView } from "./features/pwa";
 
 // Note page wrapper (extracts noteId from URL params)
 import { NotePageWrapper } from "./layouts/NotePageWrapper";
+import { WorkSpaceLayout } from "./layouts/WorkSpaceLayout";
 
 export const router = createBrowserRouter([
   {
@@ -31,7 +31,7 @@ export const router = createBrowserRouter([
         ],
       },
       {
-        element: <WorkspaceLayout />,
+        element: <WorkSpaceLayout.Wrapper />,
         children: [
           { path: "/notes", element: <DashboardView /> },
           { path: "/notes/:note_id", element: <NotePageWrapper /> },
