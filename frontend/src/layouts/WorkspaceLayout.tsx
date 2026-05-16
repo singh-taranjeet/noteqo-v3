@@ -27,7 +27,7 @@ export const WorkSpaceLayout = {
                     <SidebarProvider>
                         <AppSidebar />
                         <SidebarInset className="shadow-none! rounded-xl! p-0! bg-transparent! border-none! m-0!">
-                            <div className="absolute left-2 top-2 shadow-xl flex h-[calc(100vh-16px)] w-[calc(100%-16px)] flex-col overflow-hidden border-none rounded-xl bg-transparent">
+                            <div className="absolute left-2 top-2 shadow-xl flex h-[calc(100vh-16px)] w-[calc(100%-16px)] flex-col overflow-hidden border border-transparent dark:border-white/10 rounded-xl bg-transparent">
                                 <Header />
                                 <div className="flex-1 overflow-auto rounded-xl bg-background">
                                     <div className="pt-11 rounded-xl">
