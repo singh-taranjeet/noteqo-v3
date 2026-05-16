@@ -7,7 +7,7 @@ import { useRecentNotes } from "@/features/workspace/hooks/useRecentNotes";
 import { NoteTable } from "../NoteTable";
 import { CreateNoteDialog } from "./CreateNoteDialog";
 import { Spinner } from "@/components/ui/spinner";
-import { WorkSpaceLayout } from "@/layouts/WorkSpaceLayout";
+import { ContainerLayout } from "@/layouts/ContainerLayout";
 
 type TabType = "private" | "shared" | "recent" | "favorite";
 
@@ -61,8 +61,12 @@ export function LibraryView() {
   const isLoading = spacesLoading || recentLoading;
 
   return (
-    <WorkSpaceLayout.Spacer>
-      <WorkSpaceLayout.Heading title="Library" subTitle="Manage your spaces, notes and assets" Icon={Book} />
+    <ContainerLayout.Spacer>
+      <ContainerLayout.Heading
+        title="Library"
+        subTitle="Manage your spaces, notes and assets"
+        Icon={Book}
+      />
       <Tabs
         value={activeTab}
         onValueChange={(val) => setActiveTab(val as TabType)}
@@ -137,8 +141,6 @@ export function LibraryView() {
         )}
       </Tabs>
 
-
-
       <CreateNoteDialog
         isOpen={isDialogOpen}
         onOpenChange={setIsDialogOpen}
@@ -148,6 +150,6 @@ export function LibraryView() {
           dialogSpaces.length > 0 ? dialogSpaces[0].id : undefined
         }
       />
-    </WorkSpaceLayout.Spacer>
+    </ContainerLayout.Spacer>
   );
 }

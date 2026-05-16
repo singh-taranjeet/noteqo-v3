@@ -15,7 +15,7 @@ import { OfflineView } from "./features/pwa";
 
 // Note page wrapper (extracts noteId from URL params)
 import { NotePageWrapper } from "./layouts/NotePageWrapper";
-import { WorkSpaceLayout } from "./layouts/WorkSpaceLayout";
+import { ContainerLayout } from "./layouts/ContainerLayout";
 
 export const router = createBrowserRouter([
   {
@@ -31,7 +31,7 @@ export const router = createBrowserRouter([
         ],
       },
       {
-        element: <WorkSpaceLayout.Wrapper />,
+        element: <ContainerLayout.Wrapper />,
         children: [
           { path: "/notes", element: <DashboardView /> },
           { path: "/notes/:note_id", element: <NotePageWrapper /> },
