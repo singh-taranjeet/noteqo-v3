@@ -1,18 +1,13 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Spinner } from "@/components/ui/spinner";
 import { useAuthCheck } from "@/features/auth/hooks/useAuthCheck";
 import { ROUTES } from "@/constants/routes";
+import { LoadingSkeleton } from "@/components/ui/LoadingSkeleton";
 
 interface AuthGuardProps {
   children: React.ReactNode;
 }
 
-/**
- * Client-side auth guard that redirects unauthenticated users to the login page.
- * Renders a loading spinner while the async IndexedDB check is in progress,
- * then either renders children or redirects.
- */
 export function AuthGuard({ children }: Readonly<AuthGuardProps>) {
   const navigate = useNavigate();
   const { isAuthenticated, isLoading } = useAuthCheck();
@@ -24,11 +19,7 @@ export function AuthGuard({ children }: Readonly<AuthGuardProps>) {
   }, [isLoading, isAuthenticated, navigate]);
 
   if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <Spinner className="size-6 text-primary" />
-      </div>
-    );
+    return <LoadingSkeleton />;
   }
 
   if (!isAuthenticated) {

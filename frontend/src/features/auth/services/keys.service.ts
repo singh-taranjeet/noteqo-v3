@@ -1,4 +1,5 @@
 import { cryptoService } from "@/features/crypto";
+import { SpaceLocalService } from "@/features/spaces/services/space-local.service";
 import { storageService, STORAGE_KEYS, db } from "@/features/storage";
 import { NoteLocalService } from "@/features/workspace/services/note-local.service";
 import { logService } from "@/services/log.service";
@@ -108,7 +109,7 @@ export const KeysService = {
     await Promise.all([
       NoteLocalService.clear(),
       db.syncQueue.clear(),
-      db.spaces.clear(),
+      SpaceLocalService.clear(),
       db.media.clear(),
       db.keys.clear(),
       db.mediaBlobs.clear(),

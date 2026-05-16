@@ -1,6 +1,7 @@
 import { Clock, Home } from "lucide-react";
 
 import { useRecentNotes } from "@/features/workspace/hooks/useRecentNotes";
+import { useActiveSpace } from "@/features/spaces";
 
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -20,26 +21,24 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { formatDistanceToNow } from "date-fns";
 import { Link } from "react-router-dom";
 import { ROUTES } from "@/constants/routes";
+import { ContainerLayout } from "@/layouts/ContainerLayout";
+import { EmojiOrImage } from "@/features/media/components/EmojiOrImage";
+import { EncryptedImage } from "@/features/media/components/EncryptedImage";
 
 export function DashboardView() {
-  const { notes: recentNotes, isLoading } = useRecentNotes();
+  const { activeSpaceId } = useActiveSpace();
+  const { notes: recentNotes, isLoading } = useRecentNotes(activeSpaceId);
 
   return (
-    <div className="flex flex-col h-full max-w-5xl mx-auto w-full px-4 py-8 md:px-8">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-3">
-            <Home size={32} className="text-primary" />
-            Home
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Welcome back! Here are your recent notes.
-          </p>
-        </div>
-      </div>
+    <ContainerLayout.Spacer>
+      <ContainerLayout.Heading
+        Icon={Home}
+        title="Home"
+        subTitle="Welcome back! Here are your recent notes"
+      />
 
       {isLoading ? (
-        <div className="w-full px-4 sm:px-12 mt-8">
+        <div className="w-full mt-8">
           <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
             Recently Opened
           </h2>
@@ -71,7 +70,7 @@ export function DashboardView() {
           </EmptyHeader>
         </Empty>
       ) : (
-        <div className="w-full px-4 sm:px-12">
+        <div className="w-full">
           <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
             Recently Opened
           </h2>
@@ -89,25 +88,29 @@ export function DashboardView() {
                 >
                   <Link
                     to={ROUTES.NOTE(note.id)}
-                    className="block h-full !no-underline group"
+                    className="block h-full no-underline! group"
                   >
                     <Card className="h-64 flex flex-col overflow-hidden hover:border-primary/50 transition-all duration-300 group-hover:shadow-md cursor-pointer border bg-card p-0 gap-0">
                       {/* Image / Background Section */}
-                      <div className="relative h-36 w-full overflow-hidden bg-muted/30 flex-shrink-0 border-b">
+                      <div className="relative h-36 w-full overflow-hidden bg-muted/30 shrink-0 border-b">
                         {note.coverImage ? (
-                          <img
+                          <EncryptedImage
                             src={note.coverImage}
-                            alt=""
+                            alt="Cover"
+                            spaceId={note.spaceId}
                             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                           />
                         ) : (
-                          <div className="w-full h-full bg-gradient-to-br from-primary/5 to-primary/10 flex items-center justify-center transition-transform duration-500 group-hover:scale-105">
+                          <div className="w-full h-full bg-linear-to-br from-primary/5 to-primary/10 flex items-center justify-center transition-transform duration-500 group-hover:scale-105">
                             <span
                               className="text-5xl opacity-80"
                               role="img"
                               aria-hidden="true"
                             >
-                              {note.emoji || "📄"}
+                              <EmojiOrImage
+                                emoji={note.emoji}
+                                spaceId={note.spaceId}
+                              />
                             </span>
                           </div>
                         )}
@@ -119,7 +122,10 @@ export function DashboardView() {
                               role="img"
                               aria-hidden="true"
                             >
-                              {note.emoji || "📄"}
+                              <EmojiOrImage
+                                emoji={note.emoji}
+                                spaceId={note.spaceId}
+                              />
                             </span>
                           </div>
                         )}
@@ -154,6 +160,6 @@ export function DashboardView() {
           </Carousel>
         </div>
       )}
-    </div>
+    </ContainerLayout.Spacer>
   );
 }

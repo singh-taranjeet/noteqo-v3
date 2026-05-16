@@ -1,5 +1,5 @@
 import { cryptoService, CRYPTO_CONFIG } from "@/features/crypto";
-import { storageService, STORAGE_KEYS, db } from "@/features/storage";
+import { storageService, STORAGE_KEYS } from "@/features/storage";
 import { logService } from "@/services/log.service";
 import { spaceApiService } from "./space-api.service";
 import {
@@ -18,6 +18,7 @@ import { isOnline } from "@/lib/utils";
 import { spaceSyncQueueService } from "./space-sync-queue.service";
 import { SpaceLocalStorageService } from "./space-local-storage.service";
 import { NoteLocalService } from "@/features/workspace/services/note-local.service";
+import { SpaceLocalService } from "./space-local.service";
 
 export const spaceService = {
   async generateKeys() {
@@ -55,8 +56,7 @@ export const spaceService = {
       updatedAt: now,
     };
 
-    // Direct Dexie write — useLiveQuery picks this up automatically
-    await db.spaces.put(space);
+    await SpaceLocalService.create(space);
 
     await spaceSyncQueueService.enqueue({
       type: "CREATE",
@@ -79,7 +79,7 @@ export const spaceService = {
     spaceId: string,
     updates: { name?: string; description?: string },
   ): Promise<Space> {
-    const space = await db.spaces.get(spaceId);
+    const space = await SpaceLocalService.get(spaceId);
     if (!space) throw new Error("Space not found");
 
     const now = new Date().toISOString();
@@ -89,7 +89,7 @@ export const spaceService = {
       updatedAt: now,
     };
 
-    await db.spaces.put(updatedSpace);
+    await SpaceLocalService.update(updatedSpace.id, updatedSpace);
 
     // We get the space key to encrypt the payload for sync
     const spaceKeyBytes = await spaceService.getSpaceKeyBytes(spaceId);
@@ -136,14 +136,13 @@ export const spaceService = {
       const validSpaces = decryptedSpaces.filter((s): s is Space => s !== null);
 
       // Direct Dexie write
-      await db.spaces.bulkPut(validSpaces);
+      await SpaceLocalService.bulkUpdate(validSpaces);
 
       // Decrypt all the notes
       const decryptedNotes: Note[] = [];
       const allRemoteNotes = remoteSpaces.flatMap((rs) => rs.notes || []);
       for (const remoteNote of allRemoteNotes) {
         const decryptedNote = await noteService.decryptNote(remoteNote);
-        console.log("Decrypted Note", decryptedNote);
         const localNote = await NoteLocalService.get(remoteNote.id);
         const localTime = localNote?.updatedAt
           ? new Date(localNote.updatedAt).getTime()
@@ -164,9 +163,7 @@ export const spaceService = {
         }
       }
 
-      // Direct Dexie write — useLiveQuery picks this up automatically
       await NoteLocalService.bulkUpdate(decryptedNotes);
-
       SpaceLocalStorageService.setFetched();
     }
   },
@@ -179,11 +176,11 @@ export const spaceService = {
   },
 
   async getLocalSpaces(): Promise<Space[]> {
-    return db.spaces.toArray();
+    return SpaceLocalService.all();
   },
 
   async getCachedSpaceKey(spaceId: string): Promise<string | null> {
-    const space = await db.spaces.get(spaceId);
+    const space = await SpaceLocalService.get(spaceId);
     return space?.spaceKey ?? null;
   },
 

@@ -9,7 +9,7 @@ import {
   ArrowUpDown,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow, format } from "date-fns";
 import { ROUTES } from "@/constants/routes";
 import { cn } from "@/lib/utils";
 import type { Note } from "@/features/workspace/types/workspace.types";
@@ -42,10 +42,16 @@ import {
 
 export type TableNote = Note & { children?: TableNote[] };
 
-interface NoteTableProps {
+export interface NoteTableProps {
   notes: TableNote[];
   spaces?: Space[];
   emptyMessage?: string;
+  hideCreatedBy?: boolean;
+  hideSource?: boolean;
+  dateColumnLabel?: string;
+  getDateValue?: (note: TableNote) => string | Date | null | undefined;
+  onRowClick?: (note: TableNote) => void;
+  renderActions?: (note: TableNote, isRoot: boolean) => React.ReactNode;
 }
 
 function NoteTableRow({
@@ -53,11 +59,23 @@ function NoteTableRow({
   spaces,
   userProfile,
   depth = 0,
+  isRoot = false,
+  hideCreatedBy,
+  hideSource,
+  getDateValue,
+  onRowClick,
+  renderActions,
 }: {
   note: TableNote;
   spaces: Space[];
   userProfile: UserProfile | null | undefined;
   depth?: number;
+  isRoot?: boolean;
+  hideCreatedBy?: boolean;
+  hideSource?: boolean;
+  getDateValue?: (note: TableNote) => string | Date | null | undefined;
+  onRowClick?: (note: TableNote) => void;
+  renderActions?: (note: TableNote, isRoot: boolean) => React.ReactNode;
 }) {
   const navigate = useNavigate();
   const [isExpanded, setIsExpanded] = useState(false);
@@ -71,8 +89,19 @@ function NoteTableRow({
   return (
     <>
       <TableRow
-        className="cursor-pointer hover:bg-muted/50 transition-colors group"
-        onClick={() => navigate(ROUTES.NOTE(note.id))}
+        className={cn(
+          "transition-colors group",
+          onRowClick || !renderActions
+            ? "cursor-pointer hover:bg-muted/50"
+            : "",
+        )}
+        onClick={() => {
+          if (onRowClick) {
+            onRowClick(note);
+          } else {
+            navigate(ROUTES.NOTE(note.id));
+          }
+        }}
       >
         <TableCell className="font-medium py-3">
           <div
@@ -99,51 +128,89 @@ function NoteTableRow({
             <span className="text-xl shrink-0" role="img" aria-hidden="true">
               {note.emoji || "📄"}
             </span>
-            <span className="truncate group-hover:text-primary transition-colors">
+            <span
+              className={cn(
+                "truncate transition-colors",
+                onRowClick
+                  ? "group-hover:underline decoration-muted-foreground underline-offset-2"
+                  : "group-hover:text-primary",
+              )}
+            >
               {note.title || "Untitled"}
             </span>
           </div>
         </TableCell>
 
         {/* Created By (Hidden on Mobile) */}
-        <TableCell className="hidden md:table-cell text-muted-foreground">
-          <div className="flex items-center gap-2">
-            <div className="size-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-[10px] font-semibold shrink-0 uppercase">
-              {userProfile?.name?.[0] || "U"}
+        {!hideCreatedBy && (
+          <TableCell className="hidden md:table-cell text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <div className="size-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-[10px] font-semibold shrink-0 uppercase">
+                {userProfile?.name?.[0] || "U"}
+              </div>
+              <span className="truncate text-sm">
+                {userProfile?.name || "Unknown"}
+              </span>
             </div>
-            <span className="truncate text-sm">
-              {userProfile?.name || "Unknown"}
-            </span>
-          </div>
-        </TableCell>
+          </TableCell>
+        )}
 
         {/* Source (Hidden on Mobile) */}
-        <TableCell className="hidden md:table-cell text-muted-foreground">
-          <div className="flex items-center gap-1.5 text-sm">
-            {note.parentId ? (
-              <span className="truncate flex items-center gap-1.5">
-                📄 Parent Note
-              </span>
-            ) : (
-              <span className="truncate flex items-center gap-1.5">
-                <Book size={14} className="shrink-0" />
-                {getSpaceName(note.spaceId)}
-              </span>
-            )}
-          </div>
+        {!hideSource && (
+          <TableCell className="hidden md:table-cell text-muted-foreground">
+            <div className="flex items-center gap-1.5 text-sm">
+              {note.parentId ? (
+                <span className="truncate flex items-center gap-1.5">
+                  📄 Parent Note
+                </span>
+              ) : (
+                <span className="truncate flex items-center gap-1.5">
+                  <Book size={14} className="shrink-0" />
+                  {getSpaceName(note.spaceId)}
+                </span>
+              )}
+            </div>
+          </TableCell>
+        )}
+
+        {/* Dynamic Date Column */}
+        <TableCell
+          className={cn(
+            "text-muted-foreground text-sm",
+            renderActions
+              ? "hidden sm:table-cell text-left"
+              : "text-right md:text-left",
+          )}
+        >
+          {(() => {
+            const dateVal = getDateValue ? getDateValue(note) : note.updatedAt;
+            if (!dateVal) return "Unknown";
+
+            // If it's the default behavior, show relative time with clock icon
+            if (!getDateValue) {
+              return (
+                <div className="flex items-center justify-end md:justify-start gap-1.5">
+                  <Clock size={12} className="shrink-0 hidden sm:block" />
+                  <span className="truncate">
+                    {formatDistanceToNow(new Date(dateVal), {
+                      addSuffix: true,
+                    })}
+                  </span>
+                </div>
+              );
+            }
+
+            // Otherwise show formatted date
+            return format(new Date(dateVal), "MMM d, yyyy");
+          })()}
         </TableCell>
 
-        {/* Last edited time */}
-        <TableCell className="text-muted-foreground text-right md:text-left text-sm">
-          <div className="flex items-center justify-end md:justify-start gap-1.5">
-            <Clock size={12} className="shrink-0 hidden sm:block" />
-            <span className="truncate">
-              {formatDistanceToNow(new Date(note.updatedAt), {
-                addSuffix: true,
-              })}
-            </span>
-          </div>
-        </TableCell>
+        {/* Dynamic Actions */}
+        {renderActions && (
+          <TableCell className="text-right">
+            {renderActions(note, isRoot)}
+          </TableCell>
+        )}
       </TableRow>
 
       {hasChildren &&
@@ -155,6 +222,12 @@ function NoteTableRow({
             spaces={spaces}
             userProfile={userProfile}
             depth={depth + 1}
+            isRoot={false}
+            hideCreatedBy={hideCreatedBy}
+            hideSource={hideSource}
+            getDateValue={getDateValue}
+            onRowClick={onRowClick}
+            renderActions={renderActions}
           />
         ))}
     </>
@@ -165,6 +238,12 @@ export function NoteTable({
   notes,
   spaces = [],
   emptyMessage = "No pages found.",
+  hideCreatedBy,
+  hideSource,
+  dateColumnLabel = "Last edited time",
+  getDateValue,
+  onRowClick,
+  renderActions,
 }: NoteTableProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterSpace, setFilterSpace] = useState<string>("all");
@@ -316,16 +395,31 @@ export function NoteTable({
           <Table className="border-none">
             <TableHeader>
               <TableRow className="hover:bg-transparent">
-                <TableHead className="w-[40%] md:w-[35%]">Page name</TableHead>
-                <TableHead className="hidden md:table-cell w-[20%]">
-                  Created by
+                <TableHead className="w-[40%] md:w-[35%] pl-[42px]">
+                  Page name
                 </TableHead>
-                <TableHead className="hidden md:table-cell w-[20%]">
-                  Source
+                {!hideCreatedBy && (
+                  <TableHead className="hidden md:table-cell w-[20%]">
+                    Created by
+                  </TableHead>
+                )}
+                {!hideSource && (
+                  <TableHead className="hidden md:table-cell w-[20%]">
+                    Source
+                  </TableHead>
+                )}
+                <TableHead
+                  className={cn(
+                    renderActions
+                      ? "hidden sm:table-cell w-[20%]"
+                      : "w-[40%] md:w-[25%] text-right md:text-left",
+                  )}
+                >
+                  {dateColumnLabel}
                 </TableHead>
-                <TableHead className="w-[40%] md:w-[25%] text-right md:text-left">
-                  Last edited time
-                </TableHead>
+                {renderActions && (
+                  <TableHead className="text-right">Actions</TableHead>
+                )}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -335,6 +429,12 @@ export function NoteTable({
                   note={note}
                   spaces={spaces}
                   userProfile={userProfile}
+                  isRoot={true}
+                  hideCreatedBy={hideCreatedBy}
+                  hideSource={hideSource}
+                  getDateValue={getDateValue}
+                  onRowClick={onRowClick}
+                  renderActions={renderActions}
                 />
               ))}
             </TableBody>

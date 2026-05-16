@@ -3,8 +3,8 @@
 import { useEffect, useMemo } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { toast } from "sonner";
-import { db } from "@/features/storage";
 import { useRealtimeConnection } from "@/features/realtime";
+import { SpaceLocalService } from "@/features/spaces/services/space-local.service";
 
 /**
  * Wires up the SSE connection for real-time collaboration
@@ -16,10 +16,7 @@ export function RealtimeProvider({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   // Get shared spaces directly from local Dexie using the 'type' index
-  const sharedSpaces = useLiveQuery(
-    () => db.spaces.where("type").equals("shared").toArray(),
-    [],
-  );
+  const sharedSpaces = useLiveQuery(() => SpaceLocalService.allShared(), []);
 
   const sharedSpaceIds = useMemo(
     () => (sharedSpaces || []).map((s) => s.id),
