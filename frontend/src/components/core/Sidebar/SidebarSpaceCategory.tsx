@@ -1,25 +1,15 @@
 import { ChevronRight, MoreHorizontal, Plus, Search } from "lucide-react";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { Link } from "react-router-dom";
 import {
-  SidebarGroup,
-  SidebarGroupLabel,
-  SidebarGroupAction,
-  SidebarGroupContent,
-  SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarMenuAction,
   SidebarMenuSub,
-  SidebarMenuSkeleton,
   SidebarMenuSubItem,
   SidebarMenuSubButton,
 } from "@/components/ui/sidebar";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import {
   Collapsible,
   CollapsibleContent,
@@ -36,10 +26,9 @@ import type { Space } from "@/features/spaces";
 import { useParams, useNavigate } from "react-router-dom";
 import type { NoteTreeNode } from "@/features/workspace/types/workspace.types";
 import { SidebarNoteTreeItem } from "./SidebarNoteTreeItem";
-
 import { SidebarHoverCard } from "./SidebarHoverCard";
-import { SidebarNoteItem } from "./SidebarNoteItem";
-import { useMemo } from "react";
+import { EmojiOrImage } from "@/features/media/components/EmojiOrImage";
+import { ROUTES } from "@/constants/routes";
 
 interface SidebarSpaceCategoryProps {
   label: string;
@@ -48,33 +37,8 @@ interface SidebarSpaceCategoryProps {
   emptyMessage: string;
   spaceNoteTreesMap: Record<string, NoteTreeNode[]> | undefined;
   onAddSpaceClick: () => void;
-  addSpaceTooltip: string;
   onCreateNote: (spaceId: string) => void;
   onSettingsClick?: (space: Space) => void;
-}
-
-function filterNodeTree(
-  node: NoteTreeNode,
-  query: string,
-): NoteTreeNode | null {
-  const isMatch = (node.title || "Untitled").toLowerCase().includes(query);
-
-  if (node.children && node.children.length > 0) {
-    const filteredChildren = node.children
-      .map((child) => filterNodeTree(child, query))
-      .filter((child): child is NoteTreeNode => child !== null);
-
-    if (isMatch || filteredChildren.length > 0) {
-      return {
-        ...node,
-        children: filteredChildren,
-      };
-    }
-  } else if (isMatch) {
-    return node;
-  }
-
-  return null;
 }
 
 export function SidebarSpaceCategory({
@@ -84,11 +48,9 @@ export function SidebarSpaceCategory({
   emptyMessage,
   spaceNoteTreesMap,
   onAddSpaceClick,
-  addSpaceTooltip,
   onCreateNote,
   onSettingsClick,
 }: Readonly<SidebarSpaceCategoryProps>) {
-  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
   const allNotes = useMemo(() => {
@@ -96,47 +58,36 @@ export function SidebarSpaceCategory({
   }, [spaces, spaceNoteTreesMap]);
 
   const filteredNotes = useMemo(() => {
-    let extra = allNotes;
+    let notes = allNotes;
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      extra = extra
+      notes = notes
         .map((note) => filterNodeTree(note, query))
         .filter((note): note is NoteTreeNode => note !== null);
     }
-    return extra;
+    return notes;
   }, [allNotes, searchQuery]);
 
   return (
-    <Collapsible
-      open={isCategoryOpen}
-      onOpenChange={setIsCategoryOpen}
-      className="group/collapsible"
-    >
-      <SidebarGroup>
-        <SidebarGroupLabel asChild>
-          <CollapsibleTrigger className="cursor-pointer">
-            <ChevronRight
-              size={12}
-              strokeWidth={2}
-              className="transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90"
-            />
-            <span className="text-sm ">{label}</span>
-          </CollapsibleTrigger>
-        </SidebarGroupLabel>
+    <Collapsible defaultOpen className="group/collapsible">
+      <SidebarMenuItem>
+        <SidebarMenuButton className="font-medium">
+          <span>{label}</span>
+        </SidebarMenuButton>
 
-        {/* Search / All Notes HoverCard */}
+        {/* Search notes in this category */}
         <SidebarHoverCard
           title={`Search ${label} Notes`}
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
           searchPlaceholder={`Search ${label.toLowerCase()}...`}
           trigger={
-            <SidebarGroupAction
-              className="right-9"
+            <SidebarMenuAction
+              className="right-14"
               aria-label={`Search ${label} notes`}
             >
               <Search size={14} strokeWidth={2} />
-            </SidebarGroupAction>
+            </SidebarMenuAction>
           }
         >
           {filteredNotes.length === 0 ? (
@@ -144,92 +95,114 @@ export function SidebarSpaceCategory({
               No matching notes found.
             </div>
           ) : (
-            <SidebarMenu>
+            <SidebarMenuSub className="border-none">
               {filteredNotes.map((note) => (
-                <SidebarMenuItem key={note.id}>
-                  <SidebarNoteItem
-                    spaceId={note.spaceId}
-                    noteId={note.id}
-                    emoji={note.emoji}
-                    title={note.title}
-                  />
-                </SidebarMenuItem>
+                <SidebarMenuSubItem key={note.id}>
+                  <SidebarMenuSubButton asChild>
+                    <Link to={ROUTES.NOTE(note.id)}>
+                      <span
+                        className="shrink-0 text-base"
+                        role="img"
+                        aria-hidden="true"
+                      >
+                        <EmojiOrImage
+                          emoji={note.emoji}
+                          spaceId={note.spaceId}
+                        />
+                      </span>
+                      <span className="text-sm truncate">
+                        {note.title || "Untitled"}
+                      </span>
+                    </Link>
+                  </SidebarMenuSubButton>
+                </SidebarMenuSubItem>
               ))}
-            </SidebarMenu>
+            </SidebarMenuSub>
           )}
         </SidebarHoverCard>
 
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <SidebarGroupAction
-              onClick={(e) => {
-                e.stopPropagation();
-                onAddSpaceClick();
-              }}
-              aria-label={addSpaceTooltip}
-            >
-              <Plus size={14} strokeWidth={2} />
-            </SidebarGroupAction>
-          </TooltipTrigger>
-          <TooltipContent>{addSpaceTooltip}</TooltipContent>
-        </Tooltip>
+        {/* Add space action */}
+        <SidebarMenuAction
+          className="right-7"
+          onClick={(e) => {
+            e.stopPropagation();
+            onAddSpaceClick();
+          }}
+          aria-label={`Create ${label.toLowerCase()}`}
+        >
+          <Plus size={14} strokeWidth={2} />
+        </SidebarMenuAction>
+
+        {/* Collapsible chevron */}
+        <CollapsibleTrigger asChild>
+          <SidebarMenuAction className="data-[state=open]:rotate-90">
+            <ChevronRight size={14} />
+          </SidebarMenuAction>
+        </CollapsibleTrigger>
+
         <CollapsibleContent>
-          <SidebarGroupContent>
-            {isLoading && (
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuSkeleton showIcon />
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuSkeleton showIcon />
-                </SidebarMenuItem>
-              </SidebarMenu>
-            )}
-            {!isLoading && spaces.length === 0 && (
+          {isLoading && (
+            <SidebarMenuSub>
+              <SidebarMenuSubItem>
+                <div className="h-6 w-full animate-pulse rounded bg-sidebar-accent" />
+              </SidebarMenuSubItem>
+              <SidebarMenuSubItem>
+                <div className="h-6 w-full animate-pulse rounded bg-sidebar-accent" />
+              </SidebarMenuSubItem>
+            </SidebarMenuSub>
+          )}
+
+          {!isLoading && spaces.length === 0 && (
+            <SidebarMenuSub>
               <div className="px-3 py-1.5 text-xs text-muted-foreground">
                 {emptyMessage}
               </div>
-            )}
-            {!isLoading && (
-              <SidebarMenu>
-                {spaces.map((space) => {
-                  const noteTrees = spaceNoteTreesMap?.[space.id] ?? [];
-                  return (
-                    <SpaceGroupItem
-                      key={space.id}
-                      space={space}
-                      noteTrees={noteTrees}
-                      onCreateNote={() => onCreateNote(space.id)}
-                      onSettingsClick={
-                        onSettingsClick
-                          ? () => onSettingsClick(space)
-                          : undefined
-                      }
-                    />
-                  );
-                })}
-              </SidebarMenu>
-            )}
-          </SidebarGroupContent>
+            </SidebarMenuSub>
+          )}
+
+          {!isLoading && spaces.length > 0 && (
+            <SidebarMenuSub>
+              {spaces.map((space) => {
+                const noteTrees = spaceNoteTreesMap?.[space.id] ?? [];
+                return (
+                  <SpaceSubItem
+                    key={space.id}
+                    space={space}
+                    noteTrees={noteTrees}
+                    onCreateNote={() => onCreateNote(space.id)}
+                    onSettingsClick={
+                      onSettingsClick
+                        ? () => onSettingsClick(space)
+                        : undefined
+                    }
+                  />
+                );
+              })}
+            </SidebarMenuSub>
+          )}
         </CollapsibleContent>
-      </SidebarGroup>
+      </SidebarMenuItem>
     </Collapsible>
   );
 }
 
-interface SpaceGroupItemProps {
+// ---------------------------------------------------------------------------
+// SpaceSubItem – a single space rendered as a collapsible sub-item
+// ---------------------------------------------------------------------------
+
+interface SpaceSubItemProps {
   space: Space;
   noteTrees: NoteTreeNode[];
   onCreateNote: () => void;
   onSettingsClick?: () => void;
 }
 
-function SpaceGroupItem({
+function SpaceSubItem({
   space,
   noteTrees,
   onCreateNote,
   onSettingsClick,
-}: SpaceGroupItemProps) {
+}: SpaceSubItemProps) {
   const [isOpen, setIsOpen] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const params = useParams();
@@ -250,59 +223,68 @@ function SpaceGroupItem({
   }, [noteTrees, searchQuery]);
 
   return (
-    <Collapsible open={isOpen} onOpenChange={setIsOpen} asChild>
-      <SidebarMenuItem>
-        <CollapsibleTrigger asChild>
-          <SidebarMenuButton size="sm">
-            <ChevronRight
-              size={10}
-              strokeWidth={2}
-              className="transition-transform duration-200 data-[state=open]:rotate-90"
-              data-state={isOpen ? "open" : "closed"}
-            />
-            <span className="text-sm capitalize">{space.name}</span>
-          </SidebarMenuButton>
-        </CollapsibleTrigger>
+    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <SidebarMenuSubItem>
+        <div className="flex items-center w-full relative group/space-item">
+          <CollapsibleTrigger asChild>
+            <button
+              className="absolute left-0 w-6 h-6 flex items-center justify-center z-10 hover:bg-sidebar-accent rounded-sm text-sidebar-foreground"
+              aria-label={`Toggle ${space.name}`}
+            >
+              <ChevronRight
+                size={10}
+                strokeWidth={2}
+                className={`transition-transform duration-200 ${isOpen ? "rotate-90" : ""}`}
+              />
+            </button>
+          </CollapsibleTrigger>
 
-        {onSettingsClick && (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <SidebarMenuAction
-                showOnHover
-                aria-label={`Actions for ${space.name}`}
-                className="right-7"
-              >
-                <MoreHorizontal size={14} strokeWidth={2} />
-              </SidebarMenuAction>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" side="right">
-              <DropdownMenuItem
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigate(`/spaces/${space.id}`);
-                }}
-              >
-                Manage
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onSettingsClick();
-                }}
-              >
-                Settings
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )}
+          <SidebarMenuSubButton className="pl-6 w-full capitalize font-medium">
+            <span className="text-sm">{space.name}</span>
+          </SidebarMenuSubButton>
 
-        <SidebarMenuAction
-          showOnHover
-          onClick={onCreateNote}
-          aria-label={`Create note in ${space.name}`}
-        >
-          <Plus size={14} strokeWidth={2} />
-        </SidebarMenuAction>
+          {/* Hover-revealed actions */}
+          <div className="absolute right-1 flex items-center gap-0.5 opacity-0 group-hover/space-item:opacity-100 transition-opacity">
+            {onSettingsClick && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    className="h-6 w-6 flex items-center justify-center rounded-sm hover:bg-sidebar-accent text-sidebar-foreground"
+                    aria-label={`Actions for ${space.name}`}
+                  >
+                    <MoreHorizontal size={14} strokeWidth={2} />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" side="right">
+                  <DropdownMenuItem
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/spaces/${space.id}`);
+                    }}
+                  >
+                    Manage
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSettingsClick();
+                    }}
+                  >
+                    Settings
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+
+            <button
+              className="h-6 w-6 flex items-center justify-center rounded-sm hover:bg-sidebar-accent text-sidebar-foreground"
+              onClick={onCreateNote}
+              aria-label={`Create note in ${space.name}`}
+            >
+              <Plus size={14} strokeWidth={2} />
+            </button>
+          </div>
+        </div>
 
         <CollapsibleContent>
           <SidebarMenuSub className="mr-0 pr-0">
@@ -363,7 +345,32 @@ function SpaceGroupItem({
             )}
           </SidebarMenuSub>
         </CollapsibleContent>
-      </SidebarMenuItem>
+      </SidebarMenuSubItem>
     </Collapsible>
   );
+}
+
+// ---------------------------------------------------------------------------
+// Helper – recursively filter a note tree by title query
+// ---------------------------------------------------------------------------
+
+function filterNodeTree(
+  node: NoteTreeNode,
+  query: string,
+): NoteTreeNode | null {
+  const isMatch = (node.title || "Untitled").toLowerCase().includes(query);
+
+  if (node.children && node.children.length > 0) {
+    const filteredChildren = node.children
+      .map((child) => filterNodeTree(child, query))
+      .filter((child): child is NoteTreeNode => child !== null);
+
+    if (isMatch || filteredChildren.length > 0) {
+      return { ...node, children: filteredChildren };
+    }
+  } else if (isMatch) {
+    return node;
+  }
+
+  return null;
 }

@@ -1,26 +1,42 @@
-import { BookOpen, Image as ImageIcon, PenLine, Trash2, Layers } from "lucide-react";
+import {
+  BookOpen,
+  ChevronRight,
+  FileText,
+  Home,
+  Image as ImageIcon,
+  PenLine,
+  Search,
+  Trash2,
+} from "lucide-react";
 
 import { useEffect, useMemo, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
   SidebarGroup,
-  SidebarGroupLabel,
-  SidebarGroupContent,
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
+  SidebarMenuAction,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
+  SidebarMenuSubButton,
   SidebarRail,
   useSidebar,
 } from "@/components/ui/sidebar";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { SidebarUserProfile } from "./SidebarUserProfile";
-import { SidebarNavTabs } from "./SidebarNavTabs";
 import { SidebarSpaceCategory } from "./SidebarSpaceCategory";
-import { RecentSection } from "./RecentSection";
+import { RecentSubMenu } from "./RecentSection";
 import { SidebarThemeToggle } from "./SidebarThemeToggle";
+import { SearchDialog } from "./Search";
 import { SpaceSettingsDialog } from "@/features/spaces/components/SpaceSettingsDialog/SpaceSettingsDialog";
 import { useSpaces, useCreateSpace } from "@/features/spaces";
 import { useCreateNote } from "@/features/workspace";
@@ -31,6 +47,8 @@ import { DynamicDialog } from "@/components/ui/DynamicDialog";
 import { DynamicForm } from "@/components/ui/DynamicForm";
 import type { FormFieldConfig, FormValues } from "@/components/ui/DynamicForm";
 import type { ActiveTabType } from "../types";
+import { useRemoteSpaces } from "@/features/spaces/hooks/useRemoteSpace";
+import { ROUTES } from "@/constants/routes";
 
 const ACTIVE_TAB_MAP: Record<string, ActiveTabType> = {
   "/notes": "home",
@@ -38,8 +56,6 @@ const ACTIVE_TAB_MAP: Record<string, ActiveTabType> = {
   "/assets": "assets",
   "/trash": "trash",
 };
-import { Link } from "react-router-dom";
-import { useRemoteSpaces } from "@/features/spaces/hooks/useRemoteSpace";
 
 const CREATE_SPACE_FIELDS: FormFieldConfig[] = [
   {
@@ -121,86 +137,120 @@ export function AppSidebar() {
           }
           isLoading={isUserProfileLoading}
         />
-        <SidebarGroup className="py-0">
-          <SidebarGroupContent>
-            <SidebarNavTabs activeTab={activeTab} />
-          </SidebarGroupContent>
-        </SidebarGroup>
       </SidebarHeader>
 
       <SidebarContent>
-        {/* Recent Section */}
-        <RecentSection />
-
-        {/* Space Section */}
         <SidebarGroup>
-          <SidebarGroupLabel>
-            <Layers size={12} strokeWidth={2} />
-            <span className="text-sm">Space</span>
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
+          <SidebarMenu>
+            {/* Search */}
+            <SidebarMenuItem>
+              <SearchDialog
+                trigger={
+                  <SidebarMenuButton tooltip="Search">
+                    <Search size={16} strokeWidth={1.5} />
+                    <span>Search</span>
+                  </SidebarMenuButton>
+                }
+              />
+            </SidebarMenuItem>
+
+            {/* Home — collapsible with recent notes */}
+            <Collapsible defaultOpen className="group/collapsible">
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  isActive={activeTab === "home"}
+                  className="font-medium"
+                >
+                  <Link to={ROUTES.NOTES}>
+                    <Home size={16} strokeWidth={1.5} />
+                    <span>Home</span>
+                  </Link>
+                </SidebarMenuButton>
+                <CollapsibleTrigger asChild>
+                  <SidebarMenuAction className="data-[state=open]:rotate-90">
+                    <ChevronRight size={14} />
+                  </SidebarMenuAction>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <RecentSubMenu />
+                </CollapsibleContent>
+              </SidebarMenuItem>
+            </Collapsible>
+
             {/* Shared Spaces */}
             <SidebarSpaceCategory
-              label="Shared space"
+              label="Shared Space"
               spaces={sharedSpaces}
               isLoading={isLoading}
               emptyMessage="No shared spaces"
               spaceNoteTreesMap={spaceNoteTreesMap}
               onAddSpaceClick={() => setCreateSpaceType(SPACE_TYPE.SHARED)}
-              addSpaceTooltip="Create shared space"
               onCreateNote={handleCreateNote}
               onSettingsClick={(space) => setSettingsSpace(space)}
             />
 
             {/* Private Spaces */}
             <SidebarSpaceCategory
-              label="Private space"
+              label="Private Space"
               spaces={personalSpaces}
               isLoading={isLoading}
               emptyMessage="No spaces yet"
               spaceNoteTreesMap={spaceNoteTreesMap}
               onAddSpaceClick={() => setCreateSpaceType(SPACE_TYPE.PERSONAL)}
-              addSpaceTooltip="Create private space"
               onCreateNote={handleCreateNote}
               onSettingsClick={(space) => setSettingsSpace(space)}
             />
-          </SidebarGroupContent>
-        </SidebarGroup>
 
-        {/* Utilities Section */}
-        <SidebarGroup className="mt-auto pt-4">
-          <SidebarMenu>
+            {/* Documents */}
             <SidebarMenuItem>
-              <SidebarMenuButton asChild isActive={activeTab === "library"}>
-                <Link to="/library">
-                  <BookOpen size={16} strokeWidth={1.5} />
-                  <span>Library</span>
-                </Link>
+              <SidebarMenuButton className="font-medium">
+                <FileText size={16} strokeWidth={1.5} />
+                <span>Documents</span>
               </SidebarMenuButton>
+              <SidebarMenuSub>
+                <SidebarMenuSubItem>
+                  <SidebarMenuSubButton
+                    asChild
+                    isActive={activeTab === "library"}
+                  >
+                    <Link to="/library">
+                      <BookOpen size={14} strokeWidth={1.5} />
+                      <span>Library</span>
+                    </Link>
+                  </SidebarMenuSubButton>
+                </SidebarMenuSubItem>
+                <SidebarMenuSubItem>
+                  <SidebarMenuSubButton
+                    asChild
+                    isActive={activeTab === "assets"}
+                  >
+                    <Link to="/assets">
+                      <ImageIcon size={14} strokeWidth={1.5} />
+                      <span>Assets</span>
+                    </Link>
+                  </SidebarMenuSubButton>
+                </SidebarMenuSubItem>
+                <SidebarMenuSubItem>
+                  <SidebarMenuSubButton
+                    asChild
+                    isActive={activeTab === "trash"}
+                  >
+                    <Link to="/trash">
+                      <Trash2 size={14} strokeWidth={1.5} />
+                      <span>Trash</span>
+                    </Link>
+                  </SidebarMenuSubButton>
+                </SidebarMenuSubItem>
+              </SidebarMenuSub>
             </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild isActive={activeTab === "assets"}>
-                <Link to="/assets">
-                  <ImageIcon size={16} strokeWidth={1.5} />
-                  <span>Assets</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild isActive={activeTab === "trash"}>
-                <Link to="/trash">
-                  <Trash2 size={16} strokeWidth={1.5} />
-                  <span>Trash</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarThemeToggle />
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
 
       <SidebarFooter>
         <SidebarMenu>
+          <SidebarThemeToggle />
           <SidebarMenuItem>
             <SidebarMenuButton
               onClick={() => {
@@ -211,7 +261,7 @@ export function AppSidebar() {
               className="justify-center bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90 hover:text-sidebar-primary-foreground"
             >
               <PenLine size={16} strokeWidth={1.5} />
-              <span className="text-sm ">Quick Create</span>
+              <span className="text-sm">Quick Create</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

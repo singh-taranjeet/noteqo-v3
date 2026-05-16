@@ -1,27 +1,22 @@
 import { ChevronRight } from "lucide-react";
-
 import { useState, useMemo } from "react";
-import { SidebarNoteItem } from "./SidebarNoteItem";
-import { SidebarHoverCard } from "./SidebarHoverCard";
+import { Link } from "react-router-dom";
 import {
-  SidebarGroup,
-  SidebarGroupLabel,
-  SidebarGroupContent,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-  SidebarMenuSkeleton,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
+  SidebarMenuSubButton,
 } from "@/components/ui/sidebar";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
 import { useRecentNotes } from "@/features/workspace";
+import { ROUTES } from "@/constants/routes";
+import { SidebarHoverCard } from "./SidebarHoverCard";
+import { EmojiOrImage } from "@/features/media/components/EmojiOrImage";
 
-export function RecentSection() {
+/**
+ * Renders recent notes as SidebarMenuSub items.
+ * Used inside the collapsible Home section of the sidebar.
+ */
+export function RecentSubMenu() {
   const { notes, isLoading } = useRecentNotes();
-  const [isOpen, setIsOpen] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
 
   const recentNotes = notes.slice(0, 10);
@@ -35,101 +30,101 @@ export function RecentSection() {
     return extra;
   }, [notes, searchQuery]);
 
+  if (isLoading) {
+    return (
+      <SidebarMenuSub>
+        <SidebarMenuSubItem>
+          <div className="h-6 w-full animate-pulse rounded bg-sidebar-accent" />
+        </SidebarMenuSubItem>
+        <SidebarMenuSubItem>
+          <div className="h-6 w-full animate-pulse rounded bg-sidebar-accent" />
+        </SidebarMenuSubItem>
+      </SidebarMenuSub>
+    );
+  }
+
+  if (recentNotes.length === 0) {
+    return (
+      <SidebarMenuSub>
+        <div className="px-3 py-1.5 text-xs text-muted-foreground">
+          No recent notes
+        </div>
+      </SidebarMenuSub>
+    );
+  }
+
   return (
-    <Collapsible
-      open={isOpen}
-      onOpenChange={setIsOpen}
-      className="group/collapsible"
-    >
-      <SidebarGroup>
-        <SidebarGroupLabel asChild>
-          <CollapsibleTrigger className="cursor-pointer">
-            <ChevronRight
-              size={12}
-              strokeWidth={2}
-              className="transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90"
-            />
-            <span className="text-sm ">Recent</span>
-          </CollapsibleTrigger>
-        </SidebarGroupLabel>
-        <CollapsibleContent>
-          <SidebarGroupContent>
-            {isLoading && (
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuSkeleton showIcon />
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuSkeleton showIcon />
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuSkeleton showIcon />
-                </SidebarMenuItem>
-              </SidebarMenu>
-            )}
-            {!isLoading && recentNotes.length === 0 && (
-              <div className="px-3 py-1.5 text-xs text-muted-foreground">
-                No recent notes
+    <SidebarMenuSub>
+      {recentNotes.map((note) => (
+        <SidebarMenuSubItem key={note.id}>
+          <SidebarMenuSubButton asChild>
+            <Link to={ROUTES.NOTE(note.id)}>
+              <span
+                className="shrink-0 text-base"
+                role="img"
+                aria-hidden="true"
+              >
+                <EmojiOrImage emoji={note.emoji} spaceId={note.spaceId} />
+              </span>
+              <span className="text-sm truncate">
+                {note.title || "Untitled"}
+              </span>
+            </Link>
+          </SidebarMenuSubButton>
+        </SidebarMenuSubItem>
+      ))}
+      {notes.length > 10 && (
+        <SidebarMenuSubItem>
+          <SidebarHoverCard
+            title="More Recent Notes"
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            searchPlaceholder="Search recent notes..."
+            trigger={
+              <SidebarMenuSubButton
+                size="sm"
+                className="text-muted-foreground w-full flex justify-between group/more-btn cursor-pointer"
+              >
+                <span>More</span>
+                <ChevronRight
+                  size={14}
+                  className="opacity-0 group-hover/more-btn:opacity-100 transition-opacity"
+                />
+              </SidebarMenuSubButton>
+            }
+          >
+            {filteredExtraNotes.length === 0 ? (
+              <div className="px-3 py-2 text-xs text-muted-foreground">
+                No matching notes found.
               </div>
-            )}
-            {!isLoading && recentNotes.length > 0 && (
-              <SidebarMenu>
-                {recentNotes.map((note) => (
-                  <SidebarMenuItem key={note.id}>
-                    <SidebarNoteItem
-                      spaceId={note.spaceId}
-                      noteId={note.id}
-                      emoji={note.emoji}
-                      title={note.title}
-                    />
-                  </SidebarMenuItem>
-                ))}
-                {Array.isArray(notes) && (
-                  <SidebarMenuItem>
-                    <SidebarHoverCard
-                      title="More Recent Notes"
-                      searchQuery={searchQuery}
-                      onSearchChange={setSearchQuery}
-                      searchPlaceholder="Search recent notes..."
-                      trigger={
-                        <SidebarMenuButton
-                          size="sm"
-                          className="text-muted-foreground w-full flex justify-between group/more-btn"
+            ) : (
+              <SidebarMenuSub className="border-none">
+                {filteredExtraNotes.map((note) => (
+                  <SidebarMenuSubItem key={note.id}>
+                    <SidebarMenuSubButton asChild>
+                      <Link to={ROUTES.NOTE(note.id)}>
+                        <span
+                          className="shrink-0 text-base"
+                          role="img"
+                          aria-hidden="true"
                         >
-                          <span>More</span>
-                          <ChevronRight
-                            size={14}
-                            className="opacity-0 group-hover/more-btn:opacity-100 transition-opacity"
+                          <EmojiOrImage
+                            emoji={note.emoji}
+                            spaceId={note.spaceId}
                           />
-                        </SidebarMenuButton>
-                      }
-                    >
-                      {filteredExtraNotes.length === 0 ? (
-                        <div className="px-3 py-2 text-xs text-muted-foreground">
-                          No matching notes found.
-                        </div>
-                      ) : (
-                        <SidebarMenu>
-                          {filteredExtraNotes.map((note) => (
-                            <SidebarMenuItem key={note.id}>
-                              <SidebarNoteItem
-                                spaceId={note.spaceId}
-                                noteId={note.id}
-                                emoji={note.emoji}
-                                title={note.title}
-                              />
-                            </SidebarMenuItem>
-                          ))}
-                        </SidebarMenu>
-                      )}
-                    </SidebarHoverCard>
-                  </SidebarMenuItem>
-                )}
-              </SidebarMenu>
+                        </span>
+                        <span className="text-sm truncate">
+                          {note.title || "Untitled"}
+                        </span>
+                      </Link>
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                ))}
+              </SidebarMenuSub>
             )}
-          </SidebarGroupContent>
-        </CollapsibleContent>
-      </SidebarGroup>
-    </Collapsible>
+          </SidebarHoverCard>
+        </SidebarMenuSubItem>
+      )}
+    </SidebarMenuSub>
   );
 }
