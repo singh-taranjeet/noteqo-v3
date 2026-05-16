@@ -38,6 +38,7 @@ import { CalloutNodeExtension } from "@/features/editor/components/nodes/Callout
 import { DateNodeExtension } from "@/features/editor/components/nodes/DateNode/DateNodeExtension";
 import { TocNodeExtension } from "@/features/editor/components/nodes/TocNode/TocNodeExtension";
 import { ToggleNodeExtension } from "@/features/editor/components/nodes/ToggleNode/ToggleNodeExtension";
+import { EmojiExtension } from "../components/editor-ui/emoji/EmojiExtension";
 
 // --- Tiptap File & Media ---
 import { FileNodeExtension } from "@/features/editor/components/nodes/FileNode/FileNodeExtension";
@@ -177,6 +178,7 @@ export function useNoteEditorLogic({
         DateNodeExtension,
         TocNodeExtension,
         ToggleNodeExtension,
+        EmojiExtension,
 
         TextAlign.configure({ types: ["heading", "paragraph"] }),
         TaskList.configure({
