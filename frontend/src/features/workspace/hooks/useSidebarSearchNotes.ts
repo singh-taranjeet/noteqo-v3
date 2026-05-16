@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
-import { SEARCH_CONFIG } from "@/components/layout/Sidebar/constants/search.constants";
+import { SEARCH_CONFIG } from "@/components/core/Sidebar/constants/search.constants";
 import type { SidebarSearchResultItem } from "../types/sidebar-search.types";
 import type { Note } from "../types/workspace.types";
 import { useUserProfile } from "@/features/auth";

@@ -1,5 +1,5 @@
 import { Outlet } from "react-router-dom";
-import { AppShell, AppSidebar, Header } from "@/components/layout";
+import { AppShell, AppSidebar, Header } from "@/components/core";
 import { AuthGuard } from "@/features/auth";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { RealtimeProvider } from "@/features/realtime";
