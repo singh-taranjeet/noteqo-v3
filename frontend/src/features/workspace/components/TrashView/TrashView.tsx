@@ -1,36 +1,17 @@
-import {
-  ChevronDown,
-  ChevronRight,
-  Eye,
-  RefreshCw,
-  Trash2,
-} from "lucide-react";
+import { Eye, RefreshCw, Trash2 } from "lucide-react";
 
 import { useSpaces } from "@/features/spaces";
 import { useRestoreNote } from "../../hooks/useRestoreNote";
 import { usePermanentDeleteNote } from "../../hooks/usePermanentDeleteNote";
 import { Button } from "@/components/ui/button";
-import { format } from "date-fns";
 import { Spinner } from "@/components/ui/spinner";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import type { Note } from "../../types/workspace.types";
 import { useMemo, useState } from "react";
 import { PreviewNoteDialog } from "./PreviewNoteDialog";
+import { ContainerLayout } from "@/layouts/ContainerLayout";
+import { NoteTable, type TableNote } from "./../NoteTable";
 
-// Helper component to render a single trash node and its children
-function TrashNodeItem({
-  note,
-  depth,
-  childrenMap,
-  isRoot,
-  onPreviewClick,
-}: {
-  note: Note;
-  depth: number;
-  childrenMap: Map<string, Note[]>;
-  isRoot: boolean;
-  onPreviewClick: (noteId: string) => void;
-}) {
+function TrashRowActions({ note, isRoot, onPreview }: { note: TableNote, isRoot: boolean, onPreview: () => void }) {
   const restoreMutation = useRestoreNote();
   const permanentDeleteMutation = usePermanentDeleteNote();
 
@@ -40,124 +21,70 @@ function TrashNodeItem({
     permanentDeleteMutation.isPending &&
     permanentDeleteMutation.variables === note.id;
 
-  const children = childrenMap.get(note.id) || [];
-  const [isExpanded, setIsExpanded] = useState(true);
-
   return (
-    <div className="flex flex-col">
-      <div
-        className={`group flex items-center justify-between p-3 rounded-xl border border-transparent hover:border-border hover:bg-accent/50 transition-colors ${depth === 0 ? "bg-card border-border mb-2" : ""}`}
-        style={{ paddingLeft: `${Math.max(0, depth * 24 + 12)}px` }}
+    <div className="flex items-center justify-end gap-2 shrink-0">
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={(e) => {
+          e.stopPropagation();
+          onPreview();
+        }}
+        className="hidden sm:flex h-8"
       >
-        <div className="flex items-center gap-2 min-w-0 flex-1">
-          {children.length > 0 ? (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsExpanded(!isExpanded);
-              }}
-              className="flex items-center justify-center w-6 h-6 rounded-md hover:bg-muted text-muted-foreground shrink-0"
-            >
-              {isExpanded ? (
-                <ChevronDown size={16} />
-              ) : (
-                <ChevronRight size={16} />
-              )}
-            </button>
-          ) : (
-            <div className="w-6 h-6 shrink-0" /> // Spacer for alignment
-          )}
+        <Eye size={14} className="mr-2" />
+        Preview
+      </Button>
 
-          <button
-            onClick={() => onPreviewClick(note.id)}
-            className="flex items-center gap-3 min-w-0 flex-1 cursor-pointer text-left"
-          >
-            <div className="flex items-center justify-center h-8 w-8 bg-muted rounded-lg shrink-0">
-              <span className="text-lg">{note.emoji}</span>
-            </div>
-            <div className="flex flex-col min-w-0">
-              <span className=" text-sm truncate group-hover:underline decoration-muted-foreground underline-offset-2">
-                {note.title}
-              </span>
-              <span className="text-xs text-muted-foreground truncate">
-                Deleted{" "}
-                {note.deletedAt
-                  ? format(new Date(note.deletedAt), "MMM d, yyyy")
-                  : "Unknown"}
-              </span>
-            </div>
-          </button>
-        </div>
-
-        <div className="flex items-center gap-2 shrink-0 ml-4">
+      {isRoot && (
+        <>
           <Button
             variant="outline"
             size="sm"
-            onClick={() => onPreviewClick(note.id)}
-            className="hidden sm:flex"
+            disabled={isRestoring || isDeleting}
+            onClick={(e) => {
+              e.stopPropagation();
+              restoreMutation.mutate(note.id);
+            }}
+            className="h-8"
           >
-            <Eye size={14} className="mr-2" />
-            Preview
+            {isRestoring ? (
+              <Spinner className="size-4 mr-2" />
+            ) : (
+              <RefreshCw size={14} className="mr-2" />
+            )}
+            Restore
           </Button>
-
-          {isRoot && (
-            <>
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={isRestoring || isDeleting}
-                onClick={() => restoreMutation.mutate(note.id)}
-              >
-                {isRestoring ? (
-                  <Spinner className="size-4 mr-2" />
-                ) : (
-                  <RefreshCw size={14} className="mr-2" />
-                )}
-                Restore
-              </Button>
-              <Button
-                variant="destructive"
-                size="sm"
-                disabled={isRestoring || isDeleting}
-                onClick={() => permanentDeleteMutation.mutate(note.id)}
-              >
-                {isDeleting ? (
-                  <Spinner className="size-4 mr-2" />
-                ) : (
-                  <Trash2 size={14} className="mr-2" />
-                )}
-                Delete
-              </Button>
-            </>
-          )}
-        </div>
-      </div>
-
-      {isExpanded && children.length > 0 && (
-        <div className="flex flex-col relative before:absolute before:left-8 before:top-0 before:bottom-0 before:w-px before:bg-border">
-          {children.map((child) => (
-            <TrashNodeItem
-              key={child.id}
-              note={child}
-              depth={depth + 1}
-              childrenMap={childrenMap}
-              isRoot={false}
-              onPreviewClick={onPreviewClick}
-            />
-          ))}
-        </div>
+          <Button
+            variant="destructive"
+            size="sm"
+            disabled={isRestoring || isDeleting}
+            onClick={(e) => {
+              e.stopPropagation();
+              permanentDeleteMutation.mutate(note.id);
+            }}
+            className="h-8"
+          >
+            {isDeleting ? (
+              <Spinner className="size-4 mr-2" />
+            ) : (
+              <Trash2 size={14} className="mr-2" />
+            )}
+            Delete
+          </Button>
+        </>
       )}
     </div>
   );
 }
 
 export function TrashView() {
-  const { trashedNotes, isLoading } = useSpaces();
+  const { trashedNotes, isLoading, data: spacesData } = useSpaces();
   const [previewNote, setPreviewNote] = useState<Note | null>(null);
 
-  const { rootNotes, childrenMap } = useMemo(() => {
+  const treeRoots = useMemo(() => {
     if (!trashedNotes)
-      return { rootNotes: [], childrenMap: new Map<string, Note[]>() };
+      return [];
 
     const trashedIds = new Set(trashedNotes.map((n) => n.id));
     const roots: Note[] = [];
@@ -182,7 +109,15 @@ export function TrashView() {
       return bDate - aDate;
     });
 
-    return { rootNotes: roots, childrenMap: children };
+    const buildTree = (note: Note): TableNote => {
+      const kids = children.get(note.id) || [];
+      return {
+        ...note,
+        children: kids.map(buildTree),
+      };
+    };
+
+    return roots.map(buildTree);
   }, [trashedNotes]);
 
   if (isLoading) {
@@ -212,28 +147,34 @@ export function TrashView() {
   }
 
   return (
-    <div className="flex flex-col h-full w-full max-w-5xl mx-auto py-8 px-4 sm:px-8">
-      <div className="flex flex-col gap-2 mb-8 shrink-0">
-        <h1 className="text-3xl font-bold tracking-tight">Trash</h1>
-        <p className="text-muted-foreground">
-          Restore deleted notes or permanently remove them.
-        </p>
-      </div>
+    <ContainerLayout.Spacer>
+      <ContainerLayout.Heading title="Trash" Icon={Trash2} subTitle="Restore deleted notes or permanently remove them." />
 
-      <ScrollArea className="flex-1">
-        <div className="space-y-4 pb-8">
-          {rootNotes.map((note) => (
-            <TrashNodeItem
-              key={note.id}
-              note={note}
-              depth={0}
-              childrenMap={childrenMap}
-              isRoot={true}
-              onPreviewClick={() => setPreviewNote(note)}
+
+      <div className="flex-1 overflow-y-auto pb-12">
+        <NoteTable
+          notes={treeRoots}
+          spaces={spacesData?.spaces || []}
+          hideCreatedBy={true}
+          dateColumnLabel="Deleted Date"
+          getDateValue={(note) => note.deletedAt || note.updatedAt}
+          onRowClick={(note) => {
+            const trashed = trashedNotes?.find(n => n.id === note.id);
+            if (trashed) setPreviewNote(trashed);
+          }}
+          renderActions={(note, isRoot) => (
+            <TrashRowActions 
+              note={note} 
+              isRoot={isRoot} 
+              onPreview={() => {
+                const trashed = trashedNotes?.find(n => n.id === note.id);
+                if (trashed) setPreviewNote(trashed);
+              }} 
             />
-          ))}
-        </div>
-      </ScrollArea>
+          )}
+          emptyMessage="Your trash is empty."
+        />
+      </div>
       {previewNote ? (
         <PreviewNoteDialog
           noteId={previewNote?.id}
@@ -241,6 +182,7 @@ export function TrashView() {
           onClose={() => setPreviewNote(null)}
         />
       ) : null}
-    </div>
+
+    </ContainerLayout.Spacer>
   );
 }
