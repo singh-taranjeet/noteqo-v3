@@ -1,9 +1,4 @@
-import {
-  forwardRef,
-  useEffect,
-  useImperativeHandle,
-  useState,
-} from "react";
+import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import { cn } from "@/lib/utils";
 
 export interface HashtagListRef {
@@ -71,7 +66,9 @@ export const HashtagList = forwardRef<HashtagListRef, HashtagListProps>(
             key={item}
             onClick={() => selectItem(index)}
           >
-            <span className="font-semibold text-muted-foreground opacity-50">#</span>
+            <span className="font-semibold text-muted-foreground opacity-50">
+              #
+            </span>
             <span className="truncate">{item}</span>
           </button>
         ))}

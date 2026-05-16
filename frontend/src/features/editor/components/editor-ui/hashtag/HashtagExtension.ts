@@ -9,6 +9,8 @@ import type {
   SuggestionProps,
   SuggestionKeyDownProps,
 } from "@tiptap/suggestion";
+import type { Node as ProseMirrorNode } from "@tiptap/pm/model";
+import type { MentionOptions } from "@tiptap/extension-mention";
 
 export const HashtagPluginKey = new PluginKey("hashtag-suggestion");
 
@@ -22,14 +24,22 @@ export const HashtagExtension = Mention.extend({
         class:
           "text-primary bg-primary/10 rounded-md px-1 py-0.5 font-medium cursor-pointer hover:bg-primary/20 transition-colors",
       },
-      renderHTML({ options, node }: any) {
-        return [
-          "span",
-          options.HTMLAttributes,
-          `#${node.attrs.id}`,
-        ];
+      renderHTML({
+        options,
+        node,
+      }: {
+        options: MentionOptions;
+        node: ProseMirrorNode;
+      }) {
+        return ["span", options.HTMLAttributes, `#${node.attrs.id}`];
       },
-      renderText({ options, node }: any) {
+      renderText({
+        options,
+        node,
+      }: {
+        options: MentionOptions;
+        node: ProseMirrorNode;
+      }) {
         return `${options.suggestion.char}${node.attrs.id ?? node.attrs.label}`;
       },
       deleteTriggerWithBackspace: false,
