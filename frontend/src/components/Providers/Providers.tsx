@@ -10,6 +10,10 @@ function makeQueryClient() {
     defaultOptions: {
       queries: {
         staleTime: 10 * 60 * 1000,
+        networkMode: "always",
+      },
+      mutations: {
+        networkMode: "always",
       },
     },
   });
