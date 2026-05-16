@@ -104,11 +104,11 @@ export function AssetsView({ spaceId }: { spaceId?: string } = {}) {
     <ContainerLayout.Spacer>
       <div className={`mx-auto max-w-7xl space-y-8 ${spaceId ? "py-4" : ""}`}>
         {!spaceId && (
-
-
-          <ContainerLayout.Heading Icon={ImageIcon} title="Assets" subTitle="Manage your uploaded media across all your spaces." />
-
-
+          <ContainerLayout.Heading
+            Icon={ImageIcon}
+            title="Assets"
+            subTitle="Manage your uploaded media across all your spaces."
+          />
         )}
 
         {isLoading ? (
@@ -293,7 +293,6 @@ export function AssetsView({ spaceId }: { spaceId?: string } = {}) {
           </div>
         </DialogContent>
       </Dialog>
-
     </ContainerLayout.Spacer>
   );
 }

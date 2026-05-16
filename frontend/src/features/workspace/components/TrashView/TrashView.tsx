@@ -11,7 +11,15 @@ import { PreviewNoteDialog } from "./PreviewNoteDialog";
 import { ContainerLayout } from "@/layouts/ContainerLayout";
 import { NoteTable, type TableNote } from "./../NoteTable";
 
-function TrashRowActions({ note, isRoot, onPreview }: { note: TableNote, isRoot: boolean, onPreview: () => void }) {
+function TrashRowActions({
+  note,
+  isRoot,
+  onPreview,
+}: {
+  note: TableNote;
+  isRoot: boolean;
+  onPreview: () => void;
+}) {
   const restoreMutation = useRestoreNote();
   const permanentDeleteMutation = usePermanentDeleteNote();
 
@@ -83,8 +91,7 @@ export function TrashView() {
   const [previewNote, setPreviewNote] = useState<Note | null>(null);
 
   const treeRoots = useMemo(() => {
-    if (!trashedNotes)
-      return [];
+    if (!trashedNotes) return [];
 
     const trashedIds = new Set(trashedNotes.map((n) => n.id));
     const roots: Note[] = [];
@@ -148,8 +155,11 @@ export function TrashView() {
 
   return (
     <ContainerLayout.Spacer>
-      <ContainerLayout.Heading title="Trash" Icon={Trash2} subTitle="Restore deleted notes or permanently remove them." />
-
+      <ContainerLayout.Heading
+        title="Trash"
+        Icon={Trash2}
+        subTitle="Restore deleted notes or permanently remove them."
+      />
 
       <div className="flex-1 overflow-y-auto pb-12">
         <NoteTable
@@ -159,17 +169,17 @@ export function TrashView() {
           dateColumnLabel="Deleted Date"
           getDateValue={(note) => note.deletedAt || note.updatedAt}
           onRowClick={(note) => {
-            const trashed = trashedNotes?.find(n => n.id === note.id);
+            const trashed = trashedNotes?.find((n) => n.id === note.id);
             if (trashed) setPreviewNote(trashed);
           }}
           renderActions={(note, isRoot) => (
-            <TrashRowActions 
-              note={note} 
-              isRoot={isRoot} 
+            <TrashRowActions
+              note={note}
+              isRoot={isRoot}
               onPreview={() => {
-                const trashed = trashedNotes?.find(n => n.id === note.id);
+                const trashed = trashedNotes?.find((n) => n.id === note.id);
                 if (trashed) setPreviewNote(trashed);
-              }} 
+              }}
             />
           )}
           emptyMessage="Your trash is empty."
@@ -182,7 +192,6 @@ export function TrashView() {
           onClose={() => setPreviewNote(null)}
         />
       ) : null}
-
     </ContainerLayout.Spacer>
   );
 }

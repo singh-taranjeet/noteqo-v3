@@ -91,7 +91,9 @@ function NoteTableRow({
       <TableRow
         className={cn(
           "transition-colors group",
-          onRowClick || !renderActions ? "cursor-pointer hover:bg-muted/50" : ""
+          onRowClick || !renderActions
+            ? "cursor-pointer hover:bg-muted/50"
+            : "",
         )}
         onClick={() => {
           if (onRowClick) {
@@ -126,10 +128,12 @@ function NoteTableRow({
             <span className="text-xl shrink-0" role="img" aria-hidden="true">
               {note.emoji || "📄"}
             </span>
-            <span 
+            <span
               className={cn(
-                "truncate transition-colors", 
-                onRowClick ? "group-hover:underline decoration-muted-foreground underline-offset-2" : "group-hover:text-primary"
+                "truncate transition-colors",
+                onRowClick
+                  ? "group-hover:underline decoration-muted-foreground underline-offset-2"
+                  : "group-hover:text-primary",
               )}
             >
               {note.title || "Untitled"}
@@ -170,21 +174,27 @@ function NoteTableRow({
         )}
 
         {/* Dynamic Date Column */}
-        <TableCell className={cn(
-          "text-muted-foreground text-sm",
-          renderActions ? "hidden sm:table-cell text-left" : "text-right md:text-left"
-        )}>
+        <TableCell
+          className={cn(
+            "text-muted-foreground text-sm",
+            renderActions
+              ? "hidden sm:table-cell text-left"
+              : "text-right md:text-left",
+          )}
+        >
           {(() => {
             const dateVal = getDateValue ? getDateValue(note) : note.updatedAt;
             if (!dateVal) return "Unknown";
-            
+
             // If it's the default behavior, show relative time with clock icon
             if (!getDateValue) {
               return (
                 <div className="flex items-center justify-end md:justify-start gap-1.5">
                   <Clock size={12} className="shrink-0 hidden sm:block" />
                   <span className="truncate">
-                    {formatDistanceToNow(new Date(dateVal), { addSuffix: true })}
+                    {formatDistanceToNow(new Date(dateVal), {
+                      addSuffix: true,
+                    })}
                   </span>
                 </div>
               );
@@ -385,7 +395,9 @@ export function NoteTable({
           <Table className="border-none">
             <TableHeader>
               <TableRow className="hover:bg-transparent">
-                <TableHead className="w-[40%] md:w-[35%] pl-[42px]">Page name</TableHead>
+                <TableHead className="w-[40%] md:w-[35%] pl-[42px]">
+                  Page name
+                </TableHead>
                 {!hideCreatedBy && (
                   <TableHead className="hidden md:table-cell w-[20%]">
                     Created by
@@ -396,9 +408,13 @@ export function NoteTable({
                     Source
                   </TableHead>
                 )}
-                <TableHead className={cn(
-                  renderActions ? "hidden sm:table-cell w-[20%]" : "w-[40%] md:w-[25%] text-right md:text-left"
-                )}>
+                <TableHead
+                  className={cn(
+                    renderActions
+                      ? "hidden sm:table-cell w-[20%]"
+                      : "w-[40%] md:w-[25%] text-right md:text-left",
+                  )}
+                >
                   {dateColumnLabel}
                 </TableHead>
                 {renderActions && (

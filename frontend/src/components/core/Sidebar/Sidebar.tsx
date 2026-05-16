@@ -1,7 +1,7 @@
 import {
   BookOpen,
   ChevronRight,
-  FileText,
+  Clock,
   Home,
   Image as ImageIcon,
   PenLine,
@@ -21,9 +21,6 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarMenuAction,
-  SidebarMenuSub,
-  SidebarMenuSubItem,
-  SidebarMenuSubButton,
   SidebarRail,
   useSidebar,
 } from "@/components/ui/sidebar";
@@ -154,19 +151,29 @@ export function AppSidebar() {
               />
             </SidebarMenuItem>
 
-            {/* Home — collapsible with recent notes */}
+            {/* Home */}
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={activeTab === "home"}
+                className="font-medium"
+              >
+                <Link to={ROUTES.NOTES}>
+                  <Home size={16} strokeWidth={1.5} />
+                  <span>Home</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+
+            {/* Recent notes */}
             <Collapsible defaultOpen className="group/collapsible">
               <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  isActive={activeTab === "home"}
-                  className="font-medium"
-                >
-                  <Link to={ROUTES.NOTES}>
-                    <Home size={16} strokeWidth={1.5} />
-                    <span>Home</span>
-                  </Link>
-                </SidebarMenuButton>
+                <CollapsibleTrigger asChild>
+                  <SidebarMenuButton className="font-medium cursor-pointer">
+                    <Clock size={16} strokeWidth={1.5} />
+                    <span>Recent</span>
+                  </SidebarMenuButton>
+                </CollapsibleTrigger>
                 <CollapsibleTrigger asChild>
                   <SidebarMenuAction className="data-[state=open]:rotate-90">
                     <ChevronRight size={14} />
@@ -201,48 +208,47 @@ export function AppSidebar() {
               onCreateNote={handleCreateNote}
               onSettingsClick={(space) => setSettingsSpace(space)}
             />
+          </SidebarMenu>
+        </SidebarGroup>
 
-            {/* Documents */}
+        {/* Utilities Section at bottom */}
+        <SidebarGroup className="mt-auto">
+          <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton className="font-medium">
-                <FileText size={16} strokeWidth={1.5} />
-                <span>Documents</span>
+              <SidebarMenuButton
+                asChild
+                isActive={activeTab === "library"}
+                className="font-medium"
+              >
+                <Link to="/library">
+                  <BookOpen size={16} strokeWidth={1.5} />
+                  <span>Library</span>
+                </Link>
               </SidebarMenuButton>
-              <SidebarMenuSub>
-                <SidebarMenuSubItem>
-                  <SidebarMenuSubButton
-                    asChild
-                    isActive={activeTab === "library"}
-                  >
-                    <Link to="/library">
-                      <BookOpen size={14} strokeWidth={1.5} />
-                      <span>Library</span>
-                    </Link>
-                  </SidebarMenuSubButton>
-                </SidebarMenuSubItem>
-                <SidebarMenuSubItem>
-                  <SidebarMenuSubButton
-                    asChild
-                    isActive={activeTab === "assets"}
-                  >
-                    <Link to="/assets">
-                      <ImageIcon size={14} strokeWidth={1.5} />
-                      <span>Assets</span>
-                    </Link>
-                  </SidebarMenuSubButton>
-                </SidebarMenuSubItem>
-                <SidebarMenuSubItem>
-                  <SidebarMenuSubButton
-                    asChild
-                    isActive={activeTab === "trash"}
-                  >
-                    <Link to="/trash">
-                      <Trash2 size={14} strokeWidth={1.5} />
-                      <span>Trash</span>
-                    </Link>
-                  </SidebarMenuSubButton>
-                </SidebarMenuSubItem>
-              </SidebarMenuSub>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={activeTab === "assets"}
+                className="font-medium"
+              >
+                <Link to="/assets">
+                  <ImageIcon size={16} strokeWidth={1.5} />
+                  <span>Assets</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={activeTab === "trash"}
+                className="font-medium"
+              >
+                <Link to="/trash">
+                  <Trash2 size={16} strokeWidth={1.5} />
+                  <span>Trash</span>
+                </Link>
+              </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarGroup>

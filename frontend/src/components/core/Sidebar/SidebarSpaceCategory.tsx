@@ -71,9 +71,11 @@ export function SidebarSpaceCategory({
   return (
     <Collapsible defaultOpen className="group/collapsible">
       <SidebarMenuItem>
-        <SidebarMenuButton className="font-medium">
-          <span>{label}</span>
-        </SidebarMenuButton>
+        <CollapsibleTrigger asChild>
+          <SidebarMenuButton className="font-medium cursor-pointer">
+            <span>{label}</span>
+          </SidebarMenuButton>
+        </CollapsibleTrigger>
 
         {/* Search notes in this category */}
         <SidebarHoverCard
@@ -171,9 +173,7 @@ export function SidebarSpaceCategory({
                     noteTrees={noteTrees}
                     onCreateNote={() => onCreateNote(space.id)}
                     onSettingsClick={
-                      onSettingsClick
-                        ? () => onSettingsClick(space)
-                        : undefined
+                      onSettingsClick ? () => onSettingsClick(space) : undefined
                     }
                   />
                 );
@@ -239,9 +239,11 @@ function SpaceSubItem({
             </button>
           </CollapsibleTrigger>
 
-          <SidebarMenuSubButton className="pl-6 w-full capitalize font-medium">
-            <span className="text-sm">{space.name}</span>
-          </SidebarMenuSubButton>
+          <CollapsibleTrigger asChild>
+            <SidebarMenuSubButton className="pl-6 w-full capitalize font-medium cursor-pointer">
+              <span className="text-sm">{space.name}</span>
+            </SidebarMenuSubButton>
+          </CollapsibleTrigger>
 
           {/* Hover-revealed actions */}
           <div className="absolute right-1 flex items-center gap-0.5 opacity-0 group-hover/space-item:opacity-100 transition-opacity">
