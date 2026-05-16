@@ -1,5 +1,4 @@
 import { Image as ImageIcon, Smile } from "lucide-react";
-
 import { EditorContent, EditorContext } from "@tiptap/react";
 import type { Editor } from "@tiptap/react";
 import type { ChangeEvent, FocusEvent } from "react";
@@ -7,7 +6,6 @@ import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { BlockDragHandle } from "@/features/editor/components/editor-ui/BlockDragHandle";
 import { EditorBubbleMenu } from "@/features/editor/components/editor-ui/EditorBubbleMenu";
-
 import {
   Popover,
   PopoverContent,
@@ -15,7 +13,6 @@ import {
 } from "@/components/ui/popover";
 import { MediaPicker } from "@/features/media/components/MediaPicker";
 import { EncryptedImage } from "@/features/media/components/EncryptedImage";
-
 import {
   Dialog,
   DialogContent,

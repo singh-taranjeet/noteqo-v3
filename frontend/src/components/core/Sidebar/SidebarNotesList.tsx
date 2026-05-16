@@ -1,6 +1,6 @@
-import { ChevronRight, Plus, FileText } from "lucide-react";
+import { ChevronRight, Plus, FileText, Search } from "lucide-react";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
   SidebarMenuItem,
@@ -23,6 +23,29 @@ import {
 import { useSpaces, useActiveSpace } from "@/features/spaces";
 import { useCreateNote } from "@/features/workspace";
 import { SidebarNoteTreeItem } from "./SidebarNoteTreeItem";
+import { SidebarHoverCard } from "./SidebarHoverCard";
+import type { NoteTreeNode } from "@/features/workspace/types/workspace.types";
+
+function filterNodeTree(
+  node: NoteTreeNode,
+  query: string,
+): NoteTreeNode | null {
+  const isMatch = (node.title || "Untitled").toLowerCase().includes(query);
+
+  if (node.children && node.children.length > 0) {
+    const filteredChildren = node.children
+      .map((child) => filterNodeTree(child, query))
+      .filter((child): child is NoteTreeNode => child !== null);
+
+    if (isMatch || filteredChildren.length > 0) {
+      return { ...node, children: filteredChildren };
+    }
+  } else if (isMatch) {
+    return node;
+  }
+
+  return null;
+}
 
 export function SidebarNotesList() {
   const { activeSpaceId } = useActiveSpace();
@@ -30,6 +53,8 @@ export function SidebarNotesList() {
   const { mutate: createNote } = useCreateNote();
   const params = useParams();
   const activeNoteId = params?.note_id as string | undefined;
+
+  const [searchQuery, setSearchQuery] = useState("");
 
   const noteTrees = useMemo(() => {
     if (!spaceNoteTreesMap) return [];
@@ -41,6 +66,17 @@ export function SidebarNotesList() {
     // "All Spaces" — merge all trees
     return Object.values(spaceNoteTreesMap).flat();
   }, [activeSpaceId, spaceNoteTreesMap]);
+
+  const filteredNotes = useMemo(() => {
+    let notes = noteTrees;
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      notes = notes
+        .map((note) => filterNodeTree(note, query))
+        .filter((note): note is NoteTreeNode => note !== null);
+    }
+    return notes;
+  }, [noteTrees, searchQuery]);
 
   const handleCreateNote = () => {
     if (activeSpaceId) {
@@ -61,6 +97,37 @@ export function SidebarNotesList() {
               <span>Notes</span>
             </SidebarMenuButton>
           </CollapsibleTrigger>
+          <SidebarHoverCard
+            title="Search Notes"
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            searchPlaceholder="Search notes..."
+            trigger={
+              <SidebarMenuAction
+                className={activeSpaceId ? "right-14" : "right-7"}
+                aria-label="Search notes"
+              >
+                <Search size={14} strokeWidth={2} />
+              </SidebarMenuAction>
+            }
+          >
+            {filteredNotes.length === 0 ? (
+              <div className="px-3 py-2 text-xs text-muted-foreground">
+                No matching notes found.
+              </div>
+            ) : (
+              <SidebarMenuSub className="mr-0 pr-0 border-none">
+                {filteredNotes.map((note) => (
+                  <SidebarNoteTreeItem
+                    spaceId={note.spaceId}
+                    key={note.id}
+                    note={note}
+                    activeNoteId={activeNoteId}
+                  />
+                ))}
+              </SidebarMenuSub>
+            )}
+          </SidebarHoverCard>
           {activeSpaceId && (
             <Tooltip>
               <TooltipTrigger asChild>
@@ -114,6 +181,37 @@ export function SidebarNotesList() {
             <span>Notes</span>
           </SidebarMenuButton>
         </CollapsibleTrigger>
+        <SidebarHoverCard
+          title="Search Notes"
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          searchPlaceholder="Search notes..."
+          trigger={
+            <SidebarMenuAction
+              className={activeSpaceId ? "right-14" : "right-7"}
+              aria-label="Search notes"
+            >
+              <Search size={14} strokeWidth={2} />
+            </SidebarMenuAction>
+          }
+        >
+          {filteredNotes.length === 0 ? (
+            <div className="px-3 py-2 text-xs text-muted-foreground">
+              No matching notes found.
+            </div>
+          ) : (
+            <SidebarMenuSub className="mr-0 pr-0 border-none">
+              {filteredNotes.map((note) => (
+                <SidebarNoteTreeItem
+                  spaceId={note.spaceId}
+                  key={note.id}
+                  note={note}
+                  activeNoteId={activeNoteId}
+                />
+              ))}
+            </SidebarMenuSub>
+          )}
+        </SidebarHoverCard>
         {activeSpaceId && (
           <Tooltip>
             <TooltipTrigger asChild>

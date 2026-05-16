@@ -2,13 +2,6 @@ import { useEffect } from "react";
 import type { RealtimeNoteEvent } from "../types/realtime.types";
 import { REALTIME_EVENT_NAMES } from "../constants/realtime.constants";
 
-/**
- * Listens for real-time NOTE_UPDATED events from other users via SSE.
- * When the specified note is updated remotely, calls the provided callback
- * so the caller can re-fetch and update the local state.
- *
- * Events from the current user are already filtered out server-side.
- */
 export function useRealtimeNoteUpdate(
   noteId: string | undefined,
   onUpdate: (event: RealtimeNoteEvent) => void,

@@ -1,5 +1,5 @@
 import { cryptoService } from "@/features/crypto";
-import type { Note } from "../types/workspace.types";
+import type { Note, RemoteNote } from "../types/workspace.types";
 import { noteApiService } from "./note-api.service";
 import { spaceService } from "@/features/spaces/services/space.service";
 import {
@@ -74,7 +74,9 @@ class NoteSyncQueueService extends BaseSyncQueueService {
           });
         } catch (err) {
           if (err instanceof ApiError && err.status === HTTP_CONFLICT) {
-            await this.handleConflict(event.entityId, localNote);
+            console.log("error", err);
+            const remoteNote = await noteApiService.getNote(event.entityId);
+            await this.handleConflict(event.entityId, localNote, remoteNote || localNote);
             return; // Conflict handled — don't rethrow
           }
           throw err;
@@ -105,12 +107,15 @@ class NoteSyncQueueService extends BaseSyncQueueService {
    * 2. Pulling the server's latest version into the original note
    * 3. Dispatching a UI event so a toast can notify the user
    */
-  private async handleConflict(noteId: string, localNote: Note): Promise<void> {
+  private async handleConflict(noteId: string, localNote: Note, remoteNote: Note): Promise<void> {
     logService.warn(
       `Conflict detected on note ${noteId} (local v${localNote.version}). Creating conflict copy.`,
     );
 
     const now = new Date().toISOString();
+
+    // update the version of the localNote now
+    await NoteLocalService.update(noteId, { version: remoteNote.version });
 
     // 1. Save the user's local changes as a conflict copy
     const conflictCopy: Note = {

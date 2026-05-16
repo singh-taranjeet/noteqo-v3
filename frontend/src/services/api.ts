@@ -74,9 +74,9 @@ async function request<T>(url: string, init: ApiRequestInit): Promise<T> {
       ...init,
       headers,
     });
-  } catch {
+  } catch (error) {
     // Catch native fetch TypeErrors (e.g., when offline) to prevent unhandled rejection overlays
-    throw new ApiError(0, { message: "Network connection failed" });
+    throw new ApiError(0, { message: "Network connection failed", error });
   }
 
   if (!response.ok) {
