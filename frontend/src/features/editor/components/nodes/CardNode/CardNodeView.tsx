@@ -55,7 +55,7 @@ export const CardNodeView = ({
 
         {/* Since we can't reliably guess where 'cn' is, I'll just template literal the strings */}
         <Card className={`transition-colors overflow-hidden ${activeClass}`}>
-          <CardContent className="p-4 sm:p-6 w-full">
+          <CardContent className="w-full">
             <NodeViewContent className="min-h-[1.5em] prose dark:prose-invert max-w-none w-full [&>p]:m-0" />
           </CardContent>
         </Card>

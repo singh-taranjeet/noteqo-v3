@@ -36,6 +36,7 @@ import { CardNodeExtension } from "@/features/editor/components/nodes/CardNode/C
 import { AccordionNodeExtension } from "@/features/editor/components/nodes/AccordionNode/AccordionNodeExtension";
 import { CalloutNodeExtension } from "@/features/editor/components/nodes/CalloutNode/CalloutNodeExtension";
 import { DateNodeExtension } from "@/features/editor/components/nodes/DateNode/DateNodeExtension";
+import { TocNodeExtension } from "@/features/editor/components/nodes/TocNode/TocNodeExtension";
 
 // --- Tiptap File & Media ---
 import { FileNodeExtension } from "@/features/editor/components/nodes/FileNode/FileNodeExtension";
@@ -173,6 +174,7 @@ export function useNoteEditorLogic({
         AccordionNodeExtension,
         CalloutNodeExtension,
         DateNodeExtension,
+        TocNodeExtension,
 
         TextAlign.configure({ types: ["heading", "paragraph"] }),
         TaskList.configure({

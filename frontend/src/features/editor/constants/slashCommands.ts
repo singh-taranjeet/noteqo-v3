@@ -16,6 +16,7 @@ import {
   LayoutDashboard,
   List,
   ListOrdered,
+  ListTree,
   Link2,
   Mic,
   MonitorPlay,
@@ -128,6 +129,21 @@ export const SLASH_COMMANDS: SuggestionItem[] = [
     shortcut: "---",
     command: ({ editor, range }) => {
       editor.chain().focus().deleteRange(range).setHorizontalRule().run();
+    },
+  },
+  {
+    title: "Table of Contents",
+    icon: ListTree,
+    shortcut: "/toc",
+    command: ({ editor, range }) => {
+      editor
+        .chain()
+        .focus()
+        .deleteRange(range)
+        .insertContent({
+          type: "toc",
+        })
+        .run();
     },
   },
 
