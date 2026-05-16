@@ -1,5 +1,6 @@
 import {
   AlignLeft,
+  CalendarDays,
   CheckSquare,
   ChevronDown,
   Code,
@@ -11,6 +12,7 @@ import {
   Heading2,
   Heading3,
   ImagePlus,
+  Info,
   LayoutDashboard,
   List,
   ListOrdered,
@@ -172,6 +174,35 @@ export const SLASH_COMMANDS: SuggestionItem[] = [
         .insertContent({
           type: "shadcnAccordion",
           content: [{ type: "paragraph" }],
+        })
+        .run();
+    },
+  },
+  {
+    title: "Callout",
+    icon: Info,
+    command: ({ editor, range }) => {
+      editor
+        .chain()
+        .focus()
+        .deleteRange(range)
+        .insertContent({
+          type: "callout",
+          content: [{ type: "paragraph" }],
+        })
+        .run();
+    },
+  },
+  {
+    title: "Date",
+    icon: CalendarDays,
+    command: ({ editor, range }) => {
+      editor
+        .chain()
+        .focus()
+        .deleteRange(range)
+        .insertContent({
+          type: "date",
         })
         .run();
     },

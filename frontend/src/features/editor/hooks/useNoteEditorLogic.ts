@@ -34,6 +34,8 @@ import { ColumnExtension } from "@/features/editor/components/nodes/ColumnsNode/
 // --- Tiptap Layouts ---
 import { CardNodeExtension } from "@/features/editor/components/nodes/CardNode/CardNodeExtension";
 import { AccordionNodeExtension } from "@/features/editor/components/nodes/AccordionNode/AccordionNodeExtension";
+import { CalloutNodeExtension } from "@/features/editor/components/nodes/CalloutNode/CalloutNodeExtension";
+import { DateNodeExtension } from "@/features/editor/components/nodes/DateNode/DateNodeExtension";
 
 // --- Tiptap File & Media ---
 import { FileNodeExtension } from "@/features/editor/components/nodes/FileNode/FileNodeExtension";
@@ -169,6 +171,8 @@ export function useNoteEditorLogic({
         HeadingNode,
         CardNodeExtension,
         AccordionNodeExtension,
+        CalloutNodeExtension,
+        DateNodeExtension,
 
         TextAlign.configure({ types: ["heading", "paragraph"] }),
         TaskList.configure({
