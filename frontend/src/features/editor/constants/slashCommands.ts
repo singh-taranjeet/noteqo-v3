@@ -3,6 +3,7 @@ import {
   CalendarDays,
   CheckSquare,
   ChevronDown,
+  ChevronRight,
   Code,
   Code2,
   File,
@@ -189,6 +190,22 @@ export const SLASH_COMMANDS: SuggestionItem[] = [
         .deleteRange(range)
         .insertContent({
           type: "shadcnAccordion",
+          content: [{ type: "paragraph" }],
+        })
+        .run();
+    },
+  },
+  {
+    title: "Toggle List",
+    icon: ChevronRight,
+    shortcut: ">",
+    command: ({ editor, range }) => {
+      editor
+        .chain()
+        .focus()
+        .deleteRange(range)
+        .insertContent({
+          type: "toggle",
           content: [{ type: "paragraph" }],
         })
         .run();

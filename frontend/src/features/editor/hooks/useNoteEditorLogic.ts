@@ -37,6 +37,7 @@ import { AccordionNodeExtension } from "@/features/editor/components/nodes/Accor
 import { CalloutNodeExtension } from "@/features/editor/components/nodes/CalloutNode/CalloutNodeExtension";
 import { DateNodeExtension } from "@/features/editor/components/nodes/DateNode/DateNodeExtension";
 import { TocNodeExtension } from "@/features/editor/components/nodes/TocNode/TocNodeExtension";
+import { ToggleNodeExtension } from "@/features/editor/components/nodes/ToggleNode/ToggleNodeExtension";
 
 // --- Tiptap File & Media ---
 import { FileNodeExtension } from "@/features/editor/components/nodes/FileNode/FileNodeExtension";
@@ -175,6 +176,7 @@ export function useNoteEditorLogic({
         CalloutNodeExtension,
         DateNodeExtension,
         TocNodeExtension,
+        ToggleNodeExtension,
 
         TextAlign.configure({ types: ["heading", "paragraph"] }),
         TaskList.configure({
