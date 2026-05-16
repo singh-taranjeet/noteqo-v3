@@ -25,17 +25,23 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { SidebarUserProfile } from "./SidebarUserProfile";
-import { SidebarSpaceCategory } from "./SidebarSpaceCategory";
+import { SidebarSpaceSwitcher } from "./SidebarSpaceSwitcher";
+import { SidebarNotesList } from "./SidebarNotesList";
 import { RecentSubMenu } from "./RecentSection";
 import { SidebarThemeToggle } from "./SidebarThemeToggle";
 import { SearchDialog } from "./Search";
 import { SpaceSettingsDialog } from "@/features/spaces/components/SpaceSettingsDialog/SpaceSettingsDialog";
-import { useSpaces, useCreateSpace } from "@/features/spaces";
+import { useSpaces, useCreateSpace, useActiveSpace } from "@/features/spaces";
 import { useCreateNote } from "@/features/workspace";
 import { MOCK_USER, useUserProfile } from "@/features/auth";
 import { SPACE_TYPE } from "@/features/spaces";
@@ -75,13 +81,14 @@ export function AppSidebar() {
     }
   }, [pathname, isMobile, setOpenMobile]);
 
-  const { data, isLoading: spacesLoading, spaceNoteTreesMap } = useSpaces();
+  const { data } = useSpaces();
   useRemoteSpaces();
 
   const { spaces = [] } = data || {};
 
   const { mutate: createNote } = useCreateNote();
   const { createSpace, isLoading: isCreatingSpace } = useCreateSpace();
+  const { activeSpaceId } = useActiveSpace();
 
   // Track which type of space is being created to show the correct dialog
   const [createSpaceType, setCreateSpaceType] = useState<SpaceType | null>(
@@ -91,12 +98,6 @@ export function AppSidebar() {
   // Track which space we are managing settings for
   const [settingsSpace, setSettingsSpace] = useState<Space | null>(null);
 
-  const isLoading = spacesLoading;
-
-  // Filter spaces by type
-  const personalSpaces = spaces.filter((s) => s.type === SPACE_TYPE.PERSONAL);
-  const sharedSpaces = spaces.filter((s) => s.type === SPACE_TYPE.SHARED);
-
   const activeTab = useMemo<ActiveTabType>(() => {
     const match = Object.entries(ACTIVE_TAB_MAP).find(([prefix]) =>
       pathname.startsWith(prefix),
@@ -104,15 +105,21 @@ export function AppSidebar() {
     return match ? match[1] : "";
   }, [pathname]);
 
-  const defaultPersonalSpace = personalSpaces.find(
-    (personalSpace) => personalSpace.isDefault,
+  const defaultPersonalSpace = spaces.find(
+    (personalSpace) =>
+      personalSpace.type === SPACE_TYPE.PERSONAL && personalSpace.isDefault,
   );
 
   const { data: userProfile, isLoading: isUserProfileLoading } =
     useUserProfile();
 
-  const handleCreateNote = (spaceId: string) => {
-    createNote({ spaceId });
+  const handleQuickCreate = () => {
+    // If a space is selected, create in that space
+    // If "All Spaces", create in default personal space
+    const targetSpaceId = activeSpaceId || defaultPersonalSpace?.id;
+    if (targetSpaceId) {
+      createNote({ spaceId: targetSpaceId });
+    }
   };
 
   const handleCreateSpaceSubmit = async (values: FormValues) => {
@@ -125,14 +132,8 @@ export function AppSidebar() {
   return (
     <Sidebar variant="inset" collapsible="offcanvas">
       <SidebarHeader>
-        <SidebarUserProfile
-          username={userProfile?.name || MOCK_USER.NAME}
-          avatarEmoji={
-            userProfile?.name
-              ? userProfile.name.charAt(0).toUpperCase()
-              : MOCK_USER.AVATAR
-          }
-          isLoading={isUserProfileLoading}
+        <SidebarSpaceSwitcher
+          onAddSpaceClick={(type) => setCreateSpaceType(type)}
         />
       </SidebarHeader>
 
@@ -157,6 +158,7 @@ export function AppSidebar() {
                 asChild
                 isActive={activeTab === "home"}
                 className="font-medium"
+                tooltip="Home"
               >
                 <Link to={ROUTES.NOTES}>
                   <Home size={16} strokeWidth={1.5} />
@@ -169,45 +171,32 @@ export function AppSidebar() {
             <Collapsible defaultOpen className="group/collapsible">
               <SidebarMenuItem>
                 <CollapsibleTrigger asChild>
-                  <SidebarMenuButton className="font-medium cursor-pointer">
+                  <SidebarMenuButton
+                    className="font-medium cursor-pointer"
+                    tooltip="Recent"
+                  >
                     <Clock size={16} strokeWidth={1.5} />
                     <span>Recent</span>
                   </SidebarMenuButton>
                 </CollapsibleTrigger>
-                <CollapsibleTrigger asChild>
-                  <SidebarMenuAction className="data-[state=open]:rotate-90">
-                    <ChevronRight size={14} />
-                  </SidebarMenuAction>
-                </CollapsibleTrigger>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <CollapsibleTrigger asChild>
+                      <SidebarMenuAction className="data-[state=open]:rotate-90">
+                        <ChevronRight size={14} />
+                      </SidebarMenuAction>
+                    </CollapsibleTrigger>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">Toggle</TooltipContent>
+                </Tooltip>
                 <CollapsibleContent>
                   <RecentSubMenu />
                 </CollapsibleContent>
               </SidebarMenuItem>
             </Collapsible>
 
-            {/* Shared Spaces */}
-            <SidebarSpaceCategory
-              label="Shared Space"
-              spaces={sharedSpaces}
-              isLoading={isLoading}
-              emptyMessage="No shared spaces"
-              spaceNoteTreesMap={spaceNoteTreesMap}
-              onAddSpaceClick={() => setCreateSpaceType(SPACE_TYPE.SHARED)}
-              onCreateNote={handleCreateNote}
-              onSettingsClick={(space) => setSettingsSpace(space)}
-            />
-
-            {/* Private Spaces */}
-            <SidebarSpaceCategory
-              label="Private Space"
-              spaces={personalSpaces}
-              isLoading={isLoading}
-              emptyMessage="No spaces yet"
-              spaceNoteTreesMap={spaceNoteTreesMap}
-              onAddSpaceClick={() => setCreateSpaceType(SPACE_TYPE.PERSONAL)}
-              onCreateNote={handleCreateNote}
-              onSettingsClick={(space) => setSettingsSpace(space)}
-            />
+            {/* Notes — space-scoped */}
+            <SidebarNotesList />
           </SidebarMenu>
         </SidebarGroup>
 
@@ -219,8 +208,9 @@ export function AppSidebar() {
                 asChild
                 isActive={activeTab === "library"}
                 className="font-medium"
+                tooltip="Library"
               >
-                <Link to="/library">
+                <Link to={ROUTES.LIBRARY}>
                   <BookOpen size={16} strokeWidth={1.5} />
                   <span>Library</span>
                 </Link>
@@ -231,8 +221,9 @@ export function AppSidebar() {
                 asChild
                 isActive={activeTab === "assets"}
                 className="font-medium"
+                tooltip="Assets"
               >
-                <Link to="/assets">
+                <Link to={ROUTES.ASSETS}>
                   <ImageIcon size={16} strokeWidth={1.5} />
                   <span>Assets</span>
                 </Link>
@@ -243,8 +234,9 @@ export function AppSidebar() {
                 asChild
                 isActive={activeTab === "trash"}
                 className="font-medium"
+                tooltip="Trash"
               >
-                <Link to="/trash">
+                <Link to={ROUTES.TRASH}>
                   <Trash2 size={16} strokeWidth={1.5} />
                   <span>Trash</span>
                 </Link>
@@ -259,18 +251,25 @@ export function AppSidebar() {
           <SidebarThemeToggle />
           <SidebarMenuItem>
             <SidebarMenuButton
-              onClick={() => {
-                if (defaultPersonalSpace) {
-                  handleCreateNote(defaultPersonalSpace.id);
-                }
-              }}
+              onClick={handleQuickCreate}
               className="justify-center bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90 hover:text-sidebar-primary-foreground"
+              tooltip="Quick Create Note"
             >
               <PenLine size={16} strokeWidth={1.5} />
               <span className="text-sm">Quick Create</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
+        <SidebarUserProfile
+          username={userProfile?.name || MOCK_USER.NAME}
+          email={userProfile?.email}
+          avatarEmoji={
+            userProfile?.name
+              ? userProfile.name.charAt(0).toUpperCase()
+              : MOCK_USER.AVATAR
+          }
+          isLoading={isUserProfileLoading}
+        />
       </SidebarFooter>
 
       <SidebarRail />

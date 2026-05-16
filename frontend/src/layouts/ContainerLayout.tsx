@@ -3,9 +3,11 @@ import { AppShell, AppSidebar, Header } from "@/components/core";
 import { AuthGuard } from "@/features/auth";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { RealtimeProvider } from "@/features/realtime";
+import { ActiveSpaceProvider } from "@/features/spaces";
+import type { LucideIcon } from "lucide-react";
 
 export const ContainerLayout = {
-  Heading: (props: { title: string; subTitle: string; Icon: any }) => {
+  Heading: (props: { title: string; subTitle: string; Icon: LucideIcon }) => {
     const { title, subTitle, Icon } = props;
     return (
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
@@ -24,19 +26,21 @@ export const ContainerLayout = {
       <AuthGuard>
         <RealtimeProvider>
           <AppShell>
-            <SidebarProvider>
-              <AppSidebar />
-              <SidebarInset className="shadow-none! rounded-xl! p-0! bg-transparent! border-none! m-0!">
-                <div className="absolute left-2 top-2 shadow-xl flex h-[calc(100vh-16px)] w-[calc(100%-16px)] flex-col overflow-hidden border border-transparent dark:border-white/10 rounded-xl bg-transparent">
-                  <Header />
-                  <div className="flex-1 overflow-auto rounded-xl bg-background">
-                    <div className="pt-11 rounded-xl">
-                      <Outlet />
+            <ActiveSpaceProvider>
+              <SidebarProvider>
+                <AppSidebar />
+                <SidebarInset className="shadow-none! rounded-xl! p-0! bg-transparent! border-none! m-0!">
+                  <div className="absolute left-2 top-2 shadow-xl flex h-[calc(100vh-16px)] w-[calc(100%-16px)] flex-col overflow-hidden border border-transparent dark:border-white/10 rounded-xl bg-transparent">
+                    <Header />
+                    <div className="flex-1 overflow-auto rounded-xl bg-background">
+                      <div className="pt-11 rounded-xl">
+                        <Outlet />
+                      </div>
                     </div>
                   </div>
-                </div>
-              </SidebarInset>
-            </SidebarProvider>
+                </SidebarInset>
+              </SidebarProvider>
+            </ActiveSpaceProvider>
           </AppShell>
         </RealtimeProvider>
       </AuthGuard>

@@ -1,6 +1,7 @@
 import { Clock, Home } from "lucide-react";
 
 import { useRecentNotes } from "@/features/workspace/hooks/useRecentNotes";
+import { useActiveSpace } from "@/features/spaces";
 
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -25,7 +26,8 @@ import { EmojiOrImage } from "@/features/media/components/EmojiOrImage";
 import { EncryptedImage } from "@/features/media/components/EncryptedImage";
 
 export function DashboardView() {
-  const { notes: recentNotes, isLoading } = useRecentNotes();
+  const { activeSpaceId } = useActiveSpace();
+  const { notes: recentNotes, isLoading } = useRecentNotes(activeSpaceId);
 
   return (
     <ContainerLayout.Spacer>

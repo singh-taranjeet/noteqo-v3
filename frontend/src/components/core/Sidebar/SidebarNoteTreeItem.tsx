@@ -11,6 +11,11 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { ROUTES } from "@/constants/routes";
 import type { NoteTreeNode } from "@/features/workspace/types/workspace.types";
 import { EmojiOrImage } from "@/features/media/components/EmojiOrImage";
@@ -35,18 +40,23 @@ export function SidebarNoteTreeItem({
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
         <SidebarMenuSubItem>
           <div className="flex items-center w-full relative">
-            <CollapsibleTrigger asChild>
-              <button
-                className="absolute left-0 w-6 h-6 flex items-center justify-center z-10 hover:bg-sidebar-accent rounded-sm text-sidebar-foreground"
-                aria-label="Toggle children"
-              >
-                <ChevronRight
-                  size={10}
-                  strokeWidth={2}
-                  className={`transition-transform duration-200 ${isOpen ? "rotate-90" : ""}`}
-                />
-              </button>
-            </CollapsibleTrigger>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <CollapsibleTrigger asChild>
+                  <button
+                    className="absolute left-0 w-6 h-6 flex items-center justify-center z-10 hover:bg-sidebar-accent rounded-sm text-sidebar-foreground"
+                    aria-label="Toggle children"
+                  >
+                    <ChevronRight
+                      size={10}
+                      strokeWidth={2}
+                      className={`transition-transform duration-200 ${isOpen ? "rotate-90" : ""}`}
+                    />
+                  </button>
+                </CollapsibleTrigger>
+              </TooltipTrigger>
+              <TooltipContent side="right">Toggle</TooltipContent>
+            </Tooltip>
             <SidebarMenuSubButton
               asChild
               isActive={isActive}

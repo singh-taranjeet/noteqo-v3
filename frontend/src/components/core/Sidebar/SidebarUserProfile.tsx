@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronUp, LogOut } from "lucide-react";
+import { ChevronsUpDown, LogOut, Settings, User } from "lucide-react";
 
 import { useState } from "react";
 import {
@@ -14,24 +14,29 @@ import {
   DropdownMenuSeparator,
   DropdownMenuLabel,
   DropdownMenuTrigger,
+  DropdownMenuGroup,
 } from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useLogout } from "@/features/auth";
 import { DynamicDialog } from "@/components/ui/DynamicDialog";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
+import { ROUTES } from "@/constants/routes";
 
 interface SidebarUserProfileProps {
   username: string;
+  email?: string;
   avatarEmoji?: string;
   isLoading?: boolean;
 }
 
 export function SidebarUserProfile({
   username,
+  email,
   avatarEmoji = "😎",
   isLoading,
 }: SidebarUserProfileProps) {
   const { logout } = useLogout();
-  const [isOpen, setIsOpen] = useState(false);
   const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
 
   if (isLoading) {
@@ -51,42 +56,69 @@ export function SidebarUserProfile({
     <>
       <SidebarMenu>
         <SidebarMenuItem>
-          <DropdownMenu onOpenChange={setIsOpen}>
+          <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <SidebarMenuButton
-                className="data-[state=open]:bg-sidebar-accent border data-[state=open]:text-sidebar-accent-foreground justify-between"
+                size="lg"
+                className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                tooltip="Account"
                 id="sidebar-user-profile-trigger"
               >
-                <div className="flex items-center gap-2 overflow-hidden flex-1">
-                  <span
-                    className="text-base shrink-0"
-                    role="img"
-                    aria-label="User avatar"
-                  >
+                <Avatar className="h-8 w-8 rounded-lg">
+                  <AvatarFallback className="rounded-lg text-sm">
                     {avatarEmoji}
-                  </span>
-                  <span className="text-sm  truncate text-left">
-                    {username}
-                  </span>
+                  </AvatarFallback>
+                </Avatar>
+                <div className="grid flex-1 text-left text-sm leading-tight">
+                  <span className="truncate font-medium">{username}</span>
+                  {email && (
+                    <span className="truncate text-xs text-muted-foreground">
+                      {email}
+                    </span>
+                  )}
                 </div>
-                {isOpen ? (
-                  <ChevronUp
-                    size={14}
-                    strokeWidth={1.5}
-                    className="opacity-50 shrink-0"
-                  />
-                ) : (
-                  <ChevronDown
-                    size={14}
-                    strokeWidth={1.5}
-                    className="opacity-50 shrink-0"
-                  />
-                )}
+                <ChevronsUpDown className="ml-auto size-4 opacity-50" />
               </SidebarMenuButton>
             </DropdownMenuTrigger>
 
-            <DropdownMenuContent side="bottom" align="start" className="w-56">
-              <DropdownMenuLabel>{username}</DropdownMenuLabel>
+            <DropdownMenuContent
+              className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+              side="top"
+              align="end"
+              sideOffset={4}
+            >
+              <DropdownMenuLabel className="p-0 font-normal">
+                <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                  <Avatar className="h-8 w-8 rounded-lg">
+                    <AvatarFallback className="rounded-lg text-sm">
+                      {avatarEmoji}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="grid flex-1 text-left text-sm leading-tight">
+                    <span className="truncate font-medium">{username}</span>
+                    {email && (
+                      <span className="truncate text-xs text-muted-foreground">
+                        {email}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                <DropdownMenuItem asChild>
+                  <Link to={ROUTES.SETTINGS}>
+                    <Settings size={16} strokeWidth={1.5} />
+                    Settings
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to={ROUTES.PROFILE}>
+                    <User size={16} strokeWidth={1.5} />
+                    Profile
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 variant="destructive"

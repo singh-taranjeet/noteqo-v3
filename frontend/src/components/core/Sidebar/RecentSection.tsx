@@ -7,16 +7,18 @@ import {
   SidebarMenuSubButton,
 } from "@/components/ui/sidebar";
 import { useRecentNotes } from "@/features/workspace";
+import { useActiveSpace } from "@/features/spaces";
 import { ROUTES } from "@/constants/routes";
 import { SidebarHoverCard } from "./SidebarHoverCard";
 import { EmojiOrImage } from "@/features/media/components/EmojiOrImage";
 
 /**
- * Renders recent notes as SidebarMenuSub items.
- * Used inside the collapsible Home section of the sidebar.
+ * Renders recent notes as SidebarMenuSub items, filtered by active space.
+ * Used inside the collapsible Recent section of the sidebar.
  */
 export function RecentSubMenu() {
-  const { notes, isLoading } = useRecentNotes();
+  const { activeSpaceId } = useActiveSpace();
+  const { notes, isLoading } = useRecentNotes(activeSpaceId);
   const [searchQuery, setSearchQuery] = useState("");
 
   const recentNotes = notes.slice(0, 10);
