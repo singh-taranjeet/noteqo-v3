@@ -6,6 +6,7 @@ import {
   Code2,
   File,
   FilePlus,
+  FileText,
   Heading1,
   Heading2,
   Heading3,
@@ -13,6 +14,9 @@ import {
   LayoutDashboard,
   List,
   ListOrdered,
+  Link2,
+  Mic,
+  MonitorPlay,
   Paperclip,
   Quote,
   Table,
@@ -209,6 +213,64 @@ export const SLASH_COMMANDS: SuggestionItem[] = [
     command: ({ editor, range }) => {
       editor.chain().focus().deleteRange(range).run();
       editor.commands.promptFileUpload("video/*");
+    },
+  },
+  {
+    title: "Audio",
+    icon: Mic,
+    command: ({ editor, range }) => {
+      editor.chain().focus().deleteRange(range).run();
+      editor.commands.promptFileUpload("audio/*");
+    },
+  },
+  {
+    title: "PDF Document",
+    icon: FileText,
+    command: ({ editor, range }) => {
+      editor.chain().focus().deleteRange(range).run();
+      editor.commands.promptFileUpload("application/pdf");
+    },
+  },
+  {
+    title: "Web Bookmark",
+    icon: Link2,
+    command: ({ editor, range }) => {
+      const url = window.prompt("Enter URL for bookmark:");
+      if (url) {
+        editor
+          .chain()
+          .focus()
+          .deleteRange(range)
+          .insertContent({
+            type: "bookmark",
+            attrs: { url },
+          })
+          .run();
+      } else {
+        editor.chain().focus().deleteRange(range).run();
+      }
+    },
+  },
+  {
+    title: "Embed Media",
+    icon: MonitorPlay,
+    command: ({ editor, range }) => {
+      const url = window.prompt(
+        "Enter Embed URL (YouTube, Vimeo, Figma, etc):",
+      );
+      if (url) {
+        editor
+          .chain()
+          .focus()
+          .deleteRange(range)
+          .insertContent({
+            type: "embed",
+            attrs: { url },
+          })
+          .run();
+      } else {
+        editor.chain().focus().deleteRange(range).run();
+      }
     },
   },
   {

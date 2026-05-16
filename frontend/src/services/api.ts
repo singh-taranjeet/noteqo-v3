@@ -74,7 +74,7 @@ async function request<T>(url: string, init: ApiRequestInit): Promise<T> {
       ...init,
       headers,
     });
-  } catch (error) {
+  } catch {
     // Catch native fetch TypeErrors (e.g., when offline) to prevent unhandled rejection overlays
     throw new ApiError(0, { message: "Network connection failed" });
   }
@@ -126,7 +126,7 @@ async function requestForm<T>(
       headers,
       body: formData,
     });
-  } catch (error) {
+  } catch {
     // Catch native fetch TypeErrors (e.g., when offline) to prevent unhandled rejection overlays
     throw new ApiError(0, { message: "Network connection failed" });
   }

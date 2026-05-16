@@ -40,6 +40,10 @@ import { FileNodeExtension } from "@/features/editor/components/nodes/FileNode/F
 import { FileUploaderExtension } from "@/features/editor/components/extensions/FileUploaderExtension";
 import { ImageNodeExtension } from "@/features/editor/components/nodes/ImageNode/ImageNodeExtension";
 import { VideoNodeExtension } from "@/features/editor/components/nodes/VideoNode/VideoNodeExtension";
+import { AudioNodeExtension } from "@/features/editor/components/nodes/AudioNode/AudioNodeExtension";
+import { PdfNodeExtension } from "@/features/editor/components/nodes/PdfNode/PdfNodeExtension";
+import { EmbedNodeExtension } from "@/features/editor/components/nodes/EmbedNode/EmbedNodeExtension";
+import { BookmarkNodeExtension } from "@/features/editor/components/nodes/BookmarkNode/BookmarkNodeExtension";
 
 // --- Tiptap Table ---
 import { TableNodeExtension } from "@/features/editor/components/nodes/TableNode/TableNodeExtension";
@@ -191,6 +195,10 @@ export function useNoteEditorLogic({
         FileNodeExtension,
         ImageNodeExtension,
         VideoNodeExtension,
+        AudioNodeExtension,
+        PdfNodeExtension,
+        EmbedNodeExtension,
+        BookmarkNodeExtension,
         FileUploaderExtension.configure({
           getSpaceId: () => spaceId,
           getNoteId: () => noteId,
