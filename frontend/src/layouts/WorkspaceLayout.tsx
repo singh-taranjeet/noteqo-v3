@@ -27,9 +27,9 @@ export const WorkSpaceLayout = {
                     <SidebarProvider>
                         <AppSidebar />
                         <SidebarInset className="shadow-none! rounded-xl! p-0! bg-transparent! border-none! m-0!">
-                            <div className="right-2 top-2 shadow-xl absolute flex h-[calc(100vh-8px)] w-full flex-col overflow-hidden border-none rounded-xl bg-transparent">
+                            <div className="absolute left-2 top-2 shadow-xl flex h-[calc(100vh-16px)] w-[calc(100%-16px)] flex-col overflow-hidden border-none rounded-xl bg-transparent">
                                 <Header />
-                                <div className="flex-1 overflow-auto rounded-xl">
+                                <div className="flex-1 overflow-auto rounded-xl bg-background">
                                     <div className="pt-11 rounded-xl">
                                         <Outlet />
                                     </div>
@@ -42,7 +42,7 @@ export const WorkSpaceLayout = {
         </AuthGuard>
     },
     Spacer: (props: { children: React.ReactNode }) => {
-        return <section className="px-5">
+        return <section className="px-5 bg-background">
             {props.children}
         </section>
     }
