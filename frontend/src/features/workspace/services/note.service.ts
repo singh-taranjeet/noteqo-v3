@@ -15,6 +15,7 @@ import {
   SYNC_ENTITY,
 } from "@/features/shared/types/index.shared";
 import { NoteLocalService } from "@/features/workspace/services/note-local.service";
+import { SpaceLocalService } from "@/features/spaces/services/space-local.service";
 
 function getRandomItem<T>(pool: readonly T[]): T {
   return pool[Math.floor(Math.random() * pool.length)];
@@ -33,8 +34,7 @@ export const noteService = {
   ): Promise<Note> {
     const now = new Date().toISOString();
 
-    // Determine note type from the cached space
-    const space = await db.spaces.get(spaceId);
+    const space = await SpaceLocalService.get(spaceId);
     const noteType = space?.type === "shared" ? "shared" : "private";
 
     const note: Note = {

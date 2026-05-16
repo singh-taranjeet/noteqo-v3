@@ -7,6 +7,7 @@ import type { Note } from "../types/workspace.types";
 
 import { useUserProfile } from "@/features/auth";
 import { NoteLocalService } from "../services/note-local.service";
+import { SpaceLocalService } from "@/features/spaces/services/space-local.service";
 
 export const SIDEBAR_SEARCH_NOTES_QUERY_KEY = ["sidebar-search-notes"] as const;
 export const SIDEBAR_SEARCH_SPACES_QUERY_KEY = [
@@ -84,7 +85,7 @@ export function useSidebarSearchNotes() {
 
   const notes = useLiveQuery(() => NoteLocalService.all(), []);
 
-  const spaces = useLiveQuery(() => db.spaces.toArray(), []);
+  const spaces = useLiveQuery(() => SpaceLocalService.all(), []);
 
   const items = useMemo<SidebarSearchResultItem[]>(() => {
     const spaceNameById = new Map(
