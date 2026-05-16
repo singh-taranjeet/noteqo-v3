@@ -1,4 +1,4 @@
-import { ChevronsUpDown, Plus, Layers } from "lucide-react";
+import { ChevronsUpDown, Plus, Layers, Settings2 } from "lucide-react";
 
 import {
   SidebarMenu,
@@ -13,6 +13,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useSpaces, useActiveSpace, SPACE_TYPE } from "@/features/spaces";
 import type { Space } from "@/features/spaces";
 
@@ -20,9 +25,13 @@ interface SidebarSpaceSwitcherProps {
   onAddSpaceClick: (type: "personal" | "shared") => void;
 }
 
+import { useNavigate } from "react-router-dom";
+import { ROUTES } from "@/constants/routes";
+
 export function SidebarSpaceSwitcher({
   onAddSpaceClick,
 }: SidebarSpaceSwitcherProps) {
+  const navigate = useNavigate();
   const { data } = useSpaces();
   const { spaces = [] } = data || {};
   const { activeSpaceId, activeSpace, setActiveSpaceId } = useActiveSpace();
@@ -97,60 +106,114 @@ export function SidebarSpaceSwitcher({
             <DropdownMenuSeparator />
 
             {/* Personal Spaces */}
-            {personalSpaces.length > 0 && (
-              <>
-                <DropdownMenuLabel className="text-xs text-muted-foreground">
-                  Personal
-                </DropdownMenuLabel>
-                {personalSpaces.map((space) => (
-                  <DropdownMenuItem
-                    key={space.id}
-                    onClick={() => setActiveSpaceId(space.id)}
-                    className={`gap-2 p-2 ${activeSpaceId === space.id ? "bg-accent/50" : ""}`}
+            <DropdownMenuLabel className="flex items-center justify-between text-xs text-muted-foreground">
+              Personal
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    className="hover:bg-accent hover:text-accent-foreground p-0.5 rounded-sm cursor-pointer"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onAddSpaceClick(SPACE_TYPE.PERSONAL);
+                    }}
                   >
-                    <div className="flex size-6 items-center justify-center rounded-md border text-xs font-semibold">
-                      {getSpaceIcon(space)}
+                    <Plus size={12} />
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="right">
+                  Create Personal Space
+                </TooltipContent>
+              </Tooltip>
+            </DropdownMenuLabel>
+            {personalSpaces.map((space) => (
+              <DropdownMenuItem
+                key={space.id}
+                onClick={(e) => {
+                  if ((e.target as HTMLElement).closest(".manage-space-btn")) {
+                    navigate(ROUTES.SPACE(space.id));
+                  } else {
+                    setActiveSpaceId(space.id);
+                  }
+                }}
+                className={`gap-2 p-2 group ${activeSpaceId === space.id ? "bg-accent/50" : ""}`}
+              >
+                <div className="flex size-6 items-center justify-center rounded-md border text-xs font-semibold">
+                  {getSpaceIcon(space)}
+                </div>
+                <span className="truncate flex-1">{space.name}</span>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="manage-space-btn p-1 hover:bg-accent rounded-sm text-muted-foreground hover:text-foreground cursor-pointer">
+                      <Settings2 size={14} />
                     </div>
-                    <span className="truncate">{space.name}</span>
-                  </DropdownMenuItem>
-                ))}
-              </>
-            )}
-
-            {/* Shared Spaces */}
-            {sharedSpaces.length > 0 && (
-              <>
-                {personalSpaces.length > 0 && <DropdownMenuSeparator />}
-                <DropdownMenuLabel className="text-xs text-muted-foreground">
-                  Shared
-                </DropdownMenuLabel>
-                {sharedSpaces.map((space) => (
-                  <DropdownMenuItem
-                    key={space.id}
-                    onClick={() => setActiveSpaceId(space.id)}
-                    className={`gap-2 p-2 ${activeSpaceId === space.id ? "bg-accent/50" : ""}`}
-                  >
-                    <div className="flex size-6 items-center justify-center rounded-md border text-xs font-semibold">
-                      {getSpaceIcon(space)}
-                    </div>
-                    <span className="truncate">{space.name}</span>
-                  </DropdownMenuItem>
-                ))}
-              </>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">Manage Space</TooltipContent>
+                </Tooltip>
+              </DropdownMenuItem>
+            ))}
+            {personalSpaces.length === 0 && (
+              <div className="px-2 py-1.5 text-xs text-muted-foreground italic">
+                No personal spaces
+              </div>
             )}
 
             <DropdownMenuSeparator />
-            <DropdownMenuItem
-              className="gap-2 p-2"
-              onClick={() => onAddSpaceClick(SPACE_TYPE.PERSONAL)}
-            >
-              <div className="flex size-6 items-center justify-center rounded-md border bg-transparent">
-                <Plus size={14} />
+
+            {/* Shared Spaces */}
+            <DropdownMenuLabel className="flex items-center justify-between text-xs text-muted-foreground">
+              Shared
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    className="hover:bg-accent hover:text-accent-foreground p-0.5 rounded-sm cursor-pointer"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onAddSpaceClick(SPACE_TYPE.SHARED);
+                    }}
+                  >
+                    <Plus size={12} />
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="right">
+                  Create Shared Space
+                </TooltipContent>
+              </Tooltip>
+            </DropdownMenuLabel>
+            {sharedSpaces.map((space) => (
+              <DropdownMenuItem
+                key={space.id}
+                onClick={(e) => {
+                  if ((e.target as HTMLElement).closest(".manage-space-btn")) {
+                    navigate(ROUTES.SPACE(space.id));
+                  } else {
+                    setActiveSpaceId(space.id);
+                  }
+                }}
+                className={`gap-2 p-2 group ${activeSpaceId === space.id ? "bg-accent/50" : ""}`}
+              >
+                <div className="flex size-6 items-center justify-center rounded-md border text-xs font-semibold">
+                  {getSpaceIcon(space)}
+                </div>
+                <span className="truncate flex-1">{space.name}</span>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="manage-space-btn p-1 hover:bg-accent rounded-sm text-muted-foreground hover:text-foreground cursor-pointer">
+                      <Settings2 size={14} />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">Manage Space</TooltipContent>
+                </Tooltip>
+              </DropdownMenuItem>
+            ))}
+            {sharedSpaces.length === 0 && (
+              <div className="px-2 py-1.5 text-xs text-muted-foreground italic">
+                No shared spaces
               </div>
-              <span className="text-muted-foreground font-medium">
-                Create Space
-              </span>
-            </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>

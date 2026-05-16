@@ -38,7 +38,6 @@ import { SidebarUserProfile } from "./SidebarUserProfile";
 import { SidebarSpaceSwitcher } from "./SidebarSpaceSwitcher";
 import { SidebarNotesList } from "./SidebarNotesList";
 import { RecentSubMenu } from "./RecentSection";
-import { SidebarThemeToggle } from "./SidebarThemeToggle";
 import { SearchDialog } from "./Search";
 import { SpaceSettingsDialog } from "@/features/spaces/components/SpaceSettingsDialog/SpaceSettingsDialog";
 import { useSpaces, useCreateSpace, useActiveSpace } from "@/features/spaces";
@@ -248,7 +247,6 @@ export function AppSidebar() {
 
       <SidebarFooter>
         <SidebarMenu>
-          <SidebarThemeToggle />
           <SidebarMenuItem>
             <SidebarMenuButton
               onClick={handleQuickCreate}
