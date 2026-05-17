@@ -238,8 +238,6 @@ export function useNoteEditorLogic({
     [spaceId],
   );
 
-  console.log("PENDING UPDATES", pendingUpdates.current);
-
   useEffect(() => {
     if (editor && !loading && content) {
       if (!isInitialized.current) {
