@@ -17,7 +17,9 @@ export function useRealtimeNoteUpdate(
       }
     };
 
-    const eventName = SYNC_EVENTS.REAL_TIME_EVENT(REALTIME_EVENT_NAMES.NOTE_UPDATED);
+    const eventName = SYNC_EVENTS.REAL_TIME_EVENT(
+      REALTIME_EVENT_NAMES.NOTE_UPDATED,
+    );
     globalThis.addEventListener(eventName, handleUpdate);
 
     return () => {

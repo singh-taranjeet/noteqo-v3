@@ -66,7 +66,9 @@ class EventSourceService {
             const data = JSON.parse(event.data as string) as RealtimeNoteEvent;
             console.log("Data", data);
             globalThis.dispatchEvent(
-              new CustomEvent(SYNC_EVENTS.REAL_TIME_EVENT(eventType), { detail: data }),
+              new CustomEvent(SYNC_EVENTS.REAL_TIME_EVENT(eventType), {
+                detail: data,
+              }),
             );
           } catch (err) {
             logService.error(`Failed to parse SSE event ${eventType}: ${err}`);

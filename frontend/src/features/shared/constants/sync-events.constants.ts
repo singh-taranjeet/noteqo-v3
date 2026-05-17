@@ -3,5 +3,5 @@ export const SYNC_EVENTS = {
   CONFLICT_DETECTED: "noteqo:conflict-detected",
   REAL_TIME_EVENT: (type: string) => `noteqo:realtime:${type}`,
   CREATE_CHILD: `noteqo:create-child-note`,
-  RESTORE_VERSION: 'noteqo:version-restored'
+  RESTORE_VERSION: "noteqo:version-restored",
 } as const;

@@ -11,7 +11,6 @@ import {
 import { BaseSyncQueueService } from "@/features/shared/services/baseSync.shared.service";
 import { ApiError } from "@/services/api";
 import { logService } from "@/services/log.service";
-import { db } from "@/features/storage/services/db.service";
 import { SYNC_EVENTS } from "@/features/shared/constants/sync-events.constants";
 import { NoteLocalService } from "./note-local.service";
 
@@ -73,7 +72,6 @@ class NoteSyncQueueService extends BaseSyncQueueService {
    * 3. Dispatching a UI event so a toast can notify the user
    */
   private async handleConflict(noteId: string, localNote: Note): Promise<void> {
-
     logService.warn(
       `Conflict detected on note ${noteId} (local v${localNote.remoteVersion}). Creating conflict copy.`,
     );

@@ -3,8 +3,6 @@ import { WORKSPACE_API_ROUTES } from "@/features/workspace/constants/workspace.c
 import type { Note, RemoteNote } from "../types/workspace.types";
 import { noteService } from "./note.service";
 import { NoteLocalService } from "./note-local.service";
-import { noteSyncQueueService } from "./note-sync-queue.service";
-import { SYNC_ENTITY, SYNC_EVENT_TYPE } from "@/features/shared/types/index.shared";
 
 export const noteApiService = {
   getNote: async (id: string): Promise<Note | undefined> => {
@@ -21,8 +19,6 @@ export const noteApiService = {
     }
   },
 
-
-
   handleInboundNote: async (event: {
     noteId: string;
     version: number;
@@ -31,9 +27,9 @@ export const noteApiService = {
     // QUICK CHECK — skip fetch entirely if we already have this version
     const localBefore = await NoteLocalService.get(event.noteId);
     if (localBefore && event.version <= localBefore.remoteVersion) {
-      console.log("We have this same version")
-      return
-    };
+      console.log("We have this same version");
+      return;
+    }
 
     // Fetch + decrypt the full note from server
     const serverNote = await noteApiService.getNote(event.noteId);
@@ -43,18 +39,22 @@ export const noteApiService = {
     // RE-READ local note AFTER fetch — the user may have started
     // typing during the network round-trip + decryption time
     const localAfter = await NoteLocalService.get(event.noteId);
-    console.log("compareing versions", JSON.stringify(serverNote.content) === JSON.stringify(localAfter?.content));
+    console.log(
+      "compareing versions",
+      JSON.stringify(serverNote.content) ===
+        JSON.stringify(localAfter?.content),
+    );
 
     // GUARD 1 — Version: skip if local is already up-to-date
     if (localAfter && serverNote.remoteVersion <= localAfter.remoteVersion) {
-      console.log("Guard 1 : We have this same version")
+      console.log("Guard 1 : We have this same version");
       return;
     }
 
     // GUARD 2 — Dirty: if note became dirty during fetch,
     // only update remoteVersion (so next sync uses correct baseVersion).
     if (localAfter?.isDirty) {
-      // the changes of this user are not yet uploaded to remote, 
+      // the changes of this user are not yet uploaded to remote,
       // so we need to create a local conflict here
       console.log("Local note was dirtly created a copy");
       return;

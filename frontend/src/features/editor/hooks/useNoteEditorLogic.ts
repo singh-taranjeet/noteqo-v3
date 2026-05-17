@@ -55,9 +55,7 @@ import { BookmarkNodeExtension } from "@/features/editor/components/nodes/Bookma
 import { TableNodeExtension } from "@/features/editor/components/nodes/TableNode/TableNodeExtension";
 
 // --- Lib ---
-import {
-  EDITOR_CONFIG,
-} from "@/features/editor/constants/editor.constants";
+import { EDITOR_CONFIG } from "@/features/editor/constants/editor.constants";
 
 import { noteService, useCreateNote, type Note } from "@/features/workspace";
 import { NoteLocalService } from "@/features/workspace/services/note-local.service";
@@ -261,7 +259,7 @@ export function useNoteEditorLogic({
 
       // Defer to the macrotask queue to prevent React 19 flushSync collision during initial render loop
       setTimeout(() => {
-        if (!editor.isDestroyed && (contentStr !== currentEditorContent)) {
+        if (!editor.isDestroyed && contentStr !== currentEditorContent) {
           editor.commands.setContent(content);
         }
       }, EDITOR_CONFIG.EVENT_LOOP_DEFER_MS);
@@ -286,7 +284,6 @@ export function useNoteEditorLogic({
       // Update the Tiptap editor content
       if (detail.content && !editor.isDestroyed) {
         editor.commands.setContent(detail.content);
-        lastSavedContent.current = JSON.stringify(detail.content);
       }
 
       // Write restored metadata to Dexie — useLiveQuery picks it up automatically
@@ -300,7 +297,10 @@ export function useNoteEditorLogic({
 
     window.addEventListener(SYNC_EVENTS.RESTORE_VERSION, handleVersionRestored);
     return () => {
-      window.removeEventListener(SYNC_EVENTS.RESTORE_VERSION, handleVersionRestored);
+      window.removeEventListener(
+        SYNC_EVENTS.RESTORE_VERSION,
+        handleVersionRestored,
+      );
     };
   }, [editor, editorIsReadOnly, noteId]);
 
