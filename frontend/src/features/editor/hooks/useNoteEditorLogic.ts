@@ -57,12 +57,13 @@ import { TableNodeExtension } from "@/features/editor/components/nodes/TableNode
 // --- Lib ---
 import {
   EDITOR_CONFIG,
-  VERSION_RESTORED_EVENT,
 } from "@/features/editor/constants/editor.constants";
 
 import { noteService, useCreateNote, type Note } from "@/features/workspace";
+import { NoteLocalService } from "@/features/workspace/services/note-local.service";
 import DEFAULT_CONTENT from "@/features/editor/components/data/content.json";
 import { useNote } from "@/features/workspace";
+import { SYNC_EVENTS } from "@/features/shared/constants/sync-events.constants";
 
 export interface UseNoteEditorLogicProps {
   noteId: string;
@@ -78,8 +79,8 @@ export function useNoteEditorLogic({
   const { mutate: createNoteMutation } = useCreateNote();
 
   const isInitialized = useRef(false);
-  const lastSavedContent = useRef<string | null>(null);
-  const hasPendingChanges = useRef(false);
+  // to track if the editor is dirty | pendingupdates
+  const pendingUpdates = useRef(false);
 
   const queueNoteUpdateRef = useRef<ReturnType<typeof debounce> | null>(null);
 
@@ -88,16 +89,21 @@ export function useNoteEditorLogic({
       (props: { editor: Editor; id: string }) => {
         const { editor, id } = props;
         const json = editor.getJSON();
-        lastSavedContent.current = JSON.stringify(json);
         if (id) {
-          void noteService.updateNote(id, { content: json });
+          void noteService.saveContentLocally(id, json);
+          pendingUpdates.current = false;
         }
-        hasPendingChanges.current = false;
       },
       EDITOR_CONFIG.AUTOSAVE_DEBOUNCE_MS,
     );
 
+    const handleBeforeUnload = () => {
+      queueNoteUpdateRef.current?.flush();
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
     return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
       queueNoteUpdateRef.current?.cancel();
     };
   }, []);
@@ -109,6 +115,7 @@ export function useNoteEditorLogic({
   });
 
   const noteRef = useRef(note);
+
   useEffect(() => {
     noteRef.current = note;
 
@@ -221,7 +228,8 @@ export function useNoteEditorLogic({
         if (editorIsReadOnly || !noteId) {
           return;
         }
-        hasPendingChanges.current = true;
+        pendingUpdates.current = true;
+        void NoteLocalService.update(noteId, { isDirty: 1 });
         queueNoteUpdateRef.current?.({ id: noteId, editor });
       },
     },
@@ -232,7 +240,6 @@ export function useNoteEditorLogic({
     if (editor && !loading && content) {
       if (!isInitialized.current) {
         isInitialized.current = true;
-        lastSavedContent.current = JSON.stringify(content);
         setTimeout(() => {
           if (!editor.isDestroyed) {
             editor.commands.setContent(content);
@@ -241,33 +248,20 @@ export function useNoteEditorLogic({
         return;
       }
 
-      // If the user is actively typing or has pending un-debounced changes,
-      // DO NOT overwrite their content. This prevents their active typing from
-      // being erased by remote updates or slightly modified local saves echoing back.
-      if (editor.isFocused || hasPendingChanges.current) {
+      if (pendingUpdates.current) {
         return;
       }
 
       const contentStr = JSON.stringify(content);
 
-      // Prevent resetting the editor to an older state if useLiveQuery
-      // triggers after a local debounced save.
-      if (lastSavedContent.current === contentStr) {
-        return;
-      }
-
       // Also ensure we don't unnecessarily overwrite if the editor already has this exact content.
       const currentEditorContent = JSON.stringify(editor.getJSON());
-      if (currentEditorContent === contentStr) {
-        lastSavedContent.current = contentStr;
-        return;
-      }
 
-      lastSavedContent.current = contentStr;
+      console.log("CONTENT IS UPDATED", contentStr !== currentEditorContent);
 
       // Defer to the macrotask queue to prevent React 19 flushSync collision during initial render loop
       setTimeout(() => {
-        if (!editor.isDestroyed) {
+        if (!editor.isDestroyed && (contentStr !== currentEditorContent)) {
           editor.commands.setContent(content);
         }
       }, EDITOR_CONFIG.EVENT_LOOP_DEFER_MS);
@@ -304,9 +298,9 @@ export function useNoteEditorLogic({
       });
     };
 
-    window.addEventListener(VERSION_RESTORED_EVENT, handleVersionRestored);
+    window.addEventListener(SYNC_EVENTS.RESTORE_VERSION, handleVersionRestored);
     return () => {
-      window.removeEventListener(VERSION_RESTORED_EVENT, handleVersionRestored);
+      window.removeEventListener(SYNC_EVENTS.RESTORE_VERSION, handleVersionRestored);
     };
   }, [editor, editorIsReadOnly, noteId]);
 
@@ -321,10 +315,10 @@ export function useNoteEditorLogic({
       });
     };
 
-    window.addEventListener("noteqo:create-child-note", handleCreateChildNote);
+    window.addEventListener(SYNC_EVENTS.CREATE_CHILD, handleCreateChildNote);
     return () => {
       window.removeEventListener(
-        "noteqo:create-child-note",
+        SYNC_EVENTS.CREATE_CHILD,
         handleCreateChildNote,
       );
     };

@@ -2,6 +2,7 @@ import { API_BASE_URL } from "@/constants/config";
 import { storageService, STORAGE_KEYS } from "@/features/storage";
 import { logService } from "@/services/log.service";
 import type { RealtimeNoteEvent } from "../types/realtime.types";
+import { SYNC_EVENTS } from "@/features/shared/constants/sync-events.constants";
 
 /**
  * Singleton service managing an EventSource (SSE) connection
@@ -65,7 +66,7 @@ class EventSourceService {
             const data = JSON.parse(event.data as string) as RealtimeNoteEvent;
             console.log("Data", data);
             globalThis.dispatchEvent(
-              new CustomEvent(`noteqo:realtime:${eventType}`, { detail: data }),
+              new CustomEvent(SYNC_EVENTS.REAL_TIME_EVENT(eventType), { detail: data }),
             );
           } catch (err) {
             logService.error(`Failed to parse SSE event ${eventType}: ${err}`);

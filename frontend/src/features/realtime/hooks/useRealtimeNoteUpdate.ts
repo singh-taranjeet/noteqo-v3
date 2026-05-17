@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import type { RealtimeNoteEvent } from "../types/realtime.types";
 import { REALTIME_EVENT_NAMES } from "../constants/realtime.constants";
+import { SYNC_EVENTS } from "@/features/shared/constants/sync-events.constants";
 
 export function useRealtimeNoteUpdate(
   noteId: string | undefined,
@@ -16,7 +17,7 @@ export function useRealtimeNoteUpdate(
       }
     };
 
-    const eventName = `noteqo:realtime:${REALTIME_EVENT_NAMES.NOTE_UPDATED}`;
+    const eventName = SYNC_EVENTS.REAL_TIME_EVENT(REALTIME_EVENT_NAMES.NOTE_UPDATED);
     globalThis.addEventListener(eventName, handleUpdate);
 
     return () => {

@@ -81,7 +81,7 @@ export function VersionHistoryDialog({
       type: "private" as const,
       createdAt: selectedVersion.createdAt,
       updatedAt: selectedVersion.updatedAt,
-      version: selectedVersion.version,
+      remoteVersion: selectedVersion.version,
     };
   }, [selectedVersion, spaceId]);
 
