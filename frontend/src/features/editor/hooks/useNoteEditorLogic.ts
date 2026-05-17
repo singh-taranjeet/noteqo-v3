@@ -79,16 +79,26 @@ export function useNoteEditorLogic({
   const isInitialized = useRef(false);
   // to track if the editor is dirty | pendingupdates
   const pendingUpdates = useRef(false);
+  const previousContent = useRef<string | null>(null);
 
   const queueNoteUpdateRef = useRef<ReturnType<typeof debounce> | null>(null);
+
+  const { note, loading } = useNote({
+    id: noteId,
+    initialNote,
+    readonly: isReadOnly,
+  });
 
   useEffect(() => {
     queueNoteUpdateRef.current = debounce(
       (props: { editor: Editor; id: string }) => {
         const { editor, id } = props;
         const json = editor.getJSON();
-        if (id) {
+        const editorContentString = JSON.stringify(json);
+        const isUpdated = previousContent.current !== editorContentString;
+        if (id && isUpdated) {
           void noteService.saveContentLocally(id, json);
+          previousContent.current = editorContentString;
           pendingUpdates.current = false;
         }
       },
@@ -105,12 +115,6 @@ export function useNoteEditorLogic({
       queueNoteUpdateRef.current?.cancel();
     };
   }, []);
-
-  const { note, loading } = useNote({
-    id: noteId,
-    initialNote,
-    readonly: isReadOnly,
-  });
 
   const noteRef = useRef(note);
 
@@ -234,6 +238,8 @@ export function useNoteEditorLogic({
     [spaceId],
   );
 
+  console.log("PENDING UPDATES", pendingUpdates.current);
+
   useEffect(() => {
     if (editor && !loading && content) {
       if (!isInitialized.current) {
@@ -246,6 +252,7 @@ export function useNoteEditorLogic({
         return;
       }
 
+      // TODO check here now
       if (pendingUpdates.current) {
         return;
       }
