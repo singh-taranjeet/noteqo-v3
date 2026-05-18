@@ -32,7 +32,6 @@ export function NoteEditor({
     handleTitleBlur,
     updateCoverImage,
     updateEmoji,
-    isCollaborating,
     connectionState,
     roomUsers,
   } = useNoteEditorLogic({ noteId, initialNote, isReadOnly });

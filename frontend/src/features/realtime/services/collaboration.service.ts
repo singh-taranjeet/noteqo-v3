@@ -1,4 +1,4 @@
-import { io, Socket } from "socket.io-client";
+import { io, type Socket } from "socket.io-client";
 import { API_BASE_URL } from "@/constants/config";
 import { storageService, STORAGE_KEYS } from "@/features/storage";
 import { logService } from "@/services/log.service";
@@ -128,7 +128,11 @@ class CollaborationService {
    * Encrypts and sends a Yjs update to the server for relay.
    */
   async sendUpdate(update: Uint8Array): Promise<void> {
-    if (!this.socket?.connected || !this.currentNoteId || !this.currentSpaceId) {
+    if (
+      !this.socket?.connected ||
+      !this.currentNoteId ||
+      !this.currentSpaceId
+    ) {
       return;
     }
 
@@ -138,7 +142,9 @@ class CollaborationService {
       );
 
       // Convert Uint8Array to base64 string, then encrypt
-      const updateBase64 = cryptoService.encodeBase64(update.buffer as ArrayBuffer);
+      const updateBase64 = cryptoService.encodeBase64(
+        update.buffer as ArrayBuffer,
+      );
       const encryptedUpdate = await cryptoService.encryptString(
         updateBase64,
         spaceKeyBytes,
@@ -157,7 +163,11 @@ class CollaborationService {
    * Encrypts and sends awareness state (cursor position, user info).
    */
   async sendAwareness(awareness: Uint8Array): Promise<void> {
-    if (!this.socket?.connected || !this.currentNoteId || !this.currentSpaceId) {
+    if (
+      !this.socket?.connected ||
+      !this.currentNoteId ||
+      !this.currentSpaceId
+    ) {
       return;
     }
 

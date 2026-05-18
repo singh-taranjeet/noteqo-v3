@@ -1,11 +1,13 @@
 import * as Y from "yjs";
-import { Awareness } from "y-protocols/awareness";
+import {
+  Awareness,
+  applyAwarenessUpdate,
+  encodeAwarenessUpdate,
+} from "y-protocols/awareness";
 import { collaborationService } from "../services/collaboration.service";
 import { logService } from "@/services/log.service";
 import { yjsPersistenceService } from "@/features/storage/services/yjs-persistence.service";
-import {
-  COLLABORATION_CONFIG,
-} from "../constants/collaboration.constants";
+import { COLLABORATION_CONFIG } from "../constants/collaboration.constants";
 import type {
   CollaborationConnectionState,
   RoomUser,
@@ -93,7 +95,9 @@ export class EncryptedYjsProvider {
       // 3. Start periodic persistence to Dexie
       this.startPersistence();
 
-      logService.info(`EncryptedYjsProvider initialized for note ${this.noteId}`);
+      logService.info(
+        `EncryptedYjsProvider initialized for note ${this.noteId}`,
+      );
     } catch (err) {
       logService.error("Failed to initialize EncryptedYjsProvider", err);
     }
@@ -103,10 +107,7 @@ export class EncryptedYjsProvider {
    * Handles a local Yjs update (from TipTap edits).
    * Encrypts the update and sends it to the server.
    */
-  private handleLocalUpdate = (
-    update: Uint8Array,
-    origin: unknown,
-  ): void => {
+  private handleLocalUpdate = (update: Uint8Array, origin: unknown): void => {
     // Skip updates that originated from remote (to avoid echo)
     if (origin === "remote" || this.isDestroyed) return;
 
@@ -131,15 +132,20 @@ export class EncryptedYjsProvider {
    * Encrypts and sends to the server.
    */
   private handleAwarenessUpdate = (
-    { added, updated, removed }: { added: number[]; updated: number[]; removed: number[] },
+    {
+      added,
+      updated,
+      removed,
+    }: { added: number[]; updated: number[]; removed: number[] },
     _origin: unknown,
   ): void => {
     if (this.isDestroyed) return;
 
     const changedClients = added.concat(updated).concat(removed);
-    const encodedAwareness = Awareness.prototype.constructor === Awareness
-      ? this.encodeAwarenessState(changedClients)
-      : null;
+    const encodedAwareness =
+      Awareness.prototype.constructor === Awareness
+        ? this.encodeAwarenessState(changedClients)
+        : null;
 
     if (encodedAwareness) {
       void collaborationService.sendAwareness(encodedAwareness);
@@ -153,14 +159,7 @@ export class EncryptedYjsProvider {
     if (this.isDestroyed) return;
 
     try {
-      // Import and apply awareness update
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const awarenessProtocol = require("y-protocols/awareness") as typeof import("y-protocols/awareness");
-      awarenessProtocol.applyAwarenessUpdate(
-        this.awareness,
-        awareness,
-        "remote",
-      );
+      applyAwarenessUpdate(this.awareness, awareness, "remote");
     } catch (err) {
       logService.error("Failed to apply remote awareness", err);
     }
@@ -182,11 +181,7 @@ export class EncryptedYjsProvider {
    */
   private encodeAwarenessState(changedClients: number[]): Uint8Array | null {
     try {
-      const awarenessProtocol = require("y-protocols/awareness") as typeof import("y-protocols/awareness");
-      return awarenessProtocol.encodeAwarenessUpdate(
-        this.awareness,
-        changedClients,
-      );
+      return encodeAwarenessUpdate(this.awareness, changedClients);
     } catch {
       return null;
     }
@@ -218,8 +213,6 @@ export class EncryptedYjsProvider {
     // Destroy awareness
     this.awareness.destroy();
 
-    logService.info(
-      `EncryptedYjsProvider destroyed for note ${this.noteId}`,
-    );
+    logService.info(`EncryptedYjsProvider destroyed for note ${this.noteId}`);
   }
 }

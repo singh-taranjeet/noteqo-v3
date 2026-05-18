@@ -83,13 +83,7 @@ export function useNoteEditorLogic({
 }: UseNoteEditorLogicProps) {
   const { mutate: createNoteMutation } = useCreateNote();
 
-  const isInitialized = useRef(false);
-  // to track if the editor is dirty | pendingupdates
-  const pendingUpdates = useRef(false);
   const previousContent = useRef<string | null>(null);
-  // When we update the content of editor through function, it call the onUpdate callback
-  // To skip the onUpdate callback being called we use this updatingContent ref
-  const skipOnUpdate = useRef(false);
 
   const queueNoteUpdateRef = useRef<ReturnType<typeof debounce> | null>(null);
 
@@ -101,12 +95,11 @@ export function useNoteEditorLogic({
 
   const content = note?.content || DEFAULT_CONTENT;
   const spaceId = note?.spaceId ?? null;
-  const isSharedSpace = note?.type === "shared";
 
   const isTrashed = !!note?.deletedAt;
   const editorIsReadOnly = isReadOnly || isTrashed;
 
-  // --- Collaboration (Yjs CRDT) for shared spaces ---
+  // --- Collaboration (Yjs CRDT) for all spaces ---
   const {
     ydoc,
     provider,
@@ -117,11 +110,10 @@ export function useNoteEditorLogic({
   } = useCollaboration({
     noteId,
     spaceId,
-    isSharedSpace,
     isReadOnly: editorIsReadOnly,
   });
 
-  // --- Debounced save (only for non-collaborative / personal notes) ---
+  // --- Debounced save (for local search indexing and metadata) ---
   useEffect(() => {
     queueNoteUpdateRef.current = debounce(
       (props: { editor: Editor; id: string }) => {
@@ -132,7 +124,6 @@ export function useNoteEditorLogic({
         if (id && isUpdated) {
           void noteService.saveContentLocally(id, json);
           previousContent.current = editorContentString;
-          pendingUpdates.current = false;
         }
       },
       EDITOR_CONFIG.AUTOSAVE_DEBOUNCE_MS,
@@ -170,7 +161,7 @@ export function useNoteEditorLogic({
         codeBlock: false,
         heading: false,
         // When collaborating, disable the default history plugin (Yjs handles undo/redo)
-        ...(isSharedSpace && ydoc ? { history: false } : {}),
+        ...(ydoc ? { history: false } : {}),
         paragraph: {
           HTMLAttributes: {
             class: "leading-7 [&:not(:first-child)]:mt-6 outline-none",
@@ -243,12 +234,12 @@ export function useNoteEditorLogic({
       }),
     ];
 
-    // Add Collaboration extension for shared spaces with an active Yjs doc.
+    // Add Collaboration extension for all spaces with an active Yjs doc.
     // NOTE: CollaborationCursor is NOT added here — it's registered dynamically
     // after the editor mounts (see useEffect below) because yCursorPlugin's
     // createDecorations accesses ySyncPluginKey state which isn't available
     // during the initial EditorState.reconfigure call.
-    if (isSharedSpace && ydoc) {
+    if (ydoc) {
       baseExtensions.push(
         Collaboration.configure({
           document: ydoc,
@@ -274,28 +265,19 @@ export function useNoteEditorLogic({
       },
       extensions: buildExtensions(),
       // For collaborative mode, content comes from Yjs doc, not from prop
-      content: isSharedSpace && ydoc ? undefined : content,
+      content: ydoc ? undefined : content,
       onUpdate: ({ editor }) => {
         if (editorIsReadOnly || !noteId) {
           return;
         }
 
-        // In collaborative mode, Yjs handles sync — but we still save locally
-        if (isSharedSpace && ydoc) {
+        // Yjs handles sync — but we still save locally
+        if (ydoc) {
           // Debounced local save for search indexing / metadata
           void NoteLocalService.update(noteId, { isDirty: 1 });
           queueNoteUpdateRef.current?.({ id: noteId, editor });
           return;
         }
-
-        // Non-collaborative mode: original debounced save flow
-        if (skipOnUpdate.current) {
-          skipOnUpdate.current = false;
-          return;
-        }
-        pendingUpdates.current = true;
-        void NoteLocalService.update(noteId, { isDirty: 1 });
-        queueNoteUpdateRef.current?.({ id: noteId, editor });
       },
     },
     [spaceId, ydoc, provider],
@@ -306,7 +288,7 @@ export function useNoteEditorLogic({
   // after the Collaboration extension's ProseMirror plugin has been initialized.
   // Adding it via editor.registerPlugin avoids the Plugin.init timing crash.
   useEffect(() => {
-    if (!editor || !isSharedSpace || !ydoc || !provider || editor.isDestroyed) {
+    if (!editor || !ydoc || !provider || editor.isDestroyed) {
       return;
     }
 
@@ -330,10 +312,7 @@ export function useNoteEditorLogic({
               cursor.setAttribute("style", `border-color: ${user.color}`);
               const label = document.createElement("div");
               label.classList.add("collaboration-cursor__label");
-              label.setAttribute(
-                "style",
-                `background-color: ${user.color}`,
-              );
+              label.setAttribute("style", `background-color: ${user.color}`);
               label.insertBefore(document.createTextNode(user.name), null);
               cursor.insertBefore(label, null);
               return cursor;
@@ -346,11 +325,11 @@ export function useNoteEditorLogic({
     }, EDITOR_CONFIG.EVENT_LOOP_DEFER_MS);
 
     return () => clearTimeout(timer);
-  }, [editor, isSharedSpace, ydoc, provider, userColor]);
+  }, [editor, ydoc, provider, userColor]);
 
   // --- Update collaboration cursor user info ---
   useEffect(() => {
-    if (!editor || !isSharedSpace || !ydoc || !provider) return;
+    if (!editor || !ydoc || !provider) return;
 
     const loadUserProfile = async () => {
       const profile = await storageService.get<{ email?: string }>(
@@ -366,45 +345,7 @@ export function useNoteEditorLogic({
     };
 
     void loadUserProfile();
-  }, [editor, isSharedSpace, ydoc, provider, userColor]);
-
-  // --- Content sync for NON-collaborative notes (original behavior) ---
-  useEffect(() => {
-    // Skip content sync for collaborative notes — Yjs handles it
-    if (isSharedSpace && ydoc) return;
-
-    if (editor && !loading && content) {
-      if (!isInitialized.current) {
-        isInitialized.current = true;
-        setTimeout(() => {
-          if (!editor.isDestroyed) {
-            editor.commands.setContent(content);
-          }
-        }, EDITOR_CONFIG.EVENT_LOOP_DEFER_MS);
-        return;
-      }
-
-      // The current updates are in throttle function, so skip the updates
-      if (pendingUpdates.current) {
-        return;
-      }
-
-      const contentStr = JSON.stringify(content);
-
-      // Also ensure we don't unnecessarily overwrite if the editor already has this exact content.
-      const currentEditorContent = JSON.stringify(editor.getJSON());
-
-      // Defer to the macrotask queue to prevent React 19 flushSync collision during initial render loop
-      setTimeout(() => {
-        if (!editor.isDestroyed && !(contentStr === currentEditorContent)) {
-          // Updating the content of editor, we need to skip the first onUpdate call
-          // skipOnUpdate = true should do this job
-          skipOnUpdate.current = true;
-          editor.commands.setContent(content);
-        }
-      }, EDITOR_CONFIG.EVENT_LOOP_DEFER_MS);
-    }
-  }, [editor, loading, content, isSharedSpace, ydoc]);
+  }, [editor, ydoc, provider, userColor]);
 
   // Listen for version-restore events to update editor content instantly
   useEffect(() => {

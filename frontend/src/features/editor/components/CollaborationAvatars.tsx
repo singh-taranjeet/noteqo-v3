@@ -139,7 +139,8 @@ export function CollaborationAvatars({
                 </TooltipTrigger>
                 <TooltipContent side="bottom">
                   <p>
-                    {overflowCount} more {overflowCount === 1 ? "user" : "users"}
+                    {overflowCount} more{" "}
+                    {overflowCount === 1 ? "user" : "users"}
                   </p>
                 </TooltipContent>
               </Tooltip>
@@ -153,7 +154,10 @@ export function CollaborationAvatars({
 
 /** Extracts up to 2-letter initials from a name or email prefix */
 function getInitials(name: string): string {
-  const parts = name.replace(/@.*$/, "").split(/[\s._-]+/).filter(Boolean);
+  const parts = name
+    .replace(/@.*$/, "")
+    .split(/[\s._-]+/)
+    .filter(Boolean);
   if (parts.length >= 2) {
     return (parts[0][0] + parts[1][0]).toUpperCase();
   }

@@ -21,15 +21,12 @@ export const yjsPersistenceService = {
 
       await db.yjsState.put({
         noteId,
-        state: new Blob([state]),
-        stateVector: new Blob([stateVector]),
+        state: new Blob([state as any]),
+        stateVector: new Blob([stateVector as any]),
         updatedAt: Date.now(),
       });
     } catch (err) {
-      logService.error(
-        `Failed to persist Yjs state for note ${noteId}`,
-        err,
-      );
+      logService.error(`Failed to persist Yjs state for note ${noteId}`, err);
     }
   },
 
@@ -50,10 +47,7 @@ export const yjsPersistenceService = {
         `Loaded persisted Yjs state for note ${noteId} (${state.byteLength} bytes)`,
       );
     } catch (err) {
-      logService.error(
-        `Failed to load Yjs state for note ${noteId}`,
-        err,
-      );
+      logService.error(`Failed to load Yjs state for note ${noteId}`, err);
     }
   },
 
@@ -64,10 +58,7 @@ export const yjsPersistenceService = {
     try {
       await db.yjsState.delete(noteId);
     } catch (err) {
-      logService.error(
-        `Failed to delete Yjs state for note ${noteId}`,
-        err,
-      );
+      logService.error(`Failed to delete Yjs state for note ${noteId}`, err);
     }
   },
 

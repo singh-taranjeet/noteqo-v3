@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import * as Y from "yjs";
 import { EncryptedYjsProvider } from "@/features/realtime/providers/EncryptedYjsProvider";
 import type {
@@ -13,8 +13,6 @@ export interface UseCollaborationOptions {
   noteId: string;
   /** Space ID for encryption key resolution */
   spaceId: string | null;
-  /** Whether the note is in a shared space (collaboration only for shared) */
-  isSharedSpace: boolean;
   /** Whether the editor is read-only (no collaboration needed) */
   isReadOnly: boolean;
 }
@@ -46,7 +44,6 @@ export interface UseCollaborationReturn {
 export function useCollaboration({
   noteId,
   spaceId,
-  isSharedSpace,
   isReadOnly,
 }: UseCollaborationOptions): UseCollaborationReturn {
   const [connectionState, setConnectionState] =
@@ -56,13 +53,14 @@ export function useCollaboration({
   const [provider, setProvider] = useState<EncryptedYjsProvider | null>(null);
 
   // Stable random color per hook instance
-  const userColor = useRef(
-    COLLABORATION_CONFIG.USER_COLORS[
-      Math.floor(Math.random() * COLLABORATION_CONFIG.USER_COLORS.length)
-    ],
-  ).current;
+  const [userColor] = useState(
+    () =>
+      COLLABORATION_CONFIG.USER_COLORS[
+        Math.floor(Math.random() * COLLABORATION_CONFIG.USER_COLORS.length)
+      ],
+  );
 
-  const shouldCollaborate = isSharedSpace && !isReadOnly && !!spaceId;
+  const shouldCollaborate = !isReadOnly && !!spaceId;
 
   useEffect(() => {
     if (!shouldCollaborate || !noteId || !spaceId) {

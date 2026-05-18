@@ -11,7 +11,6 @@ import {
 import { BaseSyncQueueService } from "@/features/shared/services/baseSync.shared.service";
 import { ApiError } from "@/services/api";
 import { logService } from "@/services/log.service";
-import { SYNC_EVENTS } from "@/features/shared/constants/sync-events.constants";
 import { NoteLocalService } from "./note-local.service";
 
 /** HTTP status code for version conflict */
@@ -65,44 +64,9 @@ class NoteSyncQueueService extends BaseSyncQueueService {
     }
   }
 
-  /**
-   * Handles a 409 Conflict by:
-   * 1. Creating a local "conflict copy" note with the user's offline changes
-   * 2. Pulling the server's latest version into the original note
-   * 3. Dispatching a UI event so a toast can notify the user
-   */
-  private async handleConflict(noteId: string, localNote: Note): Promise<void> {
-    logService.warn(
-      `Conflict detected on note ${noteId} (local v${localNote.remoteVersion}). Creating conflict copy.`,
-    );
-
-    // 1. Save the user's local changes as a conflict copy
-    const conflictCopy = await NoteLocalService.createConflictCopy(localNote);
-
-    // Enqueue the conflict copy for creation on the server
-    await this.enqueue({
-      type: SYNC_EVENT_TYPE.CREATE,
-      entityId: conflictCopy.id,
-      payload: conflictCopy,
-      entity: SYNC_ENTITY.NOTE,
-    });
-
-    // 2. Pull the server's latest version into the original note
-    // This uses the unified handleInboundNote which handles Dexie writes safely
-    await noteApiService.handleInboundNote({ noteId, version: Infinity });
-
-    // 3. Notify the UI
-    globalThis.dispatchEvent(
-      new CustomEvent(SYNC_EVENTS.CONFLICT_DETECTED, {
-        detail: { noteId, conflictCopyId: conflictCopy.id },
-      }),
-    );
-  }
-
   async syncDirtyNotes(): Promise<void> {
     if (!navigator.onLine) return; // Skip when offline — isDirty persists in Dexie
 
-    // getDirtyNotes already excludes shared notes (CRDT-synced via WebSocket)
     const dirtyNotes = await NoteLocalService.getDirtyNotes();
 
     for (const note of dirtyNotes) {
@@ -134,7 +98,15 @@ class NoteSyncQueueService extends BaseSyncQueueService {
         await NoteLocalService.update(note.id, updates);
       } catch (err) {
         if (err instanceof ApiError && err.status === HTTP_CONFLICT) {
-          await this.handleConflict(note.id, note);
+          logService.warn(
+            `Metadata conflict detected on note ${note.id} (local v${note.remoteVersion}). Pulling latest from server.`,
+          );
+          // Yjs handles content conflicts. For metadata conflicts, just pull the latest version
+          // to unblock the sync pipeline.
+          await noteApiService.handleInboundNote({
+            noteId: note.id,
+            version: Infinity,
+          });
         }
         // On other errors: isDirty stays true, will retry next cycle
       }
