@@ -51,21 +51,6 @@ export interface PendingMediaEntry {
 }
 
 /**
- * Persisted Yjs CRDT state for offline-first collaborative editing.
- * Stored as binary blobs — the Yjs document state is hydrated from this on page load.
- */
-export interface YjsStateEntry {
-  /** Note ID — primary key */
-  noteId: string;
-  /** Encoded Yjs document state (Y.encodeStateAsUpdate) */
-  state: Blob;
-  /** Encoded Yjs state vector (Y.encodeStateVector) for incremental sync */
-  stateVector: Blob;
-  /** Last update timestamp (epoch ms) */
-  updatedAt: number;
-}
-
-/**
  * Single Dexie database for the entire Noteqo app.
  * Replaces the raw IndexedDB wrapper — all tables in one DB.
  */
@@ -77,7 +62,6 @@ class NoteqoDB extends Dexie {
   mediaBlobs!: Table<MediaBlobEntry, string>;
   media!: Table<DecryptedMedia, string>;
   pendingMediaBlobs!: Table<PendingMediaEntry, string>;
-  yjsState!: Table<YjsStateEntry, string>;
 
   constructor() {
     super(STORAGE_CONFIG.DB_NAME);
@@ -90,7 +74,6 @@ class NoteqoDB extends Dexie {
       mediaBlobs: "url",
       media: "id, spaceId, createdAt",
       pendingMediaBlobs: "id, spaceId, noteId, createdAt",
-      yjsState: "noteId, updatedAt",
     });
   }
 }

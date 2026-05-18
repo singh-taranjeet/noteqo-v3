@@ -15,6 +15,7 @@ export interface Note {
   createdAt: string;
   updatedAt: string;
   deletedAt?: string;
+  yjsState?: string;
 }
 
 export interface NoteTreeNode extends Note {
@@ -58,4 +59,5 @@ export interface DecryptedNoteVersion {
   updatedAt: string;
   createdBy?: string;
   updatedBy?: string;
+  yjsState?: string;
 }

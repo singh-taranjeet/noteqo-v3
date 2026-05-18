@@ -128,6 +128,7 @@ class NoteSyncQueueService extends BaseSyncQueueService {
       emoji: note.emoji,
       coverImage: note.coverImage,
       content: note.content,
+      yjsState: note.yjsState,
     };
 
     return cryptoService.encryptString(
