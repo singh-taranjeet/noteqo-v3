@@ -100,11 +100,9 @@ class NoteSyncQueueService extends BaseSyncQueueService {
   }
 
   async syncDirtyNotes(): Promise<void> {
-    console.log("syncing dirty notes");
     if (!navigator.onLine) return; // Skip when offline — isDirty persists in Dexie
 
     const dirtyNotes = await NoteLocalService.getDirtyNotes();
-    console.log("Dirty notes", dirtyNotes);
 
     for (const note of dirtyNotes) {
       if (note.deletedAt) continue;

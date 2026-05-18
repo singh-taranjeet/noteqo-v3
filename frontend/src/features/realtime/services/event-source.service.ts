@@ -64,7 +64,7 @@ class EventSourceService {
         this.eventSource.addEventListener(eventType, (event: MessageEvent) => {
           try {
             const data = JSON.parse(event.data as string) as RealtimeNoteEvent;
-            console.log("Data", data);
+
             globalThis.dispatchEvent(
               new CustomEvent(SYNC_EVENTS.REAL_TIME_EVENT(eventType), {
                 detail: data,

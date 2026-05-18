@@ -40,7 +40,6 @@ export function useNote(params: {
   // Listen for real-time updates from other users via SSE
   const handleRealtimeUpdate = useCallback(
     async (event: { noteId: string; version: number }) => {
-      console.log("Note is updated", event.version);
       if (!id || !event) return;
       await noteApiService.handleInboundNote({
         noteId: event.noteId,

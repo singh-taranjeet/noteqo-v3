@@ -80,6 +80,9 @@ export function useNoteEditorLogic({
   // to track if the editor is dirty | pendingupdates
   const pendingUpdates = useRef(false);
   const previousContent = useRef<string | null>(null);
+  // When we update the content of editor through function, it call the onUpdate callback
+  // To skip the onUpdate callback being called we use this updatingContent ref
+  const skipOnUpdate = useRef(false);
 
   const queueNoteUpdateRef = useRef<ReturnType<typeof debounce> | null>(null);
 
@@ -230,6 +233,11 @@ export function useNoteEditorLogic({
         if (editorIsReadOnly || !noteId) {
           return;
         }
+        if (skipOnUpdate.current) {
+          // Since the content has just updated, we will not fire update event now
+          skipOnUpdate.current = false;
+          return;
+        }
         pendingUpdates.current = true;
         void NoteLocalService.update(noteId, { isDirty: 1 });
         queueNoteUpdateRef.current?.({ id: noteId, editor });
@@ -250,7 +258,7 @@ export function useNoteEditorLogic({
         return;
       }
 
-      // TODO check here now
+      // The current updates are in throttle function, so skip the updates
       if (pendingUpdates.current) {
         return;
       }
@@ -260,11 +268,12 @@ export function useNoteEditorLogic({
       // Also ensure we don't unnecessarily overwrite if the editor already has this exact content.
       const currentEditorContent = JSON.stringify(editor.getJSON());
 
-      console.log("CONTENT IS UPDATED", contentStr !== currentEditorContent);
-
       // Defer to the macrotask queue to prevent React 19 flushSync collision during initial render loop
       setTimeout(() => {
-        if (!editor.isDestroyed && contentStr !== currentEditorContent) {
+        if (!editor.isDestroyed && !(contentStr === currentEditorContent)) {
+          // Updating the content of editor, we need to skip the first onUpdate call
+          // skipOnUpdate = true should do this job
+          skipOnUpdate.current = true;
           editor.commands.setContent(content);
         }
       }, EDITOR_CONFIG.EVENT_LOOP_DEFER_MS);

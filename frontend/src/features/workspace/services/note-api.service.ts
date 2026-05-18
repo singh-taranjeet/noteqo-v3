@@ -23,31 +23,22 @@ export const noteApiService = {
     noteId: string;
     version: number;
   }): Promise<void> => {
-    console.log("Handling upate", event.version);
     // QUICK CHECK — skip fetch entirely if we already have this version
     const localBefore = await NoteLocalService.get(event.noteId);
     if (localBefore && event.version <= localBefore.remoteVersion) {
-      console.log("We have this same version");
       return;
     }
 
     // Fetch + decrypt the full note from server
     const serverNote = await noteApiService.getNote(event.noteId);
     if (!serverNote) return;
-    console.log("Got the server note", serverNote);
 
     // RE-READ local note AFTER fetch — the user may have started
     // typing during the network round-trip + decryption time
     const localAfter = await NoteLocalService.get(event.noteId);
-    console.log(
-      "compareing versions",
-      JSON.stringify(serverNote.content) ===
-        JSON.stringify(localAfter?.content),
-    );
 
     // GUARD 1 — Version: skip if local is already up-to-date
     if (localAfter && serverNote.remoteVersion <= localAfter.remoteVersion) {
-      console.log("Guard 1 : We have this same version");
       return;
     }
 
@@ -56,11 +47,9 @@ export const noteApiService = {
     if (localAfter?.isDirty) {
       // the changes of this user are not yet uploaded to remote,
       // so we need to create a local conflict here
-      console.log("Local note was dirtly created a copy");
       return;
     }
     // Note is clean — safe to overwrite with remote content
-    console.log("Finally< Local note is updaed");
     await NoteLocalService.update(event.noteId, {
       ...serverNote,
       content: serverNote.content,
