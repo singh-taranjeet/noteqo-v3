@@ -23,6 +23,7 @@ import { SharedModule } from './shared/shared.module';
 import { MediaModule } from './media';
 import { SyncModule } from './sync/sync.module';
 import { EventsModule } from './events/events.module';
+import { CollaborationModule } from './collaboration/collaboration.module';
 
 @Module({
   imports: [
@@ -77,6 +78,7 @@ import { EventsModule } from './events/events.module';
     MediaModule,
     SyncModule,
     EventsModule,
+    CollaborationModule,
   ],
   controllers: [AppController],
   providers: [

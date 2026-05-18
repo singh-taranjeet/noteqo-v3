@@ -35,17 +35,4 @@ export const NoteLocalService = {
   clear: async () => {
     return db.notes.clear();
   },
-  createConflictCopy: async (note: Note) => {
-    const now = new Date().toISOString();
-    const conflictCopy: Note = {
-      ...note,
-      id: crypto.randomUUID(),
-      title: `[V.${note.remoteVersion}] ${note.title} (Conflict Copy  – ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()})`,
-      remoteVersion: 0,
-      isDirty: 0,
-      createdAt: now,
-      updatedAt: now,
-    };
-    return NoteLocalService.create(conflictCopy);
-  },
 };
