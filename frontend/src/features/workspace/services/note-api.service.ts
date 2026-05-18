@@ -3,6 +3,8 @@ import { WORKSPACE_API_ROUTES } from "@/features/workspace/constants/workspace.c
 import type { Note, RemoteNote } from "../types/workspace.types";
 import { noteService } from "./note.service";
 import { NoteLocalService } from "./note-local.service";
+import * as Y from "yjs";
+import { cryptoService } from "@/features/crypto";
 
 export const noteApiService = {
   getNote: async (id: string): Promise<Note | undefined> => {
@@ -47,12 +49,39 @@ export const noteApiService = {
     if (localAfter?.isDirty) {
       // the changes of this user are not yet uploaded to remote,
       // so we need to create a local conflict here
+
+      let mergedYjsState = localAfter.yjsState;
+      if (serverNote.yjsState && localAfter.yjsState) {
+        try {
+          const localUpdate = new Uint8Array(
+            cryptoService.decodeBase64(localAfter.yjsState),
+          );
+          const remoteUpdate = new Uint8Array(
+            cryptoService.decodeBase64(serverNote.yjsState),
+          );
+          const mergedUpdate = Y.mergeUpdates([localUpdate, remoteUpdate]);
+          mergedYjsState = cryptoService.encodeBase64(
+            mergedUpdate.buffer as ArrayBuffer,
+          );
+        } catch (e) {
+          console.error("Failed to merge Yjs state during conflict", e);
+        }
+      } else if (serverNote.yjsState) {
+        mergedYjsState = serverNote.yjsState;
+      }
+
+      await NoteLocalService.update(event.noteId, {
+        remoteVersion: serverNote.remoteVersion,
+        yjsState: mergedYjsState,
+      });
+
       return;
     }
     // Note is clean — safe to overwrite with remote content
     await NoteLocalService.update(event.noteId, {
       ...serverNote,
       content: serverNote.content,
+      yjsState: serverNote.yjsState,
       remoteVersion: serverNote.remoteVersion,
     });
   },
