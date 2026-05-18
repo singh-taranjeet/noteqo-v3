@@ -34,15 +34,15 @@ export const COLLABORATION_CONFIG = {
 
   /** Default user colors for collaboration cursors */
   USER_COLORS: [
-    "#FF6B6B",
-    "#4ECDC4",
-    "#45B7D1",
-    "#FFA07A",
-    "#98D8C8",
-    "#F7DC6F",
-    "#BB8FCE",
-    "#82E0AA",
-    "#F1948A",
-    "#85C1E9",
+    "var(--user-1)",
+    "var(--user-2)",
+    "var(--user-3)",
+    "var(--user-4)",
+    "var(--user-5)",
+    "var(--user-6)",
+    "var(--user-7)",
+    "var(--user-8)",
+    "var(--user-9)",
+    "var(--user-10)",
   ] as readonly string[],
 } as const;

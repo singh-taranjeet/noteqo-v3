@@ -19,5 +19,5 @@
 }
 
 .collaboration-cursor__label {
-  @apply absolute top-[-7px] left-[4px] text-[14px] text-foreground p-1 rounded whitespace-nowrap pointer-events-none select-none z-50 shadow-sm leading-normal;
+  @apply absolute top-[-7px] left-[4px] text-[14px] text-foreground p-1 rounded font-bold whitespace-nowrap pointer-events-none select-none z-50 shadow-sm leading-normal;
 }
