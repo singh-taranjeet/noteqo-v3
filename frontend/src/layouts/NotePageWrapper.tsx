@@ -6,5 +6,5 @@ export function NotePageWrapper() {
 
   if (!note_id) return null;
 
-  return <NoteEditor noteId={note_id} />;
+  return <NoteEditor key={note_id} noteId={note_id} />;
 }
