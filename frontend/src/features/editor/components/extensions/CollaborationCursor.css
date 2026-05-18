@@ -1,21 +1,23 @@
 @reference "../../../../styles/globals.css";
 
 .collaboration-cursor__caret {
-  @apply relative -ml-[1px] -mr-[1px] border-l-[2px] border-r-[2px] pointer-events-none;
+  @apply relative -ml-px -mr-px border-l border-r pointer-events-none left-[4px];
   word-break: normal;
   animation: cursorPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 @keyframes cursorPulse {
+
   0%,
   100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0;
   }
 }
 
 .collaboration-cursor__label {
-  @apply absolute -top-[1.6em] left-[4px] text-[11px] font-semibold text-white px-2 py-0.5 rounded-full whitespace-nowrap pointer-events-none select-none z-50 shadow-sm;
+  @apply absolute top-[-7px] left-[4px] text-[14px] text-foreground p-1 rounded whitespace-nowrap pointer-events-none select-none z-50 shadow-sm leading-normal;
 }
