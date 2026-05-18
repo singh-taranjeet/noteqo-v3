@@ -11,14 +11,21 @@ import {
   Zap,
   Lock,
   Globe,
+  Loader2,
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CollaborationMockup } from "./CollaborationMockup";
 import { StatsStrip } from "./StatsStrip";
 import { useFadeUpOnScroll } from "../hooks/useFadeUpOnScroll";
+import { useRegister } from "@/features/auth/hooks/useRegister";
+import { KeysService } from "@/features/auth/services/keys.service";
+import { spaceService } from "@/features/spaces/services/space.service";
+import { ROUTES } from "@/constants/routes";
 import "../landing.css";
+import { useLogout } from "@/features/auth";
 
 /* ─── Feature data ─── */
 
@@ -92,6 +99,47 @@ const COLLAB_BULLETS = [
 
 export function PublicLandingView() {
   const containerRef = useFadeUpOnScroll();
+  const navigate = useNavigate();
+  const { mutateAsync: register } = useRegister();
+  const [isDemoLoading, setIsDemoLoading] = useState(false);
+  const { logout } = useLogout();
+
+  const handleDemoClick = useCallback(async () => {
+    try {
+      setIsDemoLoading(true);
+      await logout();
+      const randomString = Math.random().toString(36).substring(7);
+      const email = `demo_${randomString}@noteqo.com`;
+      const password = `demoP@ssw0rd_${randomString}`;
+      const name = "Demo User";
+
+      const result = await register({
+        name,
+        email,
+        authCredential: password,
+      });
+
+      await KeysService.store({
+        accessToken: result.response.data.accessToken,
+        publicKey: result.response.data.user.publicKey,
+        privateKey: result.response.data.user.privateKey,
+        masterKey: result.masterKey,
+      });
+
+      const { storageService, STORAGE_KEYS } = await import("@/features/storage");
+      await storageService.put(
+        STORAGE_KEYS.USER_PROFILE,
+        result.response.data.user,
+      );
+
+      await spaceService.createSpace();
+
+      navigate(ROUTES.NOTES);
+    } catch (error) {
+      console.error("Demo login failed:", error);
+      setIsDemoLoading(false);
+    }
+  }, [register, navigate]);
 
   return (
     <div
@@ -171,7 +219,7 @@ export function PublicLandingView() {
             </p>
 
             {/* CTAs */}
-            <div className="landing-hero-cta flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+            <div className="landing-hero-cta flex flex-col sm:flex-row gap-4 w-full sm:w-auto items-center">
               <Button
                 size="lg"
                 className="h-13 px-8 text-base shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl"
@@ -186,9 +234,11 @@ export function PublicLandingView() {
                 variant="outline"
                 size="lg"
                 className="h-13 px-8 text-base bg-background/50 backdrop-blur-sm hover:bg-accent/50 transition-all duration-300"
-                asChild
+                onClick={handleDemoClick}
+                disabled={isDemoLoading}
               >
-                <Link to="/login">Go to Workspace</Link>
+                {isDemoLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Try Demo
               </Button>
             </div>
 
