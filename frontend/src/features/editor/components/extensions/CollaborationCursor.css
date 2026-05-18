@@ -1,27 +1,21 @@
+@reference "../../../../styles/globals.css";
+
 .collaboration-cursor__caret {
-  position: relative;
-  margin-left: -1px;
-  margin-right: -1px;
-  border-left: 2px solid black;
-  border-right: 2px solid black;
+  @apply relative -ml-[1px] -mr-[1px] border-l-[2px] border-r-[2px] pointer-events-none;
   word-break: normal;
-  pointer-events: none;
+  animation: cursorPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes cursorPulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
 }
 
 .collaboration-cursor__label {
-  position: absolute;
-  top: -1.6em;
-  left: -1px;
-  font-size: 12px;
-  font-weight: 600;
-  font-family: var(--font-sans);
-  color: #fff;
-  padding: 2px 6px;
-  border-radius: 4px;
-  border-bottom-left-radius: 0;
-  white-space: nowrap;
-  pointer-events: none;
-  user-select: none;
-  z-index: 50;
-  box-shadow: var(--shadow-sm);
+  @apply absolute -top-[1.6em] left-[4px] text-[11px] font-semibold text-white px-2 py-0.5 rounded-full whitespace-nowrap pointer-events-none select-none z-50 shadow-sm;
 }

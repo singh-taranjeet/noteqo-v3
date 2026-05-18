@@ -21,8 +21,8 @@ export const yjsPersistenceService = {
 
       await db.yjsState.put({
         noteId,
-        state: new Blob([state as any]),
-        stateVector: new Blob([stateVector as any]),
+        state: new Blob([state as unknown as BlobPart]),
+        stateVector: new Blob([stateVector as unknown as BlobPart]),
         updatedAt: Date.now(),
       });
     } catch (err) {

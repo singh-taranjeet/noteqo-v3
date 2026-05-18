@@ -56,8 +56,12 @@ export function useCollaboration({
 
   // Initialize Yjs document and awareness synchronously on first render if needed.
   // This prevents Tiptap from crashing during dynamic reconfiguration of extensions.
-  const [ydoc] = useState<Y.Doc | null>(() => (shouldCollaborate ? new Y.Doc() : null));
-  const [awareness] = useState<Awareness | null>(() => (ydoc ? new Awareness(ydoc) : null));
+  const [ydoc] = useState<Y.Doc | null>(() =>
+    shouldCollaborate ? new Y.Doc() : null,
+  );
+  const [awareness] = useState<Awareness | null>(() =>
+    ydoc ? new Awareness(ydoc) : null,
+  );
   const [provider, setProvider] = useState<EncryptedYjsProvider | null>(null);
 
   // Stable random color per hook instance

@@ -68,7 +68,6 @@ import { SYNC_EVENTS } from "@/features/shared/constants/sync-events.constants";
 import { useCollaboration } from "./useCollaboration";
 import { storageService, STORAGE_KEYS } from "@/features/storage";
 
-
 export interface UseNoteEditorLogicProps {
   noteId: string;
   note: Note;
@@ -240,14 +239,17 @@ export function useNoteEditorLogic({
             name: "User", // Updated dynamically later
             color: userColor,
           },
-          render: (user: Record<string, any>) => {
+          render: (user: Record<string, string>) => {
             const cursor = document.createElement("span");
             cursor.classList.add("collaboration-cursor__caret");
             cursor.setAttribute("style", `border-color: ${user.color}`);
             const label = document.createElement("div");
             label.classList.add("collaboration-cursor__label");
             label.setAttribute("style", `background-color: ${user.color}`);
-            label.insertBefore(document.createTextNode(user.name || "User"), null);
+            label.insertBefore(
+              document.createTextNode(user.name || "User"),
+              null,
+            );
             cursor.insertBefore(label, null);
             return cursor;
           },
@@ -291,8 +293,6 @@ export function useNoteEditorLogic({
     [spaceId, ydoc, awareness],
   );
 
-
-
   // --- Update collaboration cursor user info ---
   useEffect(() => {
     if (!editor || !ydoc || !awareness || !provider) return;
@@ -303,7 +303,6 @@ export function useNoteEditorLogic({
       );
       if (profile?.email && !editor.isDestroyed) {
         const name = profile.email.split("@")[0] || "User";
-        
 
         // Update underlying Yjs awareness
         awareness.setLocalStateField("user", {
