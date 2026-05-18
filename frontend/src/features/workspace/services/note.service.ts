@@ -106,9 +106,13 @@ export const noteService = {
   /**
    * Fast local save used by the editor during debounced input.
    */
-  async saveContentLocally(id: string, content: unknown): Promise<void> {
+  async saveContentLocally(
+    id: string,
+    content: unknown,
+    yjsState?: string,
+  ): Promise<void> {
     const updatedAt = new Date().toISOString();
-    await NoteLocalService.update(id, { content, updatedAt });
+    await NoteLocalService.update(id, { content, yjsState, updatedAt });
     // Note: isDirty is expected to be set immediately on keystroke by the editor hooks
     dispatchEvent(new CustomEvent(SYNC_EVENTS.TRIGGER_SYNC));
   },
@@ -256,6 +260,7 @@ export const noteService = {
         coverImage?: string;
         content?: unknown;
         parentId?: string;
+        yjsState?: string;
       };
 
       return {
@@ -264,6 +269,7 @@ export const noteService = {
         emoji: payload.emoji ?? NOTE_FALLBACKS.EMOJI,
         coverImage: payload.coverImage ?? NOTE_FALLBACKS.COVER_IMAGE,
         content: payload.content ?? null,
+        yjsState: payload.yjsState,
         parentId: note.parentId ?? payload.parentId ?? undefined,
         spaceId: note.spaceId,
         type: note.type as "private" | "shared",

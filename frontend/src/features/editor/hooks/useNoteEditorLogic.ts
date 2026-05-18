@@ -1,6 +1,8 @@
 import { useEditor, type Editor } from "@tiptap/react";
 import { useEffect, type ChangeEvent, type FocusEvent, useRef } from "react";
 import debounce from "lodash.debounce";
+import * as Y from "yjs";
+import { cryptoService } from "@/features/crypto";
 
 // --- Tiptap Core Extensions ---
 import { StarterKit } from "@tiptap/starter-kit";
@@ -65,7 +67,7 @@ import { noteService, useCreateNote, type Note } from "@/features/workspace";
 import { NoteLocalService } from "@/features/workspace/services/note-local.service";
 import DEFAULT_CONTENT from "@/features/editor/components/data/content.json";
 import { SYNC_EVENTS } from "@/features/shared/constants/sync-events.constants";
-import { useCollaboration } from "./useCollaboration";
+import { useCRDT } from "../../realtime/hooks/useCRDT";
 import { storageService, STORAGE_KEYS } from "@/features/storage";
 
 export interface UseNoteEditorLogicProps {
@@ -95,27 +97,33 @@ export function useNoteEditorLogic({
   const {
     ydoc,
     awareness,
-    provider,
     connectionState,
     roomUsers,
     isCollaborating,
     userColor,
-  } = useCollaboration({
+  } = useCRDT({
     noteId,
     spaceId,
     isReadOnly: editorIsReadOnly,
+    initialYjsState: note?.yjsState,
   });
 
   // --- Debounced save (for local search indexing and metadata) ---
   useEffect(() => {
     queueNoteUpdateRef.current = debounce(
-      (props: { editor: Editor; id: string }) => {
-        const { editor, id } = props;
+      (props: { editor: Editor; id: string; currentYdoc?: Y.Doc | null }) => {
+        const { editor, id, currentYdoc } = props;
         const json = editor.getJSON();
         const editorContentString = JSON.stringify(json);
         const isUpdated = previousContent.current !== editorContentString;
         if (id && isUpdated) {
-          void noteService.saveContentLocally(id, json);
+          let yjsState: string | undefined;
+          if (currentYdoc) {
+            yjsState = cryptoService.encodeBase64(
+              Y.encodeStateAsUpdate(currentYdoc).buffer as ArrayBuffer,
+            );
+          }
+          void noteService.saveContentLocally(id, json, yjsState);
           previousContent.current = editorContentString;
         }
       },
@@ -285,7 +293,11 @@ export function useNoteEditorLogic({
         if (ydoc) {
           // Debounced local save for search indexing / metadata
           void NoteLocalService.update(noteId, { isDirty: 1 });
-          queueNoteUpdateRef.current?.({ id: noteId, editor });
+          queueNoteUpdateRef.current?.({
+            id: noteId,
+            editor,
+            currentYdoc: ydoc,
+          });
           return;
         }
       },
@@ -295,7 +307,7 @@ export function useNoteEditorLogic({
 
   // --- Update collaboration cursor user info ---
   useEffect(() => {
-    if (!editor || !ydoc || !awareness || !provider) return;
+    if (!editor || !ydoc || !awareness) return;
 
     const loadUserProfile = async () => {
       const profile = await storageService.get<{ email?: string }>(
@@ -313,7 +325,7 @@ export function useNoteEditorLogic({
     };
 
     void loadUserProfile();
-  }, [editor, ydoc, awareness, provider, userColor]);
+  }, [editor, ydoc, awareness, userColor]);
 
   // Listen for version-restore events to update editor content instantly
   useEffect(() => {

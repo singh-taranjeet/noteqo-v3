@@ -115,7 +115,10 @@ export function CollaborationAvatars({
                   <TooltipTrigger asChild>
                     <Avatar size="sm">
                       <AvatarFallback
-                        style={{ backgroundColor: color, color: "var(--foreground)" }}
+                        style={{
+                          backgroundColor: color,
+                          color: "var(--foreground)",
+                        }}
                         className="text-[10px] font-semibold"
                       >
                         {initials}

@@ -12,7 +12,6 @@ export type {
 
 // --- WebSocket Collaboration (Yjs CRDT real-time editing) ---
 export { collaborationService } from "./services/collaboration.service";
-export { EncryptedYjsProvider } from "./providers/EncryptedYjsProvider";
 export type {
   CollaborationConnectionState,
   RoomUser,
