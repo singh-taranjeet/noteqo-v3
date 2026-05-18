@@ -102,6 +102,7 @@ class NoteSyncQueueService extends BaseSyncQueueService {
   async syncDirtyNotes(): Promise<void> {
     if (!navigator.onLine) return; // Skip when offline — isDirty persists in Dexie
 
+    // getDirtyNotes already excludes shared notes (CRDT-synced via WebSocket)
     const dirtyNotes = await NoteLocalService.getDirtyNotes();
 
     for (const note of dirtyNotes) {

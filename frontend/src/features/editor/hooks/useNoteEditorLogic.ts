@@ -54,6 +54,10 @@ import { BookmarkNodeExtension } from "@/features/editor/components/nodes/Bookma
 // --- Tiptap Table ---
 import { TableNodeExtension } from "@/features/editor/components/nodes/TableNode/TableNodeExtension";
 
+// --- Tiptap Collaboration (Yjs CRDT) ---
+import { Collaboration } from "@tiptap/extension-collaboration";
+import { yCursorPlugin } from "y-prosemirror";
+
 // --- Lib ---
 import { EDITOR_CONFIG } from "@/features/editor/constants/editor.constants";
 
@@ -62,6 +66,9 @@ import { NoteLocalService } from "@/features/workspace/services/note-local.servi
 import DEFAULT_CONTENT from "@/features/editor/components/data/content.json";
 import { useNote } from "@/features/workspace";
 import { SYNC_EVENTS } from "@/features/shared/constants/sync-events.constants";
+import { useCollaboration } from "./useCollaboration";
+import { storageService, STORAGE_KEYS } from "@/features/storage";
+import { logService } from "@/services/log.service";
 
 export interface UseNoteEditorLogicProps {
   noteId: string;
@@ -92,6 +99,29 @@ export function useNoteEditorLogic({
     readonly: isReadOnly,
   });
 
+  const content = note?.content || DEFAULT_CONTENT;
+  const spaceId = note?.spaceId ?? null;
+  const isSharedSpace = note?.type === "shared";
+
+  const isTrashed = !!note?.deletedAt;
+  const editorIsReadOnly = isReadOnly || isTrashed;
+
+  // --- Collaboration (Yjs CRDT) for shared spaces ---
+  const {
+    ydoc,
+    provider,
+    connectionState,
+    roomUsers,
+    isCollaborating,
+    userColor,
+  } = useCollaboration({
+    noteId,
+    spaceId,
+    isSharedSpace,
+    isReadOnly: editorIsReadOnly,
+  });
+
+  // --- Debounced save (only for non-collaborative / personal notes) ---
   useEffect(() => {
     queueNoteUpdateRef.current = debounce(
       (props: { editor: Editor; id: string }) => {
@@ -132,11 +162,102 @@ export function useNoteEditorLogic({
     }
   }, [note]);
 
-  const content = note?.content || DEFAULT_CONTENT;
-  const spaceId = note?.spaceId ?? null;
+  // --- Build extensions array based on collaboration mode ---
+  const buildExtensions = () => {
+    const baseExtensions = [
+      StarterKit.configure({
+        horizontalRule: false,
+        codeBlock: false,
+        heading: false,
+        // When collaborating, disable the default history plugin (Yjs handles undo/redo)
+        ...(isSharedSpace && ydoc ? { history: false } : {}),
+        paragraph: {
+          HTMLAttributes: {
+            class: "leading-7 [&:not(:first-child)]:mt-6 outline-none",
+          },
+        },
+        blockquote: {
+          HTMLAttributes: {
+            class:
+              "mt-6 border-l-2 border-l-border pl-6 italic text-muted-foreground outline-none",
+          },
+        },
+        bulletList: {
+          HTMLAttributes: {
+            class: "my-6 ml-6 list-disc [&>li]:mt-2 outline-none",
+          },
+        },
+        orderedList: {
+          HTMLAttributes: {
+            class: "my-6 ml-6 list-decimal [&>li]:mt-2 outline-none",
+          },
+        },
+        link: {
+          openOnClick: false,
+          enableClickSelection: true,
+        },
+      }),
+      HorizontalRule,
+      CodeBlockNode,
+      HeadingNode,
+      CardNodeExtension,
+      AccordionNodeExtension,
+      CalloutNodeExtension,
+      DateNodeExtension,
+      TocNodeExtension,
+      ToggleNodeExtension,
+      EmojiExtension,
+      HashtagExtension,
+      TextAlign.configure({ types: ["heading", "paragraph"] }),
+      TaskList.configure({
+        HTMLAttributes: {
+          class: "my-6 ml-6 list-none [&>li]:mt-2 outline-none",
+        },
+      }),
+      TaskItemNode.configure({ nested: true }),
+      Highlight.configure({ multicolor: true }),
+      TextStyle,
+      Color,
+      Typography,
+      Superscript,
+      Subscript,
+      Selection,
+      SlashCommandExtension,
+      MentionExtension.configure({
+        getSpaceId: () => spaceId,
+      }),
+      AiExtension,
+      ColumnsExtension,
+      ColumnExtension,
+      TableNodeExtension,
+      FileNodeExtension,
+      ImageNodeExtension,
+      VideoNodeExtension,
+      AudioNodeExtension,
+      PdfNodeExtension,
+      EmbedNodeExtension,
+      BookmarkNodeExtension,
+      FileUploaderExtension.configure({
+        getSpaceId: () => spaceId,
+        getNoteId: () => noteId,
+      }),
+    ];
 
-  const isTrashed = !!note?.deletedAt;
-  const editorIsReadOnly = isReadOnly || isTrashed;
+    // Add Collaboration extension for shared spaces with an active Yjs doc.
+    // NOTE: CollaborationCursor is NOT added here — it's registered dynamically
+    // after the editor mounts (see useEffect below) because yCursorPlugin's
+    // createDecorations accesses ySyncPluginKey state which isn't available
+    // during the initial EditorState.reconfigure call.
+    if (isSharedSpace && ydoc) {
+      baseExtensions.push(
+        Collaboration.configure({
+          document: ydoc,
+        }),
+      );
+    }
+
+    return baseExtensions;
+  };
 
   const editor = useEditor(
     {
@@ -151,90 +272,24 @@ export function useNoteEditorLogic({
           class: "flex-1 focus:outline-none min-h-full",
         },
       },
-      extensions: [
-        StarterKit.configure({
-          horizontalRule: false,
-          codeBlock: false,
-          heading: false,
-          paragraph: {
-            HTMLAttributes: {
-              class: "leading-7 [&:not(:first-child)]:mt-6 outline-none",
-            },
-          },
-          blockquote: {
-            HTMLAttributes: {
-              class:
-                "mt-6 border-l-2 border-l-border pl-6 italic text-muted-foreground outline-none",
-            },
-          },
-          bulletList: {
-            HTMLAttributes: {
-              class: "my-6 ml-6 list-disc [&>li]:mt-2 outline-none",
-            },
-          },
-          orderedList: {
-            HTMLAttributes: {
-              class: "my-6 ml-6 list-decimal [&>li]:mt-2 outline-none",
-            },
-          },
-          link: {
-            openOnClick: false,
-            enableClickSelection: true,
-          },
-        }),
-        HorizontalRule,
-        CodeBlockNode,
-        HeadingNode,
-        CardNodeExtension,
-        AccordionNodeExtension,
-        CalloutNodeExtension,
-        DateNodeExtension,
-        TocNodeExtension,
-        ToggleNodeExtension,
-        EmojiExtension,
-        HashtagExtension,
-
-        TextAlign.configure({ types: ["heading", "paragraph"] }),
-        TaskList.configure({
-          HTMLAttributes: {
-            class: "my-6 ml-6 list-none [&>li]:mt-2 outline-none",
-          },
-        }),
-        TaskItemNode.configure({ nested: true }),
-        Highlight.configure({ multicolor: true }),
-        TextStyle,
-        Color,
-        Typography,
-        Superscript,
-        Subscript,
-        Selection,
-        SlashCommandExtension,
-        MentionExtension.configure({
-          getSpaceId: () => spaceId,
-        }),
-        AiExtension,
-        ColumnsExtension,
-        ColumnExtension,
-        TableNodeExtension,
-        FileNodeExtension,
-        ImageNodeExtension,
-        VideoNodeExtension,
-        AudioNodeExtension,
-        PdfNodeExtension,
-        EmbedNodeExtension,
-        BookmarkNodeExtension,
-        FileUploaderExtension.configure({
-          getSpaceId: () => spaceId,
-          getNoteId: () => noteId,
-        }),
-      ],
-      content,
+      extensions: buildExtensions(),
+      // For collaborative mode, content comes from Yjs doc, not from prop
+      content: isSharedSpace && ydoc ? undefined : content,
       onUpdate: ({ editor }) => {
         if (editorIsReadOnly || !noteId) {
           return;
         }
+
+        // In collaborative mode, Yjs handles sync — but we still save locally
+        if (isSharedSpace && ydoc) {
+          // Debounced local save for search indexing / metadata
+          void NoteLocalService.update(noteId, { isDirty: 1 });
+          queueNoteUpdateRef.current?.({ id: noteId, editor });
+          return;
+        }
+
+        // Non-collaborative mode: original debounced save flow
         if (skipOnUpdate.current) {
-          // Since the content has just updated, we will not fire update event now
           skipOnUpdate.current = false;
           return;
         }
@@ -243,10 +298,81 @@ export function useNoteEditorLogic({
         queueNoteUpdateRef.current?.({ id: noteId, editor });
       },
     },
-    [spaceId],
+    [spaceId, ydoc, provider],
   );
 
+  // --- Register CollaborationCursor AFTER editor mount ---
+  // The yCursorPlugin depends on ySyncPlugin state which is only available
+  // after the Collaboration extension's ProseMirror plugin has been initialized.
+  // Adding it via editor.registerPlugin avoids the Plugin.init timing crash.
   useEffect(() => {
+    if (!editor || !isSharedSpace || !ydoc || !provider || editor.isDestroyed) {
+      return;
+    }
+
+    // Defer to next tick to ensure ySync plugin state is fully initialized
+    const timer = setTimeout(() => {
+      if (editor.isDestroyed) return;
+
+      try {
+        // Set local awareness user info
+        provider.awareness.setLocalStateField("user", {
+          name: "User",
+          color: userColor,
+        });
+
+        // Dynamically register the cursor extension
+        editor.registerPlugin(
+          yCursorPlugin(provider.awareness, {
+            cursorBuilder: (user: { name: string; color: string }) => {
+              const cursor = document.createElement("span");
+              cursor.classList.add("collaboration-cursor__caret");
+              cursor.setAttribute("style", `border-color: ${user.color}`);
+              const label = document.createElement("div");
+              label.classList.add("collaboration-cursor__label");
+              label.setAttribute(
+                "style",
+                `background-color: ${user.color}`,
+              );
+              label.insertBefore(document.createTextNode(user.name), null);
+              cursor.insertBefore(label, null);
+              return cursor;
+            },
+          }),
+        );
+      } catch (err) {
+        logService.warn("Failed to register cursor plugin", err);
+      }
+    }, EDITOR_CONFIG.EVENT_LOOP_DEFER_MS);
+
+    return () => clearTimeout(timer);
+  }, [editor, isSharedSpace, ydoc, provider, userColor]);
+
+  // --- Update collaboration cursor user info ---
+  useEffect(() => {
+    if (!editor || !isSharedSpace || !ydoc || !provider) return;
+
+    const loadUserProfile = async () => {
+      const profile = await storageService.get<{ email?: string }>(
+        STORAGE_KEYS.USER_PROFILE,
+      );
+      if (profile?.email && !editor.isDestroyed) {
+        // Update awareness with user info for cursor display
+        provider.awareness.setLocalStateField("user", {
+          name: profile.email.split("@")[0] || "User",
+          color: userColor,
+        });
+      }
+    };
+
+    void loadUserProfile();
+  }, [editor, isSharedSpace, ydoc, provider, userColor]);
+
+  // --- Content sync for NON-collaborative notes (original behavior) ---
+  useEffect(() => {
+    // Skip content sync for collaborative notes — Yjs handles it
+    if (isSharedSpace && ydoc) return;
+
     if (editor && !loading && content) {
       if (!isInitialized.current) {
         isInitialized.current = true;
@@ -278,7 +404,7 @@ export function useNoteEditorLogic({
         }
       }, EDITOR_CONFIG.EVENT_LOOP_DEFER_MS);
     }
-  }, [editor, loading, content]);
+  }, [editor, loading, content, isSharedSpace, ydoc]);
 
   // Listen for version-restore events to update editor content instantly
   useEffect(() => {
@@ -371,5 +497,9 @@ export function useNoteEditorLogic({
     handleTitleBlur,
     updateCoverImage,
     updateEmoji,
+    // New collaboration state
+    isCollaborating,
+    connectionState,
+    roomUsers,
   };
 }

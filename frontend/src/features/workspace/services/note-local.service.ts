@@ -21,7 +21,12 @@ export const NoteLocalService = {
     return db.notes.get(id);
   },
   getDirtyNotes: async () => {
-    return db.notes.where("isDirty").equals(1).toArray();
+    // Shared notes use Yjs CRDT for content sync — exclude from LWW pipeline
+    return db.notes
+      .where("isDirty")
+      .equals(1)
+      .filter((n) => n.type !== "shared")
+      .toArray();
   },
   update: async (id: string, updates: Partial<Omit<Note, "id">>) => {
     await db.notes.update(id, { ...updates });
