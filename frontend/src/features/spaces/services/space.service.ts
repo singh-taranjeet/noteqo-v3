@@ -6,6 +6,7 @@ import {
   SPACE_DEFAULTS,
   SPACE_TYPE,
   SPACES_MESSAGES,
+  SPACES_EVENTS,
 } from "@/features/spaces/constants/spaces.constants";
 import type {
   Space,
@@ -19,6 +20,7 @@ import { spaceSyncQueueService } from "./space-sync-queue.service";
 import { SpaceLocalStorageService } from "./space-local-storage.service";
 import { NoteLocalService } from "@/features/workspace/services/note-local.service";
 import { SpaceLocalService } from "./space-local.service";
+import { ACTIVE_SPACE_STORAGE_KEY } from "../context/ActiveSpaceContext";
 
 export const spaceService = {
   async generateKeys() {
@@ -71,6 +73,13 @@ export const spaceService = {
       },
       entity: "space",
     });
+
+    try {
+      localStorage.setItem(ACTIVE_SPACE_STORAGE_KEY, space.id);
+      window.dispatchEvent(new Event(SPACES_EVENTS.ACTIVE_SPACE_CHANGED));
+    } catch {
+      // localStorage may be unavailable
+    }
 
     return space;
   },

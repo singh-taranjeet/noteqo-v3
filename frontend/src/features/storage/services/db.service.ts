@@ -68,7 +68,7 @@ class NoteqoDB extends Dexie {
 
     this.version(STORAGE_CONFIG.DB_VERSION).stores({
       keys: "key",
-      notes: "id, spaceId, parentId, updatedAt, title, emoji",
+      notes: "id, spaceId, parentId, updatedAt, title, emoji, isDirty",
       syncQueue: "id, entityId, createdAt, syncStatus, entity",
       spaces: "id, type",
       mediaBlobs: "url",

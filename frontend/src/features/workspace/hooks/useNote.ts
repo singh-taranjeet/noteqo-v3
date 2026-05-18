@@ -30,7 +30,7 @@ export function useNote(params: {
     queryKey: QueryKeys.notes.remote.get(id),
     queryFn: async () => {
       if (!id) return null;
-      await noteApiService.getNote(id);
+      await noteApiService.handleInboundNote({ noteId: id, version: Infinity });
       return { syncedAt: new Date().toISOString() };
     },
     staleTime: 0,
@@ -38,10 +38,17 @@ export function useNote(params: {
   });
 
   // Listen for real-time updates from other users via SSE
-  const handleRealtimeUpdate = useCallback(async () => {
-    if (!id) return;
-    await noteApiService.getNote(id); // fetch + decrypt + Dexie put
-  }, [id]);
+  const handleRealtimeUpdate = useCallback(
+    async (event: { noteId: string; version: number }) => {
+      if (!id || !event) return;
+      await noteApiService.handleInboundNote({
+        noteId: event.noteId,
+        version: event.version,
+      });
+    },
+    [id],
+  );
+
   useRealtimeNoteUpdate(id || undefined, handleRealtimeUpdate);
 
   const note = useLiveQuery(

@@ -2,7 +2,6 @@ import { API_BASE_URL } from "@/constants/config";
 import { ROUTES } from "@/constants/routes";
 import { KeysService } from "@/features/auth";
 import { storageService, STORAGE_KEYS } from "@/features/storage";
-import { logService } from "./log.service";
 import { SpaceLocalStorageService } from "@/features/spaces/services/space-local-storage.service";
 
 export interface ApiRequestInit extends RequestInit {
@@ -69,10 +68,16 @@ async function request<T>(url: string, init: ApiRequestInit): Promise<T> {
     }
   }
 
-  const response = await fetch(`${API_BASE_URL}${url}`, {
-    ...init,
-    headers,
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE_URL}${url}`, {
+      ...init,
+      headers,
+    });
+  } catch (error) {
+    // Catch native fetch TypeErrors (e.g., when offline) to prevent unhandled rejection overlays
+    throw new ApiError(0, { message: "Network connection failed", error });
+  }
 
   if (!response.ok) {
     if (response.status === 401 && typeof window !== "undefined") {
@@ -82,9 +87,6 @@ async function request<T>(url: string, init: ApiRequestInit): Promise<T> {
     }
 
     const errorBody = await response.json().catch(() => null);
-    logService.error(
-      `${errorBody?.message} || HTTP error! status: ${response.status}`,
-    );
     throw new ApiError(response.status, errorBody);
   }
 
@@ -117,11 +119,17 @@ async function requestForm<T>(
     }
   }
 
-  const response = await fetch(`${API_BASE_URL}${url}`, {
-    ...init,
-    headers,
-    body: formData,
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE_URL}${url}`, {
+      ...init,
+      headers,
+      body: formData,
+    });
+  } catch {
+    // Catch native fetch TypeErrors (e.g., when offline) to prevent unhandled rejection overlays
+    throw new ApiError(0, { message: "Network connection failed" });
+  }
 
   if (!response.ok) {
     if (response.status === 401 && typeof window !== "undefined") {
@@ -130,10 +138,7 @@ async function requestForm<T>(
     }
 
     const errorBody = await response.json().catch(() => null);
-    logService.error(
-      `${errorBody?.message} || HTTP error! status: ${response.status}`,
-    );
-    // throw new Error(`Please try agin`);
+    throw new ApiError(response.status, errorBody);
   }
 
   try {

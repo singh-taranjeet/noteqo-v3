@@ -18,7 +18,7 @@ export function useRemoteSpaces() {
       await spaceService.getRemoteSpacesAndNotes();
       return { syncedAt: new Date().toISOString() };
     },
-    refetchInterval: 1000 * 60,
+    refetchInterval: 1000 * 5,
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
   });

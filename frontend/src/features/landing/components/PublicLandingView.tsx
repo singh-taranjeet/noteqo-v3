@@ -6,62 +6,156 @@ import {
   Users,
   Search,
   Sparkles,
+  ArrowRight,
+  Check,
   Zap,
+  Lock,
+  Globe,
+  Loader2,
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { CollaborationMockup } from "./CollaborationMockup";
+import { StatsStrip } from "./StatsStrip";
+import { useFadeUpOnScroll } from "../hooks/useFadeUpOnScroll";
+import { useRegister } from "@/features/auth/hooks/useRegister";
+import { KeysService } from "@/features/auth/services/keys.service";
+import { spaceService } from "@/features/spaces/services/space.service";
+import { ROUTES } from "@/constants/routes";
+import "../landing.css";
+import { useLogout } from "@/features/auth";
+import { noteService } from "@/features/workspace";
+const { storageService, STORAGE_KEYS } = await import("@/features/storage");
 
-const FEATURES = [
+/* ─── Feature data ─── */
+
+interface Feature {
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+  isHero?: boolean;
+}
+
+const FEATURES: Feature[] = [
+  {
+    title: "Real-Time Collaboration",
+    description:
+      "Work together in shared spaces with live cursors, instant sync, and conflict-free editing. See your team's changes as they happen.",
+    icon: <Users className="size-6" />,
+    isHero: true,
+  },
   {
     title: "End-to-End Encrypted",
     description:
-      "Your data is encrypted locally before it leaves your device. We have absolutely zero access to your notes or keys.",
-    icon: <ShieldCheck className="size-6 text-primary" />,
+      "Your data is encrypted on-device before it ever leaves. We have zero access to your notes or keys.",
+    icon: <ShieldCheck className="size-6" />,
   },
   {
     title: "Offline-First Architecture",
     description:
-      "Access, create, and edit your notes without an internet connection. Everything syncs seamlessly once you are back online.",
-    icon: <WifiOff className="size-6 text-primary" />,
+      "Create, edit, and organize without an internet connection. Everything syncs seamlessly when you're back online.",
+    icon: <WifiOff className="size-6" />,
   },
   {
     title: "Rich Document Editor",
     description:
-      "A powerful block-based editor with native markdown support, tables, media embeds, and deep customization.",
-    icon: <FileText className="size-6 text-primary" />,
+      "A powerful block-based editor with markdown support, tables, media embeds, and deep customization.",
+    icon: <FileText className="size-6" />,
   },
   {
-    title: "Real-time Synchronization",
+    title: "Instant Sync Across Devices",
     description:
-      "Your notes are instantly and securely synchronized across all your mobile and desktop devices in the background.",
-    icon: <RefreshCw className="size-6 text-primary" />,
-  },
-  {
-    title: "Secure Shared Spaces",
-    description:
-      "Create shared workspaces to collaborate with your team or family without compromising on your security standards.",
-    icon: <Users className="size-6 text-primary" />,
+      "Your notes are securely synchronized across all your mobile and desktop devices in real-time.",
+    icon: <RefreshCw className="size-6" />,
   },
   {
     title: "Organization & Search",
     description:
-      "Navigate your workspace with hierarchical folders, responsive sidebars, and a lightning-fast global search.",
-    icon: <Search className="size-6 text-primary" />,
+      "Navigate with hierarchical folders, responsive sidebars, and a lightning-fast global search.",
+    icon: <Search className="size-6" />,
   },
 ];
 
+const COLLAB_BULLETS = [
+  {
+    icon: <Users className="size-3.5" />,
+    text: "Invite your team to shared spaces with role-based permissions",
+  },
+  {
+    icon: <RefreshCw className="size-3.5" />,
+    text: "See live cursors and edits from collaborators in real-time",
+  },
+  {
+    icon: <Lock className="size-3.5" />,
+    text: "All collaboration traffic is end-to-end encrypted",
+  },
+  {
+    icon: <Globe className="size-3.5" />,
+    text: "Works offline — changes merge conflict-free when you reconnect",
+  },
+];
+
+/* ─── Component ─── */
+
 export function PublicLandingView() {
+  const containerRef = useFadeUpOnScroll();
+  const navigate = useNavigate();
+  const { mutateAsync: register } = useRegister();
+  const [isDemoLoading, setIsDemoLoading] = useState(false);
+  const { logout } = useLogout();
+
+  const handleDemoClick = useCallback(async () => {
+    try {
+      setIsDemoLoading(true);
+      await logout(false, false);
+
+      const randomString = Math.random().toString(36).substring(7);
+      const email = `demo_${randomString}@noteqo.com`;
+      const password = `demoP@ssw0rd_${randomString}`;
+      const name = "Demo User";
+
+      const result = await register({
+        name,
+        email,
+        authCredential: password,
+      });
+
+      await KeysService.store({
+        accessToken: result.response.data.accessToken,
+        publicKey: result.response.data.user.publicKey,
+        privateKey: result.response.data.user.privateKey,
+        masterKey: result.masterKey,
+      });
+
+      await storageService.put(
+        STORAGE_KEYS.USER_PROFILE,
+        result.response.data.user,
+      );
+
+      const newSpace = await spaceService.createSpace();
+
+      const newNote = await noteService.createNote(
+        newSpace.id,
+        "Note Title (This is a demo Note)",
+      );
+
+      setTimeout(() => {
+        navigate(`${ROUTES.NOTES}/${newNote.id}`);
+      }, 2000);
+    } catch (error) {
+      console.error("Demo login failed:", error);
+      setIsDemoLoading(false);
+    }
+  }, [register, navigate, logout]);
+
   return (
-    <div className="flex flex-col min-h-screen bg-background selection:bg-primary/20">
-      {/* Header */}
+    <div
+      ref={containerRef}
+      className="flex flex-col min-h-screen bg-background selection:bg-primary/20"
+    >
+      {/* ── Header ── */}
       <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto flex h-16 items-center justify-between px-4 lg:px-8">
           <div className="flex items-center space-x-2">
@@ -86,110 +180,230 @@ export function PublicLandingView() {
       </header>
 
       <main className="flex-1">
-        {/* Hero Section */}
-        <section className="relative overflow-hidden pt-24 md:pt-32 pb-20 md:pb-32">
-          {/* Decorative background elements */}
-          <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/15 via-background to-background" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl h-96 bg-primary/10 blur-3xl rounded-full pointer-events-none" />
+        {/* ══════════════════════════════════════════════════════
+            HERO SECTION
+        ══════════════════════════════════════════════════════ */}
+        <section className="relative overflow-hidden pt-24 md:pt-36 pb-16 md:pb-28">
+          {/* Animated gradient orbs */}
+          <div className="landing-orb landing-orb-1" />
+          <div className="landing-orb landing-orb-2" />
+          <div className="landing-orb landing-orb-3" />
+
+          {/* Subtle grid pattern */}
+          <div
+            className="absolute inset-0 z-0 opacity-[0.03]"
+            style={{
+              backgroundImage:
+                "linear-gradient(var(--foreground) 1px, transparent 1px), linear-gradient(90deg, var(--foreground) 1px, transparent 1px)",
+              backgroundSize: "60px 60px",
+            }}
+          />
 
           <div className="container relative z-10 mx-auto px-4 lg:px-8 flex flex-col items-center text-center">
+            {/* Badge */}
             <Badge
               variant="outline"
-              className="px-4 py-1.5 text-sm  bg-background/50 backdrop-blur-sm mb-8 shadow-sm rounded-full"
+              className="landing-hero-badge px-4 py-1.5 text-sm bg-background/60 backdrop-blur-sm mb-8 shadow-sm rounded-full border-primary/30"
             >
               <Sparkles className="size-4 mr-2 text-primary" />
               <span className="text-muted-foreground">
-                The future of secure note-taking
+                NEW — Real-time Collaboration is here
               </span>
             </Badge>
 
-            <h1 className="text-5xl font-extrabold tracking-tight sm:text-6xl md:text-7xl lg:text-8xl max-w-5xl mb-6">
+            {/* Headline */}
+            <h1 className="landing-hero-headline text-5xl font-extrabold tracking-tight sm:text-6xl md:text-7xl lg:text-8xl max-w-5xl mb-6">
               Your thoughts, <br className="hidden sm:block" />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary/60">
-                securely encrypted.
-              </span>
+              <span className="landing-gradient-text">securely encrypted.</span>
             </h1>
 
-            <p className="max-w-2xl text-lg sm:text-xl text-muted-foreground mb-10 leading-relaxed">
-              End-to-end encrypted workspace for your thoughts, ideas, and
-              documents. Built for speed, designed for privacy. Never worry
-              about your data again.
+            {/* Subheadline */}
+            <p className="landing-hero-subheadline max-w-2xl text-lg sm:text-xl text-muted-foreground mb-10 leading-relaxed">
+              The end-to-end encrypted workspace for your ideas, documents, and
+              team collaboration. Offline-first, blazing fast, and built for the
+              way you work.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+            {/* CTAs */}
+            <div className="landing-hero-cta flex flex-col sm:flex-row gap-4 w-full sm:w-auto items-center">
               <Button
                 size="lg"
-                className="h-12 px-8 text-base shadow-lg transition-transform hover:scale-105"
+                className="h-13 px-8 text-base shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl"
                 asChild
               >
-                <Link to="/register">Get Started for Free</Link>
+                <Link to="/register">
+                  Get Started for Free
+                  <ArrowRight className="size-4 ml-2" />
+                </Link>
               </Button>
               <Button
                 variant="outline"
                 size="lg"
-                className="h-12 px-8 text-base bg-background/50 backdrop-blur-sm hover:bg-accent"
-                asChild
+                className="h-13 px-8 text-base transition-all duration-300 hover:scale-105 shadow-sm bg-primary/5 text-primary border-primary/30 hover:bg-primary/15 hover:border-primary/50 font-medium"
+                onClick={handleDemoClick}
+                disabled={isDemoLoading}
               >
-                <Link to="/login">Go to Workspace</Link>
+                {isDemoLoading ? (
+                  <Loader2 className="mr-2 size-4 animate-spin" />
+                ) : (
+                  <Zap className="mr-2 size-4 fill-primary/20" />
+                )}
+                Try Interactive Demo
               </Button>
+            </div>
+
+            {/* Mock editor preview */}
+            <div className="landing-hero-preview top-8 md:top-14 mt-16 md:mt-20 w-full landing-hero-preview-card">
+              <CollaborationMockup />
             </div>
           </div>
         </section>
 
-        {/* Features Section */}
+        {/* ══════════════════════════════════════════════════════
+            STATS STRIP
+        ══════════════════════════════════════════════════════ */}
+        <div className="landing-section-divider" />
+        <section className="container mx-auto px-4 lg:px-8 py-6 md:py-8">
+          <div className="landing-fade-up">
+            <StatsStrip />
+          </div>
+        </section>
+        <div className="landing-section-divider" />
+
+        {/* ══════════════════════════════════════════════════════
+            FEATURES — BENTO GRID
+        ══════════════════════════════════════════════════════ */}
         <section className="container mx-auto px-4 lg:px-8 py-20 md:py-32">
-          <div className="flex flex-col items-center text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
-              Everything you need to work securely
+          <div className="flex flex-col items-center text-center mb-16 landing-fade-up">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-4">
+              Everything you need to{" "}
+              <span className="landing-gradient-text">work securely</span>
             </h2>
             <p className="text-muted-foreground max-w-2xl text-lg">
-              Noteqo combines military-grade encryption with a beautiful,
-              responsive, and blazing-fast user experience.
+              Military-grade encryption meets a beautiful, responsive, and
+              blazing-fast user experience.
             </p>
           </div>
 
-          <div className="grid gap-6 md:gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {FEATURES.map((feature, index) => (
-              <Card
-                key={index}
-                className="bg-card/50 backdrop-blur-sm border-muted hover:border-primary/50 transition-colors duration-300"
+          <div className="landing-bento-grid landing-fade-up-stagger">
+            {FEATURES.map((feature) => (
+              <div
+                key={feature.title}
+                className={`landing-feature-card landing-fade-up ${feature.isHero ? "landing-bento-hero" : ""}`}
               >
-                <CardHeader>
-                  <div className="p-3 bg-primary/10 w-fit rounded-xl mb-4">
-                    {feature.icon}
-                  </div>
-                  <CardTitle className="text-xl">{feature.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription className="text-base">
-                    {feature.description}
-                  </CardDescription>
-                </CardContent>
-              </Card>
+                <div className="landing-feature-icon">{feature.icon}</div>
+                <h3 className="text-xl font-semibold mb-2 text-foreground">
+                  {feature.title}
+                </h3>
+                <p className="text-muted-foreground text-[0.95rem] leading-relaxed">
+                  {feature.description}
+                </p>
+                {feature.isHero && (
+                  <Badge
+                    variant="outline"
+                    className="mt-4 bg-primary/10 border-primary/30 text-primary text-xs"
+                  >
+                    <Sparkles className="size-3 mr-1" />
+                    New Feature
+                  </Badge>
+                )}
+              </div>
             ))}
           </div>
         </section>
 
-        {/* CTA Section */}
-        <section className="relative overflow-hidden border-t bg-muted/30 py-20 md:py-32">
-          <div className="container relative z-10 mx-auto px-4 lg:px-8 flex flex-col items-center text-center">
+        {/* ══════════════════════════════════════════════════════
+            COLLABORATION SHOWCASE
+        ══════════════════════════════════════════════════════ */}
+        <section className="relative overflow-hidden py-20 md:py-32 bg-muted/20">
+          <div className="container mx-auto px-4 lg:px-8">
+            <div className="landing-collab-section">
+              {/* Left — copy */}
+              <div className="landing-fade-up">
+                <Badge
+                  variant="outline"
+                  className="mb-6 bg-primary/10 border-primary/30 text-primary rounded-full text-xs px-3 py-1"
+                >
+                  <Users className="size-3 mr-1.5" />
+                  Collaboration
+                </Badge>
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-4">
+                  Work together,{" "}
+                  <span className="landing-gradient-text">in real time</span>
+                </h2>
+                <p className="text-muted-foreground text-lg mb-8 leading-relaxed max-w-lg">
+                  Invite your team into shared, encrypted spaces. See live
+                  cursors, edits, and comments — all without sacrificing
+                  privacy.
+                </p>
+
+                <div className="space-y-1">
+                  {COLLAB_BULLETS.map((bullet) => (
+                    <div key={bullet.text} className="landing-collab-bullet">
+                      <div className="landing-collab-bullet-icon">
+                        <Check className="size-3.5" />
+                      </div>
+                      <p className="text-sm text-foreground/90 leading-relaxed">
+                        {bullet.text}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+
+                <Button
+                  size="lg"
+                  className="mt-8 h-12 px-8 shadow-lg transition-all duration-300 hover:scale-105"
+                  asChild
+                >
+                  <Link to="/register">
+                    Start Collaborating
+                    <ArrowRight className="size-4 ml-2" />
+                  </Link>
+                </Button>
+              </div>
+
+              {/* Right — mock editor */}
+              <div className="landing-fade-up">
+                <CollaborationMockup />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ══════════════════════════════════════════════════════
+            CTA SECTION
+        ══════════════════════════════════════════════════════ */}
+        <section className="landing-cta-section relative border-t py-24 md:py-36">
+          <div className="landing-cta-glow" />
+
+          <div className="container relative z-10 mx-auto px-4 lg:px-8 flex flex-col items-center text-center landing-fade-up">
             <Zap className="size-12 text-primary mb-6" />
-            <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-6 max-w-3xl">
-              Ready to take control of your digital privacy?
+            <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 max-w-4xl">
+              Ready to take control of your{" "}
+              <span className="landing-gradient-text">digital privacy</span>?
             </h2>
-            <p className="text-xl text-muted-foreground mb-10 max-w-2xl">
+            <p className="text-xl text-muted-foreground mb-10 max-w-2xl leading-relaxed">
               Join thousands of users who trust Noteqo to keep their most
-              important ideas secure and accessible everywhere.
+              important ideas secure, synced, and accessible everywhere.
             </p>
-            <Button size="lg" className="h-14 px-10 text-lg shadow-xl" asChild>
-              <Link to="/register">Create Your Secure Account</Link>
-            </Button>
+            <div className="landing-cta-button">
+              <Button
+                size="lg"
+                className="h-14 px-10 text-lg shadow-xl transition-all duration-300 hover:scale-105"
+                asChild
+              >
+                <Link to="/register">
+                  Create Your Secure Account
+                  <ArrowRight className="size-5 ml-2" />
+                </Link>
+              </Button>
+            </div>
           </div>
         </section>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t py-8 bg-background">
+      {/* ── Footer ── */}
+      <footer className="border-t py-10 bg-background">
         <div className="container mx-auto px-4 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <div className="flex size-5 items-center justify-center rounded bg-primary overflow-hidden">
@@ -205,7 +419,7 @@ export function PublicLandingView() {
             © {new Date().getFullYear()} Noteqo. Built for privacy. All rights
             reserved.
           </p>
-          <div className="flex gap-4 text-sm text-muted-foreground">
+          <div className="flex gap-6 text-sm text-muted-foreground">
             <Link to="#" className="hover:text-foreground transition-colors">
               Privacy Policy
             </Link>
