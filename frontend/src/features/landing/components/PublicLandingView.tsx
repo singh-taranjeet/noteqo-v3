@@ -26,6 +26,8 @@ import { spaceService } from "@/features/spaces/services/space.service";
 import { ROUTES } from "@/constants/routes";
 import "../landing.css";
 import { useLogout } from "@/features/auth";
+import { noteService } from "@/features/workspace";
+const { storageService, STORAGE_KEYS } = await import("@/features/storage");
 
 /* ─── Feature data ─── */
 
@@ -107,7 +109,8 @@ export function PublicLandingView() {
   const handleDemoClick = useCallback(async () => {
     try {
       setIsDemoLoading(true);
-      await logout();
+      await logout(false, false);
+
       const randomString = Math.random().toString(36).substring(7);
       const email = `demo_${randomString}@noteqo.com`;
       const password = `demoP@ssw0rd_${randomString}`;
@@ -126,20 +129,26 @@ export function PublicLandingView() {
         masterKey: result.masterKey,
       });
 
-      const { storageService, STORAGE_KEYS } = await import("@/features/storage");
       await storageService.put(
         STORAGE_KEYS.USER_PROFILE,
         result.response.data.user,
       );
 
-      await spaceService.createSpace();
+      const newSpace = await spaceService.createSpace();
 
-      navigate(ROUTES.NOTES);
+      const newNote = await noteService.createNote(
+        newSpace.id,
+        "Note Title (This is a demo Note)",
+      );
+
+      setTimeout(() => {
+        navigate(`${ROUTES.NOTES}/${newNote.id}`);
+      }, 2000);
     } catch (error) {
       console.error("Demo login failed:", error);
       setIsDemoLoading(false);
     }
-  }, [register, navigate]);
+  }, [register, navigate, logout]);
 
   return (
     <div
@@ -204,18 +213,15 @@ export function PublicLandingView() {
 
             {/* Headline */}
             <h1 className="landing-hero-headline text-5xl font-extrabold tracking-tight sm:text-6xl md:text-7xl lg:text-8xl max-w-5xl mb-6">
-              Your thoughts,{" "}
-              <br className="hidden sm:block" />
-              <span className="landing-gradient-text">
-                securely encrypted.
-              </span>
+              Your thoughts, <br className="hidden sm:block" />
+              <span className="landing-gradient-text">securely encrypted.</span>
             </h1>
 
             {/* Subheadline */}
             <p className="landing-hero-subheadline max-w-2xl text-lg sm:text-xl text-muted-foreground mb-10 leading-relaxed">
               The end-to-end encrypted workspace for your ideas, documents, and
-              team collaboration. Offline-first, blazing fast, and built for
-              the way you work.
+              team collaboration. Offline-first, blazing fast, and built for the
+              way you work.
             </p>
 
             {/* CTAs */}
@@ -233,12 +239,16 @@ export function PublicLandingView() {
               <Button
                 variant="outline"
                 size="lg"
-                className="h-13 px-8 text-base bg-background/50 backdrop-blur-sm hover:bg-accent/50 transition-all duration-300"
+                className="h-13 px-8 text-base transition-all duration-300 hover:scale-105 shadow-sm bg-primary/5 text-primary border-primary/30 hover:bg-primary/15 hover:border-primary/50 font-medium"
                 onClick={handleDemoClick}
                 disabled={isDemoLoading}
               >
-                {isDemoLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Try Demo
+                {isDemoLoading ? (
+                  <Loader2 className="mr-2 size-4 animate-spin" />
+                ) : (
+                  <Zap className="mr-2 size-4 fill-primary/20" />
+                )}
+                Try Interactive Demo
               </Button>
             </div>
 

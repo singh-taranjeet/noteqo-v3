@@ -40,7 +40,10 @@ export function CollaborationMockup() {
 
       {/* Mock content */}
       <div className="landing-mock-body">
-        <div className="landing-mock-line" style={{ fontWeight: 700, fontSize: "1.1rem" }}>
+        <div
+          className="landing-mock-line"
+          style={{ fontWeight: 700, fontSize: "1.1rem" }}
+        >
           # Q3 Product Roadmap
         </div>
 
@@ -60,7 +63,10 @@ export function CollaborationMockup() {
           </span>
         </div>
 
-        <div className="landing-mock-line" style={{ color: "var(--muted-foreground)" }}>
+        <div
+          className="landing-mock-line"
+          style={{ color: "var(--muted-foreground)" }}
+        >
           Integrate offline-first sync with CRDTs
         </div>
 
@@ -76,7 +82,10 @@ export function CollaborationMockup() {
           </span>
           <span
             className="landing-mock-cursor"
-            style={{ background: "oklch(0.65 0.2 250)", animationDelay: "0.5s" }}
+            style={{
+              background: "oklch(0.65 0.2 250)",
+              animationDelay: "0.5s",
+            }}
           />
           <span
             className="landing-mock-cursor-label"
@@ -86,7 +95,10 @@ export function CollaborationMockup() {
           </span>
         </div>
 
-        <div className="landing-mock-line" style={{ color: "var(--muted-foreground)" }}>
+        <div
+          className="landing-mock-line"
+          style={{ color: "var(--muted-foreground)" }}
+        >
           Zero-knowledge proof of ownership
         </div>
 
@@ -94,7 +106,10 @@ export function CollaborationMockup() {
           <span>Audit trail for compliance</span>
           <span
             className="landing-mock-cursor"
-            style={{ background: "oklch(0.7 0.19 155)", animationDelay: "0.3s" }}
+            style={{
+              background: "oklch(0.7 0.19 155)",
+              animationDelay: "0.3s",
+            }}
           />
           <span
             className="landing-mock-cursor-label"

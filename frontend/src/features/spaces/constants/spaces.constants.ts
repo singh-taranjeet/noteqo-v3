@@ -3,6 +3,10 @@ export const SPACE_TYPE = {
   SHARED: "shared",
 } as const;
 
+export const SPACES_EVENTS = {
+  ACTIVE_SPACE_CHANGED: "activeSpaceChanged",
+} as const;
+
 export const SPACE_DEFAULTS = {
   NAME: "My Notes",
 } as const;

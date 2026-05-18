@@ -195,11 +195,7 @@
   height: 400px;
   bottom: -100px;
   left: 40%;
-  background: radial-gradient(
-    circle,
-    oklch(0.55 0.29 299) 0%,
-    transparent 70%
-  );
+  background: radial-gradient(circle, oklch(0.55 0.29 299) 0%, transparent 70%);
   animation:
     landing-float 12s ease-in-out infinite 2s,
     landing-pulse-glow 10s ease-in-out infinite 3s;

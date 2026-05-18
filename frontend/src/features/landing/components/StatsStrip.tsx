@@ -1,9 +1,4 @@
-import {
-  ShieldCheck,
-  WifiOff,
-  Users,
-  Zap,
-} from "lucide-react";
+import { ShieldCheck, WifiOff, Users, Zap } from "lucide-react";
 import type { ReactNode } from "react";
 
 interface StatItem {
