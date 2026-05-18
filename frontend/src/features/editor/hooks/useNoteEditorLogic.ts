@@ -56,7 +56,7 @@ import { TableNodeExtension } from "@/features/editor/components/nodes/TableNode
 
 // --- Tiptap Collaboration (Yjs CRDT) ---
 import { Collaboration } from "@tiptap/extension-collaboration";
-import { yCursorPlugin } from "y-prosemirror";
+import { CollaborationCursor } from "@/features/editor/components/extensions/CollaborationCursorExtension";
 
 // --- Lib ---
 import { EDITOR_CONFIG } from "@/features/editor/constants/editor.constants";
@@ -64,21 +64,20 @@ import { EDITOR_CONFIG } from "@/features/editor/constants/editor.constants";
 import { noteService, useCreateNote, type Note } from "@/features/workspace";
 import { NoteLocalService } from "@/features/workspace/services/note-local.service";
 import DEFAULT_CONTENT from "@/features/editor/components/data/content.json";
-import { useNote } from "@/features/workspace";
 import { SYNC_EVENTS } from "@/features/shared/constants/sync-events.constants";
 import { useCollaboration } from "./useCollaboration";
 import { storageService, STORAGE_KEYS } from "@/features/storage";
-import { logService } from "@/services/log.service";
+
 
 export interface UseNoteEditorLogicProps {
   noteId: string;
-  initialNote?: Note;
+  note: Note;
   isReadOnly?: boolean;
 }
 
 export function useNoteEditorLogic({
   noteId,
-  initialNote,
+  note,
   isReadOnly = false,
 }: UseNoteEditorLogicProps) {
   const { mutate: createNoteMutation } = useCreateNote();
@@ -86,12 +85,6 @@ export function useNoteEditorLogic({
   const previousContent = useRef<string | null>(null);
 
   const queueNoteUpdateRef = useRef<ReturnType<typeof debounce> | null>(null);
-
-  const { note, loading } = useNote({
-    id: noteId,
-    initialNote,
-    readonly: isReadOnly,
-  });
 
   const content = note?.content || DEFAULT_CONTENT;
   const spaceId = note?.spaceId ?? null;
@@ -102,6 +95,7 @@ export function useNoteEditorLogic({
   // --- Collaboration (Yjs CRDT) for all spaces ---
   const {
     ydoc,
+    awareness,
     provider,
     connectionState,
     roomUsers,
@@ -234,15 +228,29 @@ export function useNoteEditorLogic({
       }),
     ];
 
-    // Add Collaboration extension for all spaces with an active Yjs doc.
-    // NOTE: CollaborationCursor is NOT added here — it's registered dynamically
-    // after the editor mounts (see useEffect below) because yCursorPlugin's
-    // createDecorations accesses ySyncPluginKey state which isn't available
-    // during the initial EditorState.reconfigure call.
-    if (ydoc) {
+    // Add Collaboration and CollaborationCursor extensions for all spaces with an active Yjs doc
+    if (ydoc && awareness) {
       baseExtensions.push(
         Collaboration.configure({
           document: ydoc,
+        }),
+        CollaborationCursor.configure({
+          provider: { awareness }, // Meets the interface requirement
+          user: {
+            name: "User", // Updated dynamically later
+            color: userColor,
+          },
+          render: (user: Record<string, any>) => {
+            const cursor = document.createElement("span");
+            cursor.classList.add("collaboration-cursor__caret");
+            cursor.setAttribute("style", `border-color: ${user.color}`);
+            const label = document.createElement("div");
+            label.classList.add("collaboration-cursor__label");
+            label.setAttribute("style", `background-color: ${user.color}`);
+            label.insertBefore(document.createTextNode(user.name || "User"), null);
+            cursor.insertBefore(label, null);
+            return cursor;
+          },
         }),
       );
     }
@@ -280,72 +288,33 @@ export function useNoteEditorLogic({
         }
       },
     },
-    [spaceId, ydoc, provider],
+    [spaceId, ydoc, awareness],
   );
 
-  // --- Register CollaborationCursor AFTER editor mount ---
-  // The yCursorPlugin depends on ySyncPlugin state which is only available
-  // after the Collaboration extension's ProseMirror plugin has been initialized.
-  // Adding it via editor.registerPlugin avoids the Plugin.init timing crash.
-  useEffect(() => {
-    if (!editor || !ydoc || !provider || editor.isDestroyed) {
-      return;
-    }
 
-    // Defer to next tick to ensure ySync plugin state is fully initialized
-    const timer = setTimeout(() => {
-      if (editor.isDestroyed) return;
-
-      try {
-        // Set local awareness user info
-        provider.awareness.setLocalStateField("user", {
-          name: "User",
-          color: userColor,
-        });
-
-        // Dynamically register the cursor extension
-        editor.registerPlugin(
-          yCursorPlugin(provider.awareness, {
-            cursorBuilder: (user: { name: string; color: string }) => {
-              const cursor = document.createElement("span");
-              cursor.classList.add("collaboration-cursor__caret");
-              cursor.setAttribute("style", `border-color: ${user.color}`);
-              const label = document.createElement("div");
-              label.classList.add("collaboration-cursor__label");
-              label.setAttribute("style", `background-color: ${user.color}`);
-              label.insertBefore(document.createTextNode(user.name), null);
-              cursor.insertBefore(label, null);
-              return cursor;
-            },
-          }),
-        );
-      } catch (err) {
-        logService.warn("Failed to register cursor plugin", err);
-      }
-    }, EDITOR_CONFIG.EVENT_LOOP_DEFER_MS);
-
-    return () => clearTimeout(timer);
-  }, [editor, ydoc, provider, userColor]);
 
   // --- Update collaboration cursor user info ---
   useEffect(() => {
-    if (!editor || !ydoc || !provider) return;
+    if (!editor || !ydoc || !awareness || !provider) return;
 
     const loadUserProfile = async () => {
       const profile = await storageService.get<{ email?: string }>(
         STORAGE_KEYS.USER_PROFILE,
       );
       if (profile?.email && !editor.isDestroyed) {
-        // Update awareness with user info for cursor display
-        provider.awareness.setLocalStateField("user", {
-          name: profile.email.split("@")[0] || "User",
+        const name = profile.email.split("@")[0] || "User";
+        
+
+        // Update underlying Yjs awareness
+        awareness.setLocalStateField("user", {
+          name,
           color: userColor,
         });
       }
     };
 
     void loadUserProfile();
-  }, [editor, ydoc, provider, userColor]);
+  }, [editor, ydoc, awareness, provider, userColor]);
 
   // Listen for version-restore events to update editor content instantly
   useEffect(() => {
@@ -430,7 +399,6 @@ export function useNoteEditorLogic({
   return {
     editor,
     note,
-    loading,
     isTrashed,
     editorIsReadOnly,
     spaceId,

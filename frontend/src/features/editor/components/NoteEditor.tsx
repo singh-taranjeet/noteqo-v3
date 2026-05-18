@@ -5,6 +5,7 @@ import { useNoteEditorLogic } from "../hooks/useNoteEditorLogic";
 import { CollaborationAvatars } from "./CollaborationAvatars";
 import type { CollaboratorUser } from "./CollaborationAvatars";
 import { useMemo } from "react";
+import { useNote } from "@/features/workspace";
 
 interface NoteEditorProps {
   noteId: string;
@@ -21,10 +22,40 @@ export function NoteEditor({
   className,
   contentWrapperClassName,
 }: Readonly<NoteEditorProps>) {
+  const { note, loading } = useNote({
+    id: noteId,
+    initialNote,
+    readonly: isReadOnly,
+  });
+
+  if (loading || !note) {
+    return <NoteEditorSkeleton />;
+  }
+
+  return (
+    <NoteEditorInner
+      noteId={noteId}
+      note={note}
+      isReadOnly={isReadOnly}
+      className={className}
+      contentWrapperClassName={contentWrapperClassName}
+    />
+  );
+}
+
+interface NoteEditorInnerProps extends NoteEditorProps {
+  note: Note;
+}
+
+function NoteEditorInner({
+  noteId,
+  note,
+  isReadOnly = false,
+  className,
+  contentWrapperClassName,
+}: Readonly<NoteEditorInnerProps>) {
   const {
     editor,
-    note,
-    loading,
     isTrashed,
     editorIsReadOnly,
     spaceId,
@@ -34,7 +65,7 @@ export function NoteEditor({
     updateEmoji,
     connectionState,
     roomUsers,
-  } = useNoteEditorLogic({ noteId, initialNote, isReadOnly });
+  } = useNoteEditorLogic({ noteId, note, isReadOnly });
 
   // Map room users to the avatar component's shape
   const collaborators: CollaboratorUser[] = useMemo(
@@ -44,10 +75,6 @@ export function NoteEditor({
       })),
     [roomUsers],
   );
-
-  if (loading) {
-    return <NoteEditorSkeleton />;
-  }
 
   if (!editor) return null;
 

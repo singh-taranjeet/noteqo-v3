@@ -16,6 +16,8 @@ import type {
 export interface EncryptedYjsProviderOptions {
   /** The Yjs document to synchronize */
   doc: Y.Doc;
+  /** Optional existing Awareness instance to use */
+  awareness?: Awareness;
   /** Note ID for room management */
   noteId: string;
   /** Space ID for encryption key resolution */
@@ -51,6 +53,7 @@ export class EncryptedYjsProvider {
     state: CollaborationConnectionState,
   ) => void;
   private onUsersChanged?: (users: RoomUser[]) => void;
+  private readonly ownsAwareness: boolean;
 
   constructor(options: EncryptedYjsProviderOptions) {
     this.doc = options.doc;
@@ -59,8 +62,9 @@ export class EncryptedYjsProvider {
     this.onConnectionStateChange = options.onConnectionStateChange;
     this.onUsersChanged = options.onUsersChanged;
 
-    // Create awareness instance for cursor/user presence
-    this.awareness = new Awareness(this.doc);
+    // Use provided awareness or create a new one
+    this.ownsAwareness = !options.awareness;
+    this.awareness = options.awareness || new Awareness(this.doc);
 
     // Set up Yjs update listener → encrypt and send
     this.doc.on("update", this.handleLocalUpdate);
@@ -142,10 +146,7 @@ export class EncryptedYjsProvider {
     if (this.isDestroyed) return;
 
     const changedClients = added.concat(updated).concat(removed);
-    const encodedAwareness =
-      Awareness.prototype.constructor === Awareness
-        ? this.encodeAwarenessState(changedClients)
-        : null;
+    const encodedAwareness = this.encodeAwarenessState(changedClients);
 
     if (encodedAwareness) {
       void collaborationService.sendAwareness(encodedAwareness);
@@ -210,8 +211,10 @@ export class EncryptedYjsProvider {
     // Leave the collaboration room
     collaborationService.leaveNote();
 
-    // Destroy awareness
-    this.awareness.destroy();
+    // Destroy awareness only if we own it
+    if (this.ownsAwareness) {
+      this.awareness.destroy();
+    }
 
     logService.info(`EncryptedYjsProvider destroyed for note ${this.noteId}`);
   }

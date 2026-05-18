@@ -99,6 +99,11 @@ class CollaborationService {
     this.callbacks = callbacks;
     this.lastSequenceNumber = 0;
 
+    // Immediately notify the newly registered callback of the current connection state.
+    // This is critical for React StrictMode and component remounts where the socket
+    // is already connected and the "connect" event will not fire again.
+    this.callbacks.onConnectionStateChange(this.connectionState);
+
     this.socket?.emit(COLLABORATION_EVENTS.JOIN_NOTE, {
       noteId,
       spaceId,

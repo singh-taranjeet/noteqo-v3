@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import * as Y from "yjs";
 import { EncryptedYjsProvider } from "@/features/realtime/providers/EncryptedYjsProvider";
+import { Awareness } from "y-protocols/awareness";
 import type {
   CollaborationConnectionState,
   RoomUser,
@@ -20,7 +21,9 @@ export interface UseCollaborationOptions {
 export interface UseCollaborationReturn {
   /** The Yjs document instance for TipTap Collaboration extension */
   ydoc: Y.Doc | null;
-  /** The Yjs provider (for awareness/cursor support) */
+  /** The Yjs awareness instance for cursor support */
+  awareness: Awareness | null;
+  /** The Yjs provider */
   provider: EncryptedYjsProvider | null;
   /** Current WebSocket connection state */
   connectionState: CollaborationConnectionState;
@@ -49,7 +52,12 @@ export function useCollaboration({
   const [connectionState, setConnectionState] =
     useState<CollaborationConnectionState>("disconnected");
   const [roomUsers, setRoomUsers] = useState<RoomUser[]>([]);
-  const [ydoc, setYdoc] = useState<Y.Doc | null>(null);
+  const shouldCollaborate = !isReadOnly && !!spaceId;
+
+  // Initialize Yjs document and awareness synchronously on first render if needed.
+  // This prevents Tiptap from crashing during dynamic reconfiguration of extensions.
+  const [ydoc] = useState<Y.Doc | null>(() => (shouldCollaborate ? new Y.Doc() : null));
+  const [awareness] = useState<Awareness | null>(() => (ydoc ? new Awareness(ydoc) : null));
   const [provider, setProvider] = useState<EncryptedYjsProvider | null>(null);
 
   // Stable random color per hook instance
@@ -60,30 +68,24 @@ export function useCollaboration({
       ],
   );
 
-  const shouldCollaborate = !isReadOnly && !!spaceId;
-
   useEffect(() => {
-    if (!shouldCollaborate || !noteId || !spaceId) {
-      // Reset state when collaboration is not needed
-      setYdoc(null);
+    if (!shouldCollaborate || !noteId || !spaceId || !ydoc || !awareness) {
+      // Reset provider when collaboration is not needed
       setProvider(null);
       return;
     }
 
-    // Create Yjs document
-    const doc = new Y.Doc();
-
     // Create encrypted provider
     const prov = new EncryptedYjsProvider({
-      doc,
+      doc: ydoc,
+      awareness,
       noteId,
       spaceId,
       onConnectionStateChange: setConnectionState,
       onUsersChanged: setRoomUsers,
     });
 
-    // Set state — triggers a re-render so the parent gets the instances
-    setYdoc(doc);
+    // Set provider state so the UI knows we are connected
     setProvider(prov);
 
     logService.info(
@@ -92,17 +94,16 @@ export function useCollaboration({
 
     return () => {
       prov.destroy();
-      doc.destroy();
-      setYdoc(null);
       setProvider(null);
       setConnectionState("disconnected");
       setRoomUsers([]);
       logService.info(`Collaboration ended for note ${noteId}`);
     };
-  }, [noteId, spaceId, shouldCollaborate]);
+  }, [noteId, spaceId, shouldCollaborate, ydoc, awareness]);
 
   return {
     ydoc,
+    awareness,
     provider,
     connectionState,
     roomUsers,

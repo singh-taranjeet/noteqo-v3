@@ -118,10 +118,16 @@ export class CollaborationGateway
       if (members.has(client.id)) {
         members.delete(client.id);
 
-        // Notify remaining users
+        // Notify remaining users and updated list
         client.to(this.getRoomName(noteId)).emit(COLLABORATION_EVENTS.USER_LEFT, {
           noteId,
           userId: authData.userId,
+        });
+        
+        const roomUsers = this.getRoomUsers(noteId);
+        this.server.to(this.getRoomName(noteId)).emit(COLLABORATION_EVENTS.ROOM_USERS, {
+          noteId,
+          users: roomUsers,
         });
 
         // Clean up empty rooms
@@ -164,9 +170,9 @@ export class CollaborationGateway
       userId: authData.userId,
     });
 
-    // Send current room users to the joining client
+    // Send current room users to everyone in the room
     const roomUsers = this.getRoomUsers(payload.noteId);
-    client.emit(COLLABORATION_EVENTS.ROOM_USERS, {
+    this.server.to(roomName).emit(COLLABORATION_EVENTS.ROOM_USERS, {
       noteId: payload.noteId,
       users: roomUsers,
     });
@@ -198,10 +204,15 @@ export class CollaborationGateway
       }
     }
 
-    // Notify remaining users
+    // Notify remaining users and broadcast updated user list
     client.to(roomName).emit(COLLABORATION_EVENTS.USER_LEFT, {
       noteId: payload.noteId,
       userId: authData.userId,
+    });
+    const roomUsers = this.getRoomUsers(payload.noteId);
+    this.server.to(roomName).emit(COLLABORATION_EVENTS.ROOM_USERS, {
+      noteId: payload.noteId,
+      users: roomUsers,
     });
 
     this.logger.debug(
@@ -290,16 +301,16 @@ export class CollaborationGateway
     const members = this.noteRooms.get(noteId);
     if (!members) return [];
 
-    const users: RoomUser[] = [];
+    const uniqueUsers = new Map<string, RoomUser>();
     for (const socketId of members) {
       const authData = this.socketUsers.get(socketId);
-      if (authData) {
-        users.push({
+      if (authData && !uniqueUsers.has(authData.userId)) {
+        uniqueUsers.set(authData.userId, {
           userId: authData.userId,
           joinedAt: new Date().toISOString(),
         });
       }
     }
-    return users;
+    return Array.from(uniqueUsers.values());
   }
 }

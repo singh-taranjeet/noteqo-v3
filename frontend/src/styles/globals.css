@@ -210,3 +210,20 @@
     @apply bg-sidebar/95 backdrop-blur supports-backdrop-filter:bg-sidebar/60;
   }
 }
+
+
+/* Collaboration Cursors */
+.collaboration-cursor__caret {
+  @apply relative -ml-[1px] -mr-[1px] border-l-[2px] border-r-[2px] pointer-events-none;
+  word-break: normal;
+  animation: cursorPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes cursorPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.collaboration-cursor__label {
+  @apply absolute -top-[1.6em] left-[4px] text-[11px] font-semibold text-white px-2 py-0.5 rounded-full whitespace-nowrap pointer-events-none select-none z-50 shadow-sm;
+}
