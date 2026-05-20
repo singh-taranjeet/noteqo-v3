@@ -85,11 +85,13 @@ function NoteEditorInner({
     <>
       {/* Collaboration bar — only visible for shared notes */}
       {isSharedSpace && (
-        <div className="flex items-center justify-end px-4 py-2 border-b bg-background/50 backdrop-blur-sm shrink-0">
-          <CollaborationAvatars
-            users={collaborators}
-            connectionState={connectionState}
-          />
+        <div className="absolute top-11 right-0 h-10 z-50 w-fit">
+          <div className="flex mt-3 mr-3 items-center justify-end px-4 py-2 border-transparent bg-glass rounded-full backdrop-blur-sm shrink-0">
+            <CollaborationAvatars
+              users={collaborators}
+              connectionState={connectionState}
+            />
+          </div>
         </div>
       )}
 
