@@ -82,12 +82,13 @@ export function CollaborationAvatars({
           <TooltipTrigger asChild>
             <Badge
               variant="outline"
-              className={`gap-1.5 text-xs px-2 py-0.5 transition-colors ${connectionState === "connected"
-                ? "border-emerald-500/30 text-emerald-600 dark:text-emerald-400"
-                : connectionState === "disconnected"
-                  ? "border-destructive/30 text-destructive"
-                  : "border-yellow-500/30 text-yellow-600 dark:text-yellow-400"
-                }`}
+              className={`gap-1.5 text-xs px-2 py-0.5 transition-colors ${
+                connectionState === "connected"
+                  ? "border-emerald-500/30 text-emerald-600 dark:text-emerald-400"
+                  : connectionState === "disconnected"
+                    ? "border-destructive/30 text-destructive"
+                    : "border-yellow-500/30 text-yellow-600 dark:text-yellow-400"
+              }`}
             >
               {ConnectionIcon}
               <span className="hidden sm:inline">{connectionLabel}</span>
@@ -106,7 +107,7 @@ export function CollaborationAvatars({
               const color =
                 user.color ||
                 COLLABORATION_CONFIG.USER_COLORS[
-                index % COLLABORATION_CONFIG.USER_COLORS.length
+                  index % COLLABORATION_CONFIG.USER_COLORS.length
                 ];
 
               return (

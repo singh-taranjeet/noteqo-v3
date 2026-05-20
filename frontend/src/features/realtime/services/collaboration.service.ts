@@ -52,7 +52,7 @@ class CollaborationService {
    * Called once when the app initializes a collaborative editing session.
    */
   async connect(): Promise<void> {
-    if (this.socket?.connected) return;
+    if (this.isConnected) return;
 
     const token = await storageService.get<string>(STORAGE_KEYS.JWT_KEY);
     if (!token) {
@@ -85,7 +85,7 @@ class CollaborationService {
     spaceId: string,
     callbacks: CollaborationCallbacks,
   ): Promise<void> {
-    if (!this.socket?.connected) {
+    if (!this.isConnected) {
       await this.connect();
     }
 
@@ -104,7 +104,7 @@ class CollaborationService {
     // is already connected and the "connect" event will not fire again.
     this.callbacks.onConnectionStateChange(this.connectionState);
 
-    this.socket?.emit(COLLABORATION_EVENTS.JOIN_NOTE, {
+    this.emitEvent(COLLABORATION_EVENTS.JOIN_NOTE, {
       noteId,
       spaceId,
     });
@@ -116,8 +116,8 @@ class CollaborationService {
    * Leaves the current note room.
    */
   leaveNote(): void {
-    if (this.currentNoteId && this.socket?.connected) {
-      this.socket.emit(COLLABORATION_EVENTS.LEAVE_NOTE, {
+    if (this.currentNoteId && this.isConnected) {
+      this.emitEvent(COLLABORATION_EVENTS.LEAVE_NOTE, {
         noteId: this.currentNoteId,
       });
       logService.info(`Left collaboration for note ${this.currentNoteId}`);
@@ -133,11 +133,7 @@ class CollaborationService {
    * Encrypts and sends a Yjs update to the server for relay.
    */
   async sendUpdate(update: Uint8Array): Promise<void> {
-    if (
-      !this.socket?.connected ||
-      !this.currentNoteId ||
-      !this.currentSpaceId
-    ) {
+    if (!this.isConnected || !this.currentNoteId || !this.currentSpaceId) {
       return;
     }
 
@@ -155,7 +151,7 @@ class CollaborationService {
         spaceKeyBytes,
       );
 
-      this.socket.emit(COLLABORATION_EVENTS.SEND_UPDATE, {
+      this.emitEvent(COLLABORATION_EVENTS.SEND_UPDATE, {
         noteId: this.currentNoteId,
         encryptedUpdate,
       });
@@ -168,11 +164,7 @@ class CollaborationService {
    * Encrypts and sends awareness state (cursor position, user info).
    */
   async sendAwareness(awareness: Uint8Array): Promise<void> {
-    if (
-      !this.socket?.connected ||
-      !this.currentNoteId ||
-      !this.currentSpaceId
-    ) {
+    if (!this.isConnected || !this.currentNoteId || !this.currentSpaceId) {
       return;
     }
 
@@ -189,7 +181,7 @@ class CollaborationService {
         spaceKeyBytes,
       );
 
-      this.socket.emit(COLLABORATION_EVENTS.SEND_AWARENESS, {
+      this.emitEvent(COLLABORATION_EVENTS.SEND_AWARENESS, {
         noteId: this.currentNoteId,
         encryptedAwareness,
       });
@@ -202,7 +194,7 @@ class CollaborationService {
    * Requests missed updates after reconnecting.
    */
   requestCatchup(noteId: string): void {
-    this.socket?.emit(COLLABORATION_EVENTS.REQUEST_CATCHUP, {
+    this.emitEvent(COLLABORATION_EVENTS.REQUEST_CATCHUP, {
       noteId,
       lastSequenceNumber: this.lastSequenceNumber,
     });
@@ -228,10 +220,24 @@ class CollaborationService {
 
   /** Whether the socket is currently connected */
   get isConnected(): boolean {
-    return this.socket?.connected ?? false;
+    return this?.socket?.connected ?? false;
   }
 
   // ─── Private ──────────────────────────────────────────
+
+  /**
+   * Centralised socket emit — guards against null socket so callers
+   * never need optional chaining or bare access on this.socket.
+   */
+  private emitEvent(event: string, payload: unknown): void {
+    if (!this.socket) {
+      logService.warn(
+        `CollaborationService: Cannot emit "${event}" — socket is null`,
+      );
+      return;
+    }
+    this.socket.emit(event, payload);
+  }
 
   private setupSocketListeners(): void {
     if (!this.socket) return;
