@@ -72,6 +72,7 @@ function NoteEditorInner({
     () =>
       roomUsers.map((u) => ({
         userId: u.userId,
+        name: u.email?.split("@")[0] || u.userId.slice(0, 8),
       })),
     [roomUsers],
   );

@@ -50,6 +50,7 @@ export interface AwarenessPayload {
 /** Info about a user currently in a note room */
 export interface RoomUser {
   userId: string;
+  email: string;
   joinedAt: string;
 }
 
