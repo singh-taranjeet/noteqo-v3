@@ -7,18 +7,14 @@ import {
   SPACE_TYPE,
   SPACES_MESSAGES,
   SPACES_EVENTS,
-} from "@/features/spaces/constants/spaces.constants";
-import type {
-  Space,
-  SpaceType,
-  RemoteSpace,
-} from "@/features/spaces/types/spaces.types";
+} from "../constants/spaces.constants";
+import type { Space, SpaceType, RemoteSpace } from "../types/spaces.types";
 import type { Note } from "@/features/workspace";
 import { noteService } from "@/features/workspace";
 import { isOnline } from "@/lib/utils";
 import { spaceSyncQueueService } from "./space-sync-queue.service";
 import { SpaceLocalStorageService } from "./space-local-storage.service";
-import { NoteLocalService } from "@/features/workspace/services/note-local.service";
+import { NoteLocalService } from "@/features/workspace";
 import { SpaceLocalService } from "./space-local.service";
 import { ACTIVE_SPACE_STORAGE_KEY } from "../context/ActiveSpaceContext";
 

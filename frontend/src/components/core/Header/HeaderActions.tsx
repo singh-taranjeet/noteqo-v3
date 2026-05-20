@@ -1,5 +1,5 @@
 import { Clock, Copy, MoreHorizontal, Plus, Star, Trash2 } from "lucide-react";
-import { ROUTES } from "@/constants/routes";
+import { ROUTES } from "@/constants/routes.constants";
 
 import { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -19,11 +19,11 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { useLocalNotes } from "@/features/workspace/hooks/useLocalNotes";
-import { useDuplicateNote } from "@/features/workspace/hooks/useDuplicateNote";
-import { useToggleFavoriteNote } from "@/features/workspace/hooks/useToggleFavoriteNote";
-import { useCreateNote } from "@/features/workspace/hooks/useCreateNote";
-import { useDeleteNote } from "@/features/workspace/hooks/useDeleteNote";
+import { useLocalNotes } from "@/features/workspace";
+import { useDuplicateNote } from "@/features/workspace";
+import { useToggleFavoriteNote } from "@/features/workspace";
+import { useCreateNote } from "@/features/workspace";
+import { useDeleteNote } from "@/features/workspace";
 import { MOCK_USER, useUserProfile } from "@/features/auth";
 import { VersionHistoryDialog } from "@/features/editor";
 

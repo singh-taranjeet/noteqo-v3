@@ -11,7 +11,10 @@ import type {
   CollaborationConnectionState,
   RoomUser,
 } from "../types/collaboration.types";
-import { COLLABORATION_CONFIG, CONNECTION_STATE } from "../constants/collaboration.constants";
+import {
+  COLLABORATION_CONFIG,
+  CONNECTION_STATE,
+} from "../constants/collaboration.constants";
 import { logService } from "@/services/log.service";
 import { storageService, STORAGE_KEYS } from "@/features/storage";
 
@@ -197,7 +200,8 @@ export function useCRDT({
     awareness,
     connectionState,
     roomUsers,
-    isCollaborating: shouldCollaborate && connectionState === CONNECTION_STATE.CONNECTED,
+    isCollaborating:
+      shouldCollaborate && connectionState === CONNECTION_STATE.CONNECTED,
     userColor,
     isReady,
   };

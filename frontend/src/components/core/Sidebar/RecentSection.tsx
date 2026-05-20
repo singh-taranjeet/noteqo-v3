@@ -8,9 +8,9 @@ import {
 } from "@/components/ui/sidebar";
 import { useRecentNotes } from "@/features/workspace";
 import { useActiveSpace } from "@/features/spaces";
-import { ROUTES } from "@/constants/routes";
+import { ROUTES } from "@/constants/routes.constants";
 import { SidebarHoverCard } from "./SidebarHoverCard";
-import { EmojiOrImage } from "@/features/media/components/EmojiOrImage";
+import { EmojiOrImage } from "@/features/media";
 
 /**
  * Renders recent notes as SidebarMenuSub items, filtered by active space.

@@ -1,4 +1,4 @@
-import { apiClient } from "@/services/api";
+import { apiClient } from "@/services/api.service";
 import { SPACES_API_ROUTES } from "../constants/spaces.constants";
 import { SYNC_CONFIG } from "../../workspace/constants/workspace.constants";
 import type {
@@ -8,7 +8,7 @@ import type {
   SpaceType,
 } from "../types/spaces.types";
 import { getQueryClient } from "@/components/Providers/Providers";
-import { QueryKeys } from "@/features/shared/constants/index.shared.constants";
+import { QUERY_KEYS } from "@/constants/query-keys.constants";
 
 export interface CreateSpacePayload {
   id: string;
@@ -36,7 +36,7 @@ export const spaceApiService = {
 
   getAll: async (): Promise<RemoteSpace[]> => {
     return spaceApiService.client().fetchQuery({
-      queryKey: QueryKeys.space.remote.all,
+      queryKey: QUERY_KEYS.space.remote.all,
       queryFn: async () => {
         const res = await apiClient.get<{ data: RemoteSpace[] }>(
           SPACES_API_ROUTES.SPACES,
@@ -50,7 +50,7 @@ export const spaceApiService = {
 
   getRecentlyUpdated: async (): Promise<RemoteSpace[]> => {
     return spaceApiService.client().fetchQuery({
-      queryKey: QueryKeys.space.remote.allRecentlyUpdated,
+      queryKey: QUERY_KEYS.space.remote.allRecentlyUpdated,
       queryFn: async () => {
         const res = await apiClient.get<{ data: RemoteSpace[] }>(
           SPACES_API_ROUTES.ALL_RECENTLY_UPDATED_NOTES,
@@ -80,8 +80,8 @@ export const spaceApiService = {
 
     spaceApiService.client().invalidateQueries({
       queryKey: [
-        QueryKeys.space.remote.all,
-        QueryKeys.space.remote.allRecentlyUpdated,
+        QUERY_KEYS.space.remote.all,
+        QUERY_KEYS.space.remote.allRecentlyUpdated,
       ],
     });
 
@@ -105,7 +105,7 @@ export const spaceApiService = {
 
   getNotes: async (spaceId: string): Promise<SpaceNotesResponse> => {
     return spaceApiService.client().fetchQuery({
-      queryKey: QueryKeys.space.remote.notes(spaceId),
+      queryKey: QUERY_KEYS.space.remote.notes(spaceId),
       queryFn: async () => {
         const res = await apiClient.get<{ data: SpaceNotesResponse }>(
           SPACES_API_ROUTES.SPACE_NOTES(spaceId),
@@ -119,7 +119,7 @@ export const spaceApiService = {
 
   getMembers: async (spaceId: string): Promise<RemoteSpaceMember[]> => {
     return spaceApiService.client().fetchQuery({
-      queryKey: QueryKeys.space.remote.members(spaceId),
+      queryKey: QUERY_KEYS.space.remote.members(spaceId),
       queryFn: async () => {
         const res = await apiClient.get<{ data: RemoteSpaceMember[] }>(
           SPACES_API_ROUTES.MEMBERS(spaceId),
@@ -148,7 +148,7 @@ export const spaceApiService = {
       .execute(payload);
 
     await spaceApiService.client().invalidateQueries({
-      queryKey: QueryKeys.space.remote.members(spaceId),
+      queryKey: QUERY_KEYS.space.remote.members(spaceId),
     });
     return response;
   },
@@ -169,8 +169,8 @@ export const spaceApiService = {
 
     await spaceApiService.client().invalidateQueries({
       queryKey: [
-        QueryKeys.space.remote.members(spaceId),
-        QueryKeys.space.remote.members,
+        QUERY_KEYS.space.remote.members(spaceId),
+        QUERY_KEYS.space.remote.members,
       ],
     });
     return response;

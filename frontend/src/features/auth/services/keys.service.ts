@@ -1,7 +1,7 @@
 import { cryptoService } from "@/features/crypto";
-import { SpaceLocalService } from "@/features/spaces/services/space-local.service";
+import { SpaceLocalService } from "@/features/spaces";
 import { storageService, STORAGE_KEYS, db } from "@/features/storage";
-import { NoteLocalService } from "@/features/workspace/services/note-local.service";
+import { NoteLocalService } from "@/features/workspace";
 import { logService } from "@/services/log.service";
 
 const TEMP_KEYS_LOCAL_STORAGE = "TEMP_KEYS_LOCAL_STORAGE";

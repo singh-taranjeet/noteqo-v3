@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ROUTES } from "@/constants/routes";
+import { ROUTES } from "@/constants/routes.constants";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import type {
   SidebarSearchResultItem,

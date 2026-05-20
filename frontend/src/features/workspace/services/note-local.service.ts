@@ -1,5 +1,5 @@
 import { db } from "@/features/storage";
-import type { Note } from "@/features/workspace/types/workspace.types";
+import type { Note } from "../types/workspace.types";
 
 export const NoteLocalService = {
   create: async (note: Note) => {

@@ -3,7 +3,7 @@ import { useState, useMemo } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { useSpaces, SPACE_TYPE } from "@/features/spaces";
-import { useRecentNotes } from "@/features/workspace/hooks/useRecentNotes";
+import { useRecentNotes } from "../../hooks/useRecentNotes";
 import { NoteTable } from "../NoteTable";
 import { CreateNoteDialog } from "./CreateNoteDialog";
 import { Spinner } from "@/components/ui/spinner";

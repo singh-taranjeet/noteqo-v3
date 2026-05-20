@@ -1,10 +1,4 @@
-/**
- * Query keys for React Query.
- *
- * With the switch to Dexie useLiveQuery for local reads,
- * these keys are only used for remote API operations.
- */
-export const QueryKeys = {
+export const QUERY_KEYS = {
   space: {
     remote: {
       all: ["space", "remote"] as const,
@@ -22,4 +16,4 @@ export const QueryKeys = {
       get: (id: string) => ["notes", "remote", id] as const,
     },
   },
-};
+} as const;

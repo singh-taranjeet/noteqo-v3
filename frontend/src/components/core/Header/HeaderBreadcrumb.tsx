@@ -12,14 +12,14 @@ import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useSpaces } from "@/features/spaces";
 import { Link } from "react-router-dom";
-import { ROUTES } from "@/constants/routes";
+import { ROUTES } from "@/constants/routes.constants";
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
-import type { Note } from "@/features/workspace/types/workspace.types";
-import { EmojiOrImage } from "@/features/media/components/EmojiOrImage";
+import type { Note } from "@/features/workspace";
+import { EmojiOrImage } from "@/features/media";
 
 export function HeaderBreadcrumb() {
   const params = useParams();

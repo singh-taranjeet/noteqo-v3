@@ -10,8 +10,8 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
-import { EncryptedImage } from "@/features/media/components/EncryptedImage";
-import { EncryptedVideo } from "@/features/media/components/EncryptedVideo";
+import { EncryptedImage } from "./EncryptedImage";
+import { EncryptedVideo } from "./EncryptedVideo";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -29,7 +29,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
-import type { DecryptedMedia } from "@/features/media/types/media.types";
+import type { DecryptedMedia } from "../types/media.types";
 import { ContainerLayout } from "@/layouts/ContainerLayout";
 
 function MediaEditPopover({

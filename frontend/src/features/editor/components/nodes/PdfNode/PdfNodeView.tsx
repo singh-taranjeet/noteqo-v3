@@ -2,8 +2,8 @@ import { NodeViewWrapper, type NodeViewProps } from "@tiptap/react";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { FileText, Download } from "lucide-react";
-import { resolveSpaceId } from "@/features/editor/utils/resolveSpaceId";
-import { useDecryptMedia } from "@/features/editor/hooks/useDecryptMedia";
+import { resolveSpaceId } from "@/features/editor/utils/editor-space.utils";
+import { useDecryptMedia } from "@/features/media";
 import {
   MediaLoadingPlaceholder,
   MediaErrorPlaceholder,

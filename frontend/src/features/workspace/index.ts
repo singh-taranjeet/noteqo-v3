@@ -14,10 +14,13 @@ export { useRestoreNote } from "./hooks/useRestoreNote";
 export { usePermanentDeleteNote } from "./hooks/usePermanentDeleteNote";
 export { useNote } from "./hooks/useNote";
 export { noteService } from "./services/note.service";
+export { NoteLocalService } from "./services/note-local.service";
 export { versionHistoryService } from "./services/version-history.service";
 export type {
   Note,
   NoteType,
+  NoteTreeNode,
+  RemoteNote,
   RemoteNoteVersion,
   DecryptedNoteVersion,
 } from "./types/workspace.types";

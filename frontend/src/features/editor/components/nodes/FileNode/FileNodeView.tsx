@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { mediaService } from "@/features/media";
 import { logService } from "@/services/log.service";
 import { cn } from "@/lib/utils";
-import { resolveSpaceId } from "@/features/editor/utils/resolveSpaceId";
+import { resolveSpaceId } from "@/features/editor/utils/editor-space.utils";
 
 const REVOKE_URL_DELAY_MS = 10_000;
 

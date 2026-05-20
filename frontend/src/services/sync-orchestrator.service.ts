@@ -1,10 +1,11 @@
 import { db } from "@/features/storage";
 import { isOnline } from "@/lib/utils";
-import { SYNC_CONFIG } from "@/features/shared/types/index.shared";
-import { SYNC_EVENTS } from "@/features/shared/constants/sync-events.constants";
+import { SYNC_CONFIG } from "@/types/sync.types";
+import { SYNC_EVENTS } from "@/constants/sync-events.constants";
 import { noteSyncQueueService } from "@/features/workspace/services/note-sync-queue.service";
-import { spaceSyncQueueService } from "@/features/spaces/services/space-sync-queue.service";
-import { mediaSyncQueueService } from "@/features/media/services/media-sync-queue.service";
+import { spaceSyncQueueService } from "@/features/spaces";
+import { mediaSyncQueueService } from "@/features/media";
+import { logService } from "@/services/log.service";
 
 class SyncOrchestrator {
   private intervalId: ReturnType<typeof setInterval> | null = null;
@@ -85,7 +86,7 @@ class SyncOrchestrator {
               await mediaSyncQueueService.processEvent(event);
               break;
             default:
-              console.warn(`Unknown sync entity type: ${event.entity}`);
+              logService.warn(`Unknown sync entity type: ${event.entity}`);
           }
           // Success — delete from queue
           await db.syncQueue.delete(event.id);

@@ -1,4 +1,4 @@
-import type { AiActionType } from "@/features/ai/types/ai.types";
+import type { AiActionType } from "@/features/ai";
 
 export const AI_CONFIG = {
   MODEL_ID: "onnx-community/Llama-3.2-1B-Instruct",

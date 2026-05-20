@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { syncOrchestrator } from "@/features/shared/services/sync-orchestrator.service";
+import { syncOrchestrator } from "@/services/sync-orchestrator.service";
 
 /**
  * Starts the global background sync orchestrator on mount, stops on unmount.

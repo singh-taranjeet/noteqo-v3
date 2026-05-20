@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { noteService } from "../services/note.service";
 import { useNavigate } from "react-router-dom";
-import { ROUTES } from "@/constants/routes";
+import { ROUTES } from "@/constants/routes.constants";
 
 export function useCreateNote() {
   const navigate = useNavigate();

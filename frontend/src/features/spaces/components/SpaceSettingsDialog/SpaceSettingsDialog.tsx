@@ -1,8 +1,10 @@
+import { logService } from "@/services/log.service";
+
 import { useState, useEffect, useMemo } from "react";
 import { Loader2, Trash2, Search } from "lucide-react";
-import type { Space } from "@/features/spaces";
-import { SPACE_TYPE } from "@/features/spaces";
-import { spaceService } from "@/features/spaces/services/space.service";
+import type { Space } from "../../types/spaces.types";
+import { SPACE_TYPE } from "../../constants/spaces.constants";
+import { spaceService } from "../../services/space.service";
 import {
   useSpaceMembers,
   useAddSpaceMember,
@@ -112,7 +114,7 @@ function GeneralSettingsTab({
       toast.success("Space updated successfully");
       onComplete();
     } catch (error) {
-      console.error(error);
+      logService.error(error);
       toast.error("Failed to update space");
     } finally {
       setIsSaving(false);
@@ -211,7 +213,7 @@ function MembersSettingsTab({ spaceId }: { spaceId: string }) {
         await removeMemberMutation.mutateAsync({ spaceId, userId });
         successCount++;
       } catch (error) {
-        console.error(error);
+        logService.error(error);
       }
     }
     setIsBulkDeleting(false);

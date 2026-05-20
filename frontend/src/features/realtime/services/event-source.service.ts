@@ -1,8 +1,8 @@
-import { API_BASE_URL } from "@/constants/config";
+import { API_BASE_URL } from "@/constants/app.constants";
 import { storageService, STORAGE_KEYS } from "@/features/storage";
 import { logService } from "@/services/log.service";
 import type { RealtimeNoteEvent } from "../types/realtime.types";
-import { SYNC_EVENTS } from "@/features/shared/constants/sync-events.constants";
+import { SYNC_EVENTS } from "@/constants/sync-events.constants";
 
 /**
  * Singleton service managing an EventSource (SSE) connection

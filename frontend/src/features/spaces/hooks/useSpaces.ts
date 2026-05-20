@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
-import type { NoteTreeNode } from "@/features/workspace/types/workspace.types";
-import { NoteLocalService } from "@/features/workspace/services/note-local.service";
+import type { NoteTreeNode } from "@/features/workspace";
+import { NoteLocalService } from "@/features/workspace";
 import { SpaceLocalService } from "../services/space-local.service";
 
 export function useSpaces() {

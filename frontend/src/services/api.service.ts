@@ -1,8 +1,8 @@
-import { API_BASE_URL } from "@/constants/config";
-import { ROUTES } from "@/constants/routes";
+import { API_BASE_URL } from "@/constants/app.constants";
+import { ROUTES } from "@/constants/routes.constants";
 import { KeysService } from "@/features/auth";
 import { storageService, STORAGE_KEYS } from "@/features/storage";
-import { SpaceLocalStorageService } from "@/features/spaces/services/space-local-storage.service";
+import { SpaceLocalStorageService } from "@/features/spaces";
 
 export interface ApiRequestInit extends RequestInit {
   auth?: boolean;

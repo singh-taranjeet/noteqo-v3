@@ -9,8 +9,8 @@ import { CommandList } from "./CommandList";
 import {
   SLASH_COMMANDS,
   AI_SLASH_COMMANDS,
-} from "@/features/editor/constants/slashCommands";
-import type { SuggestionItem } from "@/features/editor/constants/slashCommands";
+} from "@/features/editor/constants/slash-commands.constants";
+import type { SuggestionItem } from "@/features/editor/constants/slash-commands.constants";
 
 const ALL_COMMANDS: SuggestionItem[] = [
   ...SLASH_COMMANDS,

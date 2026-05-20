@@ -3,9 +3,9 @@
 import { useEffect, useMemo } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { toast } from "sonner";
-import { useRealtimeConnection } from "@/features/realtime";
-import { SpaceLocalService } from "@/features/spaces/services/space-local.service";
-import { SYNC_EVENTS } from "@/features/shared/constants/sync-events.constants";
+import { useRealtimeConnection } from "../hooks/useRealtimeConnection";
+import { SpaceLocalService } from "@/features/spaces";
+import { SYNC_EVENTS } from "@/constants/sync-events.constants";
 
 /**
  * Wires up the SSE connection for real-time collaboration

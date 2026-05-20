@@ -1,10 +1,10 @@
 import { upload } from "@vercel/blob/client";
 import { cryptoService } from "@/features/crypto";
 import { spaceService } from "@/features/spaces";
-import { apiClient } from "@/services/api";
+import { apiClient } from "@/services/api.service";
 import type { DecryptedMedia, MediaResponseDto } from "../types/media.types";
 import { storageService, STORAGE_KEYS, db } from "@/features/storage";
-import { API_BASE_URL } from "@/constants/config";
+import { API_BASE_URL } from "@/constants/app.constants";
 import { logService } from "@/services/log.service";
 import { mediaSyncQueueService } from "./media-sync-queue.service";
 import { isOnline } from "@/lib/utils";
@@ -257,7 +257,7 @@ export const mediaService = {
             title = meta.title || "";
             description = meta.description || "";
           } catch (err) {
-            console.error("Failed to decrypt media meta", err);
+            logService.error("Failed to decrypt media meta", err);
           }
         }
         return { ...media, title, description } as DecryptedMedia;
@@ -286,7 +286,7 @@ export const mediaService = {
     try {
       mediaList = remote.filter((m) => spaceIds.includes(m.spaceId));
     } catch (err) {
-      console.warn("Falling back to local media cache for all spaces", err);
+      logService.warn("Falling back to local media cache for all spaces", err);
       mediaList = await mediaService.getLocalMediaListForSpaces(spaceIds);
     }
 

@@ -16,11 +16,8 @@ import {
 } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
 import { Wifi, WifiOff, Loader2 } from "lucide-react";
-import type { CollaborationConnectionState } from "@/features/realtime/types/collaboration.types";
-import {
-  COLLABORATION_CONFIG,
-  CONNECTION_STATE,
-} from "@/features/realtime/constants/collaboration.constants";
+import type { CollaborationConnectionState } from "@/features/realtime";
+import { COLLABORATION_CONFIG, CONNECTION_STATE } from "@/features/realtime";
 
 /** Maximum avatars to display before showing a "+N" count */
 const MAX_VISIBLE_AVATARS = 4;

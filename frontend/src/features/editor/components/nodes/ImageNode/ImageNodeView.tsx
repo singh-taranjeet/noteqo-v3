@@ -2,8 +2,8 @@ import { Image } from "lucide-react";
 import { NodeViewWrapper, type NodeViewProps } from "@tiptap/react";
 import React, { useRef } from "react";
 import { cn } from "@/lib/utils";
-import { resolveSpaceId } from "@/features/editor/utils/resolveSpaceId";
-import { useDecryptMedia } from "@/features/editor/hooks/useDecryptMedia";
+import { resolveSpaceId } from "@/features/editor/utils/editor-space.utils";
+import { useDecryptMedia } from "@/features/media";
 import { useMediaResize } from "@/features/editor/hooks/useMediaResize";
 import { MediaAlignmentToolbar } from "@/features/editor/components/nodes/shared/MediaAlignmentToolbar";
 import {

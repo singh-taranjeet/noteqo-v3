@@ -11,8 +11,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { MediaPicker } from "@/features/media/components/MediaPicker";
-import { EncryptedImage } from "@/features/media/components/EncryptedImage";
+import { MediaPicker } from "@/features/media";
+import { EncryptedImage } from "@/features/media";
 import {
   Dialog,
   DialogContent,
@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import React, { useState, useEffect, useCallback } from "react";
-import type { DecryptedMedia } from "@/features/media/types/media.types";
+import type { DecryptedMedia } from "@/features/media";
 import { useIsMobile } from "@/hooks/useIsMobile";
 
 interface MediaPopoverProps {

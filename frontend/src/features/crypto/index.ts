@@ -1,2 +1,5 @@
-export * from "./constants/crypto.constants";
-export * from "./services/crypto.service";
+// Constants
+export { CRYPTO_CONFIG } from "./constants/crypto.constants";
+
+// Services
+export { cryptoService } from "./services/crypto.service";

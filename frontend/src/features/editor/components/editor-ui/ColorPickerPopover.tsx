@@ -11,7 +11,7 @@ import {
 import {
   TEXT_COLORS,
   HIGHLIGHT_COLORS,
-} from "@/features/editor/constants/colors";
+} from "@/features/editor/constants/editor-colors.constants";
 
 interface ColorPickerPopoverProps {
   editor: Editor;

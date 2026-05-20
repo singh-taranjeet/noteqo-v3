@@ -1,5 +1,5 @@
 import { io, type Socket } from "socket.io-client";
-import { API_BASE_URL } from "@/constants/config";
+import { API_BASE_URL } from "@/constants/app.constants";
 import { storageService, STORAGE_KEYS } from "@/features/storage";
 import { logService } from "@/services/log.service";
 import {
@@ -16,7 +16,7 @@ import type {
   CollaborationConnectionState,
 } from "../types/collaboration.types";
 import { cryptoService } from "@/features/crypto";
-import { spaceService } from "@/features/spaces/services/space.service";
+import { spaceService } from "@/features/spaces";
 
 /** Callback types for collaboration events */
 interface CollaborationCallbacks {
@@ -46,7 +46,8 @@ class CollaborationService {
   private currentSpaceId: string | null = null;
   private callbacks: CollaborationCallbacks | null = null;
   private lastSequenceNumber = 0;
-  private connectionState: CollaborationConnectionState = CONNECTION_STATE.DISCONNECTED;
+  private connectionState: CollaborationConnectionState =
+    CONNECTION_STATE.DISCONNECTED;
 
   /**
    * Connects to the collaboration WebSocket server.

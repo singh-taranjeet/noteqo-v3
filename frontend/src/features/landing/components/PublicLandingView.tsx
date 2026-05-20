@@ -20,13 +20,14 @@ import { Badge } from "@/components/ui/badge";
 import { CollaborationMockup } from "./CollaborationMockup";
 import { StatsStrip } from "./StatsStrip";
 import { useFadeUpOnScroll } from "../hooks/useFadeUpOnScroll";
-import { useRegister } from "@/features/auth/hooks/useRegister";
-import { KeysService } from "@/features/auth/services/keys.service";
-import { spaceService } from "@/features/spaces/services/space.service";
-import { ROUTES } from "@/constants/routes";
+import { useRegister } from "@/features/auth";
+import { KeysService } from "@/features/auth";
+import { spaceService } from "@/features/spaces";
+import { ROUTES } from "@/constants/routes.constants";
 import "../landing.css";
 import { useLogout } from "@/features/auth";
 import { noteService } from "@/features/workspace";
+import { logService } from "@/services/log.service";
 const { storageService, STORAGE_KEYS } = await import("@/features/storage");
 
 /* ─── Feature data ─── */
@@ -145,7 +146,7 @@ export function PublicLandingView() {
         navigate(`${ROUTES.NOTES}/${newNote.id}`);
       }, 2000);
     } catch (error) {
-      console.error("Demo login failed:", error);
+      logService.error("Demo login failed:", error);
       setIsDemoLoading(false);
     }
   }, [register, navigate, logout]);

@@ -39,7 +39,7 @@ import { SidebarSpaceSwitcher } from "./SidebarSpaceSwitcher";
 import { SidebarNotesList } from "./SidebarNotesList";
 import { RecentSubMenu } from "./RecentSection";
 import { SearchDialog } from "./Search";
-import { SpaceSettingsDialog } from "@/features/spaces/components/SpaceSettingsDialog/SpaceSettingsDialog";
+import { SpaceSettingsDialog } from "@/features/spaces";
 import { useSpaces, useCreateSpace, useActiveSpace } from "@/features/spaces";
 import { useCreateNote } from "@/features/workspace";
 import { MOCK_USER, useUserProfile } from "@/features/auth";
@@ -49,8 +49,8 @@ import { DynamicDialog } from "@/components/ui/DynamicDialog";
 import { DynamicForm } from "@/components/ui/DynamicForm";
 import type { FormFieldConfig, FormValues } from "@/components/ui/DynamicForm";
 import type { ActiveTabType } from "../types";
-import { useRemoteSpaces } from "@/features/spaces/hooks/useRemoteSpace";
-import { ROUTES } from "@/constants/routes";
+import { useRemoteSpaces } from "@/features/spaces";
+import { ROUTES } from "@/constants/routes.constants";
 
 const ACTIVE_TAB_MAP: Record<string, ActiveTabType> = {
   "/notes": "home",

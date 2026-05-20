@@ -1,10 +1,6 @@
 import { db } from "@/features/storage";
 import { isOnline } from "@/lib/utils";
-import type {
-  SyncEntity,
-  SyncEvent,
-  SyncEventType,
-} from "@/features/shared/types/index.shared";
+import type { SyncEntity, SyncEvent, SyncEventType } from "@/types/sync.types";
 
 export abstract class BaseSyncQueueService {
   /** Each subclass declares which entity type it handles. */

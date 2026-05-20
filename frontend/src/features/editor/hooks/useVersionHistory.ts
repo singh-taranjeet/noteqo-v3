@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import type { DecryptedNoteVersion, Note } from "@/features/workspace";
 import { versionHistoryService, noteService } from "@/features/workspace";
 import { logService } from "@/services/log.service";
-import { SYNC_EVENTS } from "@/features/shared/constants/sync-events.constants";
+import { SYNC_EVENTS } from "@/constants/sync-events.constants";
 
 interface UseVersionHistoryOptions {
   noteId: string;

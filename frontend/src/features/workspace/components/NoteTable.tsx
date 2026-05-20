@@ -10,10 +10,10 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { formatDistanceToNow, format } from "date-fns";
-import { ROUTES } from "@/constants/routes";
+import { ROUTES } from "@/constants/routes.constants";
 import { cn } from "@/lib/utils";
-import type { Note } from "@/features/workspace/types/workspace.types";
-import type { Space } from "@/features/spaces/types/spaces.types";
+import type { Note } from "../types/workspace.types";
+import type { Space } from "@/features/spaces";
 import type { UserProfile } from "@/features/auth";
 import { useUserProfile } from "@/features/auth";
 import {

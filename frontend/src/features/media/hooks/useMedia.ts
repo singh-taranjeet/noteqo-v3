@@ -1,3 +1,5 @@
+import { logService } from "@/services/log.service";
+
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { mediaService } from "../services/media.service";
 import type { DecryptedMedia } from "../types/media.types";
@@ -22,7 +24,7 @@ export function useMediaList(spaceId?: string) {
             queryClient.setQueryData(["media", spaceId], remoteMedia);
           })
           .catch((err) => {
-            console.warn("Failed background media sync", err);
+            logService.warn("Failed background media sync", err);
           });
         return localMedia;
       }
@@ -31,7 +33,7 @@ export function useMediaList(spaceId?: string) {
       try {
         return await mediaService.getRemoteMediaList(spaceId);
       } catch (err) {
-        console.warn("Falling back to local media cache after error", err);
+        logService.warn("Falling back to local media cache after error", err);
         return localMedia;
       }
     },
@@ -110,7 +112,7 @@ export function useAllMediaList(spaceIds: string[]) {
             );
           })
           .catch((err) =>
-            console.warn("Failed background all-media sync", err),
+            logService.warn("Failed background all-media sync", err),
           );
 
         return processRemote(localMedia);

@@ -1,6 +1,6 @@
 import { Clock, Home } from "lucide-react";
 
-import { useRecentNotes } from "@/features/workspace/hooks/useRecentNotes";
+import { useRecentNotes } from "../../hooks/useRecentNotes";
 import { useActiveSpace } from "@/features/spaces";
 
 import { Card, CardContent } from "@/components/ui/card";
@@ -20,10 +20,10 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDistanceToNow } from "date-fns";
 import { Link } from "react-router-dom";
-import { ROUTES } from "@/constants/routes";
+import { ROUTES } from "@/constants/routes.constants";
 import { ContainerLayout } from "@/layouts/ContainerLayout";
-import { EmojiOrImage } from "@/features/media/components/EmojiOrImage";
-import { EncryptedImage } from "@/features/media/components/EncryptedImage";
+import { EmojiOrImage } from "@/features/media";
+import { EncryptedImage } from "@/features/media";
 
 export function DashboardView() {
   const { activeSpaceId } = useActiveSpace();

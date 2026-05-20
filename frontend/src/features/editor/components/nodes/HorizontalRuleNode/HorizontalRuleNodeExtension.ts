@@ -1,6 +1,6 @@
 import { ReactNodeViewRenderer } from "@tiptap/react";
 import BaseHorizontalRule from "@tiptap/extension-horizontal-rule";
-import { HorizontalRuleNodeView } from "./index";
+import { HorizontalRuleNodeView } from "./HorizontalRuleNodeView";
 
 export const HorizontalRule = BaseHorizontalRule.extend({
   addAttributes() {

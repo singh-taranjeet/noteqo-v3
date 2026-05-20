@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Book, Settings, Loader2, Image as ImageIcon } from "lucide-react";
-import { useSpaces } from "@/features/spaces/hooks/useSpaces";
+import { useSpaces } from "../../hooks/useSpaces";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { NoteTable } from "@/features/workspace";

@@ -1,3 +1,5 @@
+import { logService } from "@/services/log.service";
+
 import { Loader2, UploadCloud, Search } from "lucide-react";
 import { EmojiPicker } from "@/components/ui/emoji-picker";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -5,8 +7,8 @@ import { useMediaList } from "../hooks/useMedia";
 import { useUploadMedia } from "../hooks/useUploadMedia";
 import { cn } from "@/lib/utils";
 
-import { EncryptedImage } from "@/features/media/components/EncryptedImage";
-import { EncryptedVideo } from "@/features/media/components/EncryptedVideo";
+import { EncryptedImage } from "./EncryptedImage";
+import { EncryptedVideo } from "./EncryptedVideo";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -53,7 +55,7 @@ export function MediaPicker({
       const response = await uploadMedia({ file, spaceId, noteId });
       onSelect(response.url);
     } catch (error) {
-      console.error("Upload failed", error);
+      logService.error("Upload failed", error);
     }
   };
 

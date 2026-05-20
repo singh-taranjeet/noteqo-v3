@@ -1,5 +1,5 @@
 import { QueryClient } from "@tanstack/react-query";
-import { apiClient } from "@/services/api";
+import { apiClient } from "@/services/api.service";
 import {
   VERSION_API_ROUTES,
   SYNC_CONFIG,
@@ -8,7 +8,7 @@ import type {
   RemoteNoteVersion,
   DecryptedNoteVersion,
 } from "../types/workspace.types";
-import { spaceService } from "@/features/spaces/services/space.service";
+import { spaceService } from "@/features/spaces";
 import { cryptoService } from "@/features/crypto";
 import { NOTE_FALLBACKS } from "@/features/spaces";
 import { logService } from "@/services/log.service";

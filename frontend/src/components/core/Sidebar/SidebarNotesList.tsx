@@ -24,7 +24,7 @@ import { useSpaces, useActiveSpace } from "@/features/spaces";
 import { useCreateNote } from "@/features/workspace";
 import { SidebarNoteTreeItem } from "./SidebarNoteTreeItem";
 import { SidebarHoverCard } from "./SidebarHoverCard";
-import type { NoteTreeNode } from "@/features/workspace/types/workspace.types";
+import type { NoteTreeNode } from "@/features/workspace";
 
 function filterNodeTree(
   node: NoteTreeNode,

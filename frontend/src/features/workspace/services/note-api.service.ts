@@ -1,4 +1,6 @@
-import { apiClient } from "@/services/api";
+import { logService } from "@/services/log.service";
+
+import { apiClient } from "@/services/api.service";
 import { WORKSPACE_API_ROUTES } from "@/features/workspace/constants/workspace.constants";
 import type { Note, RemoteNote } from "../types/workspace.types";
 import { noteService } from "./note.service";
@@ -64,7 +66,7 @@ export const noteApiService = {
             mergedUpdate.buffer as ArrayBuffer,
           );
         } catch (e) {
-          console.error("Failed to merge Yjs state during conflict", e);
+          logService.error("Failed to merge Yjs state during conflict", e);
         }
       } else if (serverNote.yjsState) {
         mergedYjsState = serverNote.yjsState;

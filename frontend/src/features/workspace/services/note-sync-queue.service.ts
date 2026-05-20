@@ -1,15 +1,15 @@
 import { cryptoService } from "@/features/crypto";
 import type { Note } from "../types/workspace.types";
 import { noteApiService } from "./note-api.service";
-import { spaceService } from "@/features/spaces/services/space.service";
+import { spaceService } from "@/features/spaces";
 import {
   SYNC_EVENT_TYPE,
   SYNC_ENTITY,
   type SyncEvent,
   type SyncEntity,
-} from "@/features/shared/types/index.shared";
-import { BaseSyncQueueService } from "@/features/shared/services/baseSync.shared.service";
-import { ApiError } from "@/services/api";
+} from "@/types/sync.types";
+import { BaseSyncQueueService } from "@/services/base-sync.service";
+import { ApiError } from "@/services/api.service";
 import { logService } from "@/services/log.service";
 import { NoteLocalService } from "./note-local.service";
 

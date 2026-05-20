@@ -3,7 +3,7 @@ import type { Table } from "dexie";
 import { STORAGE_CONFIG } from "../constants/storage.constants";
 import type { Note } from "@/features/workspace";
 import type { Space } from "@/features/spaces";
-import type { SyncEvent } from "@/features/shared/types/index.shared";
+import type { SyncEvent } from "@/types/sync.types";
 
 import type { DecryptedMedia } from "@/features/media";
 

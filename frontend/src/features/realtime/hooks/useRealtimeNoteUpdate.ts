@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import type { RealtimeNoteEvent } from "../types/realtime.types";
 import { REALTIME_EVENT_NAMES } from "../constants/realtime.constants";
-import { SYNC_EVENTS } from "@/features/shared/constants/sync-events.constants";
+import { SYNC_EVENTS } from "@/constants/sync-events.constants";
 
 export function useRealtimeNoteUpdate(
   noteId: string | undefined,

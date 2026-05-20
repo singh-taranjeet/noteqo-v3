@@ -29,7 +29,7 @@ import {
 import type { Editor, Range } from "@tiptap/core";
 import type { LucideIcon } from "lucide-react";
 
-import type { AiActionType } from "@/features/ai/types/ai.types";
+import type { AiActionType } from "@/features/ai";
 
 export interface SuggestionItem {
   title: string;
