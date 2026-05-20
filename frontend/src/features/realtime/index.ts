@@ -21,4 +21,5 @@ export type {
 export {
   COLLABORATION_EVENTS,
   COLLABORATION_CONFIG,
+  CONNECTION_STATE,
 } from "./constants/collaboration.constants";

@@ -49,9 +49,8 @@ export interface UserPresencePayload {
   userId: string;
 }
 
-/** Collaboration connection state */
+import type { CONNECTION_STATE } from "../constants/collaboration.constants";
+
+/** Collaboration connection state — derived from CONNECTION_STATE const */
 export type CollaborationConnectionState =
-  | "disconnected"
-  | "connecting"
-  | "connected"
-  | "reconnecting";
+  (typeof CONNECTION_STATE)[keyof typeof CONNECTION_STATE];

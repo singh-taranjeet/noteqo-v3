@@ -5,6 +5,7 @@ import { logService } from "@/services/log.service";
 import {
   COLLABORATION_EVENTS,
   COLLABORATION_CONFIG,
+  CONNECTION_STATE,
 } from "../constants/collaboration.constants";
 import type {
   ReceiveUpdatePayload,
@@ -45,7 +46,7 @@ class CollaborationService {
   private currentSpaceId: string | null = null;
   private callbacks: CollaborationCallbacks | null = null;
   private lastSequenceNumber = 0;
-  private connectionState: CollaborationConnectionState = "disconnected";
+  private connectionState: CollaborationConnectionState = CONNECTION_STATE.DISCONNECTED;
 
   /**
    * Connects to the collaboration WebSocket server.
@@ -62,7 +63,7 @@ class CollaborationService {
       return;
     }
 
-    this.setConnectionState("connecting");
+    this.setConnectionState(CONNECTION_STATE.CONNECTING);
 
     this.socket = io(`${API_BASE_URL}${COLLABORATION_CONFIG.NAMESPACE}`, {
       auth: { token },
@@ -209,7 +210,7 @@ class CollaborationService {
       this.socket.disconnect();
       this.socket = null;
     }
-    this.setConnectionState("disconnected");
+    this.setConnectionState(CONNECTION_STATE.DISCONNECTED);
     logService.info("Collaboration WebSocket disconnected");
   }
 
@@ -243,7 +244,7 @@ class CollaborationService {
     if (!this.socket) return;
 
     this.socket.on("connect", () => {
-      this.setConnectionState("connected");
+      this.setConnectionState(CONNECTION_STATE.CONNECTED);
       logService.info("Collaboration WebSocket connected");
 
       // Request catch-up if we were in a room
@@ -253,16 +254,16 @@ class CollaborationService {
     });
 
     this.socket.on("disconnect", () => {
-      this.setConnectionState("disconnected");
+      this.setConnectionState(CONNECTION_STATE.DISCONNECTED);
       logService.warn("Collaboration WebSocket disconnected");
     });
 
     this.socket.on("reconnect_attempt", () => {
-      this.setConnectionState("reconnecting");
+      this.setConnectionState(CONNECTION_STATE.RECONNECTING);
     });
 
     this.socket.on("reconnect", () => {
-      this.setConnectionState("connected");
+      this.setConnectionState(CONNECTION_STATE.CONNECTED);
 
       // Re-join the current note room after reconnect
       if (this.currentNoteId && this.currentSpaceId) {

@@ -17,7 +17,10 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Wifi, WifiOff, Loader2 } from "lucide-react";
 import type { CollaborationConnectionState } from "@/features/realtime/types/collaboration.types";
-import { COLLABORATION_CONFIG } from "@/features/realtime/constants/collaboration.constants";
+import {
+  COLLABORATION_CONFIG,
+  CONNECTION_STATE,
+} from "@/features/realtime/constants/collaboration.constants";
 
 /** Maximum avatars to display before showing a "+N" count */
 const MAX_VISIBLE_AVATARS = 4;
@@ -51,25 +54,25 @@ export function CollaborationAvatars({
 
   const connectionLabel = useMemo(() => {
     switch (connectionState) {
-      case "connected":
+      case CONNECTION_STATE.CONNECTED:
         return "Connected";
-      case "connecting":
+      case CONNECTION_STATE.CONNECTING:
         return "Connecting…";
-      case "reconnecting":
+      case CONNECTION_STATE.RECONNECTING:
         return "Reconnecting…";
-      case "disconnected":
+      case CONNECTION_STATE.DISCONNECTED:
         return "Offline";
     }
   }, [connectionState]);
 
   const ConnectionIcon = useMemo(() => {
     switch (connectionState) {
-      case "connected":
+      case CONNECTION_STATE.CONNECTED:
         return <Wifi className="size-3" />;
-      case "connecting":
-      case "reconnecting":
+      case CONNECTION_STATE.CONNECTING:
+      case CONNECTION_STATE.RECONNECTING:
         return <Loader2 className="size-3 animate-spin" />;
-      case "disconnected":
+      case CONNECTION_STATE.DISCONNECTED:
         return <WifiOff className="size-3" />;
     }
   }, [connectionState]);
@@ -83,9 +86,9 @@ export function CollaborationAvatars({
             <Badge
               variant="outline"
               className={`gap-1.5 text-xs px-2 py-0.5 transition-colors ${
-                connectionState === "connected"
+                connectionState === CONNECTION_STATE.CONNECTED
                   ? "border-emerald-500/30 text-emerald-600 dark:text-emerald-400"
-                  : connectionState === "disconnected"
+                  : connectionState === CONNECTION_STATE.DISCONNECTED
                     ? "border-destructive/30 text-destructive"
                     : "border-yellow-500/30 text-yellow-600 dark:text-yellow-400"
               }`}

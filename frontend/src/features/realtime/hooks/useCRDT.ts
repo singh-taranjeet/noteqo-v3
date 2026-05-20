@@ -11,7 +11,7 @@ import type {
   CollaborationConnectionState,
   RoomUser,
 } from "../types/collaboration.types";
-import { COLLABORATION_CONFIG } from "../constants/collaboration.constants";
+import { COLLABORATION_CONFIG, CONNECTION_STATE } from "../constants/collaboration.constants";
 import { logService } from "@/services/log.service";
 import { storageService, STORAGE_KEYS } from "@/features/storage";
 
@@ -60,7 +60,7 @@ export function useCRDT({
   );
 
   const [connectionState, setConnectionState] =
-    useState<CollaborationConnectionState>("disconnected");
+    useState<CollaborationConnectionState>(CONNECTION_STATE.DISCONNECTED);
   const [roomUsers, setRoomUsers] = useState<RoomUser[]>([]);
   const [isReady, setIsReady] = useState(false);
 
@@ -179,7 +179,7 @@ export function useCRDT({
     return () => {
       isDestroyedRef.current = true;
       collaborationService.leaveNote();
-      setConnectionState("disconnected");
+      setConnectionState(CONNECTION_STATE.DISCONNECTED);
       setRoomUsers([]);
     };
   }, [
@@ -197,7 +197,7 @@ export function useCRDT({
     awareness,
     connectionState,
     roomUsers,
-    isCollaborating: shouldCollaborate && connectionState === "connected",
+    isCollaborating: shouldCollaborate && connectionState === CONNECTION_STATE.CONNECTED,
     userColor,
     isReady,
   };
