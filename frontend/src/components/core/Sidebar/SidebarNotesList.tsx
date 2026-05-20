@@ -55,6 +55,7 @@ export function SidebarNotesList() {
   const activeNoteId = params?.note_id as string | undefined;
 
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchQueryMore, setSearchQueryMore] = useState("");
 
   const noteTrees = useMemo(() => {
     if (!spaceNoteTreesMap) return [];
@@ -77,6 +78,19 @@ export function SidebarNotesList() {
     }
     return notes;
   }, [noteTrees, searchQuery]);
+
+  const recentNotesList = noteTrees.slice(0, 10);
+
+  const filteredExtraNotes = useMemo(() => {
+    let extra = noteTrees.slice(10);
+    if (searchQueryMore.trim()) {
+      const query = searchQueryMore.toLowerCase();
+      extra = extra
+        .map((note) => filterNodeTree(note, query))
+        .filter((note): note is NoteTreeNode => note !== null);
+    }
+    return extra;
+  }, [noteTrees, searchQueryMore]);
 
   const handleCreateNote = () => {
     if (activeSpaceId) {
@@ -241,7 +255,7 @@ export function SidebarNotesList() {
         </Tooltip>
         <CollapsibleContent>
           <SidebarMenuSub className="mr-0 pr-0">
-            {noteTrees.map((note) => (
+            {recentNotesList.map((note) => (
               <SidebarNoteTreeItem
                 spaceId={note.spaceId}
                 key={note.id}
@@ -249,6 +263,45 @@ export function SidebarNotesList() {
                 activeNoteId={activeNoteId}
               />
             ))}
+            {noteTrees.length > 10 && (
+              <SidebarMenuSubItem>
+                <SidebarHoverCard
+                  title="More Notes"
+                  searchQuery={searchQueryMore}
+                  onSearchChange={setSearchQueryMore}
+                  searchPlaceholder="Search notes..."
+                  trigger={
+                    <SidebarMenuSubButton
+                      size="sm"
+                      className="text-muted-foreground w-full flex justify-between group/more-btn cursor-pointer"
+                    >
+                      <span>More</span>
+                      <ChevronRight
+                        size={14}
+                        className="opacity-0 group-hover/more-btn:opacity-100 transition-opacity"
+                      />
+                    </SidebarMenuSubButton>
+                  }
+                >
+                  {filteredExtraNotes.length === 0 ? (
+                    <div className="px-3 py-2 text-xs text-muted-foreground">
+                      No matching notes found.
+                    </div>
+                  ) : (
+                    <SidebarMenuSub className="border-none">
+                      {filteredExtraNotes.map((note) => (
+                        <SidebarNoteTreeItem
+                          spaceId={note.spaceId}
+                          key={note.id}
+                          note={note}
+                          activeNoteId={activeNoteId}
+                        />
+                      ))}
+                    </SidebarMenuSub>
+                  )}
+                </SidebarHoverCard>
+              </SidebarMenuSubItem>
+            )}
           </SidebarMenuSub>
         </CollapsibleContent>
       </SidebarMenuItem>
