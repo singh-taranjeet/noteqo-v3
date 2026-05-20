@@ -29,6 +29,8 @@ import { MentionExtension } from "@/features/editor/components/extensions/Mentio
 // --- AI Extension ---
 import { AiExtension } from "@/features/ai";
 
+import { BlockMetadataExtension } from "@/features/editor/components/extensions/BlockMetadata/BlockMetadataExtension";
+
 // --- Tiptap Columns ---
 import { ColumnsExtension } from "@/features/editor/components/nodes/ColumnsNode/ColumnsExtension";
 import { ColumnExtension } from "@/features/editor/components/nodes/ColumnsNode/ColumnExtension";
@@ -233,6 +235,7 @@ export function useNoteEditorLogic({
         getSpaceId: () => spaceId,
         getNoteId: () => noteId,
       }),
+      BlockMetadataExtension,
     ];
 
     // Add Collaboration and CollaborationCursor extensions for all spaces with an active Yjs doc

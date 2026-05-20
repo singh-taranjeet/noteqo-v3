@@ -1,3 +1,4 @@
+import { withBlockWrapper } from "@/features/editor/components/editor-ui/withBlockWrapper";
 import { mergeAttributes, Node } from "@tiptap/core";
 import { ReactNodeViewRenderer } from "@tiptap/react";
 import { BookmarkNodeView } from "./BookmarkNodeView";
@@ -61,6 +62,6 @@ export const BookmarkNodeExtension = Node.create<BookmarkNodeOptions>({
   },
 
   addNodeView() {
-    return ReactNodeViewRenderer(BookmarkNodeView);
+    return ReactNodeViewRenderer(withBlockWrapper(BookmarkNodeView));
   },
 });

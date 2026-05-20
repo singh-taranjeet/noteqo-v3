@@ -1,3 +1,4 @@
+import { withBlockWrapper } from "@/features/editor/components/editor-ui/withBlockWrapper";
 import { mergeAttributes, Node } from "@tiptap/core";
 import { ReactNodeViewRenderer } from "@tiptap/react";
 import { AudioNodeView } from "./AudioNodeView";
@@ -71,6 +72,6 @@ export const AudioNodeExtension = Node.create<AudioNodeOptions>({
   },
 
   addNodeView() {
-    return ReactNodeViewRenderer(AudioNodeView);
+    return ReactNodeViewRenderer(withBlockWrapper(AudioNodeView));
   },
 });

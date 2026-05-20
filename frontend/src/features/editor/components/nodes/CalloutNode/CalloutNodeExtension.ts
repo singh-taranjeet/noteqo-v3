@@ -1,6 +1,7 @@
 import { mergeAttributes, Node } from "@tiptap/core";
 import { ReactNodeViewRenderer } from "@tiptap/react";
 import { CalloutNodeView } from "./CalloutNodeView";
+import { withBlockWrapper } from "@/features/editor/components/editor-ui/withBlockWrapper";
 
 export interface CalloutNodeOptions {
   HTMLAttributes: Record<string, unknown>;
@@ -66,6 +67,6 @@ export const CalloutNodeExtension = Node.create<CalloutNodeOptions>({
   },
 
   addNodeView() {
-    return ReactNodeViewRenderer(CalloutNodeView);
+    return ReactNodeViewRenderer(withBlockWrapper(CalloutNodeView));
   },
 });

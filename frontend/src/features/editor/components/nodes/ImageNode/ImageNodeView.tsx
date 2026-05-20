@@ -5,7 +5,6 @@ import { cn } from "@/lib/utils";
 import { resolveSpaceId } from "@/features/editor/utils/editor-space.utils";
 import { useDecryptMedia } from "@/features/media";
 import { useMediaResize } from "@/features/editor/hooks/useMediaResize";
-import { MediaAlignmentToolbar } from "@/features/editor/components/nodes/shared/MediaAlignmentToolbar";
 import {
   MediaLoadingPlaceholder,
   MediaErrorPlaceholder,
@@ -38,10 +37,6 @@ export const ImageNodeView: React.FC<NodeViewProps> = (props) => {
     updateAttributes,
     minWidth: MIN_RESIZE_WIDTH,
   });
-
-  const setAlign = (newAlign: "left" | "center" | "right" | "full") => {
-    updateAttributes({ align: newAlign });
-  };
 
   const alignClass =
     {
@@ -104,15 +99,6 @@ export const ImageNodeView: React.FC<NodeViewProps> = (props) => {
               >
                 <div className="h-8 w-1 bg-primary/50 rounded-full" />
               </div>
-            )}
-
-            {/* Toolbar - only visible when selected */}
-            {selected && editor.isEditable && (
-              <MediaAlignmentToolbar
-                align={(align as string) || "center"}
-                onAlignChange={setAlign}
-                onDelete={props.deleteNode}
-              />
             )}
           </>
         ) : (

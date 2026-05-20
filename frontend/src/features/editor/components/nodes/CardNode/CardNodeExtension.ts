@@ -1,3 +1,4 @@
+import { withBlockWrapper } from "@/features/editor/components/editor-ui/withBlockWrapper";
 import { Node as TiptapNode, mergeAttributes } from "@tiptap/core";
 import { ReactNodeViewRenderer } from "@tiptap/react";
 import { CardNodeView } from "./CardNodeView";
@@ -28,6 +29,6 @@ export const CardNodeExtension = TiptapNode.create({
   },
 
   addNodeView() {
-    return ReactNodeViewRenderer(CardNodeView);
+    return ReactNodeViewRenderer(withBlockWrapper(CardNodeView));
   },
 });

@@ -1,3 +1,4 @@
+import { withBlockWrapper } from "@/features/editor/components/editor-ui/withBlockWrapper";
 import { mergeAttributes, Node } from "@tiptap/core";
 import { ReactNodeViewRenderer } from "@tiptap/react";
 import { DateNodeView } from "./DateNodeView";
@@ -63,6 +64,6 @@ export const DateNodeExtension = Node.create<DateNodeOptions>({
   },
 
   addNodeView() {
-    return ReactNodeViewRenderer(DateNodeView);
+    return ReactNodeViewRenderer(withBlockWrapper(DateNodeView));
   },
 });

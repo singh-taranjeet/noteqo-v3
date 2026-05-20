@@ -1,3 +1,4 @@
+import { withBlockWrapper } from "@/features/editor/components/editor-ui/withBlockWrapper";
 import { Node as TiptapNode, mergeAttributes } from "@tiptap/core";
 import { ReactNodeViewRenderer } from "@tiptap/react";
 import { AccordionNodeView } from "./AccordionNodeView";
@@ -31,6 +32,6 @@ export const AccordionNodeExtension = TiptapNode.create({
   },
 
   addNodeView() {
-    return ReactNodeViewRenderer(AccordionNodeView);
+    return ReactNodeViewRenderer(withBlockWrapper(AccordionNodeView));
   },
 });
