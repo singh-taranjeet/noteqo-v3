@@ -41,7 +41,8 @@ export const AccordionNodeView = ({
           <AccordionTrigger
             className={cn(
               "hover:no-underline px-4",
-              editor.isEditable && "[&_[data-slot=accordion-trigger-icon]]:hidden",
+              editor.isEditable &&
+                "[&_[data-slot=accordion-trigger-icon]]:hidden",
               !editor.isEditable && "pointer-events-none",
             )}
           >

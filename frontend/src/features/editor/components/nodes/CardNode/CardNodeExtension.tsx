@@ -1,4 +1,3 @@
-import React from "react";
 import { withBlockWrapper } from "@/features/editor/components/editor-ui/withBlockWrapper";
 import { Node as TiptapNode, mergeAttributes } from "@tiptap/core";
 import { ReactNodeViewRenderer } from "@tiptap/react";

@@ -137,10 +137,7 @@ export function PublicLandingView() {
 
       const newSpace = await spaceService.createSpace();
 
-      const newNote = await noteService.createNote(
-        newSpace.id,
-        "Demo Note",
-      );
+      const newNote = await noteService.createNote(newSpace.id, "Demo Note");
 
       // Create rich demo content
       const demoContent = {
@@ -154,7 +151,10 @@ export function PublicLandingView() {
           {
             type: "paragraph",
             content: [
-              { type: "text", text: "This demo note shows how various components look in our block-based editor. Feel free to play around!" },
+              {
+                type: "text",
+                text: "This demo note shows how various components look in our block-based editor. Feel free to play around!",
+              },
             ],
           },
           {
@@ -170,7 +170,11 @@ export function PublicLandingView() {
               { type: "text", text: ", " },
               { type: "text", marks: [{ type: "italic" }], text: "italic" },
               { type: "text", text: ", " },
-              { type: "text", marks: [{ type: "strike" }], text: "strikethrough" },
+              {
+                type: "text",
+                marks: [{ type: "strike" }],
+                text: "strikethrough",
+              },
               { type: "text", text: ", or " },
               { type: "text", marks: [{ type: "code" }], text: "inline code" },
               { type: "text", text: "." },
@@ -187,7 +191,12 @@ export function PublicLandingView() {
             content: [
               {
                 type: "paragraph",
-                content: [{ type: "text", text: "Callouts are great for highlighting important information, tips, or warnings." }],
+                content: [
+                  {
+                    type: "text",
+                    text: "Callouts are great for highlighting important information, tips, or warnings.",
+                  },
+                ],
               },
             ],
           },
@@ -201,11 +210,28 @@ export function PublicLandingView() {
             content: [
               {
                 type: "listItem",
-                content: [{ type: "paragraph", content: [{ type: "text", text: "Organize your thoughts with bullet lists" }] }],
+                content: [
+                  {
+                    type: "paragraph",
+                    content: [
+                      {
+                        type: "text",
+                        text: "Organize your thoughts with bullet lists",
+                      },
+                    ],
+                  },
+                ],
               },
               {
                 type: "listItem",
-                content: [{ type: "paragraph", content: [{ type: "text", text: "Keep things clear and concise" }] }],
+                content: [
+                  {
+                    type: "paragraph",
+                    content: [
+                      { type: "text", text: "Keep things clear and concise" },
+                    ],
+                  },
+                ],
               },
             ],
           },
@@ -215,12 +241,26 @@ export function PublicLandingView() {
               {
                 type: "taskItem",
                 attrs: { checked: true },
-                content: [{ type: "paragraph", content: [{ type: "text", text: "Plan the project roadmap" }] }],
+                content: [
+                  {
+                    type: "paragraph",
+                    content: [
+                      { type: "text", text: "Plan the project roadmap" },
+                    ],
+                  },
+                ],
               },
               {
                 type: "taskItem",
                 attrs: { checked: false },
-                content: [{ type: "paragraph", content: [{ type: "text", text: "Execute the first phase" }] }],
+                content: [
+                  {
+                    type: "paragraph",
+                    content: [
+                      { type: "text", text: "Execute the first phase" },
+                    ],
+                  },
+                ],
               },
             ],
           },
@@ -233,7 +273,10 @@ export function PublicLandingView() {
             type: "codeBlock",
             attrs: { language: "typescript" },
             content: [
-              { type: "text", text: "function greet(name: string) {\n  console.log(`Hello, ${name}!`);\n}\n\ngreet('Noteqo User');" },
+              {
+                type: "text",
+                text: "function greet(name: string) {\n  console.log(`Hello, ${name}!`);\n}\n\ngreet('Noteqo User');",
+              },
             ],
           },
           {
@@ -244,7 +287,15 @@ export function PublicLandingView() {
           {
             type: "blockquote",
             content: [
-              { type: "paragraph", content: [{ type: "text", text: "Simplicity is the ultimate sophistication. - Leonardo da Vinci" }] },
+              {
+                type: "paragraph",
+                content: [
+                  {
+                    type: "text",
+                    text: "Simplicity is the ultimate sophistication. - Leonardo da Vinci",
+                  },
+                ],
+              },
             ],
           },
           {
@@ -259,7 +310,15 @@ export function PublicLandingView() {
             type: "shadcnAccordion",
             attrs: { title: "Click me to expand!", isOpen: false },
             content: [
-              { type: "paragraph", content: [{ type: "text", text: "You can place any content inside an accordion to keep your notes tidy." }] },
+              {
+                type: "paragraph",
+                content: [
+                  {
+                    type: "text",
+                    text: "You can place any content inside an accordion to keep your notes tidy.",
+                  },
+                ],
+              },
             ],
           },
         ],

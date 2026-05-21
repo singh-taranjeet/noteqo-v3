@@ -104,7 +104,7 @@ export const BlockMetadataExtension = Extension.create<BlockMetadataOptions>({
     return [
       new Plugin({
         key: new PluginKey("blockMetadataAutoUpdate"),
-        appendTransaction: (transactions, oldState, newState) => {
+        appendTransaction: (transactions, _oldState, newState) => {
           // Check if any transaction is a user-initiated change
           const isDocChanged = transactions.some((tr) => tr.docChanged);
           // Don't intercept metadata-only updates, otherwise it creates infinite loops.
@@ -148,7 +148,7 @@ export const BlockMetadataExtension = Extension.create<BlockMetadataOptions>({
 
           transactions.forEach((transaction, i) => {
             transaction.steps.forEach((step, stepIndex) => {
-              step.getMap().forEach((oldStart, oldEnd, newStart, newEnd) => {
+              step.getMap().forEach((_oldStart, _oldEnd, newStart, newEnd) => {
                 let from = transaction.mapping
                   .slice(stepIndex + 1)
                   .map(newStart);

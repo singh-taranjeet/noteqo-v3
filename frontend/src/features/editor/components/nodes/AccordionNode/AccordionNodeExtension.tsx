@@ -2,7 +2,7 @@ import { withBlockWrapper } from "@/features/editor/components/editor-ui/withBlo
 import { Node as TiptapNode, mergeAttributes } from "@tiptap/core";
 import { ReactNodeViewRenderer } from "@tiptap/react";
 import { AccordionNodeView } from "./AccordionNodeView";
-import React from "react";
+
 import {
   Select,
   SelectContent,
@@ -47,7 +47,9 @@ export const AccordionNodeExtension = TiptapNode.create({
           return (
             <Select
               value={isOpen ? "open" : "closed"}
-              onValueChange={(v) => props.updateAttributes({ isOpen: v === "open" })}
+              onValueChange={(v) =>
+                props.updateAttributes({ isOpen: v === "open" })
+              }
             >
               <SelectTrigger className="h-6 w-24 text-xs bg-background shadow-sm border focus:ring-0">
                 <SelectValue placeholder="State" />
@@ -59,7 +61,7 @@ export const AccordionNodeExtension = TiptapNode.create({
             </Select>
           );
         },
-      })
+      }),
     );
   },
 });

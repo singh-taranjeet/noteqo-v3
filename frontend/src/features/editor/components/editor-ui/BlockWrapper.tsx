@@ -62,6 +62,7 @@ export function BlockWrapper({
   const handleDuplicate = () => {
     if (typeof getPos !== "function") return;
     const pos = getPos();
+    if (pos === undefined) return;
     editor
       .chain()
       .insertContentAt(pos + node.nodeSize, node.toJSON())
@@ -72,6 +73,7 @@ export function BlockWrapper({
   const handleCopy = () => {
     if (typeof getPos !== "function") return;
     const pos = getPos();
+    if (pos === undefined) return;
     // Tiptap provides commands to set selection, then copy
     editor.commands.setNodeSelection(pos);
     document.execCommand("copy");

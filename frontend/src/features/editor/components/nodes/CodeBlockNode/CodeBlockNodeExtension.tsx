@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { withBlockWrapper } from "@/features/editor/components/editor-ui/withBlockWrapper";
 import { ReactNodeViewRenderer } from "@tiptap/react";
 import BaseCodeBlock from "@tiptap/extension-code-block";
