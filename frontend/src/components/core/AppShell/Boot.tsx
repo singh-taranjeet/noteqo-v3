@@ -1,6 +1,6 @@
 import { useAllMediaList } from "@/features/media";
 import { useSpaces } from "@/features/spaces";
-import { useRemoteSpaces } from "@/features/spaces/hooks/useRemoteSpace";
+import { useRemoteSpaces } from "@/features/spaces";
 import { useSyncQueue } from "@/hooks";
 
 export function Boot(props: { children: React.ReactNode }) {

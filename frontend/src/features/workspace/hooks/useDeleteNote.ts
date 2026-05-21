@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { noteService } from "@/features/workspace/services/note.service";
+import { noteService } from "../services/note.service";
 
 export function useDeleteNote() {
   return useMutation({

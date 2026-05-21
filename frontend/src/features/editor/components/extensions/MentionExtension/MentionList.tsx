@@ -6,7 +6,7 @@ import {
   CommandItem,
   CommandList as CommandListWrapper,
 } from "@/components/ui/command";
-import type { Note } from "@/features/workspace/types/workspace.types";
+import type { Note } from "@/features/workspace";
 
 interface MentionListProps {
   items: Note[];

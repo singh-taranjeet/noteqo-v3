@@ -9,13 +9,10 @@ import { logService } from "@/services/log.service";
 import { spaceService } from "@/features/spaces";
 import { NOTE_FALLBACKS } from "@/features/spaces";
 import { cryptoService } from "@/features/crypto";
-import {
-  SYNC_EVENT_TYPE,
-  SYNC_ENTITY,
-} from "@/features/shared/types/index.shared";
-import { NoteLocalService } from "@/features/workspace/services/note-local.service";
-import { SpaceLocalService } from "@/features/spaces/services/space-local.service";
-import { SYNC_EVENTS } from "@/features/shared/constants/sync-events.constants";
+import { SYNC_EVENT_TYPE, SYNC_ENTITY } from "@/types/sync.types";
+import { NoteLocalService } from "./note-local.service";
+import { SpaceLocalService } from "@/features/spaces";
+import { SYNC_EVENTS } from "@/constants/sync-events.constants";
 
 function getRandomItem<T>(pool: readonly T[]): T {
   return pool[Math.floor(Math.random() * pool.length)];

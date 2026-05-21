@@ -20,13 +20,14 @@ import { Badge } from "@/components/ui/badge";
 import { CollaborationMockup } from "./CollaborationMockup";
 import { StatsStrip } from "./StatsStrip";
 import { useFadeUpOnScroll } from "../hooks/useFadeUpOnScroll";
-import { useRegister } from "@/features/auth/hooks/useRegister";
-import { KeysService } from "@/features/auth/services/keys.service";
-import { spaceService } from "@/features/spaces/services/space.service";
-import { ROUTES } from "@/constants/routes";
+import { useRegister } from "@/features/auth";
+import { KeysService } from "@/features/auth";
+import { spaceService } from "@/features/spaces";
+import { ROUTES } from "@/constants/routes.constants";
 import "../landing.css";
 import { useLogout } from "@/features/auth";
 import { noteService } from "@/features/workspace";
+import { logService } from "@/services/log.service";
 const { storageService, STORAGE_KEYS } = await import("@/features/storage");
 
 /* ─── Feature data ─── */
@@ -136,16 +137,200 @@ export function PublicLandingView() {
 
       const newSpace = await spaceService.createSpace();
 
-      const newNote = await noteService.createNote(
-        newSpace.id,
-        "Note Title (This is a demo Note)",
-      );
+      const newNote = await noteService.createNote(newSpace.id, "Demo Note");
+
+      // Create rich demo content
+      const demoContent = {
+        type: "doc",
+        content: [
+          {
+            type: "heading",
+            attrs: { level: 1 },
+            content: [{ type: "text", text: "Welcome to Noteqo 🚀" }],
+          },
+          {
+            type: "paragraph",
+            content: [
+              {
+                type: "text",
+                text: "This demo note shows how various components look in our block-based editor. Feel free to play around!",
+              },
+            ],
+          },
+          {
+            type: "heading",
+            attrs: { level: 2 },
+            content: [{ type: "text", text: "1. Text Formatting" }],
+          },
+          {
+            type: "paragraph",
+            content: [
+              { type: "text", text: "You can easily format text as " },
+              { type: "text", marks: [{ type: "bold" }], text: "bold" },
+              { type: "text", text: ", " },
+              { type: "text", marks: [{ type: "italic" }], text: "italic" },
+              { type: "text", text: ", " },
+              {
+                type: "text",
+                marks: [{ type: "strike" }],
+                text: "strikethrough",
+              },
+              { type: "text", text: ", or " },
+              { type: "text", marks: [{ type: "code" }], text: "inline code" },
+              { type: "text", text: "." },
+            ],
+          },
+          {
+            type: "heading",
+            attrs: { level: 2 },
+            content: [{ type: "text", text: "2. Callouts" }],
+          },
+          {
+            type: "callout",
+            attrs: { emoji: "💡", variant: "info" },
+            content: [
+              {
+                type: "paragraph",
+                content: [
+                  {
+                    type: "text",
+                    text: "Callouts are great for highlighting important information, tips, or warnings.",
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            type: "heading",
+            attrs: { level: 2 },
+            content: [{ type: "text", text: "3. Lists & Tasks" }],
+          },
+          {
+            type: "bulletList",
+            content: [
+              {
+                type: "listItem",
+                content: [
+                  {
+                    type: "paragraph",
+                    content: [
+                      {
+                        type: "text",
+                        text: "Organize your thoughts with bullet lists",
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
+                type: "listItem",
+                content: [
+                  {
+                    type: "paragraph",
+                    content: [
+                      { type: "text", text: "Keep things clear and concise" },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            type: "taskList",
+            content: [
+              {
+                type: "taskItem",
+                attrs: { checked: true },
+                content: [
+                  {
+                    type: "paragraph",
+                    content: [
+                      { type: "text", text: "Plan the project roadmap" },
+                    ],
+                  },
+                ],
+              },
+              {
+                type: "taskItem",
+                attrs: { checked: false },
+                content: [
+                  {
+                    type: "paragraph",
+                    content: [
+                      { type: "text", text: "Execute the first phase" },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            type: "heading",
+            attrs: { level: 2 },
+            content: [{ type: "text", text: "4. Code Blocks" }],
+          },
+          {
+            type: "codeBlock",
+            attrs: { language: "typescript" },
+            content: [
+              {
+                type: "text",
+                text: "function greet(name: string) {\n  console.log(`Hello, ${name}!`);\n}\n\ngreet('Noteqo User');",
+              },
+            ],
+          },
+          {
+            type: "heading",
+            attrs: { level: 2 },
+            content: [{ type: "text", text: "5. Quotes & Dividers" }],
+          },
+          {
+            type: "blockquote",
+            content: [
+              {
+                type: "paragraph",
+                content: [
+                  {
+                    type: "text",
+                    text: "Simplicity is the ultimate sophistication. - Leonardo da Vinci",
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            type: "horizontalRule",
+          },
+          {
+            type: "heading",
+            attrs: { level: 2 },
+            content: [{ type: "text", text: "6. Interactive Blocks" }],
+          },
+          {
+            type: "shadcnAccordion",
+            attrs: { title: "Click me to expand!", isOpen: false },
+            content: [
+              {
+                type: "paragraph",
+                content: [
+                  {
+                    type: "text",
+                    text: "You can place any content inside an accordion to keep your notes tidy.",
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      };
+
+      await noteService.saveContentLocally(newNote.id, demoContent);
 
       setTimeout(() => {
         navigate(`${ROUTES.NOTES}/${newNote.id}`);
       }, 2000);
     } catch (error) {
-      console.error("Demo login failed:", error);
+      logService.error("Demo login failed:", error);
       setIsDemoLoading(false);
     }
   }, [register, navigate, logout]);

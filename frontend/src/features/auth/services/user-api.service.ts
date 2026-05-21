@@ -1,4 +1,4 @@
-import { apiClient } from "@/services/api";
+import { apiClient } from "@/services/api.service";
 import { USER_API_ROUTES } from "../constants/auth.constants";
 
 export const userApiService = {

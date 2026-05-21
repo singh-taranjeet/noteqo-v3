@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from "react";
 import type { Editor } from "@tiptap/react";
-import type { AiActionType, AccordionItem } from "@/features/ai/types/ai.types";
+import type { AiActionType, AccordionItem } from "@/features/ai";
 import { AI_PROMPTS } from "@/features/ai/constants/ai.constants";
 import { useAiWorker } from "./useAiWorker";
 

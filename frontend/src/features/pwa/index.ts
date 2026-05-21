@@ -1,3 +1,4 @@
-export * from "./components/InstallPrompt";
-export * from "./components/OfflineView";
-export * from "./components/PWASettingsDialog";
+// Components
+export { InstallPrompt } from "./components/InstallPrompt";
+export { OfflineView } from "./components/OfflineView";
+export { PWASettingsDialog } from "./components/PWASettingsDialog";

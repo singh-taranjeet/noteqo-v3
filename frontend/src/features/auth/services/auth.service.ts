@@ -1,4 +1,4 @@
-import { apiClient } from "@/services/api";
+import { apiClient } from "@/services/api.service";
 import { AUTH_API_ROUTES } from "../constants/auth.constants";
 import type {
   RegisterRequestPayload,

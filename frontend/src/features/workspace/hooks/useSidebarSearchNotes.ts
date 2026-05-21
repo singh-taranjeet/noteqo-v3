@@ -5,7 +5,7 @@ import type { SidebarSearchResultItem } from "../types/sidebar-search.types";
 import type { Note } from "../types/workspace.types";
 import { useUserProfile } from "@/features/auth";
 import { NoteLocalService } from "../services/note-local.service";
-import { SpaceLocalService } from "@/features/spaces/services/space-local.service";
+import { SpaceLocalService } from "@/features/spaces";
 
 export const SIDEBAR_SEARCH_NOTES_QUERY_KEY = ["sidebar-search-notes"] as const;
 export const SIDEBAR_SEARCH_SPACES_QUERY_KEY = [

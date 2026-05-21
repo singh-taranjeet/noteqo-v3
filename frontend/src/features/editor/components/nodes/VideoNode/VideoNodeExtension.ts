@@ -1,3 +1,4 @@
+import { withBlockWrapper } from "@/features/editor/components/editor-ui/withBlockWrapper";
 import { mergeAttributes, Node } from "@tiptap/core";
 import { ReactNodeViewRenderer } from "@tiptap/react";
 import { VideoNodeView } from "./VideoNodeView";
@@ -86,6 +87,6 @@ export const VideoNodeExtension = Node.create<VideoNodeOptions>({
   },
 
   addNodeView() {
-    return ReactNodeViewRenderer(VideoNodeView);
+    return ReactNodeViewRenderer(withBlockWrapper(VideoNodeView));
   },
 });

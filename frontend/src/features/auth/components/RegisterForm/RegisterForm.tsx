@@ -3,15 +3,15 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader2, Eye, EyeOff } from "lucide-react";
-import { RecoveryCodeDialog } from "../RecoveryCodeDialog";
-import { useRegister } from "@/features/auth/hooks/useRegister";
-import { AUTH_CONFIG } from "@/features/auth/constants/auth.constants";
-import { ROUTES } from "@/constants/routes";
+import { RecoveryCodeDialog } from "../RecoveryCodeDialog/RecoveryCodeDialog";
+import { useRegister } from "../../hooks/useRegister";
+import { AUTH_CONFIG } from "../../constants/auth.constants";
+import { ROUTES } from "@/constants/routes.constants";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
-import { KeysService } from "@/features/auth/services/keys.service";
-import { spaceService } from "@/features/spaces/services/space.service";
-import { useLogout } from "@/features/auth/hooks/useLogout";
+import { KeysService } from "../../services/keys.service";
+import { spaceService } from "@/features/spaces";
+import { useLogout } from "../../hooks/useLogout";
 
 export function RegisterForm() {
   const { logout } = useLogout();

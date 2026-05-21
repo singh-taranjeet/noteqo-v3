@@ -8,10 +8,7 @@
 
 import type { TextGenerationPipeline } from "@huggingface/transformers";
 import { pipeline, type ProgressInfo } from "@huggingface/transformers";
-import type {
-  AiWorkerMessage,
-  AiWorkerResponse,
-} from "@/features/ai/types/ai.types";
+import type { AiWorkerMessage, AiWorkerResponse } from "@/features/ai";
 import {
   AI_CONFIG,
   AI_SYSTEM_PROMPT,

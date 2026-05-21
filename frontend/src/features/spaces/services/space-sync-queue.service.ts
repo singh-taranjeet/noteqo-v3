@@ -1,9 +1,6 @@
-import { spaceService } from "@/features/spaces/services/space.service";
-import type {
-  SyncEvent,
-  SyncEntity,
-} from "@/features/shared/types/index.shared";
-import { BaseSyncQueueService } from "@/features/shared/services/baseSync.shared.service";
+import { spaceService } from "./space.service";
+import type { SyncEvent, SyncEntity } from "@/types/sync.types";
+import { BaseSyncQueueService } from "@/services/base-sync.service";
 import { spaceApiService } from "./space-api.service";
 import type { SpaceType } from "../types/spaces.types";
 

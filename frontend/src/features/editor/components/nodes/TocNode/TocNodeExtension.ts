@@ -1,3 +1,4 @@
+import { withBlockWrapper } from "@/features/editor/components/editor-ui/withBlockWrapper";
 import { mergeAttributes, Node } from "@tiptap/core";
 import { ReactNodeViewRenderer } from "@tiptap/react";
 import { TocNodeView } from "./TocNodeView";
@@ -53,6 +54,6 @@ export const TocNodeExtension = Node.create<TocNodeOptions>({
   },
 
   addNodeView() {
-    return ReactNodeViewRenderer(TocNodeView);
+    return ReactNodeViewRenderer(withBlockWrapper(TocNodeView));
   },
 });

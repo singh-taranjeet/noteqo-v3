@@ -3,7 +3,7 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { useQuery } from "@tanstack/react-query";
 import type { Note } from "../types/workspace.types";
 import { noteApiService } from "../services/note-api.service";
-import { QueryKeys } from "@/features/shared/constants/index.shared.constants";
+import { QUERY_KEYS } from "@/constants/query-keys.constants";
 import { useRealtimeNoteUpdate } from "@/features/realtime";
 import { NoteLocalService } from "../services/note-local.service";
 
@@ -27,7 +27,7 @@ export function useNote(params: {
 
   // This will fetch remote note and also update in the local db
   useQuery({
-    queryKey: QueryKeys.notes.remote.get(id),
+    queryKey: QUERY_KEYS.notes.remote.get(id),
     queryFn: async () => {
       if (!id) return null;
       await noteApiService.handleInboundNote({ noteId: id, version: Infinity });

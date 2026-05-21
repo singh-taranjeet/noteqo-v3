@@ -1,4 +1,4 @@
-import type { RemoteNote } from "@/features/workspace/types/workspace.types";
+import type { RemoteNote } from "@/features/workspace";
 
 export type SpaceType = "personal" | "shared";
 

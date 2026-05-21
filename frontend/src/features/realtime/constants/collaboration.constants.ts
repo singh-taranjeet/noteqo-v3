@@ -46,3 +46,11 @@ export const COLLABORATION_CONFIG = {
     "var(--user-10)",
   ] as readonly string[],
 } as const;
+
+/** Connection state values — use instead of raw string literals */
+export const CONNECTION_STATE = {
+  DISCONNECTED: "disconnected",
+  CONNECTING: "connecting",
+  CONNECTED: "connected",
+  RECONNECTING: "reconnecting",
+} as const;

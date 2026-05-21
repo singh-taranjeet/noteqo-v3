@@ -8,7 +8,7 @@ import {
 import type { ActiveTabType } from "../types";
 import { SearchDialog } from "./Search";
 import { Link } from "react-router-dom";
-import { ROUTES } from "@/constants/routes";
+import { ROUTES } from "@/constants/routes.constants";
 
 interface SidebarNavTabsProps {
   activeTab?: ActiveTabType;

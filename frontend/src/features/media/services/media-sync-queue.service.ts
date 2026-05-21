@@ -1,14 +1,11 @@
 import { upload } from "@vercel/blob/client";
-import type {
-  SyncEvent,
-  SyncEntity,
-} from "@/features/shared/types/index.shared";
-import { BaseSyncQueueService } from "@/features/shared/services/baseSync.shared.service";
+import type { SyncEvent, SyncEntity } from "@/types/sync.types";
+import { BaseSyncQueueService } from "@/services/base-sync.service";
 import { db } from "@/features/storage";
 import type { PendingMediaEntry } from "@/features/storage/services/db.service";
 import { storageService, STORAGE_KEYS } from "@/features/storage";
-import { API_BASE_URL } from "@/constants/config";
-import { apiClient } from "@/services/api";
+import { API_BASE_URL } from "@/constants/app.constants";
+import { apiClient } from "@/services/api.service";
 import { logService } from "@/services/log.service";
 
 interface MediaCreatePayload {

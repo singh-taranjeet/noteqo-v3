@@ -16,9 +16,9 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { ROUTES } from "@/constants/routes";
-import type { NoteTreeNode } from "@/features/workspace/types/workspace.types";
-import { EmojiOrImage } from "@/features/media/components/EmojiOrImage";
+import { ROUTES } from "@/constants/routes.constants";
+import type { NoteTreeNode } from "@/features/workspace";
+import { EmojiOrImage } from "@/features/media";
 
 interface SidebarNoteTreeItemProps {
   note: NoteTreeNode;

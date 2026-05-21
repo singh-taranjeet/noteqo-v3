@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useCreateNote } from "@/features/workspace/hooks/useCreateNote";
+import { useCreateNote } from "../../hooks/useCreateNote";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
-import type { Space } from "@/features/spaces/types/spaces.types";
+import type { Space } from "@/features/spaces";
 
 interface CreateNoteDialogProps {
   isOpen: boolean;

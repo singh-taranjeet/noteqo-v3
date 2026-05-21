@@ -4,7 +4,7 @@ import type {
   AiWorkerMessage,
   AiWorkerResponse,
   AiWorkerStatus,
-} from "@/features/ai/types/ai.types";
+} from "@/features/ai";
 
 interface UseAiWorkerReturn {
   status: AiWorkerStatus;

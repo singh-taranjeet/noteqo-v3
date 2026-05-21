@@ -1,6 +1,6 @@
 import { Loader2 } from "lucide-react";
 
-import { useDecryptMedia } from "@/features/media/hooks/useDecryptMedia";
+import { useDecryptMedia } from "../hooks/useDecryptMedia";
 import { cn } from "@/lib/utils";
 
 const VERCEL_BLOB_PATTERN = ".public.blob.vercel-storage.com";

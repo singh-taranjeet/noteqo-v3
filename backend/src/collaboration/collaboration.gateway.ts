@@ -307,6 +307,7 @@ export class CollaborationGateway
       if (authData && !uniqueUsers.has(authData.userId)) {
         uniqueUsers.set(authData.userId, {
           userId: authData.userId,
+          email: authData.email,
           joinedAt: new Date().toISOString(),
         });
       }

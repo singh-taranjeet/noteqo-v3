@@ -34,7 +34,7 @@ import { useLogout } from "@/features/auth";
 import { DynamicDialog } from "@/components/ui/DynamicDialog";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { ROUTES } from "@/constants/routes";
+import { ROUTES } from "@/constants/routes.constants";
 
 interface SidebarUserProfileProps {
   username: string;

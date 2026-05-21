@@ -1,9 +1,9 @@
 import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
-import { ROUTES } from "@/constants/routes";
+import { ROUTES } from "@/constants/routes.constants";
 import { KeysService } from "../services/keys.service";
-import { SpaceLocalStorageService } from "@/features/spaces/services/space-local-storage.service";
+import { SpaceLocalStorageService } from "@/features/spaces";
 
 /**
  * Hook that handles full client-side logout:

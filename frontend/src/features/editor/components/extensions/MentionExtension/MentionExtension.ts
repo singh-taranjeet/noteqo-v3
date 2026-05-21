@@ -5,7 +5,7 @@ import type { Editor, Range } from "@tiptap/core";
 import type { SuggestionKeyDownProps } from "@tiptap/suggestion";
 import tippy, { type Instance, type GetReferenceClientRect } from "tippy.js";
 import { MentionList } from "./MentionList";
-import { noteService } from "@/features/workspace/services/note.service";
+import { noteService } from "@/features/workspace";
 
 interface MentionListHandle {
   onKeyDown: (props: SuggestionKeyDownProps) => boolean;

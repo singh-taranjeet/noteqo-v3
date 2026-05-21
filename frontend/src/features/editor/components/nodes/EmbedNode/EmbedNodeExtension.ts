@@ -1,3 +1,4 @@
+import { withBlockWrapper } from "@/features/editor/components/editor-ui/withBlockWrapper";
 import { mergeAttributes, Node } from "@tiptap/core";
 import { ReactNodeViewRenderer } from "@tiptap/react";
 import { EmbedNodeView } from "./EmbedNodeView";
@@ -61,6 +62,6 @@ export const EmbedNodeExtension = Node.create<EmbedNodeOptions>({
   },
 
   addNodeView() {
-    return ReactNodeViewRenderer(EmbedNodeView);
+    return ReactNodeViewRenderer(withBlockWrapper(EmbedNodeView));
   },
 });

@@ -9,7 +9,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import type { SidebarSearchResultItem } from "@/features/workspace";
-import { EmojiOrImage } from "@/features/media/components/EmojiOrImage";
+import { EmojiOrImage } from "@/features/media";
 
 interface SearchResultRowProps {
   item: SidebarSearchResultItem;

@@ -29,6 +29,8 @@ import { MentionExtension } from "@/features/editor/components/extensions/Mentio
 // --- AI Extension ---
 import { AiExtension } from "@/features/ai";
 
+import { BlockMetadataExtension } from "@/features/editor/components/extensions/BlockMetadata/BlockMetadataExtension";
+
 // --- Tiptap Columns ---
 import { ColumnsExtension } from "@/features/editor/components/nodes/ColumnsNode/ColumnsExtension";
 import { ColumnExtension } from "@/features/editor/components/nodes/ColumnsNode/ColumnExtension";
@@ -64,9 +66,9 @@ import { CollaborationCursor } from "@/features/editor/components/extensions/Col
 import { EDITOR_CONFIG } from "@/features/editor/constants/editor.constants";
 
 import { noteService, useCreateNote, type Note } from "@/features/workspace";
-import { NoteLocalService } from "@/features/workspace/services/note-local.service";
+import { NoteLocalService } from "@/features/workspace";
 import DEFAULT_CONTENT from "@/features/editor/components/data/content.json";
-import { SYNC_EVENTS } from "@/features/shared/constants/sync-events.constants";
+import { SYNC_EVENTS } from "@/constants/sync-events.constants";
 import { useCRDT } from "../../realtime/hooks/useCRDT";
 import { storageService, STORAGE_KEYS } from "@/features/storage";
 
@@ -233,6 +235,7 @@ export function useNoteEditorLogic({
         getSpaceId: () => spaceId,
         getNoteId: () => noteId,
       }),
+      BlockMetadataExtension,
     ];
 
     // Add Collaboration and CollaborationCursor extensions for all spaces with an active Yjs doc
@@ -284,6 +287,13 @@ export function useNoteEditorLogic({
       extensions: buildExtensions(),
       // For collaborative mode, content comes from Yjs doc, not from prop
       content: ydoc ? undefined : content,
+      onCreate: ({ editor }) => {
+        // If we are in collaborative mode, have content, but no yjsState (e.g., demo note or imported),
+        // we must hydrate the empty Y.Doc with our JSON content.
+        if (ydoc && content && !note?.yjsState) {
+          editor.commands.setContent(content);
+        }
+      },
       onUpdate: ({ editor }) => {
         if (editorIsReadOnly || !noteId) {
           return;

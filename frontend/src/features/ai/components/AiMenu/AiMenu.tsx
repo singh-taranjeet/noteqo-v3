@@ -12,7 +12,7 @@ import {
 
 import { useAiActions } from "@/features/ai/hooks/useAiActions";
 import { AiMenuContent } from "./AiMenuContent";
-import type { AiActionType } from "@/features/ai/types/ai.types";
+import type { AiActionType } from "@/features/ai";
 
 interface AiMenuProps {
   editor: Editor;

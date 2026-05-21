@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { SidebarMenuButton } from "@/components/ui/sidebar";
-import { ROUTES } from "@/constants/routes";
-import { EmojiOrImage } from "@/features/media/components/EmojiOrImage";
+import { ROUTES } from "@/constants/routes.constants";
+import { EmojiOrImage } from "@/features/media";
 
 interface SidebarNoteItemProps {
   noteId: string;

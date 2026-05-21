@@ -3,18 +3,15 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader2, Eye, EyeOff } from "lucide-react";
-import { useLogin } from "@/features/auth/hooks/useLogin";
-import {
-  AUTH_CONFIG,
-  AUTH_MESSAGES,
-} from "@/features/auth/constants/auth.constants";
-import { ROUTES } from "@/constants/routes";
+import { useLogin } from "../../hooks/useLogin";
+import { AUTH_CONFIG, AUTH_MESSAGES } from "../../constants/auth.constants";
+import { ROUTES } from "@/constants/routes.constants";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { DynamicDialog } from "@/components/ui/DynamicDialog";
-import { KeysService } from "@/features/auth/services/keys.service";
+import { KeysService } from "../../services/keys.service";
 import { logService } from "@/services";
-import { useLogout } from "@/features/auth/hooks/useLogout";
+import { useLogout } from "../../hooks/useLogout";
 
 export function LoginForm() {
   const { logout } = useLogout();

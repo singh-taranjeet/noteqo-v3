@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuthCheck } from "@/features/auth/hooks/useAuthCheck";
-import { ROUTES } from "@/constants/routes";
+import { useAuthCheck } from "../../hooks/useAuthCheck";
+import { ROUTES } from "@/constants/routes.constants";
 import { LoadingSkeleton } from "@/components/ui/LoadingSkeleton";
 
 interface AuthGuardProps {

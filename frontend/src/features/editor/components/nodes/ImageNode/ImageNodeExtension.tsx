@@ -1,6 +1,8 @@
 import { mergeAttributes, Node } from "@tiptap/core";
 import { ReactNodeViewRenderer } from "@tiptap/react";
 import { ImageNodeView } from "./ImageNodeView";
+import { withBlockWrapper } from "@/features/editor/components/editor-ui/withBlockWrapper";
+import { AlignLeft, AlignCenter, AlignRight, Maximize } from "lucide-react";
 
 export interface ImageNodeOptions {
   HTMLAttributes: Record<string, unknown>;
@@ -86,6 +88,31 @@ export const ImageNodeExtension = Node.create<ImageNodeOptions>({
   },
 
   addNodeView() {
-    return ReactNodeViewRenderer(ImageNodeView);
+    return ReactNodeViewRenderer(
+      withBlockWrapper(ImageNodeView, {
+        getCustomActions: (props) => [
+          {
+            label: "Align Left",
+            icon: <AlignLeft size={14} />,
+            onClick: () => props.updateAttributes({ align: "left" }),
+          },
+          {
+            label: "Align Center",
+            icon: <AlignCenter size={14} />,
+            onClick: () => props.updateAttributes({ align: "center" }),
+          },
+          {
+            label: "Align Right",
+            icon: <AlignRight size={14} />,
+            onClick: () => props.updateAttributes({ align: "right" }),
+          },
+          {
+            label: "Full Width",
+            icon: <Maximize size={14} />,
+            onClick: () => props.updateAttributes({ align: "full" }),
+          },
+        ],
+      }),
+    );
   },
 });

@@ -24,11 +24,11 @@ import {
 
 import type { Space } from "@/features/spaces";
 import { useParams, useNavigate } from "react-router-dom";
-import type { NoteTreeNode } from "@/features/workspace/types/workspace.types";
+import type { NoteTreeNode } from "@/features/workspace";
 import { SidebarNoteTreeItem } from "./SidebarNoteTreeItem";
 import { SidebarHoverCard } from "./SidebarHoverCard";
-import { EmojiOrImage } from "@/features/media/components/EmojiOrImage";
-import { ROUTES } from "@/constants/routes";
+import { EmojiOrImage } from "@/features/media";
+import { ROUTES } from "@/constants/routes.constants";
 
 interface SidebarSpaceCategoryProps {
   label: string;

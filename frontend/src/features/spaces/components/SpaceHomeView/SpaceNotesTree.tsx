@@ -2,8 +2,8 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ChevronRight, ChevronDown, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { ROUTES } from "@/constants/routes";
-import type { NoteTreeNode } from "@/features/workspace/types/workspace.types";
+import { ROUTES } from "@/constants/routes.constants";
+import type { NoteTreeNode } from "@/features/workspace";
 import { Empty, EmptyTitle, EmptyDescription } from "@/components/ui/empty";
 
 interface SpaceNotesTreeProps {

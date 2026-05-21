@@ -26,7 +26,7 @@ interface SidebarSpaceSwitcherProps {
 }
 
 import { useNavigate } from "react-router-dom";
-import { ROUTES } from "@/constants/routes";
+import { ROUTES } from "@/constants/routes.constants";
 
 export function SidebarSpaceSwitcher({
   onAddSpaceClick,

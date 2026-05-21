@@ -11,7 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import { AiSetupPanel } from "./AiSetupPanel";
 import { AiLoadingIndicator } from "./AiLoadingIndicator";
 import { AiActionButton } from "./AiActionButton";
-import type { AiActionType } from "@/features/ai/types/ai.types";
+import type { AiActionType } from "@/features/ai";
 import { AI_ACTION_LABELS } from "@/features/ai/constants/ai.constants";
 
 const ACTION_ICONS: Record<AiActionType, React.ReactNode> = {

@@ -9,8 +9,8 @@ import {
   CommandShortcut,
   CommandSeparator,
 } from "@/components/ui/command";
-import type { SuggestionItem } from "@/features/editor/constants/slashCommands";
-import { AI_SLASH_COMMANDS } from "@/features/editor/constants/slashCommands";
+import type { SuggestionItem } from "@/features/editor/constants/slash-commands.constants";
+import { AI_SLASH_COMMANDS } from "@/features/editor/constants/slash-commands.constants";
 
 interface CommandListProps {
   items: SuggestionItem[];

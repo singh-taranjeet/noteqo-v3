@@ -1,4 +1,4 @@
-import { Download, FileText, Link, Trash2 } from "lucide-react";
+import { Download, FileText, Link } from "lucide-react";
 import { NodeViewWrapper, type NodeViewProps } from "@tiptap/react";
 import React, { useState } from "react";
 import { Spinner } from "@/components/ui/spinner";
@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { mediaService } from "@/features/media";
 import { logService } from "@/services/log.service";
 import { cn } from "@/lib/utils";
-import { resolveSpaceId } from "@/features/editor/utils/resolveSpaceId";
+import { resolveSpaceId } from "@/features/editor/utils/editor-space.utils";
 
 const REVOKE_URL_DELAY_MS = 10_000;
 
@@ -104,15 +104,6 @@ export const FileNodeView: React.FC<NodeViewProps> = (props) => {
 
           {!uploading && (
             <div className="flex items-center gap-1">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-                onClick={() => props.deleteNode()}
-                title="Remove from note"
-              >
-                <Trash2 size={16} />
-              </Button>
               <Button
                 variant="ghost"
                 size="icon"

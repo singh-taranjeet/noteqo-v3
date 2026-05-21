@@ -1,6 +1,7 @@
 import { mergeAttributes, Node } from "@tiptap/core";
 import { ReactNodeViewRenderer } from "@tiptap/react";
 import { FileNodeView } from "./FileNodeView";
+import { withBlockWrapper } from "@/features/editor/components/editor-ui/withBlockWrapper";
 
 export interface FileNodeOptions {
   HTMLAttributes: Record<string, unknown>;
@@ -98,6 +99,6 @@ export const FileNodeExtension = Node.create<FileNodeOptions>({
   },
 
   addNodeView() {
-    return ReactNodeViewRenderer(FileNodeView);
+    return ReactNodeViewRenderer(withBlockWrapper(FileNodeView));
   },
 });

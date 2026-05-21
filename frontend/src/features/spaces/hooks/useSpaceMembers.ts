@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { spaceApiService } from "../services/space-api.service";
-import { userApiService } from "@/features/auth/services/user-api.service";
+import { userApiService } from "@/features/auth";
 import { spaceService } from "../services/space.service";
 import { cryptoService, CRYPTO_CONFIG } from "@/features/crypto";
 import type { RemoteSpaceMember } from "../types/spaces.types";
