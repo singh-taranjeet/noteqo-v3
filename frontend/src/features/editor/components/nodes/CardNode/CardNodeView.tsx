@@ -1,13 +1,6 @@
 import { NodeViewWrapper, NodeViewContent } from "@tiptap/react";
 import type { NodeViewProps } from "@tiptap/react";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 const THEMES: Record<string, string> = {
   default: "bg-background text-foreground",
@@ -20,39 +13,13 @@ const THEMES: Record<string, string> = {
   red: "bg-red-50 dark:bg-red-950/40 text-red-900 dark:text-red-100 border-red-200 dark:border-red-900",
 };
 
-export const CardNodeView = ({
-  editor,
-  node,
-  updateAttributes,
-}: NodeViewProps) => {
+export const CardNodeView = ({ node }: NodeViewProps) => {
   const colorTheme = (node.attrs.colorTheme as string) || "default";
   const activeClass = THEMES[colorTheme] || THEMES.default;
 
   return (
     <NodeViewWrapper className="w-full my-4 block not-prose">
       <div className="relative group/card">
-        {/* Floating Toolbar */}
-        {editor.isEditable && (
-          <div className="absolute -top-3 right-2 opacity-0 group-hover/card:opacity-100 transition-opacity z-10 flex items-center">
-            <Select
-              value={colorTheme}
-              onValueChange={(v) => v && updateAttributes({ colorTheme: v })}
-            >
-              <SelectTrigger className="h-6 w-24 text-xs bg-background shadow-sm border focus:ring-0">
-                <SelectValue placeholder="Theme" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="default">Default</SelectItem>
-                <SelectItem value="muted">Muted</SelectItem>
-                <SelectItem value="blue">Blue</SelectItem>
-                <SelectItem value="green">Green</SelectItem>
-                <SelectItem value="yellow">Yellow</SelectItem>
-                <SelectItem value="red">Red</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        )}
-
         {/* Since we can't reliably guess where 'cn' is, I'll just template literal the strings */}
         <Card className={`transition-colors overflow-hidden ${activeClass}`}>
           <CardContent className="w-full">

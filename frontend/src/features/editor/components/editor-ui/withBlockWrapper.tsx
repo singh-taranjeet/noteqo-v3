@@ -10,6 +10,7 @@ export interface CustomAction {
 
 export interface WithBlockWrapperOptions {
   getCustomActions?: (props: NodeViewProps) => CustomAction[];
+  getCustomUI?: (props: NodeViewProps) => React.ReactNode;
 }
 
 export function withBlockWrapper(
@@ -18,9 +19,14 @@ export function withBlockWrapper(
 ) {
   const WithBlockWrapperComponent = (props: NodeViewProps) => {
     const customActions = options?.getCustomActions?.(props) || [];
+    const customUI = options?.getCustomUI?.(props) || null;
 
     return (
-      <BlockWrapper {...props} customActions={customActions}>
+      <BlockWrapper
+        {...props}
+        customActions={customActions}
+        customUI={customUI}
+      >
         <WrappedComponent {...props} />
       </BlockWrapper>
     );

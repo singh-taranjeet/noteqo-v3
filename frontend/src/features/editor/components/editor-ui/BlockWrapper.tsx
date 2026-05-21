@@ -33,6 +33,7 @@ import type { BlockComment } from "../extensions/BlockMetadata/BlockMetadataExte
 interface BlockWrapperProps extends NodeViewProps {
   children: React.ReactNode;
   customActions?: CustomAction[];
+  customUI?: React.ReactNode;
 }
 
 export function BlockWrapper({
@@ -43,8 +44,8 @@ export function BlockWrapper({
   updateAttributes,
   children,
   customActions = [],
+  customUI = null,
 }: BlockWrapperProps) {
-  const [isHovered, setIsHovered] = useState(false);
   const [commentInput, setCommentInput] = useState("");
   const [descriptionInput, setDescriptionInput] = useState("");
 
@@ -130,17 +131,18 @@ export function BlockWrapper({
   };
 
   return (
-    <NodeViewWrapper
-      className="group relative my-4 rounded-md border border-transparent transition-colors hover:border-border"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
+    <NodeViewWrapper className="group/block relative my-4 rounded-xl transition-all duration-200">
       {/* Content */}
       <div className="relative z-0">{children}</div>
 
       {/* Floating Toolbar */}
-      {isEditable && isHovered && (
-        <div className="absolute -right-2 -top-3 z-10 flex items-center gap-1 rounded-md border bg-background p-1 shadow-sm opacity-100 transition-opacity">
+      {isEditable && (
+        <div
+          contentEditable={false}
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={(e) => e.stopPropagation()}
+          className="absolute right-3 top-3 z-20 flex items-center gap-1 rounded-lg border bg-background/95 backdrop-blur-sm p-1 shadow-md opacity-0 group-hover/block:opacity-100 focus-within:opacity-100 has-[[data-state=open]]:opacity-100 transition-all duration-200 ease-in-out translate-y-0 hover:shadow-lg"
+        >
           {/* Custom Actions */}
           {customActions.map((action, idx) => (
             <Button
@@ -155,14 +157,17 @@ export function BlockWrapper({
             </Button>
           ))}
 
-          {customActions.length > 0 && (
+          {customUI}
+          {(customActions.length > 0 || customUI) && (
             <div className="mx-1 h-4 w-px bg-border" />
           )}
 
           {/* Description Popover */}
-          <Popover onOpenChange={(open) => {
-            if (open) setDescriptionInput(blockDescription || "");
-          }}>
+          <Popover
+            onOpenChange={(open) => {
+              if (open) setDescriptionInput(blockDescription || "");
+            }}
+          >
             <PopoverTrigger asChild>
               <Button
                 variant="ghost"
@@ -192,7 +197,6 @@ export function BlockWrapper({
                         handleUpdateDescription();
                       }
                     }}
-
                   />
                   <Button
                     size="sm"
@@ -324,7 +328,7 @@ export function BlockWrapper({
 
       {/* Metadata Footer */}
       {(blockDescription || editedBy) && (
-        <div className="mt-1 flex items-center justify-between text-[10px] text-muted-foreground opacity-50 transition-opacity group-hover:opacity-100 px-1">
+        <div className="mt-1 flex items-center justify-between text-[10px] text-muted-foreground opacity-50 transition-opacity group-hover/block:opacity-100 px-1">
           <div className="flex items-center gap-1 truncate max-w-[70%]">
             {blockDescription && (
               <>

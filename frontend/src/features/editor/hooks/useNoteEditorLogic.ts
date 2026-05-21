@@ -287,6 +287,13 @@ export function useNoteEditorLogic({
       extensions: buildExtensions(),
       // For collaborative mode, content comes from Yjs doc, not from prop
       content: ydoc ? undefined : content,
+      onCreate: ({ editor }) => {
+        // If we are in collaborative mode, have content, but no yjsState (e.g., demo note or imported),
+        // we must hydrate the empty Y.Doc with our JSON content.
+        if (ydoc && content && !note?.yjsState) {
+          editor.commands.setContent(content);
+        }
+      },
       onUpdate: ({ editor }) => {
         if (editorIsReadOnly || !noteId) {
           return;
