@@ -36,7 +36,6 @@ interface Feature {
   title: string;
   description: string;
   icon: React.ReactNode;
-  isHero?: boolean;
 }
 
 const FEATURES: Feature[] = [
@@ -45,7 +44,6 @@ const FEATURES: Feature[] = [
     description:
       "Work together in shared spaces with live cursors, instant sync, and conflict-free editing. See your team's changes as they happen.",
     icon: <Users className="size-6" />,
-    isHero: true,
   },
   {
     title: "End-to-End Encrypted",
@@ -474,7 +472,7 @@ export function PublicLandingView() {
             {FEATURES.map((feature) => (
               <div
                 key={feature.title}
-                className={`landing-feature-card landing-fade-up ${feature.isHero ? "landing-bento-hero" : ""}`}
+                className="landing-feature-card landing-fade-up"
               >
                 <div className="landing-feature-icon">{feature.icon}</div>
                 <h3 className="text-xl font-semibold mb-2 text-foreground">
@@ -483,15 +481,6 @@ export function PublicLandingView() {
                 <p className="text-muted-foreground text-[0.95rem] leading-relaxed">
                   {feature.description}
                 </p>
-                {feature.isHero && (
-                  <Badge
-                    variant="outline"
-                    className="mt-4 bg-primary/10 border-primary/30 text-primary text-xs"
-                  >
-                    <Sparkles className="size-3 mr-1" />
-                    New Feature
-                  </Badge>
-                )}
               </div>
             ))}
           </div>

@@ -256,15 +256,6 @@
   .landing-bento-grid {
     grid-template-columns: repeat(3, 1fr);
   }
-
-  .landing-bento-hero {
-    grid-column: span 2;
-  }
-
-  /* Center the last card when it's alone on its row */
-  .landing-bento-grid > .landing-feature-card:last-child:nth-child(even) {
-    grid-column: 2;
-  }
 }
 
 /* --- Glassmorphic Feature Card --- */
